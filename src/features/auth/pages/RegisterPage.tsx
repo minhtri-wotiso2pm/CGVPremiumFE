@@ -2,8 +2,9 @@ import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { registerApi } from "@/services/api/auth.service";
 import axios from "axios";
+
 /* ─────────────────────────────────────────────────────────────
-   DESIGN TOKENS — CGVPremium Design System (shared with LoginPage)
+   DESIGN TOKENS — CGVPremium Design System
 ───────────────────────────────────────────────────────────── */
 const T = {
     crimson: "#E8001C",
@@ -59,14 +60,83 @@ const rules = {
 };
 
 /* ─────────────────────────────────────────────────────────────
+   PASSWORD STRENGTH
+───────────────────────────────────────────────────────────── */
+function passwordStrength(v: string): 0 | 1 | 2 | 3 {
+    let score = 0;
+    if (v.length >= 8) score++;
+    if (/[A-Z]/.test(v) && /[a-z]/.test(v)) score++;
+    if (/[0-9]/.test(v) || /[^A-Za-z0-9]/.test(v)) score++;
+    return score as 0 | 1 | 2 | 3;
+}
+
+const strengthMeta: Record<1 | 2 | 3, { label: string; color: string }> = {
+    1: { label: "Yếu", color: T.crimson },
+    2: { label: "Trung bình", color: "#f59e0b" },
+    3: { label: "Mạnh", color: "#22c55e" },
+};
+
+function StrengthBar({ score }: { score: 0 | 1 | 2 | 3 }) {
+    if (score === 0) return null;
+    const meta = strengthMeta[score];
+    return (
+        <div style={{ marginTop: 8 }}>
+            <div style={{ display: "flex", gap: 4, height: 3 }}>
+                {[1, 2, 3].map((i) => (
+                    <div
+                        key={i}
+                        style={{
+                            flex: 1, borderRadius: 2,
+                            background: i <= score ? meta.color : "rgba(255,255,255,0.08)",
+                            transition: "background 0.3s",
+                        }}
+                    />
+                ))}
+            </div>
+            <p style={{
+                fontSize: 10.5, color: meta.color,
+                marginTop: 5, letterSpacing: "0.04em",
+            }}>
+                Độ mạnh: {meta.label}
+            </p>
+        </div>
+    );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   EYE ICON SVGs — consistent, no emoji variance issues
+───────────────────────────────────────────────────────────── */
+function EyeOpen() {
+    return (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2"
+            strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+        >
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+            <circle cx="12" cy="12" r="3" />
+        </svg>
+    );
+}
+
+function EyeOff() {
+    return (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2"
+            strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+        >
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+            <line x1="1" y1="1" x2="23" y2="23" />
+        </svg>
+    );
+}
+
+/* ─────────────────────────────────────────────────────────────
    TYPES
 ───────────────────────────────────────────────────────────── */
 type FocusedField =
-    | "fullName"
-    | "email"
-    | "phone"
-    | "password"
-    | "confirmPassword"
+    | "fullName" | "email" | "phone"
+    | "password" | "confirmPassword"
     | null;
 
 interface RegisterPayload {
@@ -78,7 +148,7 @@ interface RegisterPayload {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   SHARED COMPONENT — FormField (mirrors LoginPage exactly)
+   FORM FIELD
 ───────────────────────────────────────────────────────────── */
 interface FieldProps {
     id: string;
@@ -126,7 +196,6 @@ function FormField({
 
     return (
         <div style={{ marginBottom: 20 }}>
-            {/* Label row */}
             <div style={{
                 display: "flex", justifyContent: "space-between",
                 alignItems: "center", marginBottom: 9,
@@ -144,18 +213,15 @@ function FormField({
                 {rightLabel}
             </div>
 
-            {/* Input wrapper */}
-            <div
-                style={{
-                    display: "flex", alignItems: "center",
-                    background: isFocused ? T.inputBgFoc : T.inputBg,
-                    border: `1px solid ${borderColor}`,
-                    borderRadius: T.radius,
-                    padding: "0 14px",
-                    transition: "border-color 0.25s, box-shadow 0.25s, background 0.25s",
-                    boxShadow,
-                }}
-            >
+            <div style={{
+                display: "flex", alignItems: "center",
+                background: isFocused ? T.inputBgFoc : T.inputBg,
+                border: `1px solid ${borderColor}`,
+                borderRadius: T.radius,
+                padding: "0 14px",
+                transition: "border-color 0.25s, box-shadow 0.25s, background 0.25s",
+                boxShadow,
+            }}>
                 <input
                     id={id}
                     type={type}
@@ -170,27 +236,16 @@ function FormField({
                     onKeyDown={onKeyDown}
                     className="cgv-input"
                     style={{
-                        flex: 1,
-                        background: "transparent",
-                        border: "none",
-                        outline: "none",
-                        color: T.textPrimary,
-                        fontSize: 14,
-                        fontFamily: "inherit",
-                        padding: "13px 0",
-                        letterSpacing: "0.02em",
-                        caretColor: T.crimson,
+                        flex: 1, background: "transparent",
+                        border: "none", outline: "none",
+                        color: T.textPrimary, fontSize: 14,
+                        fontFamily: "inherit", padding: "13px 0",
+                        letterSpacing: "0.02em", caretColor: T.crimson,
                     }}
                 />
 
-                {/* Valid checkmark */}
                 {isValid && !error && (
-                    <span
-                        aria-hidden="true"
-                        style={{ fontSize: 13, color: "#22c55e", marginLeft: 6, flexShrink: 0 }}
-                    >
-                        ✓
-                    </span>
+                    <span aria-hidden="true" style={{ fontSize: 13, color: "#22c55e", marginLeft: 6, flexShrink: 0 }}>✓</span>
                 )}
 
                 {rightAddon}
@@ -198,18 +253,14 @@ function FormField({
 
             {belowInput}
 
-            {/* Error message */}
             <p
                 role="alert"
                 aria-live="polite"
                 style={{
-                    fontSize: 11,
-                    color: "#ff4444",
+                    fontSize: 11, color: "#ff4444",
                     marginTop: error ? 6 : 0,
                     letterSpacing: "0.02em",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 5,
+                    display: "flex", alignItems: "center", gap: 5,
                     height: error ? "auto" : 0,
                     overflow: "hidden",
                     opacity: error ? 1 : 0,
@@ -217,26 +268,18 @@ function FormField({
                     lineHeight: 1.4,
                 }}
             >
-                {error && (
-                    <>
-                        <span aria-hidden="true">⚠</span>
-                        {error}
-                    </>
-                )}
+                {error && <><span aria-hidden="true">⚠</span>{error}</>}
             </p>
         </div>
     );
 }
 
 /* ─────────────────────────────────────────────────────────────
-   SECTION DIVIDER — groups fields visually
+   SECTION DIVIDER
 ───────────────────────────────────────────────────────────── */
 function SectionLabel({ children }: { children: React.ReactNode }) {
     return (
-        <div style={{
-            display: "flex", alignItems: "center", gap: 10,
-            marginBottom: 16, marginTop: 8,
-        }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16, marginTop: 8 }}>
             <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.05)" }} />
             <span style={{
                 fontSize: 9.5, letterSpacing: "0.22em", color: "#4a3030",
@@ -246,6 +289,36 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
             </span>
             <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.05)" }} />
         </div>
+    );
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TOGGLE PASSWORD BUTTON — reusable, consistent style
+───────────────────────────────────────────────────────────── */
+interface TogglePwProps {
+    show: boolean;
+    onToggle: () => void;
+    label?: string;
+}
+
+function TogglePwButton({ show, onToggle, label }: TogglePwProps) {
+    return (
+        <button
+            type="button"
+            className="cgv-toggle-pw"
+            aria-label={label ?? (show ? "Ẩn mật khẩu" : "Hiện mật khẩu")}
+            onClick={onToggle}
+            style={{
+                background: "none", border: "none",
+                cursor: "pointer", padding: "4px 2px",
+                color: "#5a3333", lineHeight: 1,
+                flexShrink: 0,
+                display: "flex", alignItems: "center",
+                transition: "color 0.2s",
+            }}
+        >
+            {show ? <EyeOff /> : <EyeOpen />}
+        </button>
     );
 }
 
@@ -261,10 +334,12 @@ export default function RegisterPage() {
     const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+
+    /* ── Visibility toggles ── */
     const [showPw, setShowPw] = useState(false);
     const [showConfirmPw, setShowConfirmPw] = useState(false);
 
-    /* ── Touch state — validate only after blur ── */
+    /* ── Touch state ── */
     const [fullNameTouched, setFullNameTouched] = useState(false);
     const [emailTouched, setEmailTouched] = useState(false);
     const [phoneTouched, setPhoneTouched] = useState(false);
@@ -276,7 +351,7 @@ export default function RegisterPage() {
     const [loading, setLoading] = useState(false);
     const [submitErr, setSubmitErr] = useState("");
 
-    /* ── Derived errors (only shown post-touch) ── */
+    /* ── Derived errors (post-touch only) ── */
     const fullNameError = fullNameTouched ? rules.fullName(fullName) : "";
     const emailError = emailTouched ? rules.email(email) : "";
     const phoneError = phoneTouched ? rules.phone(phone) : "";
@@ -294,9 +369,11 @@ export default function RegisterPage() {
         fullNameValid && emailValid && phoneValid &&
         passwordValid && confirmPasswordValid;
 
+    /* ── Password strength ── */
+    const pwScore = passwordStrength(password) as 0 | 1 | 2 | 3;
+
     /* ── Submit ── */
     const handleRegister = useCallback(async () => {
-        // Touch all fields to surface any hidden errors
         setFullNameTouched(true);
         setEmailTouched(true);
         setPhoneTouched(true);
@@ -314,46 +391,29 @@ export default function RegisterPage() {
 
         if (hasErrors) return;
 
-        const payload: RegisterPayload = {
-            fullName,
-            email,
-            phone,
-            password,
-            confirmPassword,
-        };
+        const payload: RegisterPayload = { fullName, email, phone, password, confirmPassword };
 
         setLoading(true);
-
         try {
             const response = await registerApi(payload);
-
             console.log("REGISTER SUCCESS:", response);
-
-            alert(response.message);
-
-            navigate("/login");
+            navigate("/registerEmailSent");
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
-                setSubmitErr(
-                    error.response?.data?.message ||
-                    "Đăng ký thất bại."
-                );
+                setSubmitErr(error.response?.data?.message ?? "Đăng ký thất bại.");
             } else {
-                setSubmitErr(
-                    "Đã có lỗi xảy ra. Vui lòng thử lại."
-                );
+                setSubmitErr("Đã có lỗi xảy ra. Vui lòng thử lại.");
             }
         } finally {
             setLoading(false);
         }
-    }, [fullName, email, phone, password, confirmPassword]);
+    }, [fullName, email, phone, password, confirmPassword, navigate]);
 
     const handleKeyDown = useCallback(
         (e: React.KeyboardEvent) => { if (e.key === "Enter") handleRegister(); },
         [handleRegister],
     );
 
-    /* ── Phone: only allow numeric input ── */
     const handlePhoneChange = (v: string) => {
         if (/^\d*$/.test(v) && v.length <= 10) {
             setPhone(v);
@@ -361,109 +421,56 @@ export default function RegisterPage() {
         }
     };
 
-    const seatCount = 17;
-
     return (
         <>
             <style>{`
                 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&display=swap');
 
-                .cgv-root { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; }
-
-                .cgv-card {
-                    animation: cgv-card-in 0.6s cubic-bezier(0.22,1,0.36,1) both;
-                }
+                .cgv-root { font-family: 'Inter','Helvetica Neue',Arial,sans-serif; }
+                .cgv-card { animation: cgv-card-in 0.6s cubic-bezier(0.22,1,0.36,1) both; }
                 @keyframes cgv-card-in {
                     from { opacity: 0; transform: translateY(20px); }
                     to   { opacity: 1; transform: translateY(0); }
                 }
-
                 .cgv-submit:hover:not(:disabled) {
                     transform: translateY(-1px);
                     box-shadow: 0 8px 28px rgba(232,0,28,0.42) !important;
                 }
                 .cgv-submit:active:not(:disabled) { transform: scale(0.98); }
-
                 .cgv-toggle-pw:hover { color: #E8001C !important; }
                 .cgv-sign-in-link:hover { border-bottom-color: #E8001C !important; }
-
                 .cgv-input::placeholder { color: #3d2a2a; font-size: 13px; }
-
                 @keyframes cgv-spin { to { transform: rotate(360deg); } }
                 .cgv-spinner {
                     width: 14px; height: 14px;
                     border: 2px solid rgba(255,255,255,0.3);
-                    border-top-color: #fff;
-                    border-radius: 50%;
+                    border-top-color: #fff; border-radius: 50%;
                     animation: cgv-spin 0.7s linear infinite;
-                    display: inline-block;
-                    vertical-align: middle;
-                    flex-shrink: 0;
+                    display: inline-block; vertical-align: middle; flex-shrink: 0;
                 }
-
-                @media (max-width: 600px) {
-                    .cgv-card { padding: 36px 24px 32px !important; }
-                }
-                @media (prefers-reduced-motion: reduce) {
-                    .cgv-card { animation: none !important; }
-                }
+                @media (max-width: 600px) { .cgv-card { padding: 36px 24px 32px !important; } }
+                @media (prefers-reduced-motion: reduce) { .cgv-card { animation: none !important; } }
             `}</style>
 
             <div
                 className="cgv-root"
                 style={{
-                    minHeight: "100vh",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: T.bg,
-                    position: "relative",
-                    overflow: "hidden",
-                    padding: "48px 20px",
+                    minHeight: "100vh", display: "flex", flexDirection: "column",
+                    alignItems: "center", justifyContent: "center",
+                    background: T.bg, position: "relative",
+                    overflow: "hidden", padding: "48px 20px",
                 }}
             >
-                {/* ── Background glows ── */}
-                <div style={{
-                    position: "absolute", left: -80, top: "15%",
-                    width: 360, height: 420, pointerEvents: "none",
-                    background: "radial-gradient(ellipse, rgba(160,8,8,0.22) 0%, transparent 70%)",
-                }} />
-                <div style={{
-                    position: "absolute", right: -80, top: "10%",
-                    width: 360, height: 420, pointerEvents: "none",
-                    background: "radial-gradient(ellipse, rgba(140,6,6,0.18) 0%, transparent 70%)",
-                }} />
-                <div style={{
-                    position: "absolute", bottom: -60, left: "50%",
-                    transform: "translateX(-50%)",
-                    width: 500, height: 220, pointerEvents: "none",
-                    background: "radial-gradient(ellipse, rgba(180,10,10,0.15) 0%, transparent 70%)",
-                }} />
+                {/* Background glows */}
+                <div style={{ position: "absolute", left: -80, top: "15%", width: 360, height: 420, pointerEvents: "none", background: "radial-gradient(ellipse, rgba(160,8,8,0.22) 0%, transparent 70%)" }} />
+                <div style={{ position: "absolute", right: -80, top: "10%", width: 360, height: 420, pointerEvents: "none", background: "radial-gradient(ellipse, rgba(140,6,6,0.18) 0%, transparent 70%)" }} />
+                <div style={{ position: "absolute", bottom: -60, left: "50%", transform: "translateX(-50%)", width: 500, height: 220, pointerEvents: "none", background: "radial-gradient(ellipse, rgba(180,10,10,0.15) 0%, transparent 70%)" }} />
 
-                {/* ── Cinema seat silhouettes ── */}
-                <div style={{
-                    position: "absolute", bottom: 0, left: 0, right: 0,
-                    height: 90, display: "flex", alignItems: "flex-end",
-                    justifyContent: "center", gap: 6, padding: "0 10px",
-                    opacity: 0.18, pointerEvents: "none",
-                }}>
-                    {Array.from({ length: seatCount }).map((_, i) => (
-                        <div
-                            key={i}
-                            style={{
-                                width: 32, height: 60, flexShrink: 0,
-                                borderRadius: "6px 6px 0 0",
-                                background: "linear-gradient(180deg,#7a1010 0%,#4a0808 100%)",
-                                position: "relative",
-                            }}
-                        >
-                            <div style={{
-                                position: "absolute", top: 4,
-                                left: 0, right: 0, height: 14,
-                                background: "#c42020",
-                                borderRadius: "5px 5px 0 0",
-                            }} />
+                {/* Seat silhouettes */}
+                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 90, display: "flex", alignItems: "flex-end", justifyContent: "center", gap: 6, padding: "0 10px", opacity: 0.18, pointerEvents: "none" }}>
+                    {Array.from({ length: 17 }).map((_, i) => (
+                        <div key={i} style={{ width: 32, height: 60, flexShrink: 0, borderRadius: "6px 6px 0 0", background: "linear-gradient(180deg,#7a1010 0%,#4a0808 100%)", position: "relative" }}>
+                            <div style={{ position: "absolute", top: 4, left: 0, right: 0, height: 14, background: "#c42020", borderRadius: "5px 5px 0 0" }} />
                         </div>
                     ))}
                 </div>
@@ -480,219 +487,117 @@ export default function RegisterPage() {
                         borderRadius: T.radiusCard,
                         padding: "48px 52px 44px",
                         width: "100%", maxWidth: 540,
-                        boxShadow: `0 0 0 1px rgba(232,0,28,0.04),
-                                    0 32px 64px rgba(0,0,0,0.8),
-                                    0 8px 24px rgba(0,0,0,0.5)`,
+                        boxShadow: `0 0 0 1px rgba(232,0,28,0.04), 0 32px 64px rgba(0,0,0,0.8), 0 8px 24px rgba(0,0,0,0.5)`,
                     }}
                 >
-                    {/* ── Brand ── */}
-                    <div style={{
-                        display: "flex", alignItems: "center",
-                        justifyContent: "center", marginBottom: 4,
-                    }}>
+                    {/* Brand */}
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 4 }}>
                         <h1 style={{
                             fontFamily: "'Playfair Display', Georgia, serif",
-                            fontSize: 28, fontWeight: 700,
-                            letterSpacing: "0.06em", margin: 0,
+                            fontSize: 28, fontWeight: 700, letterSpacing: "0.06em", margin: 0,
                             background: "linear-gradient(135deg,#ff1a1a 0%,#cc0000 50%,#990000 100%)",
-                            WebkitBackgroundClip: "text",
-                            WebkitTextFillColor: "transparent",
-                            backgroundClip: "text",
+                            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
                         }}>
                             CGVPREMIUM
                         </h1>
-                        <span style={{
-                            width: 6, height: 6, borderRadius: "50%",
-                            background: T.crimson,
-                            marginLeft: 2, marginBottom: 18, flexShrink: 0,
-                        }} />
+                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: T.crimson, marginLeft: 2, marginBottom: 18, flexShrink: 0 }} />
                     </div>
 
-                    <p style={{
-                        textAlign: "center", fontSize: 9.5,
-                        letterSpacing: "0.35em", color: "#5a4040",
-                        fontWeight: 500, textTransform: "uppercase",
-                        marginBottom: 6,
-                    }}>
+                    <p style={{ textAlign: "center", fontSize: 9.5, letterSpacing: "0.35em", color: "#5a4040", fontWeight: 500, textTransform: "uppercase", marginBottom: 6 }}>
                         Cinema of Excellence
                     </p>
-
-                    <p style={{
-                        textAlign: "center", fontSize: 11.5,
-                        color: T.textMuted, letterSpacing: "0.04em",
-                        marginBottom: 36,
-                    }}>
+                    <p style={{ textAlign: "center", fontSize: 11.5, color: T.textMuted, letterSpacing: "0.04em", marginBottom: 36 }}>
                         Create your VIP membership
                     </p>
+                    <div style={{ width: 32, height: 1, background: "rgba(232,0,28,0.3)", margin: "0 auto 36px" }} />
 
-                    <div style={{
-                        width: 32, height: 1,
-                        background: "rgba(232,0,28,0.3)",
-                        margin: "0 auto 36px",
-                    }} />
-
-                    {/* ── API / Submit Error ── */}
+                    {/* Submit error */}
                     {submitErr && (
-                        <div
-                            role="alert"
-                            style={{
-                                background: "rgba(232,0,28,0.1)",
-                                border: "1px solid rgba(232,0,28,0.25)",
-                                borderRadius: T.radius,
-                                padding: "11px 14px",
-                                marginBottom: 20,
-                                fontSize: 12,
-                                color: "#ff6b6b",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 8,
-                                letterSpacing: "0.02em",
-                            }}
-                        >
+                        <div role="alert" style={{
+                            background: "rgba(232,0,28,0.1)", border: "1px solid rgba(232,0,28,0.25)",
+                            borderRadius: T.radius, padding: "11px 14px", marginBottom: 20,
+                            fontSize: 12, color: "#ff6b6b", display: "flex", alignItems: "center", gap: 8, letterSpacing: "0.02em",
+                        }}>
                             <span aria-hidden="true" style={{ fontSize: 16, flexShrink: 0 }}>⚠</span>
                             {submitErr}
                         </div>
                     )}
 
-                    {/* ────────────────────────────
-                        SECTION 1 — Personal info
-                    ──────────────────────────── */}
+                    {/* ── Section 1: Personal info ── */}
                     <SectionLabel>Personal Information</SectionLabel>
 
-                    {/* Full Name */}
                     <FormField
-                        id="cgv-fullName"
-                        label="Full Name"
-                        type="text"
-                        value={fullName}
-                        placeholder="Nguyễn Văn A"
-                        autoComplete="name"
-                        error={fullNameError}
-                        isValid={fullNameValid}
-                        isFocused={focusedField === "fullName"}
+                        id="cgv-fullName" label="Full Name" type="text"
+                        value={fullName} placeholder="Nguyễn Văn A" autoComplete="name"
+                        error={fullNameError} isValid={fullNameValid} isFocused={focusedField === "fullName"}
                         onChange={(v) => { setFullName(v); setSubmitErr(""); }}
                         onFocus={() => setFocusedField("fullName")}
                         onBlur={() => { setFocusedField(null); setFullNameTouched(true); }}
                         onKeyDown={handleKeyDown}
                     />
 
-                    {/* Email */}
                     <FormField
-                        id="cgv-email"
-                        label="Email Address"
-                        type="email"
-                        value={email}
-                        placeholder="name@luxury.com"
-                        autoComplete="email"
-                        error={emailError}
-                        isValid={emailValid}
-                        isFocused={focusedField === "email"}
+                        id="cgv-email" label="Email Address" type="email"
+                        value={email} placeholder="name@luxury.com" autoComplete="email"
+                        error={emailError} isValid={emailValid} isFocused={focusedField === "email"}
                         onChange={(v) => { setEmail(v); setSubmitErr(""); }}
                         onFocus={() => setFocusedField("email")}
                         onBlur={() => { setFocusedField(null); setEmailTouched(true); }}
                         onKeyDown={handleKeyDown}
                     />
 
-                    {/* Phone */}
                     <FormField
-                        id="cgv-phone"
-                        label="Phone Number"
-                        type="tel"
-                        value={phone}
-                        placeholder="0912 345 678"
-                        autoComplete="tel"
-                        maxLength={10}
-                        inputMode="numeric"
-                        error={phoneError}
-                        isValid={phoneValid}
-                        isFocused={focusedField === "phone"}
+                        id="cgv-phone" label="Phone Number" type="tel"
+                        value={phone} placeholder="0912 345 678" autoComplete="tel"
+                        maxLength={10} inputMode="numeric"
+                        error={phoneError} isValid={phoneValid} isFocused={focusedField === "phone"}
                         onChange={(v) => { handlePhoneChange(v); setSubmitErr(""); }}
                         onFocus={() => setFocusedField("phone")}
                         onBlur={() => { setFocusedField(null); setPhoneTouched(true); }}
                         onKeyDown={handleKeyDown}
                     />
 
-                    {/* ────────────────────────────
-                        SECTION 2 — Security
-                    ──────────────────────────── */}
+                    {/* ── Section 2: Security ── */}
                     <SectionLabel>Account Security</SectionLabel>
 
-                    {/* Password */}
+                    {/* Password + StrengthBar */}
                     <FormField
-                        id="cgv-password"
-                        label="Password"
+                        id="cgv-password" label="Password"
                         type={showPw ? "text" : "password"}
-                        value={password}
-                        placeholder="Minimum 6 characters"
-                        autoComplete="new-password"
-                        error={passwordError}
-                        isValid={passwordValid}
-                        isFocused={focusedField === "password"}
-                        onChange={(v) => {
-                            setPassword(v);
-                            setSubmitErr("");
-                            // Re-validate confirm if already touched
-                            if (confirmPasswordTouched && confirmPassword) {
-                                // error will recompute from derived state automatically
-                            }
-                        }}
+                        value={password} placeholder="Minimum 6 characters" autoComplete="new-password"
+                        error={passwordError} isValid={passwordValid} isFocused={focusedField === "password"}
+                        onChange={(v) => { setPassword(v); setSubmitErr(""); }}
                         onFocus={() => setFocusedField("password")}
                         onBlur={() => { setFocusedField(null); setPasswordTouched(true); }}
                         onKeyDown={handleKeyDown}
                         rightAddon={
-                            <button
-                                type="button"
-                                className="cgv-toggle-pw"
-                                aria-label={showPw ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                                onClick={() => setShowPw((v) => !v)}
-                                style={{
-                                    background: "none", border: "none",
-                                    cursor: "pointer", padding: 4,
-                                    color: "#5a3333", fontSize: 15,
-                                    transition: "color 0.2s", lineHeight: 1,
-                                    flexShrink: 0,
-                                }}
-                            >
-                                {showPw ? "👁" : "👁"}
-                            </button>
+                            <TogglePwButton
+                                show={showPw}
+                                onToggle={() => setShowPw((v) => !v)}
+                            />
                         }
+                        belowInput={<StrengthBar score={pwScore} />}
                     />
 
-                    {/* Confirm Password */}
+                    {/* Confirm Password — no strength bar, match indicator only */}
                     <FormField
-                        id="cgv-confirmPassword"
-                        label="Confirm Password"
+                        id="cgv-confirmPassword" label="Confirm Password"
                         type={showConfirmPw ? "text" : "password"}
-                        value={confirmPassword}
-                        placeholder="Re-enter your password"
-                        autoComplete="new-password"
-                        error={confirmPasswordError}
-                        isValid={confirmPasswordValid}
-                        isFocused={focusedField === "confirmPassword"}
+                        value={confirmPassword} placeholder="Re-enter your password" autoComplete="new-password"
+                        error={confirmPasswordError} isValid={confirmPasswordValid} isFocused={focusedField === "confirmPassword"}
                         onChange={(v) => { setConfirmPassword(v); setSubmitErr(""); }}
                         onFocus={() => setFocusedField("confirmPassword")}
                         onBlur={() => { setFocusedField(null); setConfirmPasswordTouched(true); }}
                         onKeyDown={handleKeyDown}
                         rightAddon={
-                            <button
-                                type="button"
-                                className="cgv-toggle-pw"
-                                aria-label={showConfirmPw ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                                onClick={() => setShowConfirmPw((v) => !v)}
-                                style={{
-                                    background: "none", border: "none",
-                                    cursor: "pointer", padding: 4,
-                                    color: "#5a3333", fontSize: 15,
-                                    transition: "color 0.2s", lineHeight: 1,
-                                    flexShrink: 0,
-                                }}
-                            >
-                                {showConfirmPw ? "👁" : "👁"}
-                            </button>
+                            <TogglePwButton
+                                show={showConfirmPw}
+                                onToggle={() => setShowConfirmPw((v) => !v)}
+                            />
                         }
                     />
 
-                    {/* ── Submit button ── */}
+                    {/* Submit */}
                     <button
                         className="cgv-submit"
                         type="button"
@@ -703,40 +608,29 @@ export default function RegisterPage() {
                             width: "100%", padding: 15, marginTop: 8,
                             background: `linear-gradient(135deg,${T.crimson} 0%,${T.crimsonDim} 100%)`,
                             color: "#fff", border: "none", borderRadius: T.radius,
-                            fontSize: 12, fontWeight: 700,
-                            letterSpacing: "0.22em", textTransform: "uppercase",
-
+                            fontSize: 12, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase",
                             fontFamily: "inherit",
                             transition: "transform 0.15s, box-shadow 0.2s, opacity 0.2s",
                             boxShadow: `0 4px 20px ${T.crimsonGlow}`,
-                            display: "flex", alignItems: "center",
-                            justifyContent: "center", gap: 8,
+                            display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                             opacity: loading || !formIsValid ? 0.6 : 1,
-                            cursor:
-                                loading || !formIsValid
-                                    ? "not-allowed"
-                                    : "pointer",
-
+                            cursor: loading || !formIsValid ? "not-allowed" : "pointer",
                         }}
                     >
                         {loading && <span className="cgv-spinner" aria-hidden="true" />}
                         {loading ? "Đang đăng ký…" : "Register"}
                     </button>
 
-                    {/* ── Sign in link ── */}
-                    <p style={{
-                        textAlign: "center", marginTop: 28,
-                        fontSize: 12.5, color: T.textFaint,
-                    }}>
+                    {/* Sign in link */}
+                    <p style={{ textAlign: "center", marginTop: 28, fontSize: 12.5, color: T.textFaint }}>
                         Already have an account?{" "}
                         <a
                             href="/login"
                             onClick={(e) => { e.preventDefault(); navigate("/login"); }}
                             className="cgv-sign-in-link"
                             style={{
-                                color: T.crimson, fontWeight: 600,
-                                textDecoration: "none", letterSpacing: "0.02em",
-                                borderBottom: "1px solid transparent",
+                                color: T.crimson, fontWeight: 600, textDecoration: "none",
+                                letterSpacing: "0.02em", borderBottom: "1px solid transparent",
                                 transition: "border-color 0.2s",
                             }}
                         >
@@ -745,12 +639,11 @@ export default function RegisterPage() {
                     </p>
                 </div>
 
-                {/* ── Footer ── */}
+                {/* Footer */}
                 <p style={{
                     position: "relative", zIndex: 10, marginTop: 28,
-                    fontSize: 9.5, color: "#5a4040",
-                    letterSpacing: "0.14em", textAlign: "center",
-                    textTransform: "uppercase",
+                    fontSize: 9.5, color: "#5a4040", letterSpacing: "0.14em",
+                    textAlign: "center", textTransform: "uppercase",
                 }}>
                     © 2026 CGVPremium Entertainment Systems · All Rights Reserved
                 </p>

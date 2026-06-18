@@ -214,7 +214,7 @@ export default function ForgotPasswordPage() {
             const response = await forgotPassword({ email });
 
             if (response.success) {
-                navigate("forgotPassword/success");
+                navigate("/forgotPasswordSuccess");
             } else {
                 setApiError(response.message);
             }

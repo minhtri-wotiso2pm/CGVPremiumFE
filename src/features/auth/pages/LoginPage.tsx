@@ -4,7 +4,7 @@ import { useAppDispatch } from "@/store/hooks";
 import { loginSuccess } from "@/store/slices/authSlice";
 import { loginApi } from "@/services/api/auth.service";
 import { getDashboardByRole } from "../utils/getDashboardByRole";
-
+import axios from "axios";
 /* ─────────────────────────────────────────────────────────────
 DESIGN TOKENS — CGVPremium Design System
 ───────────────────────────────────────────────────────────── */
@@ -298,8 +298,18 @@ export default function LoginPage() {
             dispatch(loginSuccess({ accessToken: response.token, user }));
             navigate(getDashboardByRole(user.role));
         } catch (err: unknown) {
-            console.error(err);
-            setApiError("Email hoặc mật khẩu không chính xác. Vui lòng thử lại.");
+            console.error("LOGIN ERROR:", err);
+
+            if (axios.isAxiosError(err)) {
+                setApiError(
+                    err.response?.data?.message ??
+                    "Email hoặc mật khẩu không chính xác. Vui lòng thử lại."
+                );
+            } else {
+                setApiError(
+                    "Đã xảy ra lỗi. Vui lòng thử lại."
+                );
+            }
         } finally {
             setLoading(false);
         }
@@ -525,7 +535,7 @@ export default function LoginPage() {
                                 {showPw ? "👁" : "👁"}
                             </button>
                         }
-                        belowInput={<StrengthBar score={pwScore} />}
+                    // belowInput={<StrengthBar score={pwScore} />}
                     />
 
                     {/* Remember me */}
