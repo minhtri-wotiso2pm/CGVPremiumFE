@@ -49,7 +49,7 @@ function SeatRow() {
 /* ─────────────────────────────────────────────────────────────
    SUCCESS PAGE
 ───────────────────────────────────────────────────────────── */
-export default function ForgotPasswordSuccessPage() {
+export default function RegisterSuccessfulPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const email = searchParams.get("email") ?? "";
@@ -159,7 +159,8 @@ export default function ForgotPasswordSuccessPage() {
                         fontSize: 20, fontWeight: 700, letterSpacing: "0.04em",
                         color: T.textPrimary, margin: "0 0 12px",
                     }}>
-                        Email Sent Successfully
+                        Email verified successfully
+
                     </h2>
 
                     {/* Description */}
@@ -168,7 +169,7 @@ export default function ForgotPasswordSuccessPage() {
                         lineHeight: 1.75, letterSpacing: "0.02em",
                         margin: "0 0 8px",
                     }}>
-                        We have sent a password reset link to:
+                        Your account has been activated
                     </p>
 
                     {/* Email display */}
@@ -197,7 +198,7 @@ export default function ForgotPasswordSuccessPage() {
                         lineHeight: 1.7, letterSpacing: "0.02em",
                         marginBottom: 36,
                     }}>
-                        Please check your inbox and spam folder.
+                        You can now sign in and enjoy CGVPremium
                     </p>
 
                     <div style={{ width: 32, height: 1, background: "rgba(232,0,28,0.3)", margin: "0 auto 32px" }} />
@@ -222,7 +223,7 @@ export default function ForgotPasswordSuccessPage() {
                         Back to Login
                     </button>
 
-                    {/* Secondary button */}
+                    {/* Secondary button
                     <button
                         type="button"
                         className="cgv-btn-secondary"
@@ -240,7 +241,7 @@ export default function ForgotPasswordSuccessPage() {
                         }}
                     >
                         Resend Email
-                    </button>
+                    </button> */}
                 </div>
 
                 {/* Footer */}
