@@ -2,9 +2,12 @@ export interface User {
     userID: number;
     fullName: string;
     email: string;
+    phone: string;
     role: string;
     status: string;
     avatarURL: string | null;
+    totalPoints: number;
+    createdAt: string;
 }
 
 export interface RegisterRequest {
@@ -56,4 +59,21 @@ export interface ResetPasswordRequest {
 
 export interface ResetPasswordResponse {
     message: string;
+}
+
+export interface RegisterEmailResponse {
+    fullName: string;
+    email: string;
+    phone: string;
+    password: string;
+    confirmPassword: string;
+}
+
+export interface RegisterVerifyEmailRequest {
+    code: string;
+}
+
+export interface RegisterVerifyEmailResponse {
+    message: string;
+    success: boolean;
 }

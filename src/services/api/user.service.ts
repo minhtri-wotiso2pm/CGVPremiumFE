@@ -4,11 +4,13 @@ import type {
     UserProfileResponse,
 } from "@/features/customer/types/customer.type";
 
-export const getUserProfileApi = async (
-): Promise<UserProfileResponse> => {
-    const response = await axiosInstance.get(
-        "/user/profile"
-    );
+export const getUserProfileApi =
+    async (): Promise<UserProfileResponse> => {
 
-    return response.data;
-};
+        const response =
+            await axiosInstance.get(
+                "/user/profile"
+            );
+
+        return response.data;
+    };

@@ -198,7 +198,7 @@ export default function CustomerDashboard() {
                                     color: getStatusColor(user?.status),
                                 }}
                             >
-                                {user?.status}
+                                {user?.status.toUpperCase()}
                             </span>
                         </div>
 
@@ -269,7 +269,7 @@ export default function CustomerDashboard() {
 
                             <InfoRow
                                 label="Status"
-                                value={user?.status ?? "-"}
+                                value={user?.status.toUpperCase() ?? "-"}
                             />
                         </div>
 

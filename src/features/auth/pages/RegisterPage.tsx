@@ -397,7 +397,7 @@ export default function RegisterPage() {
         try {
             const response = await registerApi(payload);
             console.log("REGISTER SUCCESS:", response);
-            navigate("/registerEmailSent");
+            navigate("/registerEmail");
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
                 setSubmitErr(error.response?.data?.message ?? "Đăng ký thất bại.");

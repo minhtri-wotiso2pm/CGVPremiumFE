@@ -5,6 +5,7 @@ import { loginSuccess } from "@/store/slices/authSlice";
 import { loginApi } from "@/services/api/auth.service";
 import { getDashboardByRole } from "../utils/getDashboardByRole";
 import axios from "axios";
+import { getUserProfileApi } from "@/services/api/user.service";
 /* ─────────────────────────────────────────────────────────────
 DESIGN TOKENS — CGVPremium Design System
 ───────────────────────────────────────────────────────────── */
@@ -234,8 +235,10 @@ export default function LoginPage() {
         try {
             const response = await loginApi({ email, password, rememberMe });
             const user = { ...response.user, role: response.user.role.toUpperCase() };
+
             localStorage.setItem("accessToken", response.token);
             localStorage.setItem("user", JSON.stringify(user));
+
             dispatch(loginSuccess({ accessToken: response.token, user }));
             navigate(getDashboardByRole(user.role));
         } catch (err: unknown) {
@@ -433,6 +436,18 @@ export default function LoginPage() {
                         onFocus={() => setFocusedField("email")}
                         onBlur={() => { setFocusedField(null); setEmailTouched(true); }}
                         onKeyDown={handleKeyDown}
+                        rightLabel={
+                            <button
+                                type="button"
+                                style={{
+                                    fontSize: 11, color: "#7a3535", background: "none", border: "none",
+                                    cursor: "pointer", padding: 0, letterSpacing: "0.04em", transition: "color 0.2s",
+                                }}
+                                onClick={() => { navigate("/registerEmailSend") }}
+                            >
+                                Resend Verification Email?
+                            </button>
+                        }
                     />
 
                     {/* Password */}

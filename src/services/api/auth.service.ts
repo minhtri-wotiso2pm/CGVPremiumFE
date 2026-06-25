@@ -9,6 +9,8 @@ import type {
     ForgotPasswordResponse,
     ResetPasswordRequest,
     ResetPasswordResponse,
+    RegisterVerifyEmailRequest,
+    RegisterVerifyEmailResponse,
 } from "@/features/auth/types/auth.type";
 
 export const loginApi = async (
@@ -45,11 +47,34 @@ export const forgotPassword = async (
     return response.data;
 };
 
+
 export const resetPassword = async (
     payload: ResetPasswordRequest
 ): Promise<ResetPasswordResponse> => {
     const response = await axiosInstance.post(
         "/auth/reset-password",
+        payload
+    );
+
+    return response.data;
+};
+
+export const resendVerifyEmail = async (
+    payload: ForgotPasswordRequest
+): Promise<ForgotPasswordResponse> => {
+    const response = await axiosInstance.post(
+        "/auth/resend-verification-email",
+        payload
+    );
+
+    return response.data;
+};
+
+export const verifyEmail = async (
+    payload: RegisterVerifyEmailRequest
+): Promise<RegisterVerifyEmailResponse> => {
+    const response = await axiosInstance.post(
+        "/auth/verify-email",
         payload
     );
 

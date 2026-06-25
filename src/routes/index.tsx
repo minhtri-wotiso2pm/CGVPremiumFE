@@ -13,7 +13,8 @@ import AdminLayout from "@/layouts/AdminLayout/AdminLayout";
 import LoginPage from "@/features/auth/pages/LoginPage";
 import RegisterPage from "@/features/auth/pages/RegisterPage";
 import RegisterSuccessPage from "@/features/auth/pages/RegisterSuccessfulPage";
-import RegisterEmailSentPage from "@/features/auth/pages/RegisterEmailSentPage";
+import ResisterEmailPage from "@/features/auth/pages/RegisterEmailPage";
+import RegisterEmailSendPage from "@/features/auth/pages/RegisterEmailSendPage";
 import ForgotPasswordPage from "@/features/auth/pages/ForgotPasswordPage";
 import ResetPasswordPage from "@/features/auth/pages/ResetPasswordPage";
 import ForgotPasswordSuccessPage from "@/features/auth/pages/ForgotPasswordSuccessfulPage";
@@ -65,12 +66,16 @@ export const router = createBrowserRouter([
                         element: <ResetPasswordSuccessPage />,
                     },
                     {
-                        path: "/registerSuccess",
-                        element: <RegisterSuccessPage />,
+                        path: "/registerEmail",
+                        element: <ResisterEmailPage />,
                     },
                     {
-                        path: "/registerEmailSent",
-                        element: <RegisterEmailSentPage />,
+                        path: "/registerEmailSend",
+                        element: <RegisterEmailSendPage />,
+                    },
+                    {
+                        path: "/registerSuccess",
+                        element: <RegisterSuccessPage />,
                     },
                     {
                         path: "/dashboard",
