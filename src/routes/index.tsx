@@ -21,6 +21,7 @@ import ForgotPasswordSuccessPage from "@/features/auth/pages/ForgotPasswordSucce
 import ResetPasswordSuccessPage from "@/features/auth/pages/ResetPasswordPageSuccessfulPage";
 
 import CustomerDashboard from "@/features/customer/pages/CustomerDashboard";
+import MovieDetailPage from "@/features/movies/pages/MovieDetailPage";
 import CustomerProfilePage from "@/features/customer/pages/ProfilePage";
 import {
     CustomerProfileLayout,
@@ -129,6 +130,10 @@ export const router = createBrowserRouter([
                             {
                                 path: "dashboard",
                                 element: <CustomerDashboard />,
+                            },
+                            {
+                                path: "movies/:movieId",
+                                element: <MovieDetailPage />,
                             },
                             {
                                 path: "profile",

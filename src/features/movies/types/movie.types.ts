@@ -12,3 +12,12 @@ export interface Movie {
     durationMinutes: number;
     status: string;
 }
+
+export interface MovieDetail extends Movie {
+    director: string;
+    cast: string;
+    synopsis: string;
+    showingFromDate: string;
+    showingToDate: string;
+    trailerUrl: string;
+}
