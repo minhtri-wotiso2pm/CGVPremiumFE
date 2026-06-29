@@ -1,5 +1,6 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, createElement } from "react";
 import { useNavigate } from "react-router-dom";
+import { notification } from "antd";
 import { useAppDispatch } from "@/store/hooks";
 import { loginSuccess } from "@/store/slices/authSlice";
 import { loginApi } from "@/services/api/auth.service";
@@ -240,6 +241,15 @@ export default function LoginPage() {
             localStorage.setItem("user", JSON.stringify(user));
 
             dispatch(loginSuccess({ accessToken: response.token, user }));
+            const notifKey = `login-${Date.now()}`;
+            notification.success({
+                key: notifKey,
+                message: createElement("span", { style: { color: "#ffffff", fontWeight: 600 } }, `Welcome back, ${user.fullName || "Guest"}!`),
+                description: createElement("span", { style: { color: "#c8b8b8" } }, "You have successfully signed in."),
+                placement: "topRight",
+                style: { background: "#1a0f0f", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, cursor: "pointer" },
+                onClick: () => notification.destroy(notifKey),
+            });
             navigate(getDashboardByRole(user.role));
         } catch (err: unknown) {
             console.error("LOGIN ERROR:", err);

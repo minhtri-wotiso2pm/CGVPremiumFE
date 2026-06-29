@@ -4,7 +4,6 @@ import {
     useRef,
     useCallback,
     type FC,
-    type KeyboardEvent,
 } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAppSelector } from "@/store/hooks";
@@ -158,64 +157,6 @@ const Avatar: FC<AvatarProps> = ({ src, name, size }) => {
 };
 
 /* ─────────────────────────────────────────────────────────────
-   SEARCH BOX
-───────────────────────────────────────────────────────────── */
-const SearchBox: FC = () => {
-    const [value, setValue] = useState("");
-    const navigate = useNavigate();
-
-    const handleSearch = (e: KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter" && value.trim()) {
-            navigate(`/customer/movies?q=${encodeURIComponent(value.trim())}`);
-            setValue("");
-        }
-    };
-
-    return (
-        <div style={{
-            display: "flex", alignItems: "center",
-            background: "rgba(255,255,255,0.04)",
-            border: `1px solid ${H.border}`,
-            borderRadius: 8, padding: "0 12px",
-            transition: "border-color 0.2s, box-shadow 0.2s",
-        }}
-            onFocus={(e) => {
-                const el = e.currentTarget as HTMLDivElement;
-                el.style.borderColor = "rgba(232,0,28,0.35)";
-                el.style.boxShadow = "0 0 0 3px rgba(232,0,28,0.07)";
-            }}
-            onBlur={(e) => {
-                const el = e.currentTarget as HTMLDivElement;
-                el.style.borderColor = H.border;
-                el.style.boxShadow = "none";
-            }}
-        >
-            {/* Search icon */}
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                stroke={H.textMuted} strokeWidth="2" strokeLinecap="round"
-                strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0 }}
-            >
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            <input
-                type="search"
-                value={value}
-                placeholder="Search movies..."
-                onChange={(e) => setValue(e.target.value)}
-                onKeyDown={handleSearch}
-                aria-label="Search movies"
-                style={{
-                    background: "transparent", border: "none", outline: "none",
-                    color: H.textPrimary, fontSize: 13, padding: "8px 10px",
-                    width: 180, fontFamily: "inherit", caretColor: H.crimson,
-                }}
-            />
-        </div>
-    );
-};
-
-/* ─────────────────────────────────────────────────────────────
    NOTIFICATION DROPDOWN
 ───────────────────────────────────────────────────────────── */
 interface NotifDropdownProps {
@@ -351,8 +292,8 @@ const UserDropdown: FC<UserDropdownProps> = ({ name, email, avatar, onClose, onL
 
     const menuItems = [
         { label: "Profile", icon: "", path: "/customer/profile" },
-        { label: "My Tickets", icon: "", path: "/customer/myTickets" },
-        { label: "Settings", icon: "", path: "/customer/settings" },
+        { label: "My Tickets", icon: "", path: "/customer/profile/tickets" },
+        { label: "Settings", icon: "", path: "/customer/profile/settings" },
     ];
 
     return (
@@ -707,10 +648,8 @@ const PageHeader: FC = () => {
                 }
                 .cgv-icon-btn:hover { background: rgba(255,255,255,0.05); color: #f0e8e8; }
                 .cgv-hamburger { display: none; }
-                .cgv-search-wrap { display: flex; }
                 @media (max-width: 768px) {
                     .cgv-nav-desktop  { display: none !important; }
-                    .cgv-search-wrap  { display: none !important; }
                     .cgv-hamburger    { display: flex !important; }
                 }
             `}</style>
@@ -800,11 +739,6 @@ const PageHeader: FC = () => {
 
                     {/* ── RIGHT: actions ── */}
                     <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
-                        {/* Search — desktop only */}
-                        <div className="cgv-search-wrap" style={{ marginRight: 8 }}>
-                            <SearchBox />
-                        </div>
-
                         {/* Notification bell */}
                         <div style={{ position: "relative" }}>
                             <button

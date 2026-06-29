@@ -1,4 +1,4 @@
-import { type FC, type ChangeEvent } from "react";
+import { type FC, type ChangeEvent, useState, useRef, useEffect } from "react";
 import "./movies.css";
 
 export type StatusFilter = "ALL" | "NOW_SHOWING" | "COMING_SOON";
@@ -7,7 +7,7 @@ interface Props {
     search: string;
     status: StatusFilter;
     genre: string;
-    genres: string[];       // derived from API data
+    genres: string[];
     totalCount: number;
     filteredCount: number;
     onSearchChange: (v: string) => void;
@@ -21,6 +21,82 @@ const STATUS_TABS: { label: string; value: StatusFilter }[] = [
     { label: "Coming Soon", value: "COMING_SOON" },
 ];
 
+/* ── Custom Genre Dropdown ── */
+interface GenreDropdownProps {
+    value: string;
+    genres: string[];
+    onChange: (v: string) => void;
+}
+
+const GenreDropdown: FC<GenreDropdownProps> = ({ value, genres, onChange }) => {
+    const [open, setOpen] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+        };
+        document.addEventListener("mousedown", handler);
+        return () => document.removeEventListener("mousedown", handler);
+    }, []);
+
+    const options = [{ label: "All Genres", value: "" }, ...genres.map((g) => ({ label: g, value: g }))];
+    const selected = options.find((o) => o.value === value) ?? options[0];
+
+    return (
+        <div ref={ref} style={{ position: "relative" }}>
+            {/* Trigger button */}
+            <button
+                className="cgv-genre-btn"
+                onClick={() => setOpen((v) => !v)}
+                aria-haspopup="listbox"
+                aria-expanded={open}
+                aria-label="Filter by genre"
+            >
+                <span className="cgv-genre-btn__label">{selected.label}</span>
+                <svg
+                    width="12" height="12" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
+                    aria-hidden="true"
+                    style={{ transition: "transform 0.2s", transform: open ? "rotate(180deg)" : "rotate(0deg)", flexShrink: 0 }}
+                >
+                    <polyline points="6 9 12 15 18 9" />
+                </svg>
+            </button>
+
+            {/* Dropdown panel */}
+            {open && (
+                <div className="cgv-genre-dropdown" role="listbox" aria-label="Genres">
+                    {options.map((opt) => {
+                        const isActive = opt.value === value;
+                        return (
+                            <button
+                                key={opt.value}
+                                role="option"
+                                aria-selected={isActive}
+                                className={`cgv-genre-option${isActive ? " cgv-genre-option--active" : ""}`}
+                                onClick={() => { onChange(opt.value); setOpen(false); }}
+                            >
+                                {isActive && (
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" strokeWidth="3" strokeLinecap="round"
+                                        aria-hidden="true" style={{ flexShrink: 0 }}
+                                    >
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg>
+                                )}
+                                {!isActive && <span style={{ width: 12, flexShrink: 0 }} />}
+                                {opt.label}
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+    );
+};
+
+/* ── Filter Bar ── */
 const MovieFilterBar: FC<Props> = ({
     search, status, genre, genres,
     totalCount, filteredCount,
@@ -79,26 +155,7 @@ const MovieFilterBar: FC<Props> = ({
             </div>
 
             {/* Genre dropdown */}
-            <div className="cgv-filterbar__select-wrap">
-                <select
-                    className="cgv-filterbar__select"
-                    value={genre}
-                    onChange={(e: ChangeEvent<HTMLSelectElement>) => onGenreChange(e.target.value)}
-                    aria-label="Filter by genre"
-                >
-                    <option value="">All Genres</option>
-                    {genres.map((g) => (
-                        <option key={g} value={g}>{g}</option>
-                    ))}
-                </select>
-                <svg
-                    className="cgv-filterbar__select-icon"
-                    width="12" height="12" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"
-                >
-                    <polyline points="6 9 12 15 18 9" />
-                </svg>
-            </div>
+            <GenreDropdown value={genre} genres={genres} onChange={onGenreChange} />
 
             {/* Result count */}
             <p className="cgv-filterbar__count" aria-live="polite">
