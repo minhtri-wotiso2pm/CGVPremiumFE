@@ -1,5 +1,5 @@
-import { useState, useCallback, type FC } from "react";
-import { Modal, Upload, Button, Popconfirm, message } from "antd";
+import { useState, useCallback, useEffect, type FC } from "react";
+import { Modal, Upload, Button, Popconfirm } from "antd";
 import { UploadOutlined, DeleteOutlined } from "@ant-design/icons";
 import Cropper from "react-easy-crop";
 import type { Area, Point } from "react-easy-crop";
@@ -7,6 +7,7 @@ import type { ProfileResponse } from "../types/profile.type";
 import { buildInitialsAvatar } from "../utils/profile.mapper";
 import { useUploadAvatar } from "../hooks/useUploadAvatar";
 import { useDeleteAvatar } from "../hooks/useDeleteAvatar";
+import { notify } from "@/utils/notify";
 import { AVATAR_MAX_SIZE_MB, AVATAR_ACCEPT_TYPES } from "../constants/profile.constants";
 import styles from "./AvatarModal.module.css";
 
@@ -39,10 +40,20 @@ const AvatarModal: FC<Props> = ({ open, profile, onClose }) => {
     const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
     const [cropPixels, setCropPixels] = useState<Area | null>(null);
-    const [saving, setSaving] = useState(false);
+    const [cropping, setCropping] = useState(false);
 
-    const { mutate: upload } = useUploadAvatar(onClose);
-    const { mutate: remove } = useDeleteAvatar(onClose);
+    const { mutate: upload, isPending: uploading } = useUploadAvatar(onClose);
+    const { mutate: remove, isPending: removing } = useDeleteAvatar(onClose);
+
+    const isBusy = uploading || removing || cropping;
+
+    useEffect(() => {
+        if (!open) {
+            setImageSrc(null);
+            setCrop({ x: 0, y: 0 });
+            setZoom(1);
+        }
+    }, [open]);
 
     const onCropComplete = useCallback((_: Area, croppedAreaPixels: Area) => {
         setCropPixels(croppedAreaPixels);
@@ -50,32 +61,35 @@ const AvatarModal: FC<Props> = ({ open, profile, onClose }) => {
 
     const handleFileSelect = (file: File) => {
         if (!AVATAR_ACCEPT_TYPES.includes(file.type)) {
-            message.error("Only JPG, PNG or WebP files are allowed."); return false;
+            notify.error("Invalid file type.", "Only JPG, PNG or WebP files are allowed.");
+            return false;
         }
         if (file.size > AVATAR_MAX_SIZE_MB * 1024 * 1024) {
-            message.error(`File must be smaller than ${AVATAR_MAX_SIZE_MB} MB.`); return false;
+            notify.error("File too large.", `File must be smaller than ${AVATAR_MAX_SIZE_MB} MB.`);
+            return false;
         }
         const reader = new FileReader();
         reader.onload = () => setImageSrc(reader.result as string);
         reader.readAsDataURL(file);
-        return false; // prevent auto-upload
+        return false;
     };
 
     const handleSave = async () => {
         if (!imageSrc || !cropPixels) return;
-        setSaving(true);
+        setCropping(true);
         try {
             const blob = await getCroppedBlob(imageSrc, cropPixels);
             const file = new File([blob], "avatar.jpg", { type: "image/jpeg" });
             upload(file);
         } catch {
-            message.error("Crop failed. Please try again.");
+            notify.error("Crop failed.", "Please try again.");
         } finally {
-            setSaving(false);
+            setCropping(false);
         }
     };
 
     const handleClose = () => {
+        if (isBusy) return;
         setImageSrc(null);
         setCrop({ x: 0, y: 0 });
         setZoom(1);
@@ -92,6 +106,13 @@ const AvatarModal: FC<Props> = ({ open, profile, onClose }) => {
             footer={null}
             width={420}
             destroyOnClose
+            closable={!isBusy}
+            maskClosable={!isBusy}
+            styles={{
+                container: { background: "#0d0303", border: "1px solid rgba(255,255,255,0.07)" },
+                header: { background: "#0d0303", borderBottom: "1px solid rgba(255,255,255,0.06)" },
+                mask: { backdropFilter: "blur(6px)" },
+            }}
         >
             <div className={styles.body}>
                 {/* ── Crop area ── */}
@@ -123,14 +144,15 @@ const AvatarModal: FC<Props> = ({ open, profile, onClose }) => {
                             value={zoom} onChange={(e) => setZoom(Number(e.target.value))}
                             className={styles.slider}
                             aria-label="Zoom"
+                            disabled={isBusy}
                         />
                     </div>
                 )}
 
                 {/* ── Actions ── */}
                 <div className={styles.actions}>
-                    <Upload beforeUpload={handleFileSelect} showUploadList={false} accept=".jpg,.jpeg,.png,.webp">
-                        <Button icon={<UploadOutlined />} className={styles.uploadBtn}>
+                    <Upload beforeUpload={handleFileSelect} showUploadList={false} accept=".jpg,.jpeg,.png,.webp" disabled={isBusy}>
+                        <Button icon={<UploadOutlined />} className={styles.uploadBtn} disabled={isBusy}>
                             {imageSrc ? "Choose Different Photo" : "Upload Photo"}
                         </Button>
                     </Upload>
@@ -139,7 +161,8 @@ const AvatarModal: FC<Props> = ({ open, profile, onClose }) => {
                         <Button
                             type="primary"
                             onClick={handleSave}
-                            loading={saving}
+                            loading={uploading || cropping}
+                            disabled={isBusy}
                             className={styles.saveBtn}
                         >
                             Save Avatar
@@ -151,14 +174,17 @@ const AvatarModal: FC<Props> = ({ open, profile, onClose }) => {
                 {!imageSrc && profile.avatarURL && (
                     <div className={styles.removeRow}>
                         <Popconfirm
-                            title="Remove Avatar"
-                            description="Are you sure you want to remove your avatar?"
+                            title={<span style={{ color: "#f0e8e8", fontWeight: 600 }}>Remove Avatar</span>}
+                            description={<span style={{ color: "#9a7070" }}>Are you sure you want to remove your avatar?</span>}
                             onConfirm={() => remove()}
                             okText="Remove"
                             cancelText="Cancel"
-                            okButtonProps={{ danger: true }}
+                            okButtonProps={{ danger: true, loading: removing }}
+                            cancelButtonProps={{ style: { background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.1)", color: "#9a7070" } }}
+                            disabled={isBusy}
+                            overlayInnerStyle={{ background: "#1a0f0f", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10 }}
                         >
-                            <Button danger icon={<DeleteOutlined />} className={styles.removeBtn}>
+                            <Button danger icon={<DeleteOutlined />} className={styles.removeBtn} loading={removing} disabled={isBusy}>
                                 Remove Avatar
                             </Button>
                         </Popconfirm>
@@ -166,7 +192,7 @@ const AvatarModal: FC<Props> = ({ open, profile, onClose }) => {
                 )}
 
                 <div className={styles.cancelRow}>
-                    <Button onClick={handleClose} className={styles.cancelBtn}>Cancel</Button>
+                    <Button onClick={handleClose} className={styles.cancelBtn} disabled={isBusy}>Cancel</Button>
                 </div>
             </div>
         </Modal>

@@ -6,8 +6,8 @@ import {
     WalletOutlined, SettingOutlined, LogoutOutlined,
     MenuOutlined,
 } from "@ant-design/icons";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { logout } from "@/store/slices/authSlice";
+import { useAppSelector } from "@/store/hooks";
+import { useLogout } from "@/features/auth/hooks/useLogoutMutation";
 import { SIDEBAR_NAV_ITEMS } from "../constants/profile.constants";
 import { buildInitialsAvatar } from "../utils/profile.mapper";
 import styles from "./ProfileSidebar.module.css";
@@ -27,8 +27,8 @@ interface SidebarContentProps { onNavigate?: () => void }
 const SidebarContent: FC<SidebarContentProps> = ({ onNavigate }) => {
     const navigate = useNavigate();
     const location = useLocation();
-    const dispatch = useAppDispatch();
     const user = useAppSelector((state) => state.auth.user);
+    const { mutate: logoutMutate, isPending: loggingOut } = useLogout();
 
     const avatarSrc = user?.avatarURL ?? buildInitialsAvatar(user?.fullName ?? "U");
 
@@ -37,10 +37,7 @@ const SidebarContent: FC<SidebarContentProps> = ({ onNavigate }) => {
         onNavigate?.();
     };
 
-    const handleLogout = () => {
-        dispatch(logout());
-        navigate("/login");
-    };
+    const handleLogout = () => logoutMutate();
 
     return (
         <div className={styles.inner}>
@@ -77,17 +74,20 @@ const SidebarContent: FC<SidebarContentProps> = ({ onNavigate }) => {
                     {/* Logout */}
                     <li className={styles.logoutItem}>
                         <Popconfirm
-                            title="Sign out"
-                            description="Are you sure you want to sign out?"
+                            title={<span style={{ color: "#f0e8e8", fontWeight: 600 }}>Sign out</span>}
+                            description={<span style={{ color: "#9a7070" }}>Are you sure you want to sign out?</span>}
                             onConfirm={handleLogout}
                             okText="Sign Out"
                             cancelText="Cancel"
-                            okButtonProps={{ danger: true }}
+                            okButtonProps={{ danger: true, loading: loggingOut }}
+                            cancelButtonProps={{ style: { background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.1)", color: "#9a7070" } }}
+                            disabled={loggingOut}
                             placement="right"
+                            overlayInnerStyle={{ background: "#1a0f0f", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10 }}
                         >
-                            <button className={`${styles.navItem} ${styles.navItemLogout}`} type="button">
+                            <button className={`${styles.navItem} ${styles.navItemLogout}`} type="button" disabled={loggingOut}>
                                 <span className={styles.navIcon}><LogoutOutlined /></span>
-                                Sign Out
+                                {loggingOut ? "Signing out…" : "Sign Out"}
                             </button>
                         </Popconfirm>
                     </li>

@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { notification } from "antd";
 import { useAppDispatch } from "@/store/hooks";
 import { updateUserInfo } from "@/store/slices/authSlice";
 import { uploadAvatar } from "@/services/api/user.service";
+import { notify } from "@/utils/notify";
 import { PROFILE_QUERY_KEY } from "./useProfile";
 
 export const useUploadAvatar = (onSuccess?: () => void) => {
@@ -16,11 +16,11 @@ export const useUploadAvatar = (onSuccess?: () => void) => {
             if (data?.avatarURL !== undefined) {
                 dispatch(updateUserInfo({ avatarURL: data.avatarURL }));
             }
-            notification.success({ message: "Avatar updated successfully." });
+            notify.success("Avatar updated successfully.");
             onSuccess?.();
         },
         onError: () => {
-            notification.error({ message: "Failed to upload avatar. Please try again." });
+            notify.error("Failed to upload avatar.", "Please try again.");
         },
     });
 };

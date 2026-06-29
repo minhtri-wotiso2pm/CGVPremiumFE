@@ -36,7 +36,7 @@ const EditProfileModal: FC<Props> = ({ open, profile, onClose }) => {
             footer={null}
             destroyOnClose
             styles={{
-                content: { background: '#1a0f0f', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)' },
+                container: { background: '#1a0f0f', borderRadius: 12, border: '1px solid rgba(255,255,255,0.08)' },
                 header: { background: '#1a0f0f', borderBottom: '1px solid rgba(255,255,255,0.06)' },
                 mask: { backdropFilter: 'blur(4px)', background: 'rgba(0,0,0,0.7)' },
             }}

@@ -242,6 +242,7 @@
 }
 
 .infoLabel {
+    font-family: 'Inter', sans-serif;
     font-size: 9px;
     font-weight: 700;
     letter-spacing: 0.22em;
@@ -250,6 +251,7 @@
 }
 
 .infoValue {
+    font-family: 'Inter', sans-serif;
     font-size: 13px;
     color: #c8b0b0;
     letter-spacing: 0.01em;
@@ -257,8 +259,10 @@
     line-height: 1.45;
 }
 
-.statusBadge :global(.ant-badge-status-text) {
-    color: #c8b0b0;
+.statusBadge :global(.ant-badge-status-text),
+.statusBadge :global(.ant-scroll-number-only),
+.statusBadge {
+    color: #c8b0b0 !important;
     font-size: 13px;
 }
 
@@ -307,6 +311,7 @@
 }
 
 .pointsLabel {
+    font-family: 'Inter', sans-serif;
     font-size: 9.5px;
     font-weight: 700;
     letter-spacing: 0.18em;
@@ -316,6 +321,7 @@
 }
 
 .pointsHint {
+    font-family: 'Inter', sans-serif;
     font-size: 11.5px;
     color: #9a7040;
     margin: 0;
