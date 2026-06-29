@@ -19,7 +19,9 @@ export function useLogout() {
             navigate("/", { replace: true });
         },
         onError: () => {
-            notify.error("Logout failed.", "Please try again.");
+            dispatch(logout());
+            queryClient.clear();
+            navigate("/", { replace: true });
         },
     });
 }

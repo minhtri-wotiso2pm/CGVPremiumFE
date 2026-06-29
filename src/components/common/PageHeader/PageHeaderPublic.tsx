@@ -45,9 +45,16 @@ const H = {
 interface NavItem {
     label: string;
     path: string;
+    requireAuth?: boolean;
 }
 
 const NAV_CONFIG: Record<string, NavItem[]> = {
+    GUEST: [
+        { label: "Home", path: "/" },
+        { label: "Theaters", path: "/theaters" },
+        { label: "Promotions", path: "/promotions" },
+        { label: "My Tickets", path: "/login", requireAuth: true },
+    ],
     CUSTOMER: [
         { label: "Home", path: "/customer" },
         { label: "Theaters", path: "/customer/theaters" },
@@ -616,8 +623,8 @@ const PageHeader: FC = () => {
     const [drawerOpen, setDrawerOpen] = useState(false);
 
     /* Resolve nav items by role */
-    const role = user?.role ?? "CUSTOMER";
-    const navItems = NAV_CONFIG[role] ?? NAV_CONFIG["CUSTOMER"];
+    const role = user ? user.role.toUpperCase() : "GUEST";
+    const navItems = NAV_CONFIG[role] ?? NAV_CONFIG["GUEST"];
 
     /* Scroll listener — shrink header */
     useEffect(() => {
@@ -731,16 +738,23 @@ const PageHeader: FC = () => {
                         style={{ display: "flex", alignItems: "center", gap: 2 }}
                     >
                         {navItems.map((item) => {
-                            const isActive = user ? location.pathname === item.path : false;
+                            const isActive = location.pathname === item.path;
                             return (
                                 <button
                                     key={item.path}
                                     className="cgv-nav-link"
-                                    onClick={() => navigate(user ? item.path : "/login")}
+                                    onClick={() => {
+                                        if (item.requireAuth && !user) {
+                                            navigate("/login");
+                                        } else {
+                                            navigate(item.path);
+                                        }
+                                    }}
                                     style={{
                                         color: isActive ? H.crimson : H.textNav,
                                         background: isActive ? H.crimsonSubtle : "none",
                                         fontWeight: isActive ? 600 : 500,
+                                        position: "relative",
                                     }}
                                     onMouseEnter={(e) => {
                                         if (!isActive) {
@@ -756,6 +770,22 @@ const PageHeader: FC = () => {
                                     }}
                                 >
                                     {item.label}
+                                    {isActive && (
+                                        <span
+                                            aria-hidden="true"
+                                            style={{
+                                                position: "absolute",
+                                                bottom: 2,
+                                                left: "50%",
+                                                transform: "translateX(-50%)",
+                                                width: "60%",
+                                                height: 2,
+                                                borderRadius: 2,
+                                                background: H.crimson,
+                                                boxShadow: `0 0 6px ${H.crimsonGlow}, 0 0 12px ${H.crimsonGlow}`,
+                                            }}
+                                        />
+                                    )}
                                 </button>
                             );
                         })}
@@ -812,14 +842,27 @@ const PageHeader: FC = () => {
                                         aria-label="User menu"
                                         style={{
                                             background: "none", border: "none",
-                                            cursor: "pointer", padding: 2,
-                                            borderRadius: "50%", display: "flex",
-                                            transition: "opacity 0.15s",
+                                            cursor: "pointer", padding: "4px 6px 4px 10px",
+                                            borderRadius: 24, display: "flex",
+                                            alignItems: "center", gap: 8,
+                                            transition: "background 0.15s",
                                         }}
-                                        onMouseEnter={(e) => { (e.currentTarget).style.opacity = "0.85"; }}
-                                        onMouseLeave={(e) => { (e.currentTarget).style.opacity = "1"; }}
+                                        onMouseEnter={(e) => { (e.currentTarget).style.background = "rgba(255,255,255,0.06)"; }}
+                                        onMouseLeave={(e) => { (e.currentTarget).style.background = "none"; }}
                                     >
-                                        <Avatar src={user.avatarURL} name={user.fullName} size={36} />
+                                        <span style={{
+                                            fontSize: 13,
+                                            fontWeight: 600,
+                                            color: H.textPrimary,
+                                            maxWidth: 110,
+                                            overflow: "hidden",
+                                            textOverflow: "ellipsis",
+                                            whiteSpace: "nowrap",
+                                            fontFamily: "inherit",
+                                        }}>
+                                            {user.fullName}
+                                        </span>
+                                        <Avatar src={user.avatarURL} name={user.fullName} size={32} />
                                     </button>
                                     {userDropOpen && (
                                         <UserDropdown

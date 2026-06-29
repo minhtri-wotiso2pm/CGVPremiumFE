@@ -3,7 +3,7 @@ import { ROLES } from "@/constants/roles";
 export const getDashboardByRole = (
     role?: string
 ) => {
-    switch (role) {
+    switch (role?.toUpperCase()) {
         case ROLES.ADMIN:
             return "/admin/dashboard";
 
@@ -14,7 +14,7 @@ export const getDashboardByRole = (
             return "/staff/dashboard";
 
         case ROLES.CUSTOMER:
-            return "/customer/dashboard";
+            return "/customer";
 
         default:
             return "/";

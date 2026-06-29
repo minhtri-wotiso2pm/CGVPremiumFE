@@ -1,18 +1,5 @@
-import { useAppDispatch } from "@/store/hooks";
-import { logout } from "@/store/slices/authSlice";
+import { Navigate } from "react-router-dom";
 
 export default function AdminDashboard() {
-    const dispatch = useAppDispatch();
-
-    return (
-        <>
-            <h1>Admin Dashboard</h1>
-
-            <button
-                onClick={() => dispatch(logout())}
-            >
-                Logout
-            </button>
-        </>
-    );
+    return <Navigate to="/admin/users" replace />;
 }

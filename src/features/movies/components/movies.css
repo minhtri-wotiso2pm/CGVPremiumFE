@@ -155,11 +155,12 @@
 }
 
 .cgv-hero__stat-value {
-    font-family: var(--cgv-font-display);
-    font-size: 26px;
-    font-weight: 700;
+    font-family: Inter;
+    font-size: 24px;
+    font-weight: 600;
     color: var(--cgv-text-primary);
     line-height: 1;
+    margin-bottom: 5px;
 }
 
 .cgv-hero__stat-label {
@@ -667,44 +668,39 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 30px;
-    height: 22px;
-    border-radius: 5px;
+    min-width: 34px;
+    height: 26px;
+    border-radius: 6px;
     font-family: var(--cgv-font-body);
-    font-size: 9.5px;
+    font-size: 11px;
     font-weight: 800;
-    letter-spacing: 0.05em;
-    padding: 0 6px;
+    letter-spacing: 0.06em;
+    padding: 0 8px;
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    border: none;
+    line-height: 1;
 }
 
 .cgv-age-badge--pg {
-    background: rgba(34, 197, 94, 0.15);
-    color: #22c55e;
-    border: 1px solid rgba(34, 197, 94, 0.3);
+    background: rgba(22, 163, 74, 0.8);
 }
 
 .cgv-age-badge--c13 {
-    background: rgba(234, 179, 8, 0.15);
-    color: #eab308;
-    border: 1px solid rgba(234, 179, 8, 0.3);
+    background: rgba(202, 138, 4, 0.8);
 }
 
 .cgv-age-badge--c16 {
-    background: rgba(249, 115, 22, 0.15);
-    color: #f97316;
-    border: 1px solid rgba(249, 115, 22, 0.3);
+    background: rgba(234, 108, 10, 0.8);
 }
 
 .cgv-age-badge--c18 {
-    background: rgba(232, 0, 28, 0.15);
-    color: #E8001C;
-    border: 1px solid rgba(232, 0, 28, 0.3);
+    background: rgba(220, 0, 24, 0.8);
 }
 
 .cgv-age-badge--default {
-    background: rgba(255, 255, 255, 0.06);
-    color: var(--cgv-text-muted);
-    border: 1px solid var(--cgv-border);
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 /* ══════════════════════════════════════════

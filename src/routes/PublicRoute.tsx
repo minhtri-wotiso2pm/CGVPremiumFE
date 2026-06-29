@@ -4,7 +4,7 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { ROLES } from "@/constants/roles";
 
 function getDashboardByRole(role?: string) {
-    switch (role) {
+    switch (role?.toUpperCase()) {
         case ROLES.ADMIN:
             return "/admin/dashboard";
 
@@ -15,7 +15,7 @@ function getDashboardByRole(role?: string) {
             return "/staff/dashboard";
 
         case ROLES.CUSTOMER:
-            return "/customer/dashboard";
+            return "/customer";
 
         default:
             return "/";

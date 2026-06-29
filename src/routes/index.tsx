@@ -35,8 +35,12 @@ import {
 import StaffDashboard from "@/features/staff/pages/StaffDashboard";
 import ManagerDashboard from "@/features/manager/pages/ManagerDashboard";
 import AdminDashboard from "@/features/admin/pages/AdminDashboard";
+import UserManagementPage from "@/features/admin/pages/UserManagementPage";
+import AdminProfilePage from "@/features/admin/pages/AdminProfilePage";
 
 import WelcomePage from "@/features/public/pages/WelcomePage";
+import TheatersPage from "@/features/public/pages/TheatersPage";
+import PromotionsPage from "@/features/public/pages/PromotionsPage";
 import ForbiddenPage from "@/features/common/pages/ForbiddenPage";
 import NotFoundPage from "@/features/common/pages/NotFoundPage";
 
@@ -57,6 +61,14 @@ export const router = createBrowserRouter([
             {
                 path: "movies/:movieId",
                 element: <MovieDetailPage />,
+            },
+            {
+                path: "theaters",
+                element: <TheatersPage />,
+            },
+            {
+                path: "promotions",
+                element: <PromotionsPage />,
             },
         ],
     },
@@ -108,10 +120,7 @@ export const router = createBrowserRouter([
                         path: "/registerSuccess",
                         element: <RegisterSuccessPage />,
                     },
-                    {
-                        path: "/dashboard",
-                        element: <CustomerDashboard />,
-                    },
+
                 ],
             },
         ],
@@ -154,6 +163,14 @@ export const router = createBrowserRouter([
                             {
                                 path: "movies/:movieId",
                                 element: <MovieDetailPage />,
+                            },
+                            {
+                                path: "theaters",
+                                element: <TheatersPage />,
+                            },
+                            {
+                                path: "promotions",
+                                element: <PromotionsPage />,
                             },
                             {
                                 path: "profile",
@@ -241,8 +258,20 @@ export const router = createBrowserRouter([
                         element: <AdminLayout />,
                         children: [
                             {
+                                index: true,
+                                element: <AdminDashboard />,
+                            },
+                            {
                                 path: "dashboard",
                                 element: <AdminDashboard />,
+                            },
+                            {
+                                path: "users",
+                                element: <UserManagementPage />,
+                            },
+                            {
+                                path: "profile",
+                                element: <AdminProfilePage />,
                             },
                         ],
                     },
