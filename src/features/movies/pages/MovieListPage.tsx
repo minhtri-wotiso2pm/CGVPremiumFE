@@ -43,7 +43,12 @@ import {
     getMovieSectionTitle,
 } from "@/features/movies/utils/movie.utils";
 
-const MovieListPage: FC = () => {
+interface Props {
+    onMovieClick?: (id: number) => void;
+    onBook?: (id: number) => void;
+}
+
+const MovieListPage: FC<Props> = ({ onMovieClick, onBook }) => {
 
     /* Data */
     const {
@@ -113,6 +118,9 @@ const MovieListPage: FC = () => {
 
     } = useMovieNavigation();
 
+    const handleMovieClick = onMovieClick ?? goMovieDetail;
+    const handleBook = onBook ?? goBooking;
+
     /* Event Handlers */
     const handleReset = useCallback(() => {
         resetFilters();
@@ -156,8 +164,8 @@ const MovieListPage: FC = () => {
                     loading={loading}
                     error={error}
                     sectionTitle={sectionTitle}
-                    onCardClick={goMovieDetail}
-                    onBook={goBooking}
+                    onCardClick={handleMovieClick}
+                    onBook={handleBook}
                     onReset={handleReset}
                     onRetry={refetch}
                 />

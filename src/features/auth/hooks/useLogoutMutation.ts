@@ -16,7 +16,7 @@ export function useLogout() {
             dispatch(logout());
             queryClient.clear();
             notify.success(response.message);
-            navigate("/login", { replace: true });
+            navigate("/", { replace: true });
         },
         onError: () => {
             notify.error("Logout failed.", "Please try again.");

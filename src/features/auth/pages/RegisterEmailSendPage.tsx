@@ -363,7 +363,7 @@ export default function ForgotPasswordPage() {
                         }}
                     >
                         {loading && <span className="cgv-spinner" aria-hidden="true" />}
-                        {loading ? "Sending..." : "Send Reset Link"}
+                        {loading ? "Sending..." : "Send Email"}
                     </button>
 
                     {/* Back to login */}

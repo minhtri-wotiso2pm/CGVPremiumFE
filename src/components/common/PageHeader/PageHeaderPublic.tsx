@@ -50,7 +50,6 @@ interface NavItem {
 const NAV_CONFIG: Record<string, NavItem[]> = {
     CUSTOMER: [
         { label: "Home", path: "/customer" },
-        { label: "Movies", path: "/customer/movies" },
         { label: "Theaters", path: "/customer/theaters" },
         { label: "Promotions", path: "/customer/promotions" },
         { label: "My Tickets", path: "/customer/tickets" },
@@ -403,9 +402,9 @@ const UserDropdown: FC<UserDropdownProps> = ({ name, email, avatar, onClose, onL
 interface DrawerProps {
     isOpen: boolean;
     navItems: NavItem[];
-    user: { fullName: string; email: string; avatarURL: string | null };
+    user: { fullName: string; email: string; avatarURL: string | null } | null;
     onClose: () => void;
-    onLogout: () => void;
+    onLogout?: () => void;
     activePath: string;
 }
 
@@ -478,37 +477,61 @@ const MobileDrawer: FC<DrawerProps> = ({
                 </div>
 
                 {/* User block */}
-                <div style={{
-                    padding: "20px",
-                    borderBottom: `1px solid ${H.border}`,
-                    display: "flex", alignItems: "center", gap: 12,
-                }}>
-                    <Avatar src={user.avatarURL} name={user.fullName} size={44} />
-                    <div style={{ minWidth: 0 }}>
-                        <p style={{
-                            fontSize: 14, fontWeight: 600, color: H.textPrimary,
-                            margin: 0, letterSpacing: "0.01em",
-                            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                        }}>
-                            {user.fullName}
-                        </p>
-                        <p style={{
-                            fontSize: 11, color: H.textMuted, margin: "3px 0 0",
-                            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                        }}>
-                            {user.email}
-                        </p>
+                {user ? (
+                    <div style={{
+                        padding: "20px",
+                        borderBottom: `1px solid ${H.border}`,
+                        display: "flex", alignItems: "center", gap: 12,
+                    }}>
+                        <Avatar src={user.avatarURL} name={user.fullName} size={44} />
+                        <div style={{ minWidth: 0 }}>
+                            <p style={{
+                                fontSize: 14, fontWeight: 600, color: H.textPrimary,
+                                margin: 0, letterSpacing: "0.01em",
+                                overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                            }}>
+                                {user.fullName}
+                            </p>
+                            <p style={{
+                                fontSize: 11, color: H.textMuted, margin: "3px 0 0",
+                                overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                            }}>
+                                {user.email}
+                            </p>
+                        </div>
                     </div>
-                </div>
+                ) : (
+                    <div style={{
+                        padding: "20px",
+                        borderBottom: `1px solid ${H.border}`,
+                    }}>
+                        <p style={{ fontSize: 12, color: H.textMuted, margin: "0 0 12px", letterSpacing: "0.02em" }}>
+                            Sign in to access your account
+                        </p>
+                        <button
+                            onClick={() => { navigate("/login"); onClose(); }}
+                            style={{
+                                width: "100%", padding: "10px 0",
+                                background: `linear-gradient(135deg, ${H.crimson}, ${H.crimsonDim})`,
+                                border: "none", borderRadius: 8, cursor: "pointer",
+                                fontSize: 13, fontWeight: 700, color: "#fff",
+                                fontFamily: "inherit", letterSpacing: "0.08em",
+                                textTransform: "uppercase",
+                            }}
+                        >
+                            Login
+                        </button>
+                    </div>
+                )}
 
                 {/* Nav links */}
                 <nav style={{ flex: 1, padding: "12px 0", overflowY: "auto" }} aria-label="Mobile navigation">
                     {navItems.map((item) => {
-                        const isActive = activePath === item.path;
+                        const isActive = user ? activePath === item.path : false;
                         return (
                             <button
                                 key={item.path}
-                                onClick={() => { navigate(item.path); onClose(); }}
+                                onClick={() => { navigate(user ? item.path : "/login"); onClose(); }}
                                 style={{
                                     width: "100%", background: isActive ? H.crimsonSubtle : "none",
                                     border: "none", borderLeft: isActive ? `3px solid ${H.crimson}` : "3px solid transparent",
@@ -542,29 +565,31 @@ const MobileDrawer: FC<DrawerProps> = ({
                 </nav>
 
                 {/* Drawer footer */}
-                <div style={{ padding: "16px 0", borderTop: `1px solid ${H.border}` }}>
-                    <button
-                        onClick={onLogout}
-                        style={{
-                            width: "100%", background: "none", border: "none",
-                            padding: "12px 20px", cursor: "pointer",
-                            display: "flex", alignItems: "center", gap: 10,
-                            color: H.crimson, fontSize: 13,
-                            fontFamily: "inherit", fontWeight: 600,
-                            letterSpacing: "0.02em",
-                        }}
-                    >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-                            strokeLinejoin="round" aria-hidden="true"
+                {user && onLogout && (
+                    <div style={{ padding: "16px 0", borderTop: `1px solid ${H.border}` }}>
+                        <button
+                            onClick={onLogout}
+                            style={{
+                                width: "100%", background: "none", border: "none",
+                                padding: "12px 20px", cursor: "pointer",
+                                display: "flex", alignItems: "center", gap: 10,
+                                color: H.crimson, fontSize: 13,
+                                fontFamily: "inherit", fontWeight: 600,
+                                letterSpacing: "0.02em",
+                            }}
                         >
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                            <polyline points="16 17 21 12 16 7" />
-                            <line x1="21" y1="12" x2="9" y2="12" />
-                        </svg>
-                        Sign Out
-                    </button>
-                </div>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                                strokeLinejoin="round" aria-hidden="true"
+                            >
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                <polyline points="16 17 21 12 16 7" />
+                                <line x1="21" y1="12" x2="9" y2="12" />
+                            </svg>
+                            Sign Out
+                        </button>
+                    </div>
+                )}
             </div>
         </>
     );
@@ -615,8 +640,7 @@ const PageHeader: FC = () => {
 
     const headerHeight = scrolled ? H.heightScrolled : H.heightDefault;
     const logoSize = scrolled ? 18 : 22;
-
-    if (!user) return null;
+    const logoHref = user ? "/customer" : "/";
 
     return (
         <>
@@ -674,7 +698,7 @@ const PageHeader: FC = () => {
                 }}>
                     {/* ── LEFT: Logo ── */}
                     <Link
-                        to="/customer"
+                        to={logoHref}
                         style={{
                             display: "flex", alignItems: "center", gap: 6,
                             textDecoration: "none", flexShrink: 0,
@@ -707,12 +731,12 @@ const PageHeader: FC = () => {
                         style={{ display: "flex", alignItems: "center", gap: 2 }}
                     >
                         {navItems.map((item) => {
-                            const isActive = location.pathname === item.path;
+                            const isActive = user ? location.pathname === item.path : false;
                             return (
                                 <button
                                     key={item.path}
                                     className="cgv-nav-link"
-                                    onClick={() => navigate(item.path)}
+                                    onClick={() => navigate(user ? item.path : "/login")}
                                     style={{
                                         color: isActive ? H.crimson : H.textNav,
                                         background: isActive ? H.crimsonSubtle : "none",
@@ -739,74 +763,103 @@ const PageHeader: FC = () => {
 
                     {/* ── RIGHT: actions ── */}
                     <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
-                        {/* Notification bell */}
-                        <div style={{ position: "relative" }}>
-                            <button
-                                className="cgv-icon-btn"
-                                aria-label={`Notifications — ${FAKE_NOTIFICATIONS.filter(n => n.unread).length} unread`}
-                                aria-haspopup="true"
-                                aria-expanded={notifDropOpen}
-                                onClick={() => {
-                                    setNotifDropOpen((v) => !v);
-                                    setUserDropOpen(false);
-                                }}
-                            >
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-                                    strokeLinejoin="round" aria-hidden="true"
-                                >
-                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                                </svg>
-                                {/* Unread badge */}
-                                <span style={{
-                                    position: "absolute", top: 4, right: 4,
-                                    width: 8, height: 8, borderRadius: "50%",
-                                    background: H.crimson,
-                                    border: "1.5px solid #0a0202",
-                                }} aria-hidden="true" />
-                            </button>
 
-                            {notifDropOpen && (
-                                <NotifDropdown
-                                    notifications={FAKE_NOTIFICATIONS}
-                                    onClose={() => setNotifDropOpen(false)}
-                                />
-                            )}
-                        </div>
+                        {user ? (
+                            <>
+                                {/* Notification bell */}
+                                <div style={{ position: "relative" }}>
+                                    <button
+                                        className="cgv-icon-btn"
+                                        aria-label={`Notifications — ${FAKE_NOTIFICATIONS.filter(n => n.unread).length} unread`}
+                                        aria-haspopup="true"
+                                        aria-expanded={notifDropOpen}
+                                        onClick={() => {
+                                            setNotifDropOpen((v) => !v);
+                                            setUserDropOpen(false);
+                                        }}
+                                    >
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                                            strokeLinejoin="round" aria-hidden="true"
+                                        >
+                                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                                            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                                        </svg>
+                                        <span style={{
+                                            position: "absolute", top: 4, right: 4,
+                                            width: 8, height: 8, borderRadius: "50%",
+                                            background: H.crimson,
+                                            border: "1.5px solid #0a0202",
+                                        }} aria-hidden="true" />
+                                    </button>
+                                    {notifDropOpen && (
+                                        <NotifDropdown
+                                            notifications={FAKE_NOTIFICATIONS}
+                                            onClose={() => setNotifDropOpen(false)}
+                                        />
+                                    )}
+                                </div>
 
-                        {/* Avatar + user dropdown */}
-                        <div style={{ position: "relative", marginLeft: 4 }}>
+                                {/* Avatar + user dropdown */}
+                                <div style={{ position: "relative", marginLeft: 4 }}>
+                                    <button
+                                        onClick={() => {
+                                            setUserDropOpen((v) => !v);
+                                            setNotifDropOpen(false);
+                                        }}
+                                        aria-haspopup="true"
+                                        aria-expanded={userDropOpen}
+                                        aria-label="User menu"
+                                        style={{
+                                            background: "none", border: "none",
+                                            cursor: "pointer", padding: 2,
+                                            borderRadius: "50%", display: "flex",
+                                            transition: "opacity 0.15s",
+                                        }}
+                                        onMouseEnter={(e) => { (e.currentTarget).style.opacity = "0.85"; }}
+                                        onMouseLeave={(e) => { (e.currentTarget).style.opacity = "1"; }}
+                                    >
+                                        <Avatar src={user.avatarURL} name={user.fullName} size={36} />
+                                    </button>
+                                    {userDropOpen && (
+                                        <UserDropdown
+                                            name={user.fullName}
+                                            email={user.email}
+                                            avatar={user.avatarURL}
+                                            onClose={() => setUserDropOpen(false)}
+                                            onLogout={handleLogout}
+                                        />
+                                    )}
+                                </div>
+                            </>
+                        ) : (
+                            /* Guest: Login button */
                             <button
-                                onClick={() => {
-                                    setUserDropOpen((v) => !v);
-                                    setNotifDropOpen(false);
-                                }}
-                                aria-haspopup="true"
-                                aria-expanded={userDropOpen}
-                                aria-label="User menu"
+                                onClick={() => navigate("/login")}
+                                className="cgv-header-login-btn"
                                 style={{
-                                    background: "none", border: "none",
-                                    cursor: "pointer", padding: 2,
-                                    borderRadius: "50%", display: "flex",
-                                    transition: "opacity 0.15s",
+                                    padding: "8px 22px",
+                                    background: `linear-gradient(135deg, ${H.crimson}, ${H.crimsonDim})`,
+                                    border: "none", borderRadius: 8,
+                                    color: "#fff", fontSize: 12.5, fontWeight: 700,
+                                    fontFamily: "inherit", cursor: "pointer",
+                                    letterSpacing: "0.08em", textTransform: "uppercase",
+                                    transition: "transform 0.15s, box-shadow 0.2s",
+                                    boxShadow: `0 4px 16px ${H.crimsonGlow}`,
+                                    whiteSpace: "nowrap",
                                 }}
-                                onMouseEnter={(e) => { (e.currentTarget).style.opacity = "0.85"; }}
-                                onMouseLeave={(e) => { (e.currentTarget).style.opacity = "1"; }}
+                                onMouseEnter={(e) => {
+                                    (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)";
+                                    (e.currentTarget as HTMLButtonElement).style.boxShadow = `0 8px 24px rgba(232,0,28,0.38)`;
+                                }}
+                                onMouseLeave={(e) => {
+                                    (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
+                                    (e.currentTarget as HTMLButtonElement).style.boxShadow = `0 4px 16px ${H.crimsonGlow}`;
+                                }}
                             >
-                                <Avatar src={user.avatarURL} name={user.fullName} size={36} />
+                                Login
                             </button>
-
-                            {userDropOpen && (
-                                <UserDropdown
-                                    name={user.fullName}
-                                    email={user.email}
-                                    avatar={user.avatarURL}
-                                    onClose={() => setUserDropOpen(false)}
-                                    onLogout={handleLogout}
-                                />
-                            )}
-                        </div>
+                        )}
 
                         {/* Hamburger — mobile only */}
                         <button

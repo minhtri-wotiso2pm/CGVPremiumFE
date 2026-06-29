@@ -11,10 +11,12 @@ const FALLBACK =
 interface Props {
     movie: MovieDetail;
     onWatchTrailer: () => void;
+    onBook?: (id: number) => void;
 }
 
-const MovieDetailHero: FC<Props> = ({ movie, onWatchTrailer }) => {
+const MovieDetailHero: FC<Props> = ({ movie, onWatchTrailer, onBook }) => {
     const { goBooking } = useMovieNavigation();
+    const handleBook = onBook ?? goBooking;
     const poster = movie.posterUrl || FALLBACK;
 
     return (
@@ -93,7 +95,7 @@ const MovieDetailHero: FC<Props> = ({ movie, onWatchTrailer }) => {
                     <div className="cgv-detail-hero__actions">
                         <button
                             className="cgv-detail-btn cgv-detail-btn--primary"
-                            onClick={() => goBooking(movie.movieId)}
+                            onClick={() => handleBook(movie.movieId)}
                         >
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"

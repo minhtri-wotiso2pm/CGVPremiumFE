@@ -1,5 +1,6 @@
-import { useRef, type FC } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useRef, useCallback, type FC } from "react";
+import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
+import { useAppSelector } from "@/store/hooks";
 import { useMovieDetail } from "../hooks/useMovieDetail";
 import { useMovies } from "../hooks/useMovies";
 import MovieDetailHero from "../components/MovieDetailHero";
@@ -13,7 +14,21 @@ const MovieDetailPage: FC = () => {
     const { movieId } = useParams<{ movieId: string }>();
     const id = Number(movieId);
     const navigate = useNavigate();
+    const location = useLocation();
     const { goMovieDetail, goBooking } = useMovieNavigation();
+
+    const user = useAppSelector((state) => state.auth.user);
+    const isPublic = location.pathname.startsWith("/movies/");
+    const homeLink = isPublic ? "/" : "/customer";
+    const moviesLink = isPublic ? "/" : "/customer";
+
+    const handleBook = useCallback((id: number) => {
+        if (!user) {
+            navigate("/login");
+        } else {
+            goBooking(id);
+        }
+    }, [user, navigate, goBooking]);
     const trailerRef = useRef<HTMLDivElement>(null);
 
     const { data: movie, isLoading, isError } = useMovieDetail(id);
@@ -60,16 +75,16 @@ const MovieDetailPage: FC = () => {
             {/* ── Breadcrumb ── */}
             <nav aria-label="Breadcrumb" className="cgv-detail-breadcrumb">
                 <div className="cgv-detail-breadcrumb__inner">
-                    <Link to="/customer" className="cgv-detail-breadcrumb__link">Home</Link>
+                    <Link to={homeLink} className="cgv-detail-breadcrumb__link">Home</Link>
                     <span className="cgv-detail-breadcrumb__sep" aria-hidden="true">›</span>
-                    <Link to="/customer/movies" className="cgv-detail-breadcrumb__link">Movies</Link>
+                    <Link to={moviesLink} className="cgv-detail-breadcrumb__link">Movies</Link>
                     <span className="cgv-detail-breadcrumb__sep" aria-hidden="true">›</span>
                     <span className="cgv-detail-breadcrumb__current" aria-current="page">{movie.title}</span>
                 </div>
             </nav>
 
             {/* ── Hero ── */}
-            <MovieDetailHero movie={movie} onWatchTrailer={scrollToTrailer} />
+            <MovieDetailHero movie={movie} onWatchTrailer={scrollToTrailer} onBook={handleBook} />
 
             {/* ── Body sections ── */}
             <div className="cgv-detail-body">

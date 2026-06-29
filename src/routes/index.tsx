@@ -5,6 +5,7 @@ import PermissionRoute from "./PermissionRoute";
 import PublicRoute from "./PublicRoute";
 
 import PublicLayout from "@/layouts/PublicLayout/PublicLayout";
+import WelcomeLayout from "@/layouts/WelcomeLayout/WelcomeLayout";
 import CustomerLayout from "@/layouts/CustomerLayout/CustomerLayout";
 import StaffLayout from "@/layouts/StaffLayout/StaffLayout";
 import ManagerLayout from "@/layouts/ManagerLayout/ManagerLayout";
@@ -35,6 +36,7 @@ import StaffDashboard from "@/features/staff/pages/StaffDashboard";
 import ManagerDashboard from "@/features/manager/pages/ManagerDashboard";
 import AdminDashboard from "@/features/admin/pages/AdminDashboard";
 
+import WelcomePage from "@/features/public/pages/WelcomePage";
 import ForbiddenPage from "@/features/common/pages/ForbiddenPage";
 import NotFoundPage from "@/features/common/pages/NotFoundPage";
 
@@ -42,7 +44,25 @@ import { ROLES } from "@/constants/roles";
 
 export const router = createBrowserRouter([
     // =====================
-    // PUBLIC
+    // WELCOME (open — no auth guard)
+    // =====================
+    {
+        path: "/",
+        element: <WelcomeLayout />,
+        children: [
+            {
+                index: true,
+                element: <WelcomePage />,
+            },
+            {
+                path: "movies/:movieId",
+                element: <MovieDetailPage />,
+            },
+        ],
+    },
+
+    // =====================
+    // PUBLIC (auth pages — redirect if logged in)
     // =====================
     {
         element: <PublicRoute />,
