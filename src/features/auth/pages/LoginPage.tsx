@@ -1,5 +1,5 @@
 import { useState, useCallback, createElement } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { notification } from "antd";
 import { useAppDispatch } from "@/store/hooks";
 import { loginSuccess } from "@/store/slices/authSlice";
@@ -199,6 +199,8 @@ MAIN PAGE
 export default function LoginPage() {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
+    const location = useLocation();
+    const redirectTo = (location.state as { from?: string } | null)?.from ?? null;
 
     /* Form state */
     const [email, setEmail] = useState("");
@@ -250,7 +252,7 @@ export default function LoginPage() {
                 style: { background: "#1a0f0f", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, cursor: "pointer" },
                 onClick: () => notification.destroy(notifKey),
             });
-            navigate(getDashboardByRole(user.role));
+            navigate(redirectTo ?? getDashboardByRole(user.role), { replace: true });
         } catch (err: unknown) {
             console.error("LOGIN ERROR:", err);
 

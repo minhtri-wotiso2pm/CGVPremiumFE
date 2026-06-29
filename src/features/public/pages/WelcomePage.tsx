@@ -11,10 +11,11 @@ export default function WelcomePage() {
     };
 
     const handleBook = (id: number) => {
+        const dest = `/customer/movie/${id}/showtimes`;
         if (user) {
-            navigate(`/customer/booking/${id}`);
+            navigate(dest);
         } else {
-            navigate("/login");
+            navigate("/login", { state: { from: dest } });
         }
     };
 

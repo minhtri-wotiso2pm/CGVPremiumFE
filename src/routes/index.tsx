@@ -39,6 +39,7 @@ import UserManagementPage from "@/features/admin/pages/UserManagementPage";
 import AdminProfilePage from "@/features/admin/pages/AdminProfilePage";
 
 import WelcomePage from "@/features/public/pages/WelcomePage";
+import ShowtimePage from "@/features/booking/pages/ShowtimePage";
 import TheatersPage from "@/features/public/pages/TheatersPage";
 import PromotionsPage from "@/features/public/pages/PromotionsPage";
 import ForbiddenPage from "@/features/common/pages/ForbiddenPage";
@@ -163,6 +164,10 @@ export const router = createBrowserRouter([
                             {
                                 path: "movies/:movieId",
                                 element: <MovieDetailPage />,
+                            },
+                            {
+                                path: "movie/:movieId/showtimes",
+                                element: <ShowtimePage />,
                             },
                             {
                                 path: "theaters",

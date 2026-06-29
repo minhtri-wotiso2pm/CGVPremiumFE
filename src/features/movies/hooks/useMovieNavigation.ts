@@ -7,17 +7,17 @@ export function useMovieNavigation() {
     return {
 
         goMovieDetail(id: number) {
-
             navigate(`/customer/movies/${id}`);
+        },
 
+        goShowtimes(movieId: number) {
+            navigate(`/customer/movie/${movieId}/showtimes`);
         },
 
         goBooking(id: number) {
-
             navigate(`/customer/booking/${id}`);
+        },
 
-        }
-
-    }
+    };
 
 }

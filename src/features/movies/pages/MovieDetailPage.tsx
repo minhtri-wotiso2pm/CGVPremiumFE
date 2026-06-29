@@ -15,20 +15,20 @@ const MovieDetailPage: FC = () => {
     const id = Number(movieId);
     const navigate = useNavigate();
     const location = useLocation();
-    const { goMovieDetail, goBooking } = useMovieNavigation();
+    const { goMovieDetail, goShowtimes } = useMovieNavigation();
 
     const user = useAppSelector((state) => state.auth.user);
     const isPublic = location.pathname.startsWith("/movies/");
     const homeLink = isPublic ? "/" : "/customer";
     const moviesLink = isPublic ? "/" : "/customer";
 
-    const handleBook = useCallback((id: number) => {
+    const handleBook = useCallback((movieId: number) => {
         if (!user) {
-            navigate("/login");
+            navigate("/login", { state: { from: `/customer/movie/${movieId}/showtimes` } });
         } else {
-            goBooking(id);
+            goShowtimes(movieId);
         }
-    }, [user, navigate, goBooking]);
+    }, [user, navigate, goShowtimes]);
     const trailerRef = useRef<HTMLDivElement>(null);
 
     const { data: movie, isLoading, isError } = useMovieDetail(id);
@@ -118,7 +118,7 @@ const MovieDetailPage: FC = () => {
                                     key={m.movieId}
                                     movie={m}
                                     onClick={goMovieDetail}
-                                    onBook={goBooking}
+                                    onBook={handleBook}
                                 />
                             ))}
                         </div>
