@@ -77,3 +77,8 @@ export interface RegisterVerifyEmailResponse {
     message: string;
     success: boolean;
 }
+
+export interface LogoutResponse {
+    success: boolean;
+    message: string;
+}

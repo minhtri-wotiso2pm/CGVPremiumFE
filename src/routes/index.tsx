@@ -21,6 +21,15 @@ import ForgotPasswordSuccessPage from "@/features/auth/pages/ForgotPasswordSucce
 import ResetPasswordSuccessPage from "@/features/auth/pages/ResetPasswordPageSuccessfulPage";
 
 import CustomerDashboard from "@/features/customer/pages/CustomerDashboard";
+import CustomerProfilePage from "@/features/customer/pages/ProfilePage";
+import {
+    CustomerProfileLayout,
+    TicketsPage,
+    MembershipPage,
+    WalletPage,
+    SettingsPage,
+} from "@/features/customer/pages/CustomerProfileRoutes";
+
 import StaffDashboard from "@/features/staff/pages/StaffDashboard";
 import ManagerDashboard from "@/features/manager/pages/ManagerDashboard";
 import AdminDashboard from "@/features/admin/pages/AdminDashboard";
@@ -39,6 +48,7 @@ export const router = createBrowserRouter([
         children: [
             {
                 path: "/",
+                // element: <PublicLayout />,
                 element: <PublicLayout />,
                 children: [
                     {
@@ -113,8 +123,38 @@ export const router = createBrowserRouter([
                         element: <CustomerLayout />,
                         children: [
                             {
+                                index: true,
+                                element: <CustomerDashboard />,
+                            },
+                            {
                                 path: "dashboard",
                                 element: <CustomerDashboard />,
+                            },
+                            {
+                                path: "profile",
+                                element: <CustomerProfileLayout />,
+                                children: [
+                                    {
+                                        index: true,
+                                        element: <CustomerProfilePage />,
+                                    },
+                                    {
+                                        path: "tickets",
+                                        element: <TicketsPage />,
+                                    },
+                                    {
+                                        path: "membership",
+                                        element: <MembershipPage />,
+                                    },
+                                    {
+                                        path: "wallet",
+                                        element: <WalletPage />,
+                                    },
+                                    {
+                                        path: "settings",
+                                        element: <SettingsPage />,
+                                    },
+                                ],
                             },
                         ],
                     },

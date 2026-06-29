@@ -1,4 +1,7 @@
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import {
+    createSlice,
+    type PayloadAction,
+} from "@reduxjs/toolkit";
 
 import type {
     AuthState,
@@ -10,11 +13,14 @@ type LoginSuccessPayload = {
     user: User;
 };
 
+const ACCESS_TOKEN_KEY = "accessToken";
+const USER_KEY = "user";
+
 const storedToken =
-    localStorage.getItem("accessToken");
+    localStorage.getItem(ACCESS_TOKEN_KEY);
 
 const storedUser =
-    localStorage.getItem("user");
+    localStorage.getItem(USER_KEY);
 
 const initialState: AuthState = {
     isAuthenticated: !!storedToken,
@@ -32,40 +38,70 @@ const authSlice = createSlice({
     initialState,
 
     reducers: {
+        /**
+         * Login success
+         */
         loginSuccess: (
             state,
             action: PayloadAction<LoginSuccessPayload>
         ) => {
+            const {
+                accessToken,
+                user,
+            } = action.payload;
+
             state.isAuthenticated = true;
+            state.accessToken = accessToken;
+            state.user = user;
 
-            state.accessToken =
-                action.payload.accessToken;
+            localStorage.setItem(
+                ACCESS_TOKEN_KEY,
+                accessToken
+            );
 
-            state.user =
-                action.payload.user;
+            localStorage.setItem(
+                USER_KEY,
+                JSON.stringify(user)
+            );
+        },
+
+        updateUserInfo: (
+            state,
+            action: PayloadAction<Partial<User>>
+        ) => {
+            if (!state.user) return;
+
+            state.user = {
+                ...state.user,
+                ...action.payload,
+            };
+
+            localStorage.setItem(
+                USER_KEY,
+                JSON.stringify(state.user)
+            );
         },
 
         logout: (state) => {
             localStorage.removeItem(
-                "accessToken"
+                ACCESS_TOKEN_KEY
             );
 
             localStorage.removeItem(
-                "user"
+                USER_KEY
             );
 
             state.isAuthenticated = false;
             state.accessToken = null;
             state.user = null;
         },
-
     },
 });
 
 export const {
     loginSuccess,
+    updateUserInfo,
     logout,
-
 } = authSlice.actions;
 
 export default authSlice.reducer;

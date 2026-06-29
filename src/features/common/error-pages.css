@@ -1,0 +1,424 @@
+/* ═══════════════════════════════════════════════════════════════
+   CGVPremium — Error Pages CSS
+   Covers: NotFoundPage (404), ForbiddenPage (403)
+   Design tokens consistent with auth system + MovieListPage
+═══════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap');
+
+/* ── Root Variables ── */
+:root {
+    --ep-bg: #0c0101;
+    --ep-surface: rgba(16, 5, 5, 0.95);
+    --ep-surface-raised: rgba(22, 7, 7, 0.98);
+    --ep-crimson: #E8001C;
+    --ep-crimson-dim: #b50016;
+    --ep-crimson-glow: rgba(232, 0, 28, 0.22);
+    --ep-crimson-subtle: rgba(232, 0, 28, 0.07);
+    --ep-amber: #f59e0b;
+    --ep-amber-glow: rgba(245, 158, 11, 0.18);
+    --ep-amber-subtle: rgba(245, 158, 11, 0.07);
+    --ep-border: rgba(255, 255, 255, 0.06);
+    --ep-text-primary: #f0e8e8;
+    --ep-text-secondary: #b09090;
+    --ep-text-muted: #6b4a4a;
+    --ep-radius-sm: 6px;
+    --ep-radius-md: 10px;
+    --ep-radius-card: 16px;
+    --ep-font-display: 'Playfair Display', Georgia, serif;
+    --ep-font-body: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    --ep-transition: 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ══════════════════════════════════════════
+   PAGE SHELL
+══════════════════════════════════════════ */
+.ep-root {
+    min-height: 100vh;
+    background: var(--ep-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 60px 24px;
+    font-family: var(--ep-font-body);
+}
+
+/* ── Background glow spheres (mirrors LoginPage) ── */
+.ep-glow {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(60px);
+}
+
+.ep-glow--left {
+    left: -120px;
+    top: 15%;
+    width: 400px;
+    height: 480px;
+    background: radial-gradient(ellipse, rgba(160, 8, 8, 0.2) 0%, transparent 70%);
+}
+
+.ep-glow--right {
+    right: -120px;
+    top: 10%;
+    width: 400px;
+    height: 480px;
+    background: radial-gradient(ellipse, rgba(140, 6, 6, 0.16) 0%, transparent 70%);
+}
+
+.ep-glow--bottom {
+    bottom: -80px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 280px;
+    background: radial-gradient(ellipse, rgba(180, 10, 10, 0.12) 0%, transparent 70%);
+}
+
+/* Amber variant for 403 */
+.ep-root--amber .ep-glow--left {
+    background: radial-gradient(ellipse, rgba(180, 120, 0, 0.16) 0%, transparent 70%);
+}
+
+.ep-root--amber .ep-glow--right {
+    background: radial-gradient(ellipse, rgba(160, 100, 0, 0.12) 0%, transparent 70%);
+}
+
+/* ── Cinema seat silhouettes ── */
+.ep-seats {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 90px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 10px;
+    opacity: 0.12;
+    pointer-events: none;
+}
+
+.ep-seat {
+    width: 32px;
+    height: 58px;
+    flex-shrink: 0;
+    border-radius: 6px 6px 0 0;
+    background: linear-gradient(180deg, #7a1010 0%, #4a0808 100%);
+    position: relative;
+}
+
+.ep-seat::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 0;
+    right: 0;
+    height: 14px;
+    background: #c42020;
+    border-radius: 5px 5px 0 0;
+}
+
+/* ══════════════════════════════════════════
+   CARD
+══════════════════════════════════════════ */
+.ep-card {
+    position: relative;
+    z-index: 10;
+    background: var(--ep-surface);
+    border: 1px solid var(--ep-border);
+    border-radius: var(--ep-radius-card);
+    padding: 56px 52px 48px;
+    width: 100%;
+    max-width: 560px;
+    text-align: center;
+    box-shadow:
+        0 0 0 1px rgba(232, 0, 28, 0.04),
+        0 32px 64px rgba(0, 0, 0, 0.75),
+        0 8px 24px rgba(0, 0, 0, 0.5);
+    animation: ep-card-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes ep-card-in {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ══════════════════════════════════════════
+   ERROR CODE HERO NUMBER
+══════════════════════════════════════════ */
+.ep-code {
+    font-family: var(--ep-font-display);
+    font-size: clamp(88px, 14vw, 128px);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin: 0 0 8px;
+    position: relative;
+    display: inline-block;
+    animation: ep-code-in 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
+}
+
+@keyframes ep-code-in {
+    from {
+        opacity: 0;
+        transform: scale(0.7);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* 404 — red gradient */
+.ep-code--404 {
+    background: linear-gradient(135deg, #ff2222 0%, var(--ep-crimson) 40%, #880010 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 32px rgba(232, 0, 28, 0.55));
+}
+
+/* 403 — amber gradient */
+.ep-code--403 {
+    background: linear-gradient(135deg, #fbbf24 0%, var(--ep-amber) 50%, #d97706 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 28px rgba(245, 158, 11, 0.5));
+}
+
+/* Glow ring behind number */
+.ep-code-ring {
+    position: absolute;
+    inset: -20px;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: ep-pulse 3.5s ease-in-out infinite;
+}
+
+.ep-code-ring--404 {
+    background: radial-gradient(ellipse, rgba(232, 0, 28, 0.12) 0%, transparent 65%);
+}
+
+.ep-code-ring--403 {
+    background: radial-gradient(ellipse, rgba(245, 158, 11, 0.10) 0%, transparent 65%);
+}
+
+@keyframes ep-pulse {
+
+    0%,
+    100% {
+        opacity: 0.6;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.06);
+    }
+}
+
+/* ══════════════════════════════════════════
+   ILLUSTRATION
+══════════════════════════════════════════ */
+.ep-illustration {
+    margin: 12px auto 24px;
+    animation: ep-float 4s ease-in-out infinite;
+}
+
+@keyframes ep-float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+/* ══════════════════════════════════════════
+   TEXT
+══════════════════════════════════════════ */
+.ep-divider {
+    width: 36px;
+    height: 2px;
+    background: var(--ep-crimson);
+    border-radius: 2px;
+    margin: 0 auto 20px;
+    opacity: 0.6;
+}
+
+.ep-divider--amber {
+    background: var(--ep-amber);
+}
+
+.ep-title {
+    font-family: var(--ep-font-display);
+    font-size: clamp(22px, 4vw, 28px);
+    font-weight: 700;
+    color: var(--ep-text-primary);
+    margin: 0 0 14px;
+    letter-spacing: 0.01em;
+}
+
+.ep-subtitle {
+    font-size: 14px;
+    color: var(--ep-text-secondary);
+    line-height: 1.8;
+    margin: 0 0 8px;
+    max-width: 400px;
+    display: inline-block;
+}
+
+.ep-error-code {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ep-text-muted);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--ep-border);
+    border-radius: 100px;
+    padding: 4px 14px;
+}
+
+/* ══════════════════════════════════════════
+   ACTION BUTTONS
+══════════════════════════════════════════ */
+.ep-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 32px;
+}
+
+.ep-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px 28px;
+    border-radius: var(--ep-radius-md);
+    border: none;
+    font-family: var(--ep-font-body);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+        transform var(--ep-transition),
+        box-shadow var(--ep-transition),
+        opacity var(--ep-transition),
+        background var(--ep-transition);
+    outline: none;
+}
+
+.ep-btn:focus-visible {
+    outline: 2px solid var(--ep-crimson);
+    outline-offset: 3px;
+}
+
+/* Primary — red */
+.ep-btn--primary {
+    background: linear-gradient(135deg, var(--ep-crimson) 0%, var(--ep-crimson-dim) 100%);
+    color: #fff;
+    box-shadow: 0 4px 20px var(--ep-crimson-glow);
+}
+
+.ep-btn--primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 32px rgba(232, 0, 28, 0.4);
+}
+
+/* Primary — amber variant */
+.ep-btn--primary-amber {
+    background: linear-gradient(135deg, var(--ep-amber) 0%, #d97706 100%);
+    color: #1a0e00;
+    box-shadow: 0 4px 20px var(--ep-amber-glow);
+}
+
+.ep-btn--primary-amber:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 32px rgba(245, 158, 11, 0.35);
+}
+
+/* Secondary — ghost */
+.ep-btn--secondary {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--ep-text-secondary);
+    border: 1px solid var(--ep-border);
+}
+
+.ep-btn--secondary:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: var(--ep-text-primary);
+    transform: translateY(-1px);
+}
+
+.ep-btn:active {
+    transform: scale(0.97);
+}
+
+/* ══════════════════════════════════════════
+   FOOTER TEXT
+══════════════════════════════════════════ */
+.ep-footer {
+    position: relative;
+    z-index: 10;
+    margin-top: 32px;
+    font-size: 9.5px;
+    color: #3a2020;
+    letter-spacing: 0.14em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════ */
+@media (max-width: 600px) {
+    .ep-card {
+        padding: 40px 24px 36px;
+        border-radius: var(--ep-radius-card);
+    }
+
+    .ep-code {
+        filter: none;
+    }
+
+    /* drop-shadow can be expensive on mobile */
+    .ep-actions {
+        gap: 8px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .ep-card,
+    .ep-code,
+    .ep-illustration,
+    .ep-code-ring {
+        animation: none !important;
+        transition: none !important;
+    }
+}

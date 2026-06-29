@@ -7,8 +7,9 @@ import {
     type KeyboardEvent,
 } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { logout } from "@/store/slices/authSlice";
+import { useAppSelector } from "@/store/hooks";
+
+import { useLogout } from "@/features/auth/hooks/useLogoutMutation";
 
 /* ─────────────────────────────────────────────────────────────
    DESIGN TOKENS (Dark Mode — extend for Light Mode later)
@@ -350,6 +351,7 @@ const UserDropdown: FC<UserDropdownProps> = ({ name, email, avatar, onClose, onL
 
     const menuItems = [
         { label: "Profile", icon: "", path: "/customer/profile" },
+        { label: "My Tickets", icon: "", path: "/customer/myTickets" },
         { label: "Settings", icon: "", path: "/customer/settings" },
     ];
 
@@ -631,8 +633,7 @@ const MobileDrawer: FC<DrawerProps> = ({
    PAGE HEADER — main export
 ───────────────────────────────────────────────────────────── */
 const PageHeader: FC = () => {
-    const dispatch = useAppDispatch();
-    const navigate = useNavigate();
+    const { mutate: logout, isPending: isLoggingOut } = useLogout(); const navigate = useNavigate();
     const location = useLocation();
 
     /* Redux state — no extra API call, use existing auth slice */
@@ -668,9 +669,8 @@ const PageHeader: FC = () => {
      * Then dispatch and navigate.
      */
     const handleLogout = useCallback(() => {
-        dispatch(logout());
-        navigate("/login");
-    }, [dispatch, navigate]);
+        logout();
+    }, [logout]);
 
     const headerHeight = scrolled ? H.heightScrolled : H.heightDefault;
     const logoSize = scrolled ? 18 : 22;

@@ -11,6 +11,7 @@ import type {
     ResetPasswordResponse,
     RegisterVerifyEmailRequest,
     RegisterVerifyEmailResponse,
+    LogoutResponse,
 } from "@/features/auth/types/auth.type";
 
 export const loginApi = async (
@@ -76,6 +77,14 @@ export const verifyEmail = async (
     const response = await axiosInstance.post(
         "/auth/verify-email",
         payload
+    );
+
+    return response.data;
+};
+
+export const logoutApi = async (): Promise<LogoutResponse> => {
+    const response = await axiosInstance.post(
+        "/auth/logout"
     );
 
     return response.data;

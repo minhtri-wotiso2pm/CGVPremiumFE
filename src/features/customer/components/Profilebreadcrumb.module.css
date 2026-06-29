@@ -1,0 +1,73 @@
+/* ─────────────────────────────────────────────
+   BREADCRUMB — plain HTML, no Ant Design
+   Avoids CSS-in-JS color injection problem
+───────────────────────────────────────────── */
+.root {
+    padding: 12px 0 22px;
+    font-family: 'Inter', sans-serif;
+}
+
+.list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+}
+
+.sep {
+    display: flex;
+    align-items: center;
+    color: #3d2626;
+    font-size: 9px;
+    margin: 0 9px;
+}
+
+.icon {
+    margin-right: 5px;
+    font-size: 12px;
+}
+
+/* Clearly readable on #080101 bg, muted not invisible */
+.link {
+    color: #9a7070;
+    text-decoration: none;
+    font-size: 12.5px;
+    display: inline-flex;
+    align-items: center;
+    letter-spacing: 0.02em;
+    transition: color 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.link:hover {
+    color: #E8001C;
+}
+
+/* Intermediate crumb — dimmer than Home, dimmer than Active */
+.parent {
+    color: #5a3838;
+    font-size: 12.5px;
+    display: inline-flex;
+    align-items: center;
+    cursor: default;
+    letter-spacing: 0.02em;
+}
+
+/* Current page — crimson, bold */
+.active {
+    color: #E8001C;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+@media (max-width: 768px) {
+    .root { padding: 8px 0 16px; }
+    .link, .parent, .active { font-size: 12px; }
+}

@@ -1,0 +1,48 @@
+/* ─────────────────────────────────────────────
+   PAGE — full-viewport dark background
+   Prevents white strips on sides of content
+───────────────────────────────────────────── */
+.page {
+    background: #080101;
+    min-height: calc(100vh - 72px);
+}
+
+/* ─────────────────────────────────────────────
+   LAYOUT — centered inner container
+   Sidebar + main content sit side-by-side
+───────────────────────────────────────────── */
+.layout {
+    display: flex;
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 24px 80px;
+    align-items: flex-start;
+}
+
+/* ─────────────────────────────────────────────
+   CONTENT — flex child, fills remaining width
+───────────────────────────────────────────── */
+.content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ─────────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────────── */
+@media (max-width: 900px) {
+    .layout {
+        flex-direction: column;
+        padding: 20px 16px 56px;
+        gap: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .layout {
+        padding: 14px 12px 48px;
+    }
+}
