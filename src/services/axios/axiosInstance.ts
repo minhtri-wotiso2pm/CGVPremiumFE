@@ -13,6 +13,11 @@ const axiosInstance = axios.create({
 
 /* ── Request: gắn Bearer token ── */
 axiosInstance.interceptors.request.use((config) => {
+    // Caller có thể set header "x-skip-auth: true" để bỏ qua auth (public endpoints)
+    if (config.headers?.["x-skip-auth"]) {
+        delete config.headers["x-skip-auth"];
+        return config;
+    }
     const token = localStorage.getItem("accessToken");
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;

@@ -8,7 +8,7 @@ export const SHOWTIME_DEFAULT_PARAMS = {
     sortDir: "asc",
 } as const;
 
-export const SHOWTIME_DATE_COUNT = 10;
+export const SHOWTIME_DATE_COUNT = 13;
 
 export const ALL_CINEMAS = null;
 export const ALL_ROOM_TYPES = "ALL";

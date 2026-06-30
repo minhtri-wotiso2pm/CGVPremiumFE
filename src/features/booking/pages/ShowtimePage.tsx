@@ -4,13 +4,14 @@ import { useMovieDetail } from "@/features/movies/hooks/useMovieDetail";
 import { useShowtimes } from "../hooks/useShowtimes";
 import { ALL_ROOM_TYPES } from "../constants/showtime.constants";
 import type { ShowtimeCinema } from "../types/showtime.types";
+import type { SeatNavState } from "../types/seat.types";
 import { getTodayString } from "../utils/showtime.utils";
 import ShowtimeMovieInfo from "../components/ShowtimeMovieInfo";
 import ShowtimeDateSelector from "../components/ShowtimeDateSelector";
 import ShowtimeCinemaFilter from "../components/ShowtimeCinemaFilter";
 import ShowtimeRoomTypeFilter from "../components/ShowtimeRoomTypeFilter";
 import ShowtimeGrid from "../components/ShowtimeGrid";
-import ShowtimeSkeleton, { ShowtimeMovieInfoSkeleton } from "../components/ShowtimeSkeleton";
+import ShowtimeSkeleton, { ShowtimeGridSkeleton, ShowtimeMovieInfoSkeleton } from "../components/ShowtimeSkeleton";
 import "../components/showtime.css";
 
 const ShowtimePage: FC = () => {
@@ -82,10 +83,22 @@ const ShowtimePage: FC = () => {
     };
 
     const handleShowtimeSelect = (showtimeId: number) => {
-        navigate(`/seats/${showtimeId}`);
+        const showtime = allShowtimes.find((s) => s.showtimeId === showtimeId);
+        const state: SeatNavState = {
+            movieId:       id,
+            movieTitle:    movie?.title,
+            moviePoster:   movie?.posterUrl,
+            movieDuration: movie?.durationMinutes,
+            movieAgeRating:movie?.ageRating,
+            startTime:     showtime?.startTime,
+            endTime:       showtime?.endTime,
+            cinemaName:    showtime?.cinema.cinemaName,
+            roomName:      showtime?.room.roomName,
+            roomType:      showtime?.room.roomType,
+        };
+        navigate(`/customer/seats/${showtimeId}`, { state });
     };
 
-    const isLoading = movieLoading || showtimesLoading;
     const hasCinemaOrRoomFilter =
         selectedCinemaId !== null || selectedRoomType !== ALL_ROOM_TYPES;
 
@@ -116,12 +129,15 @@ const ShowtimePage: FC = () => {
                     ) : null}
                 </div>
 
-                {/* ── RIGHT: Selection ── */}
-                {isLoading ? (
+                {/* ── RIGHT: Selection ──
+                    movieLoading = trang mở lần đầu → full skeleton
+                    showtimesLoading = đổi ngày → chỉ grid skeleton, filter giữ nguyên
+                ── */}
+                {movieLoading ? (
                     <ShowtimeSkeleton />
                 ) : (
                     <div className="cgv-st-selection">
-                        {/* Date */}
+                        {/* Date — luôn visible */}
                         <div className="cgv-st-section">
                             <span className="cgv-st-section-label">Select Date</span>
                             <ShowtimeDateSelector
@@ -130,7 +146,7 @@ const ShowtimePage: FC = () => {
                             />
                         </div>
 
-                        {/* Cinema */}
+                        {/* Cinema — luôn visible sau khi có data lần đầu */}
                         {cinemas.length > 0 && (
                             <div className="cgv-st-section">
                                 <span className="cgv-st-section-label">Cinema</span>
@@ -142,7 +158,7 @@ const ShowtimePage: FC = () => {
                             </div>
                         )}
 
-                        {/* Room type */}
+                        {/* Room type — luôn visible */}
                         {roomTypes.length > 1 && (
                             <div className="cgv-st-section">
                                 <span className="cgv-st-section-label">Room Type</span>
@@ -154,16 +170,20 @@ const ShowtimePage: FC = () => {
                             </div>
                         )}
 
-                        {/* Showtimes */}
+                        {/* Showtimes — chỉ phần này skeleton khi đổi ngày */}
                         <div className="cgv-st-section">
                             <span className="cgv-st-section-label">Showtimes</span>
-                            <ShowtimeGrid
-                                showtimes={finalShowtimes}
-                                isError={isError}
-                                hasCinemaOrRoomFilter={hasCinemaOrRoomFilter}
-                                onSelect={handleShowtimeSelect}
-                                onRetry={refetch}
-                            />
+                            {showtimesLoading ? (
+                                <ShowtimeGridSkeleton />
+                            ) : (
+                                <ShowtimeGrid
+                                    showtimes={finalShowtimes}
+                                    isError={isError}
+                                    hasCinemaOrRoomFilter={hasCinemaOrRoomFilter}
+                                    onSelect={handleShowtimeSelect}
+                                    onRetry={refetch}
+                                />
+                            )}
                         </div>
                     </div>
                 )}

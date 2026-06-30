@@ -62,4 +62,12 @@ export const ShowtimeMovieInfoSkeleton: FC = () => (
     </div>
 );
 
+export const ShowtimeGridSkeleton: FC = () => (
+    <div className="cgv-st-grid" aria-hidden="true">
+        {Array.from({ length: 9 }).map((_, i) => (
+            <div key={i} className="cgv-st-skel cgv-st-skel-card" style={{ animationDelay: `${i * 0.06}s` }} />
+        ))}
+    </div>
+);
+
 export default ShowtimeSkeleton;

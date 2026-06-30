@@ -49,12 +49,20 @@ const DashboardHeader: FC<Props> = ({ onMenuToggle }) => {
 
     const handleLogout = useCallback(() => logout(), [logout]);
 
+    const profilePath = (() => {
+        switch (user?.role?.toUpperCase()) {
+            case "MANAGER": return "/manager/profile";
+            case "STAFF":   return "/staff/profile";
+            default:        return "/admin/profile";
+        }
+    })();
+
     const dropdownItems: MenuProps["items"] = [
         {
             key: "profile",
             label: "My Profile",
             icon: <UserIcon />,
-            onClick: () => navigate("/admin/profile"),
+            onClick: () => navigate(profilePath),
         },
         { type: "divider" },
         {

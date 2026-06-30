@@ -15,7 +15,7 @@ export function useMovieNavigation() {
         },
 
         goBooking(id: number) {
-            navigate(`/customer/booking/${id}`);
+            navigate(`/customer/movie/${id}/showtimes`);
         },
 
     };

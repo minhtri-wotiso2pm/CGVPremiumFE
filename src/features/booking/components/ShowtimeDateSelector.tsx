@@ -23,7 +23,10 @@ const ShowtimeDateSelector: FC<Props> = ({ selectedDate, onChange }) => (
                     aria-pressed={isActive}
                     aria-label={`${day} ${num} ${month}`}
                 >
-                    <span className="cgv-st-date__day">{day}</span>
+                    {i === 0
+                        ? <span className="cgv-st-date__today-badge">TODAY</span>
+                        : <span className="cgv-st-date__day">{day}</span>
+                    }
                     <span className="cgv-st-date__num">{num}</span>
                     <span className="cgv-st-date__month">{month}</span>
                 </button>

@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import ProtectedRoute from "./ProtectedRoute";
 import PermissionRoute from "./PermissionRoute";
@@ -34,12 +34,15 @@ import {
 
 import StaffDashboard from "@/features/staff/pages/StaffDashboard";
 import ManagerDashboard from "@/features/manager/pages/ManagerDashboard";
+import CinemaManagementPage from "@/features/manager/pages/CinemaManagementPage";
+import PlaceholderPage from "@/features/manager/pages/PlaceholderPage";
 import AdminDashboard from "@/features/admin/pages/AdminDashboard";
 import UserManagementPage from "@/features/admin/pages/UserManagementPage";
 import AdminProfilePage from "@/features/admin/pages/AdminProfilePage";
 
 import WelcomePage from "@/features/public/pages/WelcomePage";
 import ShowtimePage from "@/features/booking/pages/ShowtimePage";
+import SeatSelectionPage from "@/features/booking/pages/SeatSelectionPage";
 import TheatersPage from "@/features/public/pages/TheatersPage";
 import PromotionsPage from "@/features/public/pages/PromotionsPage";
 import ForbiddenPage from "@/features/common/pages/ForbiddenPage";
@@ -170,6 +173,10 @@ export const router = createBrowserRouter([
                                 element: <ShowtimePage />,
                             },
                             {
+                                path: "seats/:showtimeId",
+                                element: <SeatSelectionPage />,
+                            },
+                            {
                                 path: "theaters",
                                 element: <TheatersPage />,
                             },
@@ -224,6 +231,10 @@ export const router = createBrowserRouter([
                                 path: "dashboard",
                                 element: <StaffDashboard />,
                             },
+                            {
+                                path: "profile",
+                                element: <AdminProfilePage />,
+                            },
                         ],
                     },
                 ],
@@ -242,8 +253,44 @@ export const router = createBrowserRouter([
                         element: <ManagerLayout />,
                         children: [
                             {
+                                index: true,
+                                element: <Navigate to="/manager/cinemas" replace />,
+                            },
+                            {
                                 path: "dashboard",
                                 element: <ManagerDashboard />,
+                            },
+                            {
+                                path: "cinemas",
+                                element: <CinemaManagementPage />,
+                            },
+                            {
+                                path: "rooms",
+                                element: <PlaceholderPage title="Room Management" description="Manage screening rooms within your cinemas." />,
+                            },
+                            {
+                                path: "seats",
+                                element: <PlaceholderPage title="Seat Management" description="Configure and manage seat layouts for each screening room." />,
+                            },
+                            {
+                                path: "showtimes",
+                                element: <PlaceholderPage title="Showtime Management" description="Schedule and manage movie showtimes across all cinemas." />,
+                            },
+                            {
+                                path: "movies",
+                                element: <PlaceholderPage title="Movie Management" description="Manage the movie catalog available at your cinemas." />,
+                            },
+                            {
+                                path: "promotions",
+                                element: <PlaceholderPage title="Promotion Management" description="Create and manage promotions and discount campaigns." />,
+                            },
+                            {
+                                path: "reports",
+                                element: <PlaceholderPage title="Reports" description="View revenue, booking trends, and performance analytics." />,
+                            },
+                            {
+                                path: "profile",
+                                element: <AdminProfilePage />,
                             },
                         ],
                     },
