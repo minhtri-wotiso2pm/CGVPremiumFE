@@ -47,6 +47,13 @@ const MovieIcon = () => (
         <line x1="17" y1="7" x2="22" y2="7" />
     </svg>
 );
+const FnbIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <path d="M16 10a4 4 0 01-8 0" />
+    </svg>
+);
 const PromotionIcon = () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
@@ -105,7 +112,12 @@ const MANAGER_MENU: MenuGroup[] = [
                 label: "Movie Management",
                 icon: <MovieIcon />,
                 path: "/manager/movies",
-                disabled: true,
+            },
+            {
+                key: "products",
+                label: "F&B Management",
+                icon: <FnbIcon />,
+                path: "/manager/products",
             },
             {
                 key: "promotions",

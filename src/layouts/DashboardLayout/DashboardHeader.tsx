@@ -107,6 +107,21 @@ const DashboardHeader: FC<Props> = ({ onMenuToggle }) => {
                             <div className="dash-header__user-role">
                                 {user?.role ?? ""}
                             </div>
+                            {user?.cinema?.cinemaName && (
+                                <div style={{
+                                    fontSize: 10,
+                                    color: "var(--dash-text-3)",
+                                    fontWeight: 500,
+                                    lineHeight: 1.3,
+                                    marginTop: 1,
+                                    maxWidth: 140,
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    whiteSpace: "nowrap",
+                                }}>
+                                    {user.cinema.cinemaName}
+                                </div>
+                            )}
                         </div>
                         {user?.avatarURL ? (
                             <img

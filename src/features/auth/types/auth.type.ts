@@ -1,3 +1,10 @@
+export interface UserCinema {
+    cinemaId: number;
+    cinemaName: string;
+    address: string;
+    status: string;
+}
+
 export interface User {
     userID: number;
     fullName: string;
@@ -8,6 +15,7 @@ export interface User {
     avatarURL: string | null;
     totalPoints: number;
     createdAt: string;
+    cinema?: UserCinema | null;
 }
 
 export interface RegisterRequest {

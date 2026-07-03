@@ -1,0 +1,896 @@
+/* ════════════════════════════════════════════
+   CGV PREMIUM — Payment & Confirmation Pages
+════════════════════════════════════════════ */
+
+/* ─── Page ────────────────────────────────── */
+.cgv-pay-page {
+    min-height: 100vh;
+    background: #080101;
+    color: #f0e8e8;
+    padding: 24px 0 100px;
+    animation: pay-fade-in 300ms ease;
+}
+
+@keyframes pay-fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.cgv-pay-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ─── Step indicator (same pattern as fnb) ── */
+.cgv-pay-steps {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 12px 20px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    overflow-x: auto;
+}
+
+.cgv-pay-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(240,232,232,0.4);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.cgv-pay-step--done   { color: #4caf50; }
+.cgv-pay-step--active { color: #f0e8e8; }
+
+.cgv-pay-step__num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(255,255,255,0.08);
+    flex-shrink: 0;
+}
+
+.cgv-pay-step--done   .cgv-pay-step__num { background: #4caf50; color: #fff; }
+.cgv-pay-step--active .cgv-pay-step__num { background: #E8001C; color: #fff; }
+
+.cgv-pay-step__sep {
+    width: 28px;
+    height: 1px;
+    background: rgba(255,255,255,0.1);
+    flex-shrink: 0;
+    margin: 0 4px;
+}
+
+/* ─── Hold timer ──────────────────────────── */
+.cgv-pay-timer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: rgba(232,0,28,0.07);
+    border: 1px solid rgba(232,0,28,0.18);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: rgba(240,232,232,0.6);
+}
+
+.cgv-pay-timer__icon  { font-size: 15px; flex-shrink: 0; }
+
+.cgv-pay-timer__count {
+    font-weight: 700;
+    font-size: 15px;
+    color: #E8001C;
+    font-variant-numeric: tabular-nums;
+    min-width: 40px;
+}
+
+.cgv-pay-timer--urgent .cgv-pay-timer__count {
+    animation: pay-blink 1s ease-in-out infinite;
+}
+
+@keyframes pay-blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+}
+
+.cgv-pay-timer--expired {
+    background: rgba(232,0,28,0.14);
+    border-color: rgba(232,0,28,0.35);
+}
+
+/* ─── 2-col layout ────────────────────────── */
+.cgv-pay-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+    align-items: start;
+}
+
+/* ─── Left: order review ──────────────────── */
+.cgv-pay-left { min-width: 0; }
+
+.cgv-pay-review {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.cgv-pay-review__movie {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.cgv-pay-review__poster {
+    width: 54px;
+    height: 76px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+
+.cgv-pay-review__poster-ph {
+    width: 54px;
+    height: 76px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+}
+
+.cgv-pay-review__movie-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.cgv-pay-review__movie-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #f0e8e8;
+    line-height: 1.3;
+}
+
+.cgv-pay-review__movie-meta {
+    font-size: 12px;
+    color: rgba(240,232,232,0.55);
+    line-height: 1.5;
+}
+
+.cgv-pay-review__section {
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.cgv-pay-review__section:last-child { border-bottom: none; }
+
+.cgv-pay-review__sec-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(240,232,232,0.35);
+    margin-bottom: 10px;
+}
+
+/* Seat chips */
+.cgv-pay-seat-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.cgv-pay-seat-chip {
+    padding: 3px 10px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #f0e8e8;
+}
+
+.cgv-pay-seat-subtotal {
+    font-size: 12px;
+    color: rgba(240,232,232,0.5);
+    margin-top: 4px;
+}
+
+/* F&B items */
+.cgv-pay-fnb-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+    padding: 4px 0;
+}
+
+.cgv-pay-fnb-name {
+    color: #f0e8e8;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cgv-pay-fnb-sub {
+    color: rgba(240,232,232,0.55);
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-size: 12px;
+}
+
+.cgv-pay-fnb-empty {
+    font-size: 12px;
+    color: rgba(240,232,232,0.35);
+    font-style: italic;
+}
+
+/* ─── Right: payment sidebar ──────────────── */
+.cgv-pay-sidebar {
+    position: sticky;
+    top: 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.cgv-pay-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 16px;
+}
+
+.cgv-pay-card__title {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(240,232,232,0.4);
+    margin-bottom: 12px;
+}
+
+/* Pricing rows */
+.cgv-pay-price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    padding: 3px 0;
+    color: rgba(240,232,232,0.65);
+}
+
+.cgv-pay-price-row--discount { color: #4caf50; }
+
+.cgv-pay-price-row__val { color: #f0e8e8; font-weight: 500; }
+.cgv-pay-price-row--discount .cgv-pay-price-row__val { color: #4caf50; }
+
+.cgv-pay-price-hr {
+    height: 1px;
+    background: rgba(255,255,255,0.08);
+    margin: 8px 0;
+}
+
+.cgv-pay-price-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    padding-top: 4px;
+}
+
+.cgv-pay-price-total__label {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(240,232,232,0.6);
+}
+
+.cgv-pay-price-total__val { color: #E8001C; }
+
+/* Skeleton pricing row */
+.cgv-pay-skel {
+    background: linear-gradient(
+        90deg,
+        rgba(255,255,255,0.04) 0%,
+        rgba(255,255,255,0.08) 50%,
+        rgba(255,255,255,0.04) 100%
+    );
+    background-size: 200% 100%;
+    animation: pay-shimmer 1.5s linear infinite;
+    border-radius: 6px;
+    height: 12px;
+}
+
+@keyframes pay-shimmer {
+    from { background-position: 200% 0; }
+    to   { background-position: -200% 0; }
+}
+
+/* ─── Voucher input ───────────────────────── */
+.cgv-pay-voucher-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.cgv-pay-voucher-input {
+    flex: 1;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    color: #f0e8e8;
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 150ms ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.cgv-pay-voucher-input::placeholder { color: rgba(240,232,232,0.3); text-transform: none; }
+.cgv-pay-voucher-input:focus { border-color: rgba(232,0,28,0.5); }
+
+.cgv-pay-voucher-btn {
+    padding: 10px 14px;
+    background: rgba(232,0,28,0.12);
+    border: 1px solid rgba(232,0,28,0.3);
+    border-radius: 8px;
+    color: #E8001C;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 150ms ease;
+    flex-shrink: 0;
+}
+
+.cgv-pay-voucher-btn:hover:not(:disabled) { background: rgba(232,0,28,0.2); }
+.cgv-pay-voucher-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.cgv-pay-voucher-applied {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(76,175,80,0.08);
+    border: 1px solid rgba(76,175,80,0.2);
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+.cgv-pay-voucher-applied__code { color: #4caf50; font-weight: 600; letter-spacing: 0.05em; }
+
+.cgv-pay-voucher-remove {
+    background: none;
+    border: none;
+    color: rgba(240,232,232,0.4);
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    padding: 0 2px;
+    transition: color 150ms ease;
+    flex-shrink: 0;
+}
+
+.cgv-pay-voucher-remove:hover { color: #ff6b6b; }
+
+/* ─── Payment method selector ─────────────── */
+.cgv-pay-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.cgv-pay-method {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.03);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 150ms ease, background 150ms ease;
+    user-select: none;
+}
+
+.cgv-pay-method:hover { border-color: rgba(255,255,255,0.2); }
+
+.cgv-pay-method--selected {
+    border-color: #E8001C;
+    background: rgba(232,0,28,0.06);
+}
+
+.cgv-pay-method__radio {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: border-color 150ms ease;
+}
+
+.cgv-pay-method--selected .cgv-pay-method__radio {
+    border-color: #E8001C;
+}
+
+.cgv-pay-method__radio-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #E8001C;
+    opacity: 0;
+    transform: scale(0);
+    transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.cgv-pay-method--selected .cgv-pay-method__radio-dot {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.cgv-pay-method__icon { font-size: 20px; flex-shrink: 0; }
+
+.cgv-pay-method__info { flex: 1; min-width: 0; }
+
+.cgv-pay-method__name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #f0e8e8;
+}
+
+.cgv-pay-method__desc {
+    font-size: 11px;
+    color: rgba(240,232,232,0.5);
+    margin-top: 2px;
+}
+
+.cgv-pay-method__desc--warn { color: #ff9800; }
+
+/* ─── Pay button ──────────────────────────── */
+.cgv-pay-btn {
+    width: 100%;
+    padding: 14px;
+    background: #E8001C;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 150ms ease, transform 100ms ease, opacity 150ms ease;
+    letter-spacing: 0.02em;
+}
+
+.cgv-pay-btn:hover:not(:disabled) {
+    background: #cc0018;
+    transform: translateY(-1px);
+}
+
+.cgv-pay-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ─── Error message ───────────────────────── */
+.cgv-pay-error {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 14px;
+    background: rgba(232,0,28,0.08);
+    border: 1px solid rgba(232,0,28,0.25);
+    border-radius: 8px;
+    font-size: 12px;
+    color: #ff6b6b;
+    line-height: 1.5;
+}
+
+/* ─── Waiting state ───────────────────────── */
+.cgv-pay-waiting {
+    text-align: center;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.cgv-pay-waiting__spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(232,0,28,0.2);
+    border-top-color: #E8001C;
+    border-radius: 50%;
+    animation: pay-spin 0.8s linear infinite;
+}
+
+@keyframes pay-spin {
+    to { transform: rotate(360deg); }
+}
+
+.cgv-pay-waiting__title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #f0e8e8;
+}
+
+.cgv-pay-waiting__desc {
+    font-size: 12px;
+    color: rgba(240,232,232,0.5);
+    line-height: 1.6;
+    max-width: 240px;
+}
+
+.cgv-pay-waiting__dots {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+}
+
+.cgv-pay-waiting__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #E8001C;
+    animation: pay-dot-bounce 1.2s ease-in-out infinite;
+}
+
+.cgv-pay-waiting__dot:nth-child(2) { animation-delay: 0.2s; }
+.cgv-pay-waiting__dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes pay-dot-bounce {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+    40%            { transform: scale(1);   opacity: 1; }
+}
+
+.cgv-pay-cancel-btn {
+    margin-top: 8px;
+    padding: 9px 20px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    color: rgba(240,232,232,0.5);
+    font-size: 12px;
+    cursor: pointer;
+    transition: border-color 150ms ease, color 150ms ease;
+}
+
+.cgv-pay-cancel-btn:hover {
+    border-color: rgba(255,255,255,0.25);
+    color: #f0e8e8;
+}
+
+/* ─── Mobile bottom bar ───────────────────── */
+.cgv-pay-mobile-bar {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 100;
+    background: #0f0202;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    padding: 12px 20px 16px;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.cgv-pay-mobile-bar__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cgv-pay-mobile-bar__label {
+    font-size: 11px;
+    color: rgba(240,232,232,0.45);
+}
+
+.cgv-pay-mobile-bar__total {
+    font-size: 16px;
+    font-weight: 700;
+    color: #E8001C;
+}
+
+/* ════════════════════════════════════════════
+   BOOKING CONFIRMATION PAGE
+════════════════════════════════════════════ */
+.cgv-confirm-page {
+    min-height: 100vh;
+    background: #080101;
+    color: #f0e8e8;
+    padding: 48px 20px 80px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    animation: pay-fade-in 400ms ease;
+}
+
+.cgv-confirm-inner {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Success header */
+.cgv-confirm-hero {
+    text-align: center;
+    padding: 32px 20px 24px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+}
+
+.cgv-confirm-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(76,175,80,0.12);
+    border: 2px solid rgba(76,175,80,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin: 0 auto 16px;
+    animation: confirm-pop 400ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes confirm-pop {
+    from { transform: scale(0.5); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+}
+
+.cgv-confirm-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #f0e8e8;
+    margin-bottom: 6px;
+}
+
+.cgv-confirm-subtitle {
+    font-size: 13px;
+    color: rgba(240,232,232,0.5);
+}
+
+/* Booking code */
+.cgv-confirm-code-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 18px;
+    padding: 14px 20px;
+    background: rgba(232,0,28,0.06);
+    border: 1px dashed rgba(232,0,28,0.25);
+    border-radius: 10px;
+}
+
+.cgv-confirm-code-label {
+    font-size: 11px;
+    color: rgba(240,232,232,0.4);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    flex-shrink: 0;
+}
+
+.cgv-confirm-code {
+    font-size: 16px;
+    font-weight: 700;
+    color: #f0e8e8;
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+}
+
+.cgv-confirm-copy-btn {
+    padding: 4px 10px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 6px;
+    color: rgba(240,232,232,0.6);
+    font-size: 11px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 150ms ease, color 150ms ease;
+}
+
+.cgv-confirm-copy-btn:hover { background: rgba(255,255,255,0.12); color: #f0e8e8; }
+.cgv-confirm-copy-btn--copied { color: #4caf50; border-color: rgba(76,175,80,0.3); }
+
+/* Detail card */
+.cgv-confirm-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.cgv-confirm-card__section {
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.cgv-confirm-card__section:last-child { border-bottom: none; }
+
+.cgv-confirm-card__sec-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(240,232,232,0.35);
+    margin-bottom: 10px;
+}
+
+/* Movie info row */
+.cgv-confirm-movie-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.cgv-confirm-poster {
+    width: 46px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 5px;
+    flex-shrink: 0;
+}
+
+.cgv-confirm-poster-ph {
+    width: 46px;
+    height: 64px;
+    border-radius: 5px;
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+
+.cgv-confirm-movie-info { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+
+.cgv-confirm-movie-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #f0e8e8;
+}
+
+.cgv-confirm-movie-meta {
+    font-size: 12px;
+    color: rgba(240,232,232,0.5);
+    line-height: 1.5;
+}
+
+/* Detail rows */
+.cgv-confirm-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+    padding: 4px 0;
+}
+
+.cgv-confirm-row__label { color: rgba(240,232,232,0.5); flex-shrink: 0; }
+.cgv-confirm-row__val   { color: #f0e8e8; font-weight: 500; text-align: right; }
+
+.cgv-confirm-row--total {
+    font-size: 15px;
+    font-weight: 700;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    margin-top: 6px;
+    padding-top: 10px;
+}
+
+.cgv-confirm-row--total .cgv-confirm-row__val { color: #E8001C; }
+
+/* Seat chips */
+.cgv-confirm-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 4px;
+}
+
+.cgv-confirm-chip {
+    padding: 3px 10px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    color: #f0e8e8;
+}
+
+/* Actions */
+.cgv-confirm-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cgv-confirm-home-btn {
+    width: 100%;
+    padding: 14px;
+    background: #E8001C;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 150ms ease, transform 100ms ease;
+}
+
+.cgv-confirm-home-btn:hover {
+    background: #cc0018;
+    transform: translateY(-1px);
+}
+
+.cgv-confirm-invoice-btn {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    color: rgba(240,232,232,0.6);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    display: block;
+    transition: border-color 150ms ease, color 150ms ease;
+}
+
+.cgv-confirm-invoice-btn:hover {
+    border-color: rgba(255,255,255,0.25);
+    color: #f0e8e8;
+}
+
+/* ─── Responsive ──────────────────────────── */
+@media (max-width: 960px) {
+    .cgv-pay-layout { grid-template-columns: 1fr; }
+    .cgv-pay-sidebar { position: static; }
+    .cgv-pay-mobile-bar { display: flex; }
+}
+
+@media (max-width: 560px) {
+    .cgv-pay-step__sep { width: 16px; }
+    .cgv-confirm-page  { padding: 24px 16px 60px; }
+}

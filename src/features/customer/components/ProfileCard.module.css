@@ -105,10 +105,17 @@
 }
 
 /* Glass-blur edit button */
-.editBtn {
-    position: absolute !important;
+.heroBtnGroup {
+    position: absolute;
     top: 16px;
     right: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-end;
+}
+
+.heroBtn {
     background: rgba(6, 1, 1, 0.68) !important;
     backdrop-filter: blur(10px) !important;
     -webkit-backdrop-filter: blur(10px) !important;
@@ -118,10 +125,11 @@
     height: 32px !important;
     border-radius: 8px !important;
     letter-spacing: 0.06em !important;
+    font-family: 'Inter', sans-serif !important;
     transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 
-.editBtn:hover {
+.heroBtn:hover {
     background: rgba(232, 0, 28, 0.16) !important;
     border-color: rgba(232, 0, 28, 0.55) !important;
     color: #f0a8a8 !important;
@@ -353,5 +361,5 @@
 
 @media (max-width: 420px) {
     .infoGrid { grid-template-columns: 1fr; }
-    .editBtn span:last-child { display: none; }
+    .heroBtn span:last-child { display: none; }
 }

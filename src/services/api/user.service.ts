@@ -43,3 +43,14 @@ export const deleteAvatar = async (): Promise<ProfileResponse> => {
     const { data } = await axiosInstance.delete<ProfileResponse>(`${BASE_URL}/avatar`);
     return data;
 };
+
+export interface ChangePasswordPayload {
+    oldPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+}
+
+export const changeOwnPassword = async (payload: ChangePasswordPayload): Promise<{ success: boolean; message: string }> => {
+    const { data } = await axiosInstance.put<{ success: boolean; message: string }>("/user/password", payload);
+    return data;
+};

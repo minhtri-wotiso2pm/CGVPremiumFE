@@ -26,6 +26,7 @@ export interface SeatNavState {
     movieAgeRating?: string;
     startTime?: string;
     endTime?: string;
+    cinemaId?: number;
     cinemaName?: string;
     roomName?: string;
     roomType?: string;

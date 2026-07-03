@@ -27,6 +27,16 @@ const T = {
 } as const;
 
 /* ─────────────────────────────────────────────────────────────
+   PASSWORD REQUIREMENT RULES
+───────────────────────────────────────────────────────────── */
+const PASSWORD_RULES = [
+    { id: "len",     label: "Ít nhất 6 ký tự",                    test: (v: string) => v.length >= 6 },
+    { id: "upper",   label: "Ít nhất 1 chữ hoa (A–Z)",            test: (v: string) => /[A-Z]/.test(v) },
+    { id: "digit",   label: "Ít nhất 1 chữ số (0–9)",             test: (v: string) => /[0-9]/.test(v) },
+    { id: "special", label: "Ít nhất 1 ký tự đặc biệt (!@#$…)",   test: (v: string) => /[^A-Za-z0-9]/.test(v) },
+] as const;
+
+/* ─────────────────────────────────────────────────────────────
    VALIDATION RULES
 ───────────────────────────────────────────────────────────── */
 const rules = {
@@ -49,7 +59,8 @@ const rules = {
     },
     password: (v: string): string => {
         if (!v) return "Mật khẩu không được để trống.";
-        if (v.length < 6) return "Mật khẩu phải có ít nhất 6 ký tự.";
+        const missing = PASSWORD_RULES.filter((r) => !r.test(v)).map((r) => r.label);
+        if (missing.length > 0) return `Mật khẩu thiếu: ${missing.join(" · ")}.`;
         return "";
     },
     confirmPassword: (v: string, pw: string): string => {
@@ -60,14 +71,55 @@ const rules = {
 };
 
 /* ─────────────────────────────────────────────────────────────
+   PASSWORD CHECKLIST
+───────────────────────────────────────────────────────────── */
+function PasswordChecklist({ value, show }: { value: string; show: boolean }) {
+    if (!show) return null;
+    return (
+        <div style={{
+            marginTop: 8,
+            padding: "10px 13px",
+            background: "rgba(255,255,255,0.025)",
+            borderRadius: 7,
+            border: "1px solid rgba(255,255,255,0.06)",
+            display: "flex",
+            flexDirection: "column",
+            gap: 6,
+        }}>
+            {PASSWORD_RULES.map((rule) => {
+                const passed = rule.test(value);
+                return (
+                    <div key={rule.id} style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                        <span style={{
+                            fontSize: 11, fontWeight: 700, flexShrink: 0,
+                            color: passed ? "#22c55e" : "#884444",
+                            transition: "color 0.2s",
+                        }}>
+                            {passed ? "✓" : "✗"}
+                        </span>
+                        <span style={{
+                            fontSize: 11.5,
+                            color: passed ? "#22c55e" : "#7a5858",
+                            transition: "color 0.2s",
+                        }}>
+                            {rule.label}
+                        </span>
+                    </div>
+                );
+            })}
+        </div>
+    );
+}
+
+/* ─────────────────────────────────────────────────────────────
    PASSWORD STRENGTH
 ───────────────────────────────────────────────────────────── */
 function passwordStrength(v: string): 0 | 1 | 2 | 3 {
-    let score = 0;
-    if (v.length >= 8) score++;
-    if (/[A-Z]/.test(v) && /[a-z]/.test(v)) score++;
-    if (/[0-9]/.test(v) || /[^A-Za-z0-9]/.test(v)) score++;
-    return score as 0 | 1 | 2 | 3;
+    if (!v) return 0;
+    const passed = PASSWORD_RULES.filter((r) => r.test(v)).length;
+    if (passed <= 1) return 1;
+    if (passed <= 3) return 2;
+    return 3;
 }
 
 const strengthMeta: Record<1 | 2 | 3, { label: string; color: string }> = {
@@ -564,7 +616,7 @@ export default function RegisterPage() {
                     <FormField
                         id="cgv-password" label="Password"
                         type={showPw ? "text" : "password"}
-                        value={password} placeholder="Minimum 6 characters" autoComplete="new-password"
+                        value={password} placeholder="Ít nhất 6 ký tự, 1 chữ hoa, 1 số, 1 ký tự đặc biệt" autoComplete="new-password"
                         error={passwordError} isValid={passwordValid} isFocused={focusedField === "password"}
                         onChange={(v) => { setPassword(v); setSubmitErr(""); }}
                         onFocus={() => setFocusedField("password")}
@@ -576,7 +628,15 @@ export default function RegisterPage() {
                                 onToggle={() => setShowPw((v) => !v)}
                             />
                         }
-                        belowInput={<StrengthBar score={pwScore} />}
+                        belowInput={
+                            <>
+                                <StrengthBar score={pwScore} />
+                                <PasswordChecklist
+                                    value={password}
+                                    show={focusedField === "password" || password.length > 0}
+                                />
+                            </>
+                        }
                     />
 
                     {/* Confirm Password — no strength bar, match indicator only */}

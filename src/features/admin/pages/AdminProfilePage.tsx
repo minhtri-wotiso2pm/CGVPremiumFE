@@ -5,6 +5,14 @@ import { useProfile } from "@/features/customer/hooks/useProfile";
 import { useUpdateProfile } from "@/features/customer/hooks/useUpdateProfile";
 import { useUploadAvatar } from "@/features/customer/hooks/useUploadAvatar";
 import { useDeleteAvatar } from "@/features/customer/hooks/useDeleteAvatar";
+import ChangeOwnPasswordModal from "../components/ChangeOwnPasswordModal";
+
+const MapPinIcon = () => (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+        <circle cx="12" cy="10" r="3" />
+    </svg>
+);
 
 /* ── Icons ── */
 const EditIcon = () => (
@@ -24,6 +32,12 @@ const TrashIcon = () => (
         <polyline points="3 6 5 6 21 6" />
         <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
         <path d="M10 11v6M14 11v6" />
+    </svg>
+);
+const LockIcon = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+        <path d="M7 11V7a5 5 0 0110 0v4" />
     </svg>
 );
 
@@ -49,6 +63,7 @@ const AdminProfilePage: FC = () => {
     const fileRef = useRef<HTMLInputElement>(null);
 
     const [editOpen, setEditOpen] = useState(false);
+    const [changePwOpen, setChangePwOpen] = useState(false);
     const [form] = Form.useForm();
 
     const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile(() => setEditOpen(false));
@@ -158,14 +173,22 @@ const AdminProfilePage: FC = () => {
                             <h2 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: "var(--dash-text-1)" }}>
                                 Account Information
                             </h2>
-                            <Button
-                                type="primary"
-                                icon={<EditIcon />}
-                                onClick={handleEditOpen}
-                                style={{ background: "#E8001C", borderColor: "#E8001C" }}
-                            >
-                                Edit Profile
-                            </Button>
+                            <div style={{ display: "flex", gap: 8 }}>
+                                <Button
+                                    icon={<LockIcon />}
+                                    onClick={() => setChangePwOpen(true)}
+                                >
+                                    Đổi mật khẩu
+                                </Button>
+                                <Button
+                                    type="primary"
+                                    icon={<EditIcon />}
+                                    onClick={handleEditOpen}
+                                    style={{ background: "#E8001C", borderColor: "#E8001C" }}
+                                >
+                                    Edit Profile
+                                </Button>
+                            </div>
                         </div>
 
                         <div style={{ marginTop: 16 }}>
@@ -176,9 +199,45 @@ const AdminProfilePage: FC = () => {
                             <Field label="Status" value={user?.status} />
                             <Field label="Member Since" value={joinedDate} />
                         </div>
+
+                        {user?.cinema && (
+                            <div style={{ marginTop: 28 }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 4 }}>
+                                    <span style={{ color: "var(--dash-crimson)" }}><MapPinIcon /></span>
+                                    <h3 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "var(--dash-text-1)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                                        Cinema đang quản lý
+                                    </h3>
+                                </div>
+                                <div style={{ marginTop: 8, padding: "16px 20px", borderRadius: 10, background: "rgba(232,0,28,0.04)", border: "1px solid rgba(232,0,28,0.12)" }}>
+                                    <div style={{ fontWeight: 700, fontSize: 14, color: "var(--dash-text-1)", marginBottom: 6 }}>
+                                        {user.cinema.cinemaName}
+                                    </div>
+                                    <div style={{ fontSize: 13, color: "var(--dash-text-2)", marginBottom: 4 }}>
+                                        {user.cinema.address}
+                                    </div>
+                                    <span style={{
+                                        display: "inline-block",
+                                        fontSize: 11, fontWeight: 700,
+                                        padding: "2px 10px", borderRadius: 20,
+                                        background: user.cinema.status?.toUpperCase() === "ACTIVE"
+                                            ? "rgba(34,197,94,0.1)" : "rgba(0,0,0,0.06)",
+                                        border: `1px solid ${user.cinema.status?.toUpperCase() === "ACTIVE"
+                                            ? "rgba(34,197,94,0.25)" : "rgba(0,0,0,0.1)"}`,
+                                        color: user.cinema.status?.toUpperCase() === "ACTIVE" ? "#16a34a" : "var(--dash-text-3)",
+                                        textTransform: "uppercase",
+                                        letterSpacing: "0.06em",
+                                    }}>
+                                        {user.cinema.status?.toUpperCase() === "ACTIVE" ? "Đang hoạt động" : user.cinema.status}
+                                    </span>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
+
+            {/* Change Password Modal */}
+            <ChangeOwnPasswordModal open={changePwOpen} onClose={() => setChangePwOpen(false)} />
 
             {/* Edit Modal */}
             <Modal

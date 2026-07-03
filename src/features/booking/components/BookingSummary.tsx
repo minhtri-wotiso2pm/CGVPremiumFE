@@ -16,6 +16,7 @@ interface Props {
     onRemoveSeat: (seatId: number) => void;
     onClearAll: () => void;
     onContinue: () => void;
+    isContinueLoading?: boolean;
 }
 
 function formatTime(iso: string): string {
@@ -41,6 +42,7 @@ const BookingSummary: FC<Props> = ({
     onRemoveSeat,
     onClearAll,
     onContinue,
+    isContinueLoading = false,
 }) => {
     const { startTime, cinemaName, roomName, roomType } = navState;
     const seats = Array.from(selectedSeats.values());
@@ -122,10 +124,10 @@ const BookingSummary: FC<Props> = ({
             <div className="cgv-seats-summary__footer">
                 <button
                     className="cgv-seats-continue-btn"
-                    disabled={count === 0}
+                    disabled={count === 0 || isContinueLoading}
                     onClick={onContinue}
                 >
-                    Continue <ArrowIcon />
+                    {isContinueLoading ? "Đang giữ ghế..." : <> Continue <ArrowIcon /> </>}
                 </button>
                 {count > 0 && (
                     <button className="cgv-seats-clear-btn" onClick={onClearAll}>

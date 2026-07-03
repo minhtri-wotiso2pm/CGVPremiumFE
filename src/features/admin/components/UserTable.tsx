@@ -12,9 +12,10 @@ const roleClass: Record<string, string> = {
     customer: "dash-role--customer",
 };
 const statusClass: Record<string, string> = {
-    active:   "dash-badge--active",
-    inactive: "dash-badge--inactive",
-    banned:   "dash-badge--banned",
+    active:     "dash-badge--active",
+    inactive:   "dash-badge--inactive",
+    banned:     "dash-badge--banned",
+    unverified: "dash-badge--pending",
 };
 
 const AvatarCell = ({ user }: { user: AdminUser }) => {

@@ -17,10 +17,11 @@ export const useProfile = () => {
     useEffect(() => {
         if (query.data) {
             dispatch(updateUserInfo({
-                fullName: query.data.fullName,
-                phone: query.data.phone,
-                avatarURL: query.data.avatarURL,
+                fullName:    query.data.fullName,
+                phone:       query.data.phone,
+                avatarURL:   query.data.avatarURL,
                 totalPoints: query.data.totalPoints,
+                cinema:      query.data.cinema ?? null,
             }));
         }
     }, [query.data, dispatch]);

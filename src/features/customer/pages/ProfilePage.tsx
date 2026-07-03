@@ -10,12 +10,14 @@ import { useProfile } from "../hooks/useProfile";
 import ProfileCard from "../components/ProfileCard";
 import EditProfileModal from "../components/EditProfileModal";
 import AvatarModal from "../components/AvatarModal";
+import ChangePasswordModal from "../components/ChangePasswordModal";
 
 const ProfilePage: FC = () => {
     const { data: profile, isLoading, isError, refetch } = useProfile();
 
     const [editOpen, setEditOpen] = useState(false);
     const [avatarOpen, setAvatarOpen] = useState(false);
+    const [changePwOpen, setChangePwOpen] = useState(false);
 
     if (isError) {
         return (
@@ -40,6 +42,7 @@ const ProfilePage: FC = () => {
                 loading={isLoading}
                 onEdit={() => setEditOpen(true)}
                 onAvatar={() => setAvatarOpen(true)}
+                onChangePassword={() => setChangePwOpen(true)}
             />
 
             {profile && (
@@ -56,6 +59,11 @@ const ProfilePage: FC = () => {
                     />
                 </>
             )}
+
+            <ChangePasswordModal
+                open={changePwOpen}
+                onClose={() => setChangePwOpen(false)}
+            />
         </>
     );
 };

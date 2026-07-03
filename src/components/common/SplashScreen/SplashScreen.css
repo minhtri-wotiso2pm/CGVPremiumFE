@@ -1,0 +1,146 @@
+/* ════════════════════════════════════════════
+   CGV PREMIUM — Brand Splash Screen
+   Pure CSS animations, no JS animation lib.
+   All durations in ms:
+     0     BG immediate
+     200   Logo fade-in + scale START  (400ms)
+     660   Sweep START                 (350ms)
+     950   Glow START                  (500ms)
+     1300  Overlay fade-out START      (200ms)
+     1500  Animation done
+     1550  Component unmounts (setTimeout in tsx)
+════════════════════════════════════════════ */
+
+/* ── Overlay ─────────────────────────────── */
+.cgv-splash {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    /* Warm-tinted near-black: subtle radial depth */
+    background:
+        radial-gradient(
+            ellipse 90% 65% at 50% 50%,
+            #1b0404 0%,
+            #0e0202 45%,
+            #060101 100%
+        );
+
+    /* Fade out at 1300ms */
+    animation: cgv-splash-out 200ms ease-in 1300ms forwards;
+}
+
+/* Vignette darkening edges */
+.cgv-splash::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        ellipse 100% 100% at 50% 50%,
+        transparent 35%,
+        rgba(0, 0, 0, 0.55) 100%
+    );
+    pointer-events: none;
+}
+
+/* ── Center content ──────────────────────── */
+.cgv-splash__center {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+}
+
+/* ── Logo wrapper (clips the sweep) ─────── */
+.cgv-splash__logo-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    white-space: nowrap;
+    overflow: hidden; /* required to clip sweep */
+    padding: 4px 2px; /* prevent filter clipping at edges */
+
+    /* Start invisible; animate in */
+    opacity: 0;
+    animation:
+        cgv-splash-logo-in   400ms cubic-bezier(0.2, 0, 0.2, 1) 200ms both,
+        cgv-splash-logo-glow 500ms ease-in-out 950ms both;
+}
+
+/* ── Logo text ───────────────────────────── */
+.cgv-splash__logo-text {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(44px, 8vw, 60px);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    line-height: 1;
+    background: linear-gradient(135deg, #ff1a1a 0%, #cc0000 60%, #990000 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    user-select: none;
+}
+
+/* ── Red dot ─────────────────────────────── */
+.cgv-splash__logo-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #e8001c;
+    flex-shrink: 0;
+    align-self: flex-end;
+    margin-bottom: 6px;
+}
+
+
+/* ────────────────────────────────────────────
+   KEYFRAMES
+─────────────────────────────────────────── */
+
+/* Logo: fade in + scale up */
+@keyframes cgv-splash-logo-in {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Logo: subtle red glow pulse */
+@keyframes cgv-splash-logo-glow {
+    0%   { filter: drop-shadow(0 0  0px rgba(232, 0, 28, 0.00)); }
+    40%  { filter: drop-shadow(0 0 14px rgba(232, 0, 28, 0.20)); }
+    100% { filter: drop-shadow(0 0  0px rgba(232, 0, 28, 0.00)); }
+}
+
+/* Overlay: fade out */
+@keyframes cgv-splash-out {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* ────────────────────────────────────────────
+   ACCESSIBILITY — prefers-reduced-motion
+   Skip scale + sweep + glow. Keep fade.
+─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    .cgv-splash {
+        animation: cgv-splash-out 200ms ease-in 1300ms forwards;
+    }
+
+    .cgv-splash__logo-wrapper {
+        opacity: 1;
+        animation: none;
+        transform: none;
+        filter: none;
+    }
+}

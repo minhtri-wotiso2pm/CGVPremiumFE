@@ -10,9 +10,10 @@ export const ROLE_OPTIONS = [
 ];
 
 export const STATUS_OPTIONS = [
-    { value: "active",   label: "Active" },
-    { value: "inactive", label: "Inactive" },
-    { value: "banned",   label: "Banned" },
+    { value: "active",     label: "Active" },
+    { value: "inactive",   label: "Inactive" },
+    { value: "banned",     label: "Banned" },
+    { value: "unverified", label: "Unverified" },
 ];
 
 export const ROLE_FILTER_OPTIONS = [

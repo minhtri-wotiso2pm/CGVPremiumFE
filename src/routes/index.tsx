@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
 import PermissionRoute from "./PermissionRoute";
 import PublicRoute from "./PublicRoute";
+import CustomerOrGuestRoute from "./CustomerOrGuestRoute";
 
 import PublicLayout from "@/layouts/PublicLayout/PublicLayout";
 import WelcomeLayout from "@/layouts/WelcomeLayout/WelcomeLayout";
@@ -35,6 +36,8 @@ import {
 import StaffDashboard from "@/features/staff/pages/StaffDashboard";
 import ManagerDashboard from "@/features/manager/pages/ManagerDashboard";
 import CinemaManagementPage from "@/features/manager/pages/CinemaManagementPage";
+import MovieManagementPage from "@/features/manager/pages/MovieManagementPage";
+import FnbManagementPage from "@/features/manager/pages/FnbManagementPage";
 import PlaceholderPage from "@/features/manager/pages/PlaceholderPage";
 import AdminDashboard from "@/features/admin/pages/AdminDashboard";
 import UserManagementPage from "@/features/admin/pages/UserManagementPage";
@@ -43,6 +46,9 @@ import AdminProfilePage from "@/features/admin/pages/AdminProfilePage";
 import WelcomePage from "@/features/public/pages/WelcomePage";
 import ShowtimePage from "@/features/booking/pages/ShowtimePage";
 import SeatSelectionPage from "@/features/booking/pages/SeatSelectionPage";
+import FnbPage from "@/features/booking/pages/FnbPage";
+import PaymentPage from "@/features/booking/pages/PaymentPage";
+import BookingConfirmationPage from "@/features/booking/pages/BookingConfirmationPage";
 import TheatersPage from "@/features/public/pages/TheatersPage";
 import PromotionsPage from "@/features/public/pages/PromotionsPage";
 import ForbiddenPage from "@/features/common/pages/ForbiddenPage";
@@ -52,27 +58,32 @@ import { ROLES } from "@/constants/roles";
 
 export const router = createBrowserRouter([
     // =====================
-    // WELCOME (open — no auth guard)
+    // WELCOME (guest + customer only — Admin/Manager/Staff → /403)
     // =====================
     {
-        path: "/",
-        element: <WelcomeLayout />,
+        element: <CustomerOrGuestRoute />,
         children: [
             {
-                index: true,
-                element: <WelcomePage />,
-            },
-            {
-                path: "movies/:movieId",
-                element: <MovieDetailPage />,
-            },
-            {
-                path: "theaters",
-                element: <TheatersPage />,
-            },
-            {
-                path: "promotions",
-                element: <PromotionsPage />,
+                path: "/",
+                element: <WelcomeLayout />,
+                children: [
+                    {
+                        index: true,
+                        element: <WelcomePage />,
+                    },
+                    {
+                        path: "movies/:movieId",
+                        element: <MovieDetailPage />,
+                    },
+                    {
+                        path: "theaters",
+                        element: <TheatersPage />,
+                    },
+                    {
+                        path: "promotions",
+                        element: <PromotionsPage />,
+                    },
+                ],
             },
         ],
     },
@@ -177,6 +188,18 @@ export const router = createBrowserRouter([
                                 element: <SeatSelectionPage />,
                             },
                             {
+                                path: "booking/fnb",
+                                element: <FnbPage />,
+                            },
+                            {
+                                path: "booking/payment",
+                                element: <PaymentPage />,
+                            },
+                            {
+                                path: "booking/confirmation",
+                                element: <BookingConfirmationPage />,
+                            },
+                            {
                                 path: "theaters",
                                 element: <TheatersPage />,
                             },
@@ -278,7 +301,11 @@ export const router = createBrowserRouter([
                             },
                             {
                                 path: "movies",
-                                element: <PlaceholderPage title="Movie Management" description="Manage the movie catalog available at your cinemas." />,
+                                element: <MovieManagementPage />,
+                            },
+                            {
+                                path: "products",
+                                element: <FnbManagementPage />,
                             },
                             {
                                 path: "promotions",

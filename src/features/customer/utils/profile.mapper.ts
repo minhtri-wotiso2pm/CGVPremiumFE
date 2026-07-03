@@ -7,6 +7,23 @@ export const mapRole = (role: string): string =>
     ({ customer: "Customer", staff: "Staff", admin: "Admin", manager: "Manager" }[role.toLowerCase()] ?? capitalize(role));
 export const mapStatusColor = (status: string): string =>
     ({ active: "success", inactive: "error", pending: "warning" }[status.toLowerCase()] ?? "default");
+const TIER_COLORS: Record<string, string> = {
+    silver:   "#94A3B8",
+    gold:     "#F59E0B",
+    platinum: "#A78BFA",
+    megavip:  "#E8001C",
+};
+
+export const formatTierName = (name: string): string => {
+    if (!name) return "";
+    const lower = name.toLowerCase();
+    if (lower === "megavip") return "MegaVIP";
+    return lower.charAt(0).toUpperCase() + lower.slice(1);
+};
+
+export const getTierColor = (name: string): string =>
+    TIER_COLORS[name?.toLowerCase()] ?? TIER_COLORS.silver;
+
 export const buildInitialsAvatar = (name: string): string => {
     const i = getInitials(name);
     return `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><rect width='100' height='100' fill='%23b50016'/><text x='50' y='63' text-anchor='middle' font-size='38' font-weight='700' font-family='Inter,sans-serif' fill='%23ffffff'>${i}</text></svg>`;

@@ -14,6 +14,8 @@ export function useMovieFilter(
 
         return movies.filter((movie) => {
 
+            if (movie.status?.toUpperCase() === "ENDED") return false;
+
             const matchSearch =
                 !search ||
                 normalizeText(movie.title).includes(

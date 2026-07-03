@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import { Button, Skeleton, Badge } from "antd";
-import { EditOutlined, StarFilled } from "@ant-design/icons";
+import { EditOutlined, LockOutlined, StarFilled } from "@ant-design/icons";
 import type { ProfileResponse } from "../types/profile.type";
 import {
     buildInitialsAvatar,
@@ -8,7 +8,10 @@ import {
     mapRole,
     mapStatusColor,
     capitalize,
+    formatTierName,
+    getTierColor,
 } from "../utils/profile.mapper";
+import { useMembershipInfo } from "../hooks/useMembership";
 import styles from "./ProfileCard.module.css";
 
 interface Props {
@@ -16,9 +19,12 @@ interface Props {
     loading: boolean;
     onEdit: () => void;
     onAvatar: () => void;
+    onChangePassword: () => void;
 }
 
-const ProfileCard: FC<Props> = ({ profile, loading, onEdit, onAvatar }) => {
+const ProfileCard: FC<Props> = ({ profile, loading, onEdit, onAvatar, onChangePassword }) => {
+    const { data: membership } = useMembershipInfo();
+
     if (loading || !profile) {
         return (
             <div className={styles.skeletonWrap}>
@@ -39,14 +45,24 @@ const ProfileCard: FC<Props> = ({ profile, loading, onEdit, onAvatar }) => {
             <div className={styles.hero}>
                 <div className={styles.heroGlow} />
                 <div className={styles.heroLines} />
-                <Button
-                    icon={<EditOutlined />}
-                    onClick={onEdit}
-                    className={styles.editBtn}
-                    aria-label="Edit profile"
-                >
-                    Edit Profile
-                </Button>
+                <div className={styles.heroBtnGroup}>
+                    <Button
+                        icon={<EditOutlined />}
+                        onClick={onEdit}
+                        className={styles.heroBtn}
+                        aria-label="Edit profile"
+                    >
+                        Edit Profile
+                    </Button>
+                    <Button
+                        icon={<LockOutlined />}
+                        onClick={onChangePassword}
+                        className={styles.heroBtn}
+                        aria-label="Change password"
+                    >
+                        Change Password
+                    </Button>
+                </div>
             </div>
 
             {/* ── Avatar + identity ── */}
@@ -63,7 +79,24 @@ const ProfileCard: FC<Props> = ({ profile, loading, onEdit, onAvatar }) => {
                     </button>
                 </div>
                 <h2 className={styles.name}>{profile.fullName}</h2>
-                <span className={styles.memberBadge}>Premium Member</span>
+                {membership ? (() => {
+                    const color = getTierColor(membership.currentTier);
+                    return (
+                        <span
+                            className={styles.memberBadge}
+                            style={{
+                                color,
+                                background: `${color}10`,
+                                borderColor: `${color}3d`,
+                                boxShadow: `0 0 14px ${color}14`,
+                            }}
+                        >
+                            {formatTierName(membership.currentTier)} Member
+                        </span>
+                    );
+                })() : (
+                    <span className={styles.memberBadge}>Member</span>
+                )}
             </div>
 
             {/* ── Info grid ── */}
@@ -91,6 +124,19 @@ const ProfileCard: FC<Props> = ({ profile, loading, onEdit, onAvatar }) => {
                         text={capitalize(profile.status)}
                         className={styles.statusBadge}
                     />
+                </div>
+                <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Membership</span>
+                    {membership ? (
+                        <span
+                            className={styles.infoValue}
+                            style={{ color: getTierColor(membership.currentTier), fontWeight: 700 }}
+                        >
+                            {formatTierName(membership.currentTier)}
+                        </span>
+                    ) : (
+                        <span className={styles.infoValue}>—</span>
+                    )}
                 </div>
             </div>
 

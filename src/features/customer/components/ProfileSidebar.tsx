@@ -9,7 +9,8 @@ import {
 import { useAppSelector } from "@/store/hooks";
 import { useLogout } from "@/features/auth/hooks/useLogoutMutation";
 import { SIDEBAR_NAV_ITEMS } from "../constants/profile.constants";
-import { buildInitialsAvatar } from "../utils/profile.mapper";
+import { buildInitialsAvatar, formatTierName, getTierColor } from "../utils/profile.mapper";
+import { useMembershipInfo } from "../hooks/useMembership";
 import styles from "./ProfileSidebar.module.css";
 
 /* ─── Icon map ─── */
@@ -29,6 +30,7 @@ const SidebarContent: FC<SidebarContentProps> = ({ onNavigate }) => {
     const location = useLocation();
     const user = useAppSelector((state) => state.auth.user);
     const { mutate: logoutMutate, isPending: loggingOut } = useLogout();
+    const { data: membership } = useMembershipInfo();
 
     const avatarSrc = user?.avatarURL ?? buildInitialsAvatar(user?.fullName ?? "U");
 
@@ -47,7 +49,24 @@ const SidebarContent: FC<SidebarContentProps> = ({ onNavigate }) => {
                 <div className={styles.userInfo}>
                     <p className={styles.userName}>{user?.fullName ?? "—"}</p>
                     <p className={styles.userEmail}>{user?.email ?? ""}</p>
-                    <span className={styles.memberBadge}>Premium Member</span>
+                    {membership ? (() => {
+                        const color = getTierColor(membership.currentTier);
+                        return (
+                            <span
+                                className={styles.memberBadge}
+                                style={{
+                                    color,
+                                    background: `${color}10`,
+                                    borderColor: `${color}3d`,
+                                    boxShadow: `0 0 10px ${color}0f`,
+                                }}
+                            >
+                                {formatTierName(membership.currentTier)} Member
+                            </span>
+                        );
+                    })() : (
+                        <span className={styles.memberBadge}>Member</span>
+                    )}
                 </div>
             </div>
 

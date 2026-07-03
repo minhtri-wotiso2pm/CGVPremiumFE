@@ -92,6 +92,7 @@ const ShowtimePage: FC = () => {
             movieAgeRating:movie?.ageRating,
             startTime:     showtime?.startTime,
             endTime:       showtime?.endTime,
+            cinemaId:      showtime?.cinema.cinemaId,
             cinemaName:    showtime?.cinema.cinemaName,
             roomName:      showtime?.room.roomName,
             roomType:      showtime?.room.roomType,

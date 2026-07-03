@@ -1,6 +1,7 @@
 import { type FC, useMemo, useState, useCallback } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useSeatMap } from "../hooks/useSeatMap";
+import { useSeatHold } from "../hooks/useSeatHold";
 import {
     buildSeatRowMap,
     isSeatSelectable,
@@ -8,6 +9,7 @@ import {
     getSeatTypes,
 } from "../utils/seat.utils";
 import type { Seat, SeatNavState } from "../types/seat.types";
+import { notify } from "@/utils/notify";
 import SeatSelectionHeader from "../components/SeatSelectionHeader";
 import SeatMap from "../components/SeatMap";
 import SeatLegend from "../components/SeatLegend";
@@ -23,6 +25,7 @@ const SeatSelectionPage: FC = () => {
     const showtimeId = Number(showtimeIdStr);
 
     const [selectedSeats, setSelectedSeats] = useState<Map<number, Seat>>(new Map());
+    const { mutate: holdSeats, isPending: isHolding } = useSeatHold();
 
     const { data, isLoading, isError, refetch } = useSeatMap(showtimeId);
 
@@ -69,14 +72,31 @@ const SeatSelectionPage: FC = () => {
     const clearAll = useCallback(() => setSelectedSeats(new Map()), []);
 
     const handleContinue = useCallback(() => {
-        navigate("/customer/booking/payment", {
-            state: {
-                showtimeId,
-                selectedSeats: Array.from(selectedSeats.values()),
-                ...navState,
-            },
-        });
-    }, [navigate, showtimeId, selectedSeats, navState]);
+        const seatIds = Array.from(selectedSeats.keys());
+        holdSeats(
+            { showtimeId, seatIds },
+            {
+                onSuccess: (holdData) => {
+                    navigate("/customer/booking/fnb", {
+                        state: {
+                            showtimeId,
+                            seatIds,
+                            selectedSeats: Array.from(selectedSeats.values()),
+                            holdIds: holdData.holdIds,
+                            holdExpiresAt: holdData.expiresAt,
+                            ...navState,
+                        },
+                    });
+                },
+                onError: () => {
+                    notify.warning(
+                        "Không thể giữ ghế",
+                        "Ghế bạn chọn có thể đã được đặt. Vui lòng chọn lại."
+                    );
+                },
+            }
+        );
+    }, [navigate, showtimeId, selectedSeats, navState, holdSeats]);
 
     if (isLoading) return <SeatSelectionSkeleton />;
 
@@ -140,6 +160,7 @@ const SeatSelectionPage: FC = () => {
                             onRemoveSeat={removeSeat}
                             onClearAll={clearAll}
                             onContinue={handleContinue}
+                            isContinueLoading={isHolding}
                         />
                     </aside>
                 </div>
@@ -161,10 +182,10 @@ const SeatSelectionPage: FC = () => {
                 </div>
                 <button
                     className="cgv-seats-continue-btn"
-                    disabled={selectedCount === 0}
+                    disabled={selectedCount === 0 || isHolding}
                     onClick={handleContinue}
                 >
-                    Continue
+                    {isHolding ? "Đang giữ ghế..." : "Continue"}
                 </button>
             </div>
         </div>

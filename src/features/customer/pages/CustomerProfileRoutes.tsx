@@ -27,13 +27,7 @@ export const TicketsPage: FC = () => (
     />
 );
 
-export const MembershipPage: FC = () => (
-    <ProfilePlaceholder
-        icon="⭐"
-        title="Membership"
-        subtitle="View your membership tier, points history, and exclusive VIP benefits."
-    />
-);
+export { default as MembershipPage } from "./MembershipPage";
 
 export const WalletPage: FC = () => (
     <ProfilePlaceholder
