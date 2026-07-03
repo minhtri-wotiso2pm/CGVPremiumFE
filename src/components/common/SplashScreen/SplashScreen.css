@@ -1,36 +1,38 @@
 /* ════════════════════════════════════════════
-   CGV PREMIUM — Brand Splash Screen
+   CGV PREMIUM — Cinematic Projector Intro
    Pure CSS animations, no JS animation lib.
-   All durations in ms:
-     0     BG immediate
-     200   Logo fade-in + scale START  (400ms)
-     660   Sweep START                 (350ms)
-     950   Glow START                  (500ms)
-     1300  Overlay fade-out START      (200ms)
-     1500  Animation done
-     1550  Component unmounts (setTimeout in tsx)
+   Timeline (ms):
+     0     Black hold START
+     200   Hold ends / Beam sweep + Logo reveal START (500ms)
+     700   Reveal complete / Glow START               (400ms)
+     900   Beam fully faded off-screen
+     1100  Glow settled / Overlay fade-out START       (250ms)
+     1350  Animation done
+     1400  Component unmounts (setTimeout in tsx)
 ════════════════════════════════════════════ */
 
-/* ── Overlay ─────────────────────────────── */
 .cgv-splash {
+    --t-hold: 200ms;
+    --t-reveal: 500ms;
+    --t-beam: 700ms;
+    --t-glow: 400ms;
+    --t-fade: 250ms;
+    --ease-sweep: cubic-bezier(0.45, 0, 0.2, 1);
+
     position: fixed;
     inset: 0;
     z-index: 9999;
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
 
-    /* Warm-tinted near-black: subtle radial depth */
     background:
-        radial-gradient(
-            ellipse 90% 65% at 50% 50%,
-            #1b0404 0%,
-            #0e0202 45%,
-            #060101 100%
-        );
+        radial-gradient(ellipse 80% 60% at 50% 45%, #0b0b0b 0%, #000 70%);
 
-    /* Fade out at 1300ms */
-    animation: cgv-splash-out 200ms ease-in 1300ms forwards;
+    /* Fade out at hold+reveal+glow, crossfading to Welcome page beneath */
+    animation: cgv-splash-out var(--t-fade) ease-in
+        calc(var(--t-hold) + var(--t-glow) + var(--t-reveal)) forwards;
 }
 
 /* Vignette darkening edges */
@@ -40,10 +42,54 @@
     inset: 0;
     background: radial-gradient(
         ellipse 100% 100% at 50% 50%,
-        transparent 35%,
-        rgba(0, 0, 0, 0.55) 100%
+        transparent 40%,
+        rgba(0, 0, 0, 0.6) 100%
     );
     pointer-events: none;
+}
+
+/* ── Projector light beam ─────────────────
+   Soft volumetric red gradient, blurred, screen-blended onto black.
+   Sweeps left → right once, then drifts off and fades. ───────── */
+.cgv-splash__beam {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 130vw;
+    height: 240px;
+    transform: translate(-50%, -50%) translateX(-65vw);
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(232, 0, 28, 0.04) 18%,
+        rgba(255, 50, 50, 0.3) 45%,
+        rgba(255, 100, 100, 0.46) 50%,
+        rgba(255, 50, 50, 0.3) 55%,
+        rgba(232, 0, 28, 0.04) 82%,
+        transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        #000 32%,
+        #000 68%,
+        transparent 100%
+    );
+    mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        #000 32%,
+        #000 68%,
+        transparent 100%
+    );
+    filter: blur(48px);
+    mix-blend-mode: screen;
+    opacity: 0;
+    pointer-events: none;
+    will-change: transform, opacity;
+    animation:
+        cgv-beam-move var(--t-beam) var(--ease-sweep) var(--t-hold) both,
+        cgv-beam-fade var(--t-beam) linear var(--t-hold) both;
 }
 
 /* ── Center content ──────────────────────── */
@@ -56,21 +102,20 @@
     gap: 18px;
 }
 
-/* ── Logo wrapper (clips the sweep) ─────── */
+/* ── Logo wrapper — revealed by clip-path, not opacity ──── */
 .cgv-splash__logo-wrapper {
     position: relative;
     display: inline-flex;
     align-items: center;
     gap: 10px;
     white-space: nowrap;
-    overflow: hidden; /* required to clip sweep */
     padding: 4px 2px; /* prevent filter clipping at edges */
 
-    /* Start invisible; animate in */
-    opacity: 0;
+    clip-path: inset(0 100% 0 0);
     animation:
-        cgv-splash-logo-in   400ms cubic-bezier(0.2, 0, 0.2, 1) 200ms both,
-        cgv-splash-logo-glow 500ms ease-in-out 950ms both;
+        cgv-logo-reveal var(--t-reveal) var(--ease-sweep) var(--t-hold) forwards,
+        cgv-logo-glow var(--t-glow) ease-in-out
+            calc(var(--t-hold) + var(--t-reveal)) both;
 }
 
 /* ── Logo text ───────────────────────────── */
@@ -103,26 +148,35 @@
    KEYFRAMES
 ─────────────────────────────────────────── */
 
-/* Logo: fade in + scale up */
-@keyframes cgv-splash-logo-in {
-    from {
-        opacity: 0;
-        transform: scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
+/* Beam: sweep across from off-left to off-right */
+@keyframes cgv-beam-move {
+    from { transform: translate(-50%, -50%) translateX(-65vw); }
+    to   { transform: translate(-50%, -50%) translateX(65vw); }
 }
 
-/* Logo: subtle red glow pulse */
-@keyframes cgv-splash-logo-glow {
-    0%   { filter: drop-shadow(0 0  0px rgba(232, 0, 28, 0.00)); }
-    40%  { filter: drop-shadow(0 0 14px rgba(232, 0, 28, 0.20)); }
-    100% { filter: drop-shadow(0 0  0px rgba(232, 0, 28, 0.00)); }
+/* Beam: fade in quickly, hold while crossing logo, fade out as it drifts off */
+@keyframes cgv-beam-fade {
+    0%   { opacity: 0; }
+    18%  { opacity: 1; }
+    70%  { opacity: 1; }
+    100% { opacity: 0; }
 }
 
-/* Overlay: fade out */
+/* Logo: revealed left-to-right in sync with the beam's core sweep */
+@keyframes cgv-logo-reveal {
+    from { clip-path: inset(0 100% 0 0); }
+    to   { clip-path: inset(0 0% 0 0); }
+}
+
+/* Logo: subtle 5% red glow pulse once fully revealed */
+@keyframes cgv-logo-glow {
+    0%   { filter: drop-shadow(0 0 0 rgba(232, 0, 28, 0)); }
+    25%  { filter: drop-shadow(0 0 12px rgba(232, 0, 28, 0.05)); }
+    60%  { filter: drop-shadow(0 0 12px rgba(232, 0, 28, 0.05)); }
+    100% { filter: drop-shadow(0 0 0 rgba(232, 0, 28, 0)); }
+}
+
+/* Overlay: fade out, crossfading to Welcome page beneath */
 @keyframes cgv-splash-out {
     from { opacity: 1; }
     to   { opacity: 0; }
@@ -130,17 +184,21 @@
 
 /* ────────────────────────────────────────────
    ACCESSIBILITY — prefers-reduced-motion
-   Skip scale + sweep + glow. Keep fade.
+   Skip beam + clip-path sweep. Plain fade in, then out.
 ─────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-    .cgv-splash {
-        animation: cgv-splash-out 200ms ease-in 1300ms forwards;
+    .cgv-splash__beam {
+        display: none;
     }
 
     .cgv-splash__logo-wrapper {
-        opacity: 1;
-        animation: none;
-        transform: none;
-        filter: none;
+        clip-path: none;
+        opacity: 0;
+        animation: cgv-logo-fade-only 400ms ease-in-out var(--t-hold) forwards;
+    }
+
+    @keyframes cgv-logo-fade-only {
+        from { opacity: 0; }
+        to   { opacity: 1; }
     }
 }
