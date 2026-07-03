@@ -7,7 +7,9 @@ export default function PublicLayout() {
         <>
             <ScrollRestoration />
             <PageHeader />
-            <Outlet />
+            <main style={{ paddingTop: "var(--cgv-fh-clearance)" }}>
+                <Outlet />
+            </main>
             <PageFooter />
         </>
     );

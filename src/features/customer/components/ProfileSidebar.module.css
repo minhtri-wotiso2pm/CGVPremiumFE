@@ -5,7 +5,7 @@
     width: 276px;
     flex-shrink: 0;
     position: sticky;
-    top: 88px;
+    top: var(--cgv-fh-sticky-offset, 88px);
     align-self: flex-start;
     background: rgba(14, 3, 3, 0.97);
     border: 1px solid rgba(255, 255, 255, 0.07);

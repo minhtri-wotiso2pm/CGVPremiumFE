@@ -252,7 +252,7 @@
 /* ─── Right: payment sidebar ──────────────── */
 .cgv-pay-sidebar {
     position: sticky;
-    top: 80px;
+    top: var(--cgv-fh-sticky-offset, 80px);
     display: flex;
     flex-direction: column;
     gap: 12px;

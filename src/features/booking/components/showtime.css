@@ -60,7 +60,7 @@
 
 .cgv-st-movie-panel {
     position: sticky;
-    top: 80px;
+    top: var(--cgv-fh-sticky-offset, 80px);
 }
 
 .cgv-st-movie-card {

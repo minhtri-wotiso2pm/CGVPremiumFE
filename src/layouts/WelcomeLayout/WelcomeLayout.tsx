@@ -7,7 +7,7 @@ export default function WelcomeLayout() {
         <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
             <ScrollRestoration />
             <PageHeader />
-            <main style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+            <main style={{ flex: 1, display: "flex", flexDirection: "column", paddingTop: "var(--cgv-fh-clearance)" }}>
                 <Outlet />
             </main>
             <PageFooter />

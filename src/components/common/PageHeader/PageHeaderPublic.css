@@ -1,0 +1,310 @@
+/* ════════════════════════════════════════════════════════════
+   CGV PREMIUM — Floating Navigation Bar
+   Glassmorphism shell + sliding underline + scroll shrink.
+   Motion: 180–250ms, ease-out, micro-interactions only.
+════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap');
+
+:root {
+    /* Vertical space layouts must reserve under the fixed header:
+       top offset (20) + header height (80) + breathing room (20) */
+    --cgv-fh-clearance: 120px;
+    /* Sticky offset for elements that pin below the floating header
+       while scrolling: top (20) + scrolled height (72) + gap (12) */
+    --cgv-fh-sticky-offset: 104px;
+}
+
+/* ── Shell ─────────────────────────────────────────────────── */
+.cgv-fh {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: min(1320px, calc(100% - 56px));
+    height: 80px;
+    border-radius: 22px;
+
+    background: rgba(10, 3, 3, 0.7);
+    backdrop-filter: blur(18px) saturate(1.15);
+    -webkit-backdrop-filter: blur(18px) saturate(1.15);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.04) inset,
+        0 12px 40px rgba(0, 0, 0, 0.45),
+        0 2px 10px rgba(0, 0, 0, 0.3);
+
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    transition:
+        height 220ms ease-out,
+        background 220ms ease-out,
+        box-shadow 220ms ease-out,
+        backdrop-filter 220ms ease-out;
+}
+
+/* Scrolled: shrink ~10%, blur up, shadow deeper */
+.cgv-fh--scrolled {
+    height: 72px;
+    background: rgba(8, 2, 2, 0.8);
+    backdrop-filter: blur(26px) saturate(1.2);
+    -webkit-backdrop-filter: blur(26px) saturate(1.2);
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.05) inset,
+        0 18px 56px rgba(0, 0, 0, 0.6),
+        0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+.cgv-fh__inner {
+    height: 100%;
+    padding: 0 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    position: relative;
+}
+
+/* ── Entrance after Splash (plays once per page load) ─────── */
+.cgv-fh--intro {
+    opacity: 0;
+    animation: cgv-fh-enter 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    /* animation-delay is set inline from SPLASH_TOTAL_MS */
+}
+
+@keyframes cgv-fh-enter {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+/* ── Left: logo ────────────────────────────────────────────── */
+.cgv-fh__logo {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    text-decoration: none;
+    flex-shrink: 0;
+    transition: transform 200ms ease-out, filter 200ms ease-out;
+}
+
+.cgv-fh__logo:hover {
+    transform: scale(1.02);
+    filter: drop-shadow(0 0 10px rgba(232, 0, 28, 0.22));
+}
+
+.cgv-fh__logo-text {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    background: linear-gradient(135deg, #ff1a1a 0%, #cc0000 60%, #990000 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    user-select: none;
+    transition: font-size 220ms ease-out;
+}
+
+.cgv-fh--scrolled .cgv-fh__logo-text {
+    font-size: 24.5px; /* ~5% smaller */
+}
+
+.cgv-fh__logo-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #e8001c;
+    flex-shrink: 0;
+    margin-bottom: 16px;
+    transition: width 220ms ease-out, height 220ms ease-out;
+}
+
+.cgv-fh--scrolled .cgv-fh__logo-dot {
+    width: 5px;
+    height: 5px;
+    margin-bottom: 14px;
+}
+
+/* ── Center: navigation (absolutely centered) ─────────────── */
+.cgv-fh__nav {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 100%;
+}
+
+.cgv-fh__navlink {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    padding: 8px 18px;
+    color: #c8a8a8;
+    white-space: nowrap;
+    transition: color 200ms ease-out;
+}
+
+.cgv-fh__navlink:hover {
+    color: #f0e8e8;
+}
+
+.cgv-fh__navlink--active {
+    color: #f0e8e8;
+    font-weight: 600;
+}
+
+/* Sliding underline — position driven by JS (left/width) */
+.cgv-fh__underline {
+    position: absolute;
+    bottom: 18px;
+    height: 2px;
+    border-radius: 2px;
+    background: #e8001c;
+    box-shadow: 0 0 8px rgba(232, 0, 28, 0.35);
+    pointer-events: none;
+    transition:
+        transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
+        width 220ms cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 180ms ease-out;
+}
+
+/* ── Right: actions ────────────────────────────────────────── */
+.cgv-fh__actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+/* Login CTA — rounded pill, soft red gradient */
+.cgv-fh__login {
+    padding: 10px 26px;
+    background: linear-gradient(135deg, #e8001c 0%, #b50016 100%);
+    border: none;
+    border-radius: 999px;
+    color: #fff;
+    font-size: 12.5px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    box-shadow: 0 2px 10px rgba(232, 0, 28, 0.22);
+    transition:
+        transform 200ms ease-out,
+        box-shadow 200ms ease-out;
+}
+
+.cgv-fh__login:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 18px rgba(232, 0, 28, 0.38);
+}
+
+/* Avatar button micro-interaction */
+.cgv-fh__avatar-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 6px 4px 10px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 200ms ease-out, transform 200ms ease-out;
+}
+
+.cgv-fh__avatar-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+    transform: scale(1.02);
+}
+
+/* Icon buttons (notification, hamburger) */
+.cgv-icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    padding: 8px;
+    transition: background 200ms ease-out, color 200ms ease-out;
+    color: #b09090;
+    position: relative;
+}
+
+.cgv-icon-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #f0e8e8;
+}
+
+/* Dropdown entrance (used inline by Notif/User dropdowns) */
+@keyframes cgv-dropdown-in {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+.cgv-hamburger { display: none; }
+
+@media (max-width: 1024px) {
+    .cgv-fh__nav { gap: 2px; }
+    .cgv-fh__navlink { padding: 8px 12px; }
+}
+
+@media (max-width: 768px) {
+    :root {
+        --cgv-fh-clearance: 92px;
+        /* top (12) + scrolled height (58) + gap (10) */
+        --cgv-fh-sticky-offset: 80px;
+    }
+
+    .cgv-fh {
+        top: 12px;
+        width: calc(100% - 24px);
+        height: 64px;
+        border-radius: 18px;
+    }
+    .cgv-fh--scrolled { height: 58px; }
+    .cgv-fh__inner { padding: 0 16px; }
+    .cgv-fh__logo-text { font-size: 21px; }
+    .cgv-fh--scrolled .cgv-fh__logo-text { font-size: 20px; }
+    .cgv-fh__logo-dot { margin-bottom: 12px; }
+
+    .cgv-nav-desktop { display: none !important; }
+    .cgv-hamburger   { display: flex !important; }
+}
+
+/* ── Reduced motion ────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    .cgv-fh,
+    .cgv-fh__logo,
+    .cgv-fh__logo-text,
+    .cgv-fh__logo-dot,
+    .cgv-fh__underline,
+    .cgv-fh__login,
+    .cgv-fh__avatar-btn {
+        transition: none;
+    }
+    .cgv-fh--intro {
+        animation: cgv-fh-fade-only 300ms ease-out both;
+    }
+    @keyframes cgv-fh-fade-only {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+}

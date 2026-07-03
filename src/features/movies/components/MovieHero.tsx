@@ -1,5 +1,7 @@
 import type { FC } from "react";
 import type { Movie } from "@/features/movies/types/movie.types";
+import { SPLASH_TOTAL_MS } from "@/components/common/SplashScreen/SplashScreen";
+import { useIntroEntrance } from "@/components/common/SplashScreen/useIntroEntrance";
 import "./movies.css";
 
 interface Props {
@@ -15,8 +17,15 @@ const MovieHero: FC<Props> = ({ featuredMovie, totalMovies, onBrowse }) => {
         ? `url(${featuredMovie.posterUrl})`
         : `url(${HERO_FALLBACK_BG})`;
 
+    /* Splash-synced entrance — fades in together with the floating header */
+    const playIntro = useIntroEntrance();
+
     return (
-        <section className="cgv-hero" aria-label="Featured movies hero">
+        <section
+            className={`cgv-hero${playIntro ? " cgv-hero--intro" : ""}`}
+            style={playIntro ? { animationDelay: `${SPLASH_TOTAL_MS + 60}ms` } : undefined}
+            aria-label="Featured movies hero"
+        >
             {/* Blurred background */}
             <div
                 className="cgv-hero__bg"

@@ -1,6 +1,7 @@
 import {
     useState,
     useEffect,
+    useLayoutEffect,
     useRef,
     useCallback,
     type FC,
@@ -9,6 +10,9 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAppSelector } from "@/store/hooks";
 
 import { useLogout } from "@/features/auth/hooks/useLogoutMutation";
+import { SPLASH_TOTAL_MS } from "@/components/common/SplashScreen/SplashScreen";
+import { useIntroEntrance } from "@/components/common/SplashScreen/useIntroEntrance";
+import "./PageHeaderPublic.css";
 
 /* ─────────────────────────────────────────────────────────────
    DESIGN TOKENS (Dark Mode — extend for Light Mode later)
@@ -606,7 +610,8 @@ const MobileDrawer: FC<DrawerProps> = ({
    PAGE HEADER — main export
 ───────────────────────────────────────────────────────────── */
 const PageHeader: FC = () => {
-    const { mutate: logout, isPending: isLoggingOut } = useLogout(); const navigate = useNavigate();
+    const { mutate: logout } = useLogout();
+    const navigate = useNavigate();
     const location = useLocation();
 
     /* Redux state — no extra API call, use existing auth slice */
@@ -633,8 +638,12 @@ const PageHeader: FC = () => {
         return () => window.removeEventListener("scroll", onScroll);
     }, []);
 
-    /* Close drawer on route change */
-    useEffect(() => setDrawerOpen(false), [location.pathname]);
+    /* Close drawer on route change — adjust state during render (react.dev pattern) */
+    const [prevPath, setPrevPath] = useState(location.pathname);
+    if (prevPath !== location.pathname) {
+        setPrevPath(location.pathname);
+        setDrawerOpen(false);
+    }
 
     /* Logout handler
      * TODO: Before navigate, call API logout endpoint here:
@@ -645,104 +654,67 @@ const PageHeader: FC = () => {
         logout();
     }, [logout]);
 
-    const headerHeight = scrolled ? H.heightScrolled : H.heightDefault;
-    const logoSize = scrolled ? 18 : 22;
     const logoHref = user ? "/customer" : "/";
+
+    /* Splash-synced entrance — plays once per full page load */
+    const playIntro = useIntroEntrance();
+
+    /* Sliding underline: follows hovered link, falls back to active route */
+    const [hoverPath, setHoverPath] = useState<string | null>(null);
+    const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+    const [underline, setUnderline] = useState({ x: 0, width: 0, visible: false });
+
+    const activePath = navItems.find((i) => i.path === location.pathname)?.path ?? null;
+    const targetPath = hoverPath ?? activePath;
+
+    useLayoutEffect(() => {
+        const measure = () => {
+            const el = targetPath ? itemRefs.current[targetPath] : null;
+            if (el) {
+                setUnderline({
+                    x: el.offsetLeft + el.offsetWidth * 0.2,
+                    width: el.offsetWidth * 0.6,
+                    visible: true,
+                });
+            } else {
+                setUnderline((u) => ({ ...u, visible: false }));
+            }
+        };
+        measure();
+        window.addEventListener("resize", measure);
+        return () => window.removeEventListener("resize", measure);
+    }, [targetPath, navItems]);
 
     return (
         <>
-            <style>{`
-                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap');
-
-                @keyframes cgv-dropdown-in {
-                    from { opacity: 0; transform: translateY(-6px); }
-                    to   { opacity: 1; transform: translateY(0); }
-                }
-                .cgv-nav-link {
-                    background: none; border: none; cursor: pointer;
-                    font-family: inherit;
-                    font-size: 13px; font-weight: 500;
-                    letter-spacing: 0.04em;
-                    padding: 6px 12px; border-radius: 6px;
-                    transition: background 0.15s, color 0.15s;
-                    white-space: nowrap;
-                    text-decoration: none;
-                    display: inline-flex; align-items: center;
-                }
-                .cgv-icon-btn {
-                    background: none; border: none; cursor: pointer;
-                    display: flex; align-items: center; justify-content: center;
-                    border-radius: 8px; padding: 7px;
-                    transition: background 0.15s, color 0.15s;
-                    color: #b09090;
-                    position: relative;
-                }
-                .cgv-icon-btn:hover { background: rgba(255,255,255,0.05); color: #f0e8e8; }
-                .cgv-hamburger { display: none; }
-                @media (max-width: 768px) {
-                    .cgv-nav-desktop  { display: none !important; }
-                    .cgv-hamburger    { display: flex !important; }
-                }
-            `}</style>
-
             {/* Header */}
-            <header style={{
-                position: "sticky", top: 0, zIndex: 1000,
-                background: scrolled ? H.bgScrolled : H.bg,
-                backdropFilter: "blur(16px)",
-                WebkitBackdropFilter: "blur(16px)",
-                borderBottom: `1px solid ${scrolled ? "rgba(255,255,255,0.05)" : "transparent"}`,
-                boxShadow: scrolled ? "0 4px 24px rgba(0,0,0,0.4)" : "none",
-                transition: "height 0.3s ease, background 0.3s ease, box-shadow 0.3s ease",
-                height: headerHeight,
-                fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif",
-            }}>
-                <div style={{
-                    maxWidth: 1320, margin: "0 auto",
-                    padding: "0 24px",
-                    height: "100%", display: "flex",
-                    alignItems: "center", justifyContent: "space-between", gap: 16,
-                }}>
+            <header
+                className={[
+                    "cgv-fh",
+                    scrolled ? "cgv-fh--scrolled" : "",
+                    playIntro ? "cgv-fh--intro" : "",
+                ].filter(Boolean).join(" ")}
+                style={playIntro ? { animationDelay: `${SPLASH_TOTAL_MS + 60}ms` } : undefined}
+            >
+                <div className="cgv-fh__inner">
                     {/* ── LEFT: Logo ── */}
-                    <Link
-                        to={logoHref}
-                        style={{
-                            display: "flex", alignItems: "center", gap: 6,
-                            textDecoration: "none", flexShrink: 0,
-                        }}
-                    >
-                        <span style={{
-                            fontFamily: "'Playfair Display', Georgia, serif",
-                            fontSize: logoSize,
-                            fontWeight: 700, letterSpacing: "0.08em",
-                            background: "linear-gradient(135deg,#ff1a1a 0%,#cc0000 60%,#990000 100%)",
-                            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-                            backgroundClip: "text",
-                            transition: "font-size 0.3s ease",
-                            lineHeight: 1,
-                        }}>
-                            CGVPREMIUM
-                        </span>
-                        <span style={{
-                            width: scrolled ? 4 : 5, height: scrolled ? 4 : 5,
-                            borderRadius: "50%", background: H.crimson, flexShrink: 0,
-                            transition: "width 0.3s, height 0.3s",
-                            marginBottom: scrolled ? 12 : 16,
-                        }} />
+                    <Link to={logoHref} className="cgv-fh__logo" aria-label="CGV Premium — home">
+                        <span className="cgv-fh__logo-text">CGVPREMIUM</span>
+                        <span className="cgv-fh__logo-dot" aria-hidden="true" />
                     </Link>
 
-                    {/* ── CENTER: Desktop nav ── */}
+                    {/* ── CENTER: Desktop nav — sliding underline ── */}
                     <nav
-                        className="cgv-nav-desktop"
+                        className="cgv-fh__nav cgv-nav-desktop"
                         aria-label="Main navigation"
-                        style={{ display: "flex", alignItems: "center", gap: 2 }}
                     >
                         {navItems.map((item) => {
-                            const isActive = location.pathname === item.path;
+                            const isActive = item.path === activePath;
                             return (
                                 <button
                                     key={item.path}
-                                    className="cgv-nav-link"
+                                    ref={(el) => { itemRefs.current[item.path] = el; }}
+                                    className={`cgv-fh__navlink${isActive ? " cgv-fh__navlink--active" : ""}`}
                                     onClick={() => {
                                         if (item.requireAuth && !user) {
                                             navigate("/login");
@@ -750,49 +722,28 @@ const PageHeader: FC = () => {
                                             navigate(item.path);
                                         }
                                     }}
-                                    style={{
-                                        color: isActive ? H.crimson : H.textNav,
-                                        background: isActive ? H.crimsonSubtle : "none",
-                                        fontWeight: isActive ? 600 : 500,
-                                        position: "relative",
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        if (!isActive) {
-                                            (e.currentTarget).style.background = "rgba(255,255,255,0.05)";
-                                            (e.currentTarget).style.color = H.textPrimary;
-                                        }
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        if (!isActive) {
-                                            (e.currentTarget).style.background = "none";
-                                            (e.currentTarget).style.color = H.textNav;
-                                        }
-                                    }}
+                                    onMouseEnter={() => setHoverPath(item.path)}
+                                    onMouseLeave={() => setHoverPath(null)}
+                                    aria-current={isActive ? "page" : undefined}
                                 >
                                     {item.label}
-                                    {isActive && (
-                                        <span
-                                            aria-hidden="true"
-                                            style={{
-                                                position: "absolute",
-                                                bottom: 2,
-                                                left: "50%",
-                                                transform: "translateX(-50%)",
-                                                width: "60%",
-                                                height: 2,
-                                                borderRadius: 2,
-                                                background: H.crimson,
-                                                boxShadow: `0 0 6px ${H.crimsonGlow}, 0 0 12px ${H.crimsonGlow}`,
-                                            }}
-                                        />
-                                    )}
                                 </button>
                             );
                         })}
+                        <span
+                            className="cgv-fh__underline"
+                            aria-hidden="true"
+                            style={{
+                                transform: `translateX(${underline.x}px)`,
+                                width: underline.width,
+                                left: 0,
+                                opacity: underline.visible ? 1 : 0,
+                            }}
+                        />
                     </nav>
 
                     {/* ── RIGHT: actions ── */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 4, flexShrink: 0 }}>
+                    <div className="cgv-fh__actions">
 
                         {user ? (
                             <>
@@ -840,15 +791,7 @@ const PageHeader: FC = () => {
                                         aria-haspopup="true"
                                         aria-expanded={userDropOpen}
                                         aria-label="User menu"
-                                        style={{
-                                            background: "none", border: "none",
-                                            cursor: "pointer", padding: "4px 6px 4px 10px",
-                                            borderRadius: 24, display: "flex",
-                                            alignItems: "center", gap: 8,
-                                            transition: "background 0.15s",
-                                        }}
-                                        onMouseEnter={(e) => { (e.currentTarget).style.background = "rgba(255,255,255,0.06)"; }}
-                                        onMouseLeave={(e) => { (e.currentTarget).style.background = "none"; }}
+                                        className="cgv-fh__avatar-btn"
                                     >
                                         <span style={{
                                             fontSize: 13,
@@ -879,26 +822,7 @@ const PageHeader: FC = () => {
                             /* Guest: Login button */
                             <button
                                 onClick={() => navigate("/login")}
-                                className="cgv-header-login-btn"
-                                style={{
-                                    padding: "8px 22px",
-                                    background: `linear-gradient(135deg, ${H.crimson}, ${H.crimsonDim})`,
-                                    border: "none", borderRadius: 8,
-                                    color: "#fff", fontSize: 12.5, fontWeight: 700,
-                                    fontFamily: "inherit", cursor: "pointer",
-                                    letterSpacing: "0.08em", textTransform: "uppercase",
-                                    transition: "transform 0.15s, box-shadow 0.2s",
-                                    boxShadow: `0 4px 16px ${H.crimsonGlow}`,
-                                    whiteSpace: "nowrap",
-                                }}
-                                onMouseEnter={(e) => {
-                                    (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-1px)";
-                                    (e.currentTarget as HTMLButtonElement).style.boxShadow = `0 8px 24px rgba(232,0,28,0.38)`;
-                                }}
-                                onMouseLeave={(e) => {
-                                    (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)";
-                                    (e.currentTarget as HTMLButtonElement).style.boxShadow = `0 4px 16px ${H.crimsonGlow}`;
-                                }}
+                                className="cgv-fh__login"
                             >
                                 Login
                             </button>
