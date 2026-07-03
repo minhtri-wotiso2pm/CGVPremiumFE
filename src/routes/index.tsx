@@ -277,43 +277,15 @@ export const router = createBrowserRouter([
                         children: [
                             {
                                 index: true,
-                                element: <Navigate to="/manager/cinemas" replace />,
+                                element: <Navigate to="/manager/dashboard" replace />,
                             },
                             {
                                 path: "dashboard",
                                 element: <ManagerDashboard />,
                             },
                             {
-                                path: "cinemas",
-                                element: <CinemaManagementPage />,
-                            },
-                            {
-                                path: "rooms",
-                                element: <PlaceholderPage title="Room Management" description="Manage screening rooms within your cinemas." />,
-                            },
-                            {
-                                path: "seats",
-                                element: <PlaceholderPage title="Seat Management" description="Configure and manage seat layouts for each screening room." />,
-                            },
-                            {
-                                path: "showtimes",
-                                element: <PlaceholderPage title="Showtime Management" description="Schedule and manage movie showtimes across all cinemas." />,
-                            },
-                            {
-                                path: "movies",
-                                element: <MovieManagementPage />,
-                            },
-                            {
-                                path: "products",
-                                element: <FnbManagementPage />,
-                            },
-                            {
-                                path: "promotions",
-                                element: <PlaceholderPage title="Promotion Management" description="Create and manage promotions and discount campaigns." />,
-                            },
-                            {
                                 path: "reports",
-                                element: <PlaceholderPage title="Reports" description="View revenue, booking trends, and performance analytics." />,
+                                element: <PlaceholderPage title="Reports" description="View revenue, booking trends, and performance analytics for your cinema." />,
                             },
                             {
                                 path: "profile",
@@ -347,6 +319,26 @@ export const router = createBrowserRouter([
                             {
                                 path: "users",
                                 element: <UserManagementPage />,
+                            },
+                            {
+                                path: "cinemas",
+                                element: <CinemaManagementPage />,
+                            },
+                            {
+                                path: "movies",
+                                element: <MovieManagementPage />,
+                            },
+                            {
+                                path: "products",
+                                element: <FnbManagementPage />,
+                            },
+                            {
+                                path: "promotions",
+                                element: <PlaceholderPage title="Promotion Management" description="Create and manage promotions and discount campaigns." />,
+                            },
+                            {
+                                path: "reports",
+                                element: <PlaceholderPage title="Reports" description="View revenue, booking trends, and performance analytics." />,
                             },
                             {
                                 path: "profile",

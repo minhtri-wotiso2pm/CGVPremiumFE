@@ -1,11 +1,55 @@
 import DashboardLayout, { type MenuGroup } from "@/layouts/DashboardLayout/DashboardLayout";
 
+/* ── Icons ── */
 const UsersIcon = () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
         <circle cx="9" cy="7" r="4" />
         <path d="M23 21v-2a4 4 0 00-3-3.87" />
         <path d="M16 3.13a4 4 0 010 7.75" />
+    </svg>
+);
+const CinemaIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="1" y="3" width="13" height="18" rx="1" />
+        <path d="M14 8h4l3 4v9h-7V8z" />
+        <line x1="5" y1="7" x2="5" y2="7.01" strokeWidth="2.5" />
+        <line x1="9" y1="7" x2="9" y2="7.01" strokeWidth="2.5" />
+        <line x1="5" y1="12" x2="5" y2="12.01" strokeWidth="2.5" />
+        <line x1="9" y1="12" x2="9" y2="12.01" strokeWidth="2.5" />
+    </svg>
+);
+const MovieIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="2" width="20" height="20" rx="2.18" />
+        <line x1="7" y1="2" x2="7" y2="22" />
+        <line x1="17" y1="2" x2="17" y2="22" />
+        <line x1="2" y1="12" x2="22" y2="12" />
+        <line x1="2" y1="7" x2="7" y2="7" />
+        <line x1="2" y1="17" x2="7" y2="17" />
+        <line x1="17" y1="17" x2="22" y2="17" />
+        <line x1="17" y1="7" x2="22" y2="7" />
+    </svg>
+);
+const FnbIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+        <line x1="3" y1="6" x2="21" y2="6" />
+        <path d="M16 10a4 4 0 01-8 0" />
+    </svg>
+);
+const PromotionIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
+        <line x1="7" y1="7" x2="7.01" y2="7" strokeWidth="3" />
+    </svg>
+);
+const ReportsIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="18" y1="20" x2="18" y2="10" />
+        <line x1="12" y1="20" x2="12" y2="4" />
+        <line x1="6" y1="20" x2="6" y2="14" />
+        <line x1="3" y1="20" x2="21" y2="20" />
     </svg>
 );
 const ActivityIcon = () => (
@@ -24,6 +68,44 @@ const ADMIN_MENU: MenuGroup[] = [
                 label: "User Management",
                 icon: <UsersIcon />,
                 path: "/admin/users",
+            },
+            {
+                key: "cinemas",
+                label: "Cinema Management",
+                icon: <CinemaIcon />,
+                path: "/admin/cinemas",
+            },
+            {
+                key: "movies",
+                label: "Movie Management",
+                icon: <MovieIcon />,
+                path: "/admin/movies",
+            },
+            {
+                key: "products",
+                label: "F&B Management",
+                icon: <FnbIcon />,
+                path: "/admin/products",
+            },
+            {
+                key: "promotions",
+                label: "Promotion Management",
+                icon: <PromotionIcon />,
+                path: "/admin/promotions",
+                disabled: true,
+            },
+        ],
+    },
+    {
+        groupKey: "analytics",
+        title: "Analytics",
+        items: [
+            {
+                key: "reports",
+                label: "Reports",
+                icon: <ReportsIcon />,
+                path: "/admin/reports",
+                disabled: true,
             },
             {
                 key: "activity",

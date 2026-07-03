@@ -9,7 +9,7 @@
 :root {
     /* Vertical space layouts must reserve under the fixed header:
        top offset (20) + header height (80) + breathing room (20) */
-    --cgv-fh-clearance: 120px;
+    --cgv-fh-clearance: 100px;
     /* Sticky offset for elements that pin below the floating header
        while scrolling: top (20) + scrolled height (64) + gap (12) */
     --cgv-fh-sticky-offset: 70px;
@@ -23,7 +23,7 @@
     transform: translateX(-50%);
     z-index: 1000;
     width: min(1320px, calc(100% - 56px));
-    height: 80px;
+    height: 60px;
     border-radius: 22px;
 
     background: rgba(10, 3, 3, 0.7);

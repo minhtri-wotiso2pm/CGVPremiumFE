@@ -1,5 +1,10 @@
-import { Navigate } from "react-router-dom";
+import PlaceholderPage from "./PlaceholderPage";
 
 export default function ManagerDashboard() {
-    return <Navigate to="/manager/cinemas" replace />;
+    return (
+        <PlaceholderPage
+            title="Dashboard"
+            description="Your cinema overview and reports will appear here soon."
+        />
+    );
 }
