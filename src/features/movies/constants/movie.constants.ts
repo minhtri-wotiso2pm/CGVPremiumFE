@@ -1,4 +1,4 @@
-export const MOVIE_PAGE_SIZE = 10;
+export const MOVIE_PAGE_SIZE = 15;
 
 // MOVIE_CARD_HEIGHT
 // MOVIE_STATUS

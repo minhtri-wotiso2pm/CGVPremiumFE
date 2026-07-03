@@ -6,6 +6,10 @@ import { useUpdateProfile } from "@/features/customer/hooks/useUpdateProfile";
 import { useUploadAvatar } from "@/features/customer/hooks/useUploadAvatar";
 import { useDeleteAvatar } from "@/features/customer/hooks/useDeleteAvatar";
 import ChangeOwnPasswordModal from "../components/ChangeOwnPasswordModal";
+import {
+    formatMemberSince,
+    capitalize,
+} from "@/features/customer/utils/profile.mapper";
 
 const MapPinIcon = () => (
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -59,7 +63,7 @@ const roleLabel: Record<string, string> = {
 
 const AdminProfilePage: FC = () => {
     const user = useAppSelector((state) => state.auth.user);
-    useProfile(); // subscribes to PROFILE_QUERY_KEY so invalidation after avatar change triggers Redux update
+    const { data: profile } = useProfile();
     const fileRef = useRef<HTMLInputElement>(null);
 
     const [editOpen, setEditOpen] = useState(false);
@@ -89,9 +93,6 @@ const AdminProfilePage: FC = () => {
         e.target.value = "";
     };
 
-    const joinedDate = user?.createdAt
-        ? new Date(user.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" })
-        : undefined;
 
     return (
         <div className="dash-fade-in">
@@ -196,8 +197,10 @@ const AdminProfilePage: FC = () => {
                             <Field label="Email" value={user?.email} />
                             <Field label="Phone" value={user?.phone} />
                             <Field label="Role" value={roleLabel[user?.role ?? ""] ?? user?.role} />
-                            <Field label="Status" value={user?.status} />
-                            <Field label="Member Since" value={joinedDate} />
+                            <Field label="Status" value={capitalize(profile ? capitalize(profile.status) : "—")} />
+                            <Field label="Member Since" value={formatMemberSince(profile
+                                ? formatMemberSince(profile.createdAt)
+                                : "—")} />
                         </div>
 
                         {user?.cinema && (

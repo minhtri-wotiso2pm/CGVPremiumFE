@@ -668,8 +668,8 @@ const PageHeader: FC = () => {
     const targetPath = hoverPath ?? activePath;
 
     useLayoutEffect(() => {
+        const el = targetPath ? itemRefs.current[targetPath] : null;
         const measure = () => {
-            const el = targetPath ? itemRefs.current[targetPath] : null;
             if (el) {
                 setUnderline({
                     x: el.offsetLeft + el.offsetWidth * 0.2,
@@ -682,7 +682,18 @@ const PageHeader: FC = () => {
         };
         measure();
         window.addEventListener("resize", measure);
-        return () => window.removeEventListener("resize", measure);
+        // Re-measure continuously while the target button's own box animates
+        // (e.g. padding/font-size shrinking on scroll) — a single measurement
+        // at the moment of the class toggle only sees the pre-transition size.
+        let ro: ResizeObserver | undefined;
+        if (el) {
+            ro = new ResizeObserver(measure);
+            ro.observe(el);
+        }
+        return () => {
+            window.removeEventListener("resize", measure);
+            ro?.disconnect();
+        };
     }, [targetPath, navItems]);
 
     return (

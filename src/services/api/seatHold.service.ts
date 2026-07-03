@@ -7,3 +7,10 @@ export const createSeatHoldApi = async (
     const { data } = await axiosInstance.post("/seat-holds", payload);
     return data;
 };
+
+export const releaseSeatHoldApi = async (
+    payload: SeatHoldRequest
+): Promise<{ success: boolean; message: string }> => {
+    const { data } = await axiosInstance.delete("/seat-holds", { data: payload });
+    return data;
+};

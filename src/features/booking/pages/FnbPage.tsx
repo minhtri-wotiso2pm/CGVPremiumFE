@@ -2,6 +2,7 @@ import { type FC, useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { FnbItem, FnbNavState, PaymentNavState, Product } from "../types/fnb.types";
 import { useFnbProducts } from "../hooks/useFnbProducts";
+import { setActiveSeatHold } from "../utils/activeSeatHold";
 import { formatPrice, getSeatLabel } from "../utils/seat.utils";
 import FnbProductCard from "../components/FnbProductCard";
 import "../components/fnb.css";
@@ -69,7 +70,6 @@ const FnbPage: FC = () => {
         showtimeId,
         seatIds,
         selectedSeats,
-        holdIds,
         holdExpiresAt,
         cinemaId,
         movieTitle,
@@ -83,6 +83,16 @@ const FnbPage: FC = () => {
     useEffect(() => {
         if (!showtimeId) navigate("/customer", { replace: true });
     }, [showtimeId, navigate]);
+
+    /* ── Register the active hold for the app-level back guard ────
+       useSeatHoldBackGuard (mounted once in App.tsx) releases this hold
+       if the user presses browser Back all the way to Seat Selection.
+       See activeSeatHold.ts for why the listener can't live here. */
+    useEffect(() => {
+        if (showtimeId && seatIds?.length) {
+            setActiveSeatHold({ showtimeId, seatIds });
+        }
+    }, [showtimeId, seatIds]);
 
     /* ── F&B state: itemId → quantity ────────── */
     const [fnbItems, setFnbItems] = useState<Map<number, number>>(new Map());

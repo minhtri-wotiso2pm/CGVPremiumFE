@@ -1,4 +1,4 @@
-import { type FC, useMemo, useState, useCallback } from "react";
+import { type FC, useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useSeatMap } from "../hooks/useSeatMap";
 import { useSeatHold } from "../hooks/useSeatHold";
@@ -7,6 +7,7 @@ import {
     isSeatSelectable,
     formatPrice,
     getSeatTypes,
+    getSeatLabel,
 } from "../utils/seat.utils";
 import type { Seat, SeatNavState } from "../types/seat.types";
 import { notify } from "@/utils/notify";
@@ -38,6 +39,39 @@ const SeatSelectionPage: FC = () => {
         () => new Set<number>(selectedSeats.keys()),
         [selectedSeats]
     );
+
+    /* Realtime sync: if a selected seat gets taken by another customer
+       between polls, drop it from the selection and warn the user. */
+    const isFirstDataRef = useRef(true);
+    useEffect(() => {
+        if (!data) return;
+        if (isFirstDataRef.current) {
+            isFirstDataRef.current = false;
+            return;
+        }
+        setSelectedSeats((prev) => {
+            if (prev.size === 0) return prev;
+            const latestById = new Map(data.seats.map((s) => [s.seatId, s]));
+            const stillValid = new Map<number, Seat>();
+            const lostSeats: Seat[] = [];
+            for (const [id, seat] of prev) {
+                const latest = latestById.get(id);
+                if (latest && isSeatSelectable(latest)) {
+                    stillValid.set(id, latest);
+                } else {
+                    lostSeats.push(seat);
+                }
+            }
+            if (lostSeats.length > 0) {
+                notify.warning(
+                    "Ghế vừa được đặt",
+                    `${lostSeats.map(getSeatLabel).join(", ")} vừa được người khác giữ hoặc mua. Vui lòng chọn ghế khác.`
+                );
+                return stillValid;
+            }
+            return prev;
+        });
+    }, [data]);
 
     const seatTypes  = useMemo(() => getSeatTypes(seatRowMap), [seatRowMap]);
     const hasVip     = seatTypes.has("VIP");

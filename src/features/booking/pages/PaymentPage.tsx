@@ -12,6 +12,7 @@ import { useInitiatePayment } from "../hooks/useInitiatePayment";
 import { useWallet } from "../hooks/useWallet";
 import { getPaymentStatusApi } from "@/services/api/payment.service";
 import { formatPrice, getSeatLabel } from "../utils/seat.utils";
+import { clearActiveSeatHold } from "../utils/activeSeatHold";
 import type { BookingConfirmationNavState } from "../types/payment.types";
 import "../components/payment.css";
 
@@ -217,6 +218,10 @@ const PaymentPage: FC = () => {
                 voucherCode: appliedVoucher,
             });
             bookingRef.current = booking;
+            // Seats are now booked, not just held — stop tracking this
+            // hold so a later browser Back to Seat Selection can't
+            // trigger a stale release for already-booked seats.
+            clearActiveSeatHold();
 
             const paymentInit = await doInitiatePayment({
                 bookingId: booking.bookingID,

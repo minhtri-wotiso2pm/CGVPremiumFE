@@ -18,7 +18,7 @@
  */
 
 /* React */
-import { type FC, useCallback, useRef } from "react";
+import { type FC, useCallback } from "react";
 
 /* Components */
 import MovieHero from "@/features/movies/components/MovieHero";
@@ -38,7 +38,7 @@ import { MOVIE_PAGE_SIZE } from "@/features/movies/constants/movie.constants";
 
 /* Utils */
 import {
-    getFeaturedMovie,
+    getFeaturedMovies,
     getMovieGenres,
     getMovieSectionTitle,
 } from "@/features/movies/utils/movie.utils";
@@ -75,9 +75,6 @@ const MovieListPage: FC<Props> = ({ onMovieClick, onBook }) => {
 
     } = useMovieFilters();
 
-    /* Refs */
-    const gridRef = useRef<HTMLDivElement>(null);
-
     /* Derived Data */
     const allGenres = getMovieGenres(movies);
 
@@ -96,7 +93,7 @@ const MovieListPage: FC<Props> = ({ onMovieClick, onBook }) => {
         genre
     );
 
-    const featuredMovie = getFeaturedMovie(movies);
+    const featuredMovies = getFeaturedMovies(movies, 5);
 
     /* Pagination */
     const {
@@ -127,21 +124,15 @@ const MovieListPage: FC<Props> = ({ onMovieClick, onBook }) => {
         setPage(1);
     }, [resetFilters, setPage]);
 
-    const handleBrowseScroll = useCallback(() => {
-        gridRef.current?.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-    }, []);
-
     /* Render */
     return (
         <main style={{ background: "var(--cgv-bg)", minHeight: "100vh" }}>
             {/* Hero */}
             <MovieHero
-                featuredMovie={featuredMovie}
+                featuredMovies={featuredMovies}
                 totalMovies={movies.length}
-                onBrowse={handleBrowseScroll}
+                onMovieClick={handleMovieClick}
+                onBook={handleBook}
             />
 
             {/* Sticky filter bar */}
@@ -158,18 +149,16 @@ const MovieListPage: FC<Props> = ({ onMovieClick, onBook }) => {
             />
 
             {/* Movie grid */}
-            <div ref={gridRef}>
-                <MovieGrid
-                    movies={currentItems}
-                    loading={loading}
-                    error={error}
-                    sectionTitle={sectionTitle}
-                    onCardClick={handleMovieClick}
-                    onBook={handleBook}
-                    onReset={handleReset}
-                    onRetry={refetch}
-                />
-            </div>
+            <MovieGrid
+                movies={currentItems}
+                loading={loading}
+                error={error}
+                sectionTitle={sectionTitle}
+                onCardClick={handleMovieClick}
+                onBook={handleBook}
+                onReset={handleReset}
+                onRetry={refetch}
+            />
 
             {/* Pagination */}
             {!loading && !error && filtered.length > MOVIE_PAGE_SIZE && (

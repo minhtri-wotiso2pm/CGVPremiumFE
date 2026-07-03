@@ -28,12 +28,10 @@ export function getMovieGenres(movies: Movie[]): string[] {
     return Array.from(genres).sort();
 }
 
-export function getFeaturedMovie(movies: Movie[]): Movie | null {
-    return (
-        movies.find(movie => movie.status === "NOW_SHOWING")
-        ?? movies[0]
-        ?? null
-    );
+export function getFeaturedMovies(movies: Movie[], count = 5): Movie[] {
+    const nowShowing = movies.filter(movie => movie.status === "NOW_SHOWING");
+    const rest = movies.filter(movie => movie.status !== "NOW_SHOWING");
+    return [...nowShowing, ...rest].slice(0, count);
 }
 
 import type { StatusFilter } from "../components/MovieFilterBar";
