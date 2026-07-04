@@ -34,8 +34,7 @@ export const statusRules: Rule[] = [
 ];
 
 export const cinemaIdRules: Rule[] = [
-    { required: true, message: "Cinema ID is required" },
-    { type: "number", min: 1, message: "Must be a positive number" },
+    { required: true, message: "Please select a cinema" },
 ];
 
 export const confirmPasswordRules = (getFieldValue: (name: string) => string): Rule[] => [

@@ -2,6 +2,7 @@ import { type FC, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import type { BookingConfirmationNavState } from "../types/payment.types";
 import { formatPrice } from "../utils/seat.utils";
+import TicketQrList from "../components/TicketQrList";
 import "../components/payment.css";
 
 /* ── Helpers ──────────────────────────────── */
@@ -48,7 +49,7 @@ const BookingConfirmationPage: FC = () => {
     const { state } = useLocation();
     const navState  = (state ?? {}) as BookingConfirmationNavState;
 
-    const { booking, paymentId, paymentMethod, moviePoster, roomType } = navState;
+    const { booking, paymentMethod, moviePoster, roomType } = navState;
 
     const [copied, setCopied] = useState(false);
 
@@ -177,7 +178,12 @@ const BookingConfirmationPage: FC = () => {
                             <div className="cgv-confirm-row">
                                 <span className="cgv-confirm-row__label">Voucher</span>
                                 <span className="cgv-confirm-row__val">
-                                    {booking.voucherApplied}
+                                    {booking.voucherApplied.voucherCode}
+                                    {booking.voucherApplied.discountApplied > 0 && (
+                                        <span style={{ color: "#4caf50" }}>
+                                            {" "}(−{formatPrice(booking.voucherApplied.discountApplied)})
+                                        </span>
+                                    )}
                                 </span>
                             </div>
                         )}
@@ -197,6 +203,18 @@ const BookingConfirmationPage: FC = () => {
                         <p style={{ fontSize: 13, color: "rgba(240,232,232,0.6)" }}>
                             {formatDateShort(booking.bookingDate)}
                         </p>
+                    </div>
+                </div>
+
+                {/* ── E-Tickets (QR) ── */}
+                <div className="cgv-confirm-card" style={{ marginTop: 16 }}>
+                    <div className="cgv-confirm-card__section" style={{ borderBottom: "none" }}>
+                        <TicketQrList
+                            bookingId={booking.bookingID}
+                            seats={booking.seats}
+                            movieTitle={booking.movieTitle}
+                            bookingCode={booking.bookingCode}
+                        />
                     </div>
                 </div>
 

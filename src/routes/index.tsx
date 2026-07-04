@@ -38,7 +38,12 @@ import ManagerDashboard from "@/features/manager/pages/ManagerDashboard";
 import CinemaManagementPage from "@/features/manager/pages/CinemaManagementPage";
 import MovieManagementPage from "@/features/manager/pages/MovieManagementPage";
 import FnbManagementPage from "@/features/manager/pages/FnbManagementPage";
-import PlaceholderPage from "@/features/manager/pages/PlaceholderPage";
+import RoomManagementPage from "@/features/manager/pages/RoomManagementPage";
+import SeatLayoutEditorPage from "@/features/manager/pages/SeatLayoutEditorPage";
+import SeatTypeManagementPage from "@/features/manager/pages/SeatTypeManagementPage";
+import ShowtimeManagementPage from "@/features/manager/pages/ShowtimeManagementPage";
+import ReportsPage from "@/features/reports/pages/ReportsPage";
+import VoucherManagementPage from "@/features/vouchers/pages/VoucherManagementPage";
 import AdminDashboard from "@/features/admin/pages/AdminDashboard";
 import UserManagementPage from "@/features/admin/pages/UserManagementPage";
 import AdminProfilePage from "@/features/admin/pages/AdminProfilePage";
@@ -284,8 +289,24 @@ export const router = createBrowserRouter([
                                 element: <ManagerDashboard />,
                             },
                             {
+                                path: "rooms",
+                                element: <RoomManagementPage />,
+                            },
+                            {
+                                path: "rooms/:roomId/layout",
+                                element: <SeatLayoutEditorPage />,
+                            },
+                            {
+                                path: "seat-types",
+                                element: <SeatTypeManagementPage />,
+                            },
+                            {
+                                path: "showtimes",
+                                element: <ShowtimeManagementPage />,
+                            },
+                            {
                                 path: "reports",
-                                element: <PlaceholderPage title="Reports" description="View revenue, booking trends, and performance analytics for your cinema." />,
+                                element: <ReportsPage scope="manager" />,
                             },
                             {
                                 path: "profile",
@@ -334,11 +355,11 @@ export const router = createBrowserRouter([
                             },
                             {
                                 path: "promotions",
-                                element: <PlaceholderPage title="Promotion Management" description="Create and manage promotions and discount campaigns." />,
+                                element: <VoucherManagementPage />,
                             },
                             {
                                 path: "reports",
-                                element: <PlaceholderPage title="Reports" description="View revenue, booking trends, and performance analytics." />,
+                                element: <ReportsPage scope="admin" />,
                             },
                             {
                                 path: "profile",

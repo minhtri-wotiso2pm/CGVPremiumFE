@@ -1,0 +1,97 @@
+/* ─────────────────────────────────────────────
+   Reports — light dashboard theme
+───────────────────────────────────────────── */
+.rpt-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.rpt-filters__spacer {
+    flex: 1 1 auto;
+}
+
+/* Summary cards */
+.rpt-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.rpt-card {
+    background: #fff;
+    border: 1px solid var(--dash-border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 92px;
+}
+
+.rpt-card--hero {
+    grid-column: span 2;
+    background: linear-gradient(135deg, rgba(232, 0, 28, 0.05), rgba(232, 0, 28, 0.02));
+    border-color: rgba(232, 0, 28, 0.16);
+}
+
+.rpt-card__label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--dash-text-3);
+}
+
+.rpt-card__value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--dash-text-1);
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+}
+
+.rpt-card--hero .rpt-card__value {
+    font-size: 30px;
+    color: var(--dash-crimson);
+}
+
+.rpt-card__hint {
+    font-size: 12px;
+    color: var(--dash-text-2);
+}
+
+.rpt-card--skeleton .rpt-card__value,
+.rpt-card--skeleton .rpt-card__label {
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.09), rgba(0, 0, 0, 0.05));
+    background-size: 200% 100%;
+    animation: rpt-shimmer 1.4s ease-in-out infinite;
+    border-radius: 5px;
+    color: transparent;
+    height: 14px;
+    width: 70%;
+}
+
+.rpt-card--skeleton .rpt-card__value {
+    height: 24px;
+    width: 55%;
+}
+
+@keyframes rpt-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.rpt-section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dash-text-1);
+    margin: 0 0 12px;
+}
+
+@media (max-width: 640px) {
+    .rpt-card--hero { grid-column: span 1; }
+}

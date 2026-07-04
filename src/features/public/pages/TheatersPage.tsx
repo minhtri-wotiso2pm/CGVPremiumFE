@@ -1,25 +1,111 @@
-export default function TheatersPage() {
+import { type FC, useMemo, useState } from "react";
+import { useCinemas } from "@/features/manager/hooks/useCinemas";
+import type { Cinema } from "@/features/manager/types/cinema.types";
+import { normalizeText } from "@/utils/string";
+import "../theaters.css";
+
+const SearchIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </svg>
+);
+
+const CinemaIcon = () => (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="1" y="3" width="13" height="18" rx="1" />
+        <path d="M14 8h4l3 4v9h-7V8z" />
+        <line x1="5" y1="7" x2="5" y2="7.01" strokeWidth="2.5" />
+        <line x1="9" y1="7" x2="9" y2="7.01" strokeWidth="2.5" />
+        <line x1="5" y1="12" x2="5" y2="12.01" strokeWidth="2.5" />
+        <line x1="9" y1="12" x2="9" y2="12.01" strokeWidth="2.5" />
+    </svg>
+);
+
+const PinIcon = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+        <circle cx="12" cy="10" r="3" />
+    </svg>
+);
+
+const TheaterCard: FC<{ cinema: Cinema }> = ({ cinema }) => {
+    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        `${cinema.cinemaName}, ${cinema.address}`,
+    )}`;
+
     return (
-        <div style={{
-            minHeight: "60vh",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 16,
-            color: "#f0e8e8",
-        }}>
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none"
-                stroke="#E8001C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-                <polyline points="9 22 9 12 15 12 15 22" />
-            </svg>
-            <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700, letterSpacing: "0.02em" }}>
-                Theaters
-            </h1>
-            <p style={{ margin: 0, color: "#a08888", fontSize: 15 }}>
-                Coming soon — theater listings will appear here.
-            </p>
+        <div className="thtr-card">
+            <div className="thtr-card__icon"><CinemaIcon /></div>
+            <h3 className="thtr-card__name">{cinema.cinemaName}</h3>
+            <p className="thtr-card__address">{cinema.address}</p>
+            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="thtr-card__cta">
+                <PinIcon />
+                Get Directions
+            </a>
         </div>
     );
-}
+};
+
+const TheatersPage: FC = () => {
+    const { data: cinemas = [], isLoading } = useCinemas();
+    const [search, setSearch] = useState("");
+
+    const activeCinemas = useMemo(
+        () => cinemas.filter((c) => c.status === "ACTIVE"),
+        [cinemas],
+    );
+
+    const filtered = useMemo(() => {
+        const q = normalizeText(search);
+        if (!q) return activeCinemas;
+        return activeCinemas.filter(
+            (c) => normalizeText(c.cinemaName).includes(q) || normalizeText(c.address).includes(q),
+        );
+    }, [activeCinemas, search]);
+
+    return (
+        <div className="thtr-page">
+            <div className="thtr-head">
+                <span className="thtr-head__eyebrow">CGV Premium</span>
+                <h1 className="thtr-head__title">Our Theaters</h1>
+                <p className="thtr-head__sub">Find a CGV Premium cinema near you.</p>
+            </div>
+
+            <div className="thtr-search">
+                <span className="thtr-search__icon"><SearchIcon /></span>
+                <input
+                    type="text"
+                    placeholder="Search by name or address..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+            </div>
+
+            {!isLoading && (
+                <p className="thtr-count">
+                    {filtered.length} theater{filtered.length !== 1 ? "s" : ""} found
+                </p>
+            )}
+
+            {isLoading ? (
+                <div className="thtr-grid">
+                    {Array.from({ length: 6 }).map((_, i) => <div key={i} className="thtr-skel" />)}
+                </div>
+            ) : filtered.length === 0 ? (
+                <div className="thtr-empty">
+                    <p style={{ margin: 0, fontSize: 16 }}>
+                        {activeCinemas.length === 0 ? "No theaters available right now." : "No theaters match your search."}
+                    </p>
+                    <p style={{ margin: "6px 0 0", fontSize: 14 }}>Please check back soon.</p>
+                </div>
+            ) : (
+                <div className="thtr-grid">
+                    {filtered.map((c) => <TheaterCard key={c.cinemaId} cinema={c} />)}
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default TheatersPage;

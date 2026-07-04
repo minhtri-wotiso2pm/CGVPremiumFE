@@ -63,6 +63,11 @@ export interface BookingFnbItem {
     subTotal: number;
 }
 
+export interface BookingVoucherApplied {
+    voucherCode: string;
+    discountApplied: number;
+}
+
 export interface BookingResponse {
     bookingID: number;
     bookingCode: string;
@@ -78,7 +83,7 @@ export interface BookingResponse {
     bookingDate: string;
     seats: BookingSeat[];
     fnbItems: BookingFnbItem[];
-    voucherApplied: string | null;
+    voucherApplied: BookingVoucherApplied | null;
 }
 
 export interface PaymentInitiateRequest {

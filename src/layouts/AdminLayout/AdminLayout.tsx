@@ -92,7 +92,6 @@ const ADMIN_MENU: MenuGroup[] = [
                 label: "Promotion Management",
                 icon: <PromotionIcon />,
                 path: "/admin/promotions",
-                disabled: true,
             },
         ],
     },
@@ -105,7 +104,6 @@ const ADMIN_MENU: MenuGroup[] = [
                 label: "Reports",
                 icon: <ReportsIcon />,
                 path: "/admin/reports",
-                disabled: true,
             },
             {
                 key: "activity",

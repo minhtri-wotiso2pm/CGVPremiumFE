@@ -1,9 +1,13 @@
 import { type FC, useEffect } from "react";
-import { Modal, Form, Select, InputNumber, Button } from "antd";
+import { Modal, Form, Select, Button } from "antd";
 import type { AdminUser } from "../types/user.types";
 import { useChangeRole } from "../hooks/useChangeRole";
 import { roleRules, cinemaIdRules } from "../schemas/user.schema";
 import { ROLE_OPTIONS } from "../constants/admin.constants";
+import CinemaSelect from "./CinemaSelect";
+
+/** Only Staff and Manager are scoped to a cinema — Admin and Customer are not. */
+const ROLES_REQUIRING_CINEMA = ["staff", "manager"];
 
 interface Props {
     user: AdminUser | null;
@@ -21,7 +25,7 @@ const ChangeRoleModal: FC<Props> = ({ user, open, onClose, onMutationStart, onMu
         if (open && user) {
             form.setFieldsValue({
                 role: user.role,
-                cinemaId: user.role !== "customer" ? user.cinemaId : undefined,
+                cinemaId: ROLES_REQUIRING_CINEMA.includes(user.role) ? user.cinemaId : undefined,
             });
         } else {
             form.resetFields();
@@ -58,12 +62,12 @@ const ChangeRoleModal: FC<Props> = ({ user, open, onClose, onMutationStart, onMu
                     />
                 </Form.Item>
 
-                {/* Cinema ID — only for non-customer roles */}
+                {/* Cinema — only for Staff / Manager roles */}
                 <Form.Item noStyle shouldUpdate={(prev, curr) => prev.role !== curr.role}>
                     {({ getFieldValue }) =>
-                        getFieldValue("role") && getFieldValue("role") !== "customer" ? (
-                            <Form.Item name="cinemaId" label="Cinema ID" rules={cinemaIdRules}>
-                                <InputNumber min={1} style={{ width: "100%" }} />
+                        ROLES_REQUIRING_CINEMA.includes(getFieldValue("role")) ? (
+                            <Form.Item name="cinemaId" label="Cinema" rules={cinemaIdRules}>
+                                <CinemaSelect />
                             </Form.Item>
                         ) : null
                     }

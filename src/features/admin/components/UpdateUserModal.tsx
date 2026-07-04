@@ -1,8 +1,12 @@
 import { type FC, useEffect } from "react";
-import { Modal, Form, Input, InputNumber, Button } from "antd";
+import { Modal, Form, Input, Button } from "antd";
 import type { AdminUser } from "../types/user.types";
 import { useUpdateUser } from "../hooks/useUpdateUser";
 import { nameRules, emailRules, phoneRules, cinemaIdRules } from "../schemas/user.schema";
+import CinemaSelect from "./CinemaSelect";
+
+/** Only Staff and Manager are scoped to a cinema — Admin and Customer are not. */
+const ROLES_REQUIRING_CINEMA = ["staff", "manager"];
 
 interface Props {
     user: AdminUser | null;
@@ -16,7 +20,7 @@ const UpdateUserModal: FC<Props> = ({ user, open, onClose, onMutationStart, onMu
     const [form] = Form.useForm();
     const { mutate: updateUser, isPending } = useUpdateUser();
 
-    const isNonCustomer = user?.role !== "customer";
+    const needsCinema = ROLES_REQUIRING_CINEMA.includes(user?.role ?? "");
 
     useEffect(() => {
         if (open && user) {
@@ -24,12 +28,12 @@ const UpdateUserModal: FC<Props> = ({ user, open, onClose, onMutationStart, onMu
                 fullName: user.fullName,
                 email: user.email,
                 phone: user.phone,
-                ...(isNonCustomer ? { cinemaId: user.cinemaId } : {}),
+                ...(needsCinema ? { cinemaId: user.cinemaId } : {}),
             });
         } else {
             form.resetFields();
         }
-    }, [open, user, form, isNonCustomer]);
+    }, [open, user, form, needsCinema]);
 
     const handleSubmit = (values: {
         fullName: string; email: string; phone: string; cinemaId?: number;
@@ -68,10 +72,10 @@ const UpdateUserModal: FC<Props> = ({ user, open, onClose, onMutationStart, onMu
                     <Input />
                 </Form.Item>
 
-                {/* Cinema ID — only for non-customer roles */}
-                {isNonCustomer && (
-                    <Form.Item name="cinemaId" label="Cinema ID" rules={cinemaIdRules}>
-                        <InputNumber min={1} style={{ width: "100%" }} />
+                {/* Cinema — only for Staff / Manager roles */}
+                {needsCinema && (
+                    <Form.Item name="cinemaId" label="Cinema" rules={cinemaIdRules}>
+                        <CinemaSelect />
                     </Form.Item>
                 )}
 

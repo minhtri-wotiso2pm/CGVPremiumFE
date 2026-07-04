@@ -1,9 +1,12 @@
-import { type FC } from "react";
+import { type FC, useMemo } from "react";
 import { Table, type TableProps } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import type { AdminUser, UserModalType } from "../types/user.types";
 import type { GetUsersParams } from "../types/user.types";
+import { useCinemas } from "@/features/manager/hooks/useCinemas";
 import UserActionMenu from "./UserActionMenu";
+
+const ROLES_WITH_CINEMA = ["staff", "manager"];
 
 const roleClass: Record<string, string> = {
     admin:    "dash-role--admin",
@@ -60,6 +63,12 @@ const UserTable: FC<Props> = ({
     data, total, params, loading, processingUserId,
     onParamsChange, onAction,
 }) => {
+    const { data: cinemas = [] } = useCinemas();
+    const cinemaNameById = useMemo(
+        () => new Map(cinemas.map((c) => [c.cinemaId, c.cinemaName])),
+        [cinemas],
+    );
+
     const columns: ColumnsType<AdminUser> = [
         {
             title: "#",
@@ -92,6 +101,22 @@ const UserTable: FC<Props> = ({
             render: (role: string) => (
                 <span className={`dash-role ${roleClass[role] ?? "dash-role--customer"}`}>{role}</span>
             ),
+        },
+        {
+            title: "Cinema",
+            key: "cinema",
+            render: (_, record) => {
+                if (!ROLES_WITH_CINEMA.includes(record.role)) {
+                    return <span style={{ fontSize: 13, color: "var(--dash-text-3)" }}>—</span>;
+                }
+                const name = record.cinemaId != null ? cinemaNameById.get(record.cinemaId) : undefined;
+                return (
+                    <span style={{ fontSize: 13, color: name ? "var(--dash-text-2)" : "var(--dash-text-3)" }}>
+                        {name ?? (record.cinemaId != null ? `#${record.cinemaId}` : "Unassigned")}
+                    </span>
+                );
+            },
+            responsive: ["md"],
         },
         {
             title: "Status",
@@ -151,7 +176,7 @@ const UserTable: FC<Props> = ({
                 pageSizeOptions: ["10", "20", "50"],
                 showTotal: (t, range) => `${range[0]}–${range[1]} of ${t} users`,
             }}
-            scroll={{ x: 600 }}
+            scroll={{ x: 720 }}
         />
     );
 };

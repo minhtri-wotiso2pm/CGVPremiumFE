@@ -1,0 +1,188 @@
+/* ─────────────────────────────────────────────
+   Customer Theaters — dark CGV theme
+───────────────────────────────────────────── */
+.thtr-page {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 48px 24px 72px;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.thtr-head {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.thtr-head__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: #E8001C;
+    margin-bottom: 14px;
+}
+
+.thtr-head__eyebrow::before,
+.thtr-head__eyebrow::after {
+    content: '';
+    width: 24px;
+    height: 2px;
+    background: #E8001C;
+    border-radius: 2px;
+}
+
+.thtr-head__title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(30px, 4vw, 44px);
+    font-weight: 700;
+    color: #f0e8e8;
+    margin: 0 0 10px;
+}
+
+.thtr-head__sub {
+    font-size: 15px;
+    color: #a08888;
+    margin: 0;
+}
+
+.thtr-search {
+    max-width: 420px;
+    margin: 28px auto 36px;
+    position: relative;
+}
+
+.thtr-search input {
+    width: 100%;
+    padding: 12px 16px 12px 42px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    color: #f0e8e8;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.18s, background 0.18s;
+}
+
+.thtr-search input::placeholder {
+    color: #6b4848;
+}
+
+.thtr-search input:focus {
+    border-color: rgba(232, 0, 28, 0.5);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.thtr-search__icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #7a5555;
+    pointer-events: none;
+}
+
+.thtr-count {
+    text-align: center;
+    font-size: 13px;
+    color: #7a5555;
+    margin: -20px 0 28px;
+}
+
+.thtr-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.thtr-card {
+    display: flex;
+    flex-direction: column;
+    background: rgba(20, 6, 6, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
+    padding: 22px 22px 20px;
+    transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.22s, box-shadow 0.22s;
+}
+
+.thtr-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(232, 0, 28, 0.4);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+
+.thtr-card__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(232, 0, 28, 0.18), rgba(120, 6, 20, 0.28));
+    color: #f0a8a8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 14px;
+    flex-shrink: 0;
+}
+
+.thtr-card__name {
+    font-size: 17px;
+    font-weight: 700;
+    color: #f0e8e8;
+    margin: 0 0 6px;
+    line-height: 1.3;
+}
+
+.thtr-card__address {
+    font-size: 13.5px;
+    color: #a08888;
+    line-height: 1.6;
+    margin: 0 0 18px;
+    flex: 1;
+}
+
+.thtr-card__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 0;
+    border-radius: 8px;
+    border: 1px solid rgba(232, 0, 28, 0.4);
+    background: rgba(232, 0, 28, 0.08);
+    color: #f0a8a8;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s, transform 0.18s;
+}
+
+.thtr-card__cta:hover {
+    background: rgba(232, 0, 28, 0.18);
+    border-color: rgba(232, 0, 28, 0.6);
+    transform: translateY(-1px);
+}
+
+.thtr-empty {
+    text-align: center;
+    padding: 80px 24px;
+    color: #a08888;
+}
+
+/* Skeleton */
+.thtr-skel {
+    height: 176px;
+    border-radius: 16px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+    background-size: 200% 100%;
+    animation: thtr-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes thtr-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}

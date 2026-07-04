@@ -18,14 +18,8 @@ export const CustomerProfileLayout: FC = () => (
     </div>
 );
 
-/* ── Placeholder sub-pages ── */
-export const TicketsPage: FC = () => (
-    <ProfilePlaceholder
-        icon="🎫"
-        title="My Tickets"
-        subtitle="All your booked and past movie tickets will appear here. Book your first movie now!"
-    />
-);
+/* ── Sub-pages ── */
+export { default as TicketsPage } from "./MyTicketsPage";
 
 export { default as MembershipPage } from "./MembershipPage";
 

@@ -1,0 +1,193 @@
+/* ─────────────────────────────────────────────
+   Customer Promotions — dark CGV theme
+───────────────────────────────────────────── */
+.promo-page {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 48px 24px 72px;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.promo-head {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.promo-head__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: #E8001C;
+    margin-bottom: 14px;
+}
+
+.promo-head__eyebrow::before,
+.promo-head__eyebrow::after {
+    content: '';
+    width: 24px;
+    height: 2px;
+    background: #E8001C;
+    border-radius: 2px;
+}
+
+.promo-head__title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(30px, 4vw, 44px);
+    font-weight: 700;
+    color: #f0e8e8;
+    margin: 0 0 10px;
+}
+
+.promo-head__sub {
+    font-size: 15px;
+    color: #a08888;
+    margin: 0;
+}
+
+.promo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.promo-card {
+    display: flex;
+    flex-direction: column;
+    background: rgba(20, 6, 6, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.22s, box-shadow 0.22s;
+}
+
+.promo-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(232, 0, 28, 0.4);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+
+.promo-card__banner {
+    height: 128px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    background-color: #2a0808;
+}
+
+.promo-card__banner--empty {
+    background: linear-gradient(135deg, rgba(232, 0, 28, 0.32), rgba(120, 6, 20, 0.5));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.promo-card__discount {
+    position: absolute;
+    left: 16px;
+    bottom: 12px;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 30px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+    line-height: 1;
+}
+
+.promo-card__discount span {
+    font-size: 14px;
+    font-weight: 600;
+    margin-left: 4px;
+}
+
+.promo-card__body {
+    padding: 16px 18px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+}
+
+.promo-card__desc {
+    font-size: 13.5px;
+    color: #c8b0b0;
+    line-height: 1.5;
+    margin: 0;
+    min-height: 40px;
+}
+
+.promo-card__meta {
+    font-size: 12px;
+    color: #7a5555;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.promo-card__code-row {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 6px;
+}
+
+.promo-card__code {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed rgba(232, 0, 28, 0.5);
+    border-radius: 8px;
+    padding: 9px 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #f0a8a8;
+    font-size: 14px;
+    background: rgba(232, 0, 28, 0.06);
+}
+
+.promo-card__copy {
+    border: none;
+    border-radius: 8px;
+    padding: 0 16px;
+    background: linear-gradient(135deg, #E8001C, #b50016);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: transform 0.18s, box-shadow 0.2s;
+}
+
+.promo-card__copy:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(232, 0, 28, 0.35);
+}
+
+.promo-card__copy--done {
+    background: #2e7d32;
+}
+
+.promo-empty {
+    text-align: center;
+    padding: 80px 24px;
+    color: #a08888;
+}
+
+/* Skeleton */
+.promo-skel {
+    height: 260px;
+    border-radius: 16px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+    background-size: 200% 100%;
+    animation: promo-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes promo-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}

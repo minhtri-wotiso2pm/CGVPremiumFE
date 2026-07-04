@@ -1,11 +1,15 @@
 import { type FC, useEffect } from "react";
-import { Modal, Form, Input, Select, InputNumber, Button } from "antd";
+import { Modal, Form, Input, Select, Button } from "antd";
 import { useCreateUser } from "../hooks/useCreateUser";
 import {
     nameRules, emailRules, phoneRules, passwordRules,
     roleRules, statusRules, cinemaIdRules,
 } from "../schemas/user.schema";
 import { ROLE_OPTIONS, STATUS_OPTIONS } from "../constants/admin.constants";
+import CinemaSelect from "./CinemaSelect";
+
+/** Only Staff and Manager are scoped to a cinema — Admin and Customer are not. */
+const ROLES_REQUIRING_CINEMA = ["staff", "manager"];
 
 interface Props {
     open: boolean;
@@ -73,16 +77,12 @@ const CreateUserModal: FC<Props> = ({ open, onClose, onMutationStart, onMutation
                     </Form.Item>
                 </div>
 
-                {/* Cinema ID — only for non-customer roles */}
+                {/* Cinema — only for Staff / Manager roles */}
                 <Form.Item noStyle shouldUpdate={(prev, curr) => prev.role !== curr.role}>
                     {({ getFieldValue }) =>
-                        getFieldValue("role") && getFieldValue("role") !== "customer" ? (
-                            <Form.Item name="cinemaId" label="Cinema ID" rules={cinemaIdRules}>
-                                <InputNumber
-                                    placeholder="Cinema ID number"
-                                    min={1}
-                                    style={{ width: "100%" }}
-                                />
+                        ROLES_REQUIRING_CINEMA.includes(getFieldValue("role")) ? (
+                            <Form.Item name="cinemaId" label="Cinema" rules={cinemaIdRules}>
+                                <CinemaSelect />
                             </Form.Item>
                         ) : null
                     }
