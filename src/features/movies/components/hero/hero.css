@@ -1,0 +1,467 @@
+/* ═══════════════════════════════════════════════════════════════
+   CGV Premium — Hero Movie Carousel
+   Netflix-style hybrid poster→trailer hero. Dark cinematic theme,
+   crimson brand accent only, text overlays directly on the media.
+═══════════════════════════════════════════════════════════════ */
+
+.cgv-hero {
+    position: relative;
+    height: min(74vh, 640px);
+    min-height: 460px;
+    overflow: hidden;
+    background: #0b0b0b;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    isolation: isolate;
+}
+
+/* Splash-synced entrance — plays once per page load, delay set inline */
+.cgv-hero--intro {
+    opacity: 0;
+    animation: cgv-hero-enter 560ms ease-out both;
+}
+
+@keyframes cgv-hero-enter {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ── Background Sync Layer — blurred backdrop matching the active slide ── */
+.cgv-hbg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.cgv-hbg__layer {
+    position: absolute;
+    inset: -3%;
+    background-size: cover;
+    background-position: center;
+    filter: blur(28px) brightness(0.55) saturate(1.15);
+    transform: scale(1.06);
+    transition: opacity 900ms ease, filter 600ms ease;
+}
+
+.cgv-hbg--deep .cgv-hbg__layer {
+    filter: blur(38px) brightness(0.4) saturate(1.2);
+}
+
+/* Bottom gradient — black fading to transparent, plus a soft left wash so
+   overlay text always stays legible regardless of the underlying frame */
+.cgv-hero__gradient {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background:
+        linear-gradient(to right, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.35) 45%, rgba(0, 0, 0, 0.05) 75%),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0.1) 55%, rgba(11, 11, 11, 0.98) 100%);
+}
+
+/* ── Center layer — poster/video stage ── */
+.cgv-hero__stage {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+/* Poster */
+.cgv-hposter {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 600ms ease;
+}
+
+.cgv-hposter--active {
+    opacity: 1;
+}
+
+.cgv-hposter--hidden {
+    opacity: 0;
+    transition: opacity 400ms ease;
+}
+
+.cgv-hposter__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 50%;
+    animation: cgv-hposter-zoom 7s ease-out forwards;
+}
+
+@keyframes cgv-hposter-zoom {
+    from {
+        transform: scale(1);
+    }
+
+    to {
+        transform: scale(1.045);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cgv-hposter__img {
+        animation: none;
+    }
+}
+
+.cgv-hposter__tap {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
+    background: rgba(11, 11, 11, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding-left: 3px;
+    z-index: 3;
+    transition: transform 180ms ease, background 180ms ease;
+}
+
+.cgv-hposter__tap:hover {
+    transform: translate(-50%, -50%) scale(1.06);
+    background: rgba(232, 0, 28, 0.35);
+}
+
+/* Video */
+.cgv-hvid {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 450ms ease;
+    /* Soft glow while active, per brief */
+    filter: drop-shadow(0 0 60px rgba(232, 0, 28, 0.12));
+}
+
+.cgv-hvid--visible {
+    opacity: 1;
+}
+
+.cgv-hvid__frame,
+.cgv-hvid__frame iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    pointer-events: none;
+}
+
+/* YouTube renders at 16:9 inside our box — oversize + center-crop so it
+   fills the hero like a native background video, no letterboxing */
+.cgv-hvid__frame iframe {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 178vh;
+    height: 100%;
+    min-width: 100%;
+    min-height: 56.25vw;
+    transform: translate(-50%, -50%);
+}
+
+/* ── Controls ── */
+.cgv-hnav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 4;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(11, 11, 11, 0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #f5f5f5;
+    cursor: pointer;
+    transition: background 200ms ease-out, border-color 200ms ease-out, transform 200ms ease-out;
+}
+
+.cgv-hnav:hover {
+    background: rgba(232, 0, 28, 0.3);
+    border-color: rgba(232, 0, 28, 0.55);
+    transform: translateY(-50%) scale(1.06);
+}
+
+.cgv-hnav--prev {
+    left: 20px;
+}
+
+.cgv-hnav--next {
+    right: 20px;
+}
+
+.cgv-hmute {
+    position: absolute;
+    right: 20px;
+    bottom: 28px;
+    z-index: 4;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(11, 11, 11, 0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    cursor: pointer;
+    transition: background 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.cgv-hmute:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: scale(1.06);
+}
+
+/* Gentle pulse while playing muted — draws the eye to "tap to unmute" */
+.cgv-hmute--pulse {
+    animation: cgv-hmute-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes cgv-hmute-pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(232, 0, 28, 0.45);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(232, 0, 28, 0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cgv-hmute--pulse {
+        animation: none;
+    }
+}
+
+/* ── Overlay Info Panel — text directly on the media, never split-screen ── */
+.cgv-hoverlay {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    z-index: 3;
+    width: 100%;
+    max-width: 620px;
+    padding: 0 24px 44px;
+    margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+    .cgv-hoverlay {
+        left: 5%;
+        padding: 0 0 52px;
+    }
+}
+
+/* ParallaxEngine — direction-aware drift + fade on every slide change.
+   --cgv-parallax-x is set inline per slide (see useParallaxStyle). */
+.cgv-hoverlay--parallax {
+    animation: cgv-hoverlay-in 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes cgv-hoverlay-in {
+    from {
+        transform: translateX(var(--cgv-parallax-x, 8px));
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cgv-hoverlay--parallax {
+        animation: none;
+    }
+}
+
+.cgv-hoverlay__eyebrow-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 0 0 14px;
+}
+
+.cgv-hoverlay__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: #E8001C;
+    margin: 0;
+}
+
+.cgv-hoverlay__eyebrow::before {
+    content: '';
+    display: block;
+    width: 26px;
+    height: 2px;
+    background: #E8001C;
+    border-radius: 2px;
+}
+
+.cgv-hoverlay__title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(32px, 4.8vw, 56px);
+    font-weight: 700;
+    color: #f5f5f5;
+    margin: 0 0 14px;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    text-shadow: 0 2px 18px rgba(0, 0, 0, 0.5);
+}
+
+.cgv-hoverlay__meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 13.5px;
+    color: #c7c7c7;
+    margin: 0 0 18px;
+}
+
+.cgv-hoverlay__meta span:not(.cgv-hoverlay__age-badge)::before {
+    content: '•';
+    margin-right: 10px;
+    color: #6b6b6b;
+}
+
+.cgv-hoverlay__meta span:first-of-type::before {
+    content: none;
+}
+
+.cgv-hoverlay__age-badge {
+    display: inline-block;
+    padding: 1px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: #f5f5f5;
+    text-transform: uppercase;
+}
+
+.cgv-hoverlay__desc {
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: #d4d4d4;
+    max-width: 520px;
+    margin: 0 0 26px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+}
+
+.cgv-hoverlay__cta-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.cgv-hoverlay__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 13px 26px;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    cursor: pointer;
+    transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 200ms ease, background 200ms ease;
+}
+
+.cgv-hoverlay__cta--primary {
+    background: linear-gradient(135deg, #E8001C 0%, #a80014 100%);
+    color: #fff;
+    box-shadow: 0 8px 26px rgba(232, 0, 28, 0.32);
+}
+
+.cgv-hoverlay__cta--primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 34px rgba(232, 0, 28, 0.44);
+}
+
+.cgv-hoverlay__cta--secondary {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+.cgv-hoverlay__cta--secondary:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .cgv-hero {
+        height: min(66vh, 520px);
+        min-height: 420px;
+    }
+
+    .cgv-hnav {
+        display: none;
+    }
+
+    /* swipe replaces arrows on touch, per brief */
+
+    .cgv-hmute {
+        right: 14px;
+        bottom: 18px;
+    }
+
+    .cgv-hoverlay {
+        padding: 0 16px 28px;
+        max-width: 100%;
+    }
+
+    .cgv-hoverlay__desc {
+        -webkit-line-clamp: 2;
+        margin-bottom: 20px;
+    }
+
+    .cgv-hoverlay__cta {
+        padding: 11px 20px;
+        font-size: 12px;
+    }
+}

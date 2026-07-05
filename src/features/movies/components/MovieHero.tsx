@@ -1,9 +1,16 @@
 import { type FC, useCallback, useEffect, useState } from "react";
 import type { Movie } from "@/features/movies/types/movie.types";
-import { formatDuration } from "@/features/movies/utils/movie.utils";
+import { getYouTubeId } from "@/features/movies/utils/movie.utils";
+import { useMovieDetail } from "@/features/movies/hooks/useMovieDetail";
 import { SPLASH_TOTAL_MS } from "@/components/common/SplashScreen/SplashScreen";
 import { useIntroEntrance } from "@/components/common/SplashScreen/useIntroEntrance";
-import "./movies.css";
+import HeroBackgroundLayer from "./hero/HeroBackgroundLayer";
+import HeroPosterLayer from "./hero/HeroPosterLayer";
+import HeroVideoLayer from "./hero/HeroVideoLayer";
+import HeroOverlayInfo from "./hero/HeroOverlayInfo";
+import HeroControls from "./hero/HeroControls";
+import { usePreloadNextTrailer } from "./hero/usePreloadNextTrailer";
+import "./hero/hero.css";
 
 interface Props {
     featuredMovies: Movie[];
@@ -13,154 +20,188 @@ interface Props {
 }
 
 const HERO_FALLBACK_BG = "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1400&q=80";
-const AUTOPLAY_MS = 5000;
+const AUTOPLAY_MS = 6000; // 5–7s per brief
+const AUTO_TRAILER_DELAY_MS = 3000; // 2–5s per brief
 
+const matches = (query: string) => typeof window !== "undefined" && window.matchMedia(query).matches;
+
+/**
+ * HeroCarousel — Netflix-style hero with hybrid poster→trailer slides.
+ * Only the active slide ever mounts a video player; every other slide
+ * renders a plain <img> poster. See ./hero/* for the layer components
+ * (PosterLayer, VideoLayer, BackgroundSyncLayer, OverlayInfoPanel,
+ * Controls) and the ParallaxEngine / PreloadManager hooks.
+ */
 const MovieHero: FC<Props> = ({ featuredMovies, totalMovies, onMovieClick, onBook }) => {
-    const [activeIndex, setActiveIndex] = useState(0);
-    const [isPaused, setIsPaused] = useState(false);
-
-    /* Splash-synced entrance — fades in together with the floating header */
     const playIntro = useIntroEntrance();
 
+    const [isTouch] = useState(() => !matches("(hover: hover) and (pointer: fine)"));
+    const [reducedMotion] = useState(() => matches("(prefers-reduced-motion: reduce)"));
+
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [direction, setDirection] = useState<1 | -1>(1);
+    const [hovering, setHovering] = useState(false);
+    const [autoTriggered, setAutoTriggered] = useState(false);
+    const [manualPlay, setManualPlay] = useState(false);
+    const [everPlayedThisSlide, setEverPlayedThisSlide] = useState(false);
+    const [videoPlaying, setVideoPlaying] = useState(false);
+    const [muted, setMuted] = useState(true);
+
     const slideCount = featuredMovies.length;
-    // Clamp in case the movie list shrinks (e.g. filters change upstream) —
-    // derived instead of synced via effect, so there's no extra render.
+    // Derived instead of synced via effect — avoids an extra render if the
+    // movie list shrinks (e.g. filters change upstream).
     const safeIndex = activeIndex < slideCount ? activeIndex : 0;
+    const activeMovie = featuredMovies[safeIndex] as Movie | undefined;
+    const nextMovie = slideCount > 0 ? featuredMovies[(safeIndex + 1) % slideCount] : undefined;
 
-    /* Autoplay — pauses on hover, skips entirely for prefers-reduced-motion */
+    /* ── Data: detail for the active slide only, trailer preloaded for the next ── */
+    const { data: activeDetail } = useMovieDetail(activeMovie?.movieId ?? 0);
+    usePreloadNextTrailer(nextMovie && nextMovie.movieId !== activeMovie?.movieId ? nextMovie.movieId : undefined);
+
+    const trailerId = activeDetail?.trailerUrl ? getYouTubeId(activeDetail.trailerUrl) : null;
+    const canAutoPlay = !isTouch && !reducedMotion && !!trailerId;
+    const canTapPlay = isTouch && !!trailerId;
+
+    /* ── Reset per-slide play state whenever the active slide changes ──
+       Adjusted during render (React's documented pattern for resetting
+       state on prop/derived-value change) instead of an effect, so it
+       can't trigger the extra "commit → effect → re-render" round trip. */
+    const [prevSafeIndex, setPrevSafeIndex] = useState(safeIndex);
+    if (prevSafeIndex !== safeIndex) {
+        setPrevSafeIndex(safeIndex);
+        setAutoTriggered(false);
+        setManualPlay(false);
+        setEverPlayedThisSlide(false);
+        setVideoPlaying(false);
+    }
+
+    /* ── Ambient auto-trailer timer — desktop only, skipped while hovering
+       (hover already triggers play immediately) ── */
     useEffect(() => {
-        if (slideCount <= 1 || isPaused) return;
-        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        if (!canAutoPlay || hovering) return;
+        const t = setTimeout(() => setAutoTriggered(true), AUTO_TRAILER_DELAY_MS);
+        return () => clearTimeout(t);
+    }, [safeIndex, hovering, canAutoPlay]);
 
+    const playRequested = (canAutoPlay && (hovering || autoTriggered)) || (canTapPlay && manualPlay);
+
+    // Once a slide starts playing, keep its VideoLayer mounted (so
+    // pause/resume toggles the same player instead of recreating it).
+    if (playRequested && !everPlayedThisSlide) {
+        setEverPlayedThisSlide(true);
+    }
+
+    /* ── Carousel autoplay — pauses while hovering or while a trailer is
+       actually playing, so it never yanks away mid-trailer ── */
+    useEffect(() => {
+        if (slideCount <= 1 || hovering || videoPlaying || reducedMotion) return;
         const id = setInterval(() => {
+            setDirection(1);
             setActiveIndex((i) => (i + 1) % slideCount);
         }, AUTOPLAY_MS);
         return () => clearInterval(id);
-    }, [slideCount, isPaused]);
+    }, [slideCount, hovering, videoPlaying, reducedMotion]);
 
     const goPrev = useCallback(() => {
+        setDirection(-1);
         setActiveIndex((i) => (i - 1 + slideCount) % slideCount);
     }, [slideCount]);
 
     const goNext = useCallback(() => {
+        setDirection(1);
         setActiveIndex((i) => (i + 1) % slideCount);
     }, [slideCount]);
 
-    const activeMovie = featuredMovies[safeIndex] as Movie | undefined;
+    const handleMouseLeave = () => {
+        setHovering(false);
+        setAutoTriggered(false); // "mouse leave pauses video and returns poster state"
+        setVideoPlaying(false); // optimistic — instant poster crossfade back
+    };
+
+    /* ── Touch swipe — arrows are hidden on mobile, swipe replaces them ── */
+    const [touchStartX, setTouchStartX] = useState<number | null>(null);
+    const handleTouchStart = (e: React.TouchEvent) => setTouchStartX(e.touches[0].clientX);
+    const handleTouchEnd = (e: React.TouchEvent) => {
+        if (touchStartX === null) return;
+        const deltaX = e.changedTouches[0].clientX - touchStartX;
+        const SWIPE_THRESHOLD = 40;
+        if (deltaX > SWIPE_THRESHOLD) goPrev();
+        else if (deltaX < -SWIPE_THRESHOLD) goNext();
+        setTouchStartX(null);
+    };
+
+    const shouldMountVideo = !!trailerId && everPlayedThisSlide;
 
     return (
         <section
             className={`cgv-hero${playIntro ? " cgv-hero--intro" : ""}`}
             style={playIntro ? { animationDelay: `${SPLASH_TOTAL_MS + 60}ms` } : undefined}
-            aria-label="Featured movies hero"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
+            aria-label={`Featured movies hero — ${totalMovies} movies available`}
+            onMouseEnter={() => setHovering(true)}
+            onMouseLeave={handleMouseLeave}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
         >
-            {/* Cross-fading background layers — all posters pre-rendered, only opacity animates */}
-            {featuredMovies.map((movie, i) => (
-                <div
-                    key={movie.movieId}
-                    className="cgv-hero__bg"
-                    style={{
-                        backgroundImage: `url(${movie.posterUrl || HERO_FALLBACK_BG})`,
-                        opacity: i === safeIndex ? 1 : 0,
-                    }}
-                    aria-hidden="true"
-                />
-            ))}
-            {featuredMovies.length === 0 && (
-                <div className="cgv-hero__bg" style={{ backgroundImage: `url(${HERO_FALLBACK_BG})`, opacity: 1 }} aria-hidden="true" />
-            )}
-            <div className="cgv-hero__overlay" aria-hidden="true" />
+            <HeroBackgroundLayer
+                movies={featuredMovies}
+                activeIndex={safeIndex}
+                fallbackUrl={HERO_FALLBACK_BG}
+                videoPlaying={videoPlaying}
+            />
+            <div className="cgv-hero__gradient" aria-hidden="true" />
 
-            {/* Prev / next arrows */}
-            {slideCount > 1 && (
-                <>
-                    <button
-                        type="button"
-                        className="cgv-hero__nav cgv-hero__nav--prev"
-                        onClick={goPrev}
-                        aria-label="Previous movie"
-                    >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="15 18 9 12 15 6" />
-                        </svg>
-                    </button>
-                    <button
-                        type="button"
-                        className="cgv-hero__nav cgv-hero__nav--next"
-                        onClick={goNext}
-                        aria-label="Next movie"
-                    >
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="9 18 15 12 9 6" />
-                        </svg>
-                    </button>
-                </>
-            )}
-
-            <div className="cgv-hero__content">
-                {activeMovie ? (
-                    <div key={activeMovie.movieId} className="cgv-hero__slide">
-                        <p className="cgv-hero__eyebrow">
-                            {activeMovie.status === "NOW_SHOWING" ? "Now Showing" : "Coming Soon"}
-                        </p>
-
-                        <h1 className="cgv-hero__title">{activeMovie.title}</h1>
-
-                        <p className="cgv-hero__meta">
-                            {activeMovie.genres.slice(0, 3).join(" • ")}
-                            {activeMovie.genres.length > 0 && " • "}
-                            {formatDuration(activeMovie.durationMinutes)}
-                            {" • "}
-                            <span className="cgv-hero__age-badge">{activeMovie.ageRating}</span>
-                        </p>
-
-                        <div className="cgv-hero__cta-row">
-                            <button
-                                className="cgv-hero__cta cgv-hero__cta--primary"
-                                onClick={() => onBook(activeMovie.movieId)}
-                            >
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
-                                    strokeLinejoin="round" aria-hidden="true"
-                                >
-                                    <polygon points="5 3 19 12 5 21 5 3" />
-                                </svg>
-                                Book Now
-                            </button>
-                            <button
-                                className="cgv-hero__cta cgv-hero__cta--secondary"
-                                onClick={() => onMovieClick(activeMovie.movieId)}
-                            >
-                                View Details
-                            </button>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="cgv-hero__slide">
-                        <p className="cgv-hero__eyebrow">CGVPremium</p>
-                        <h1 className="cgv-hero__title"><em>Now Showing</em></h1>
-                        <p className="cgv-hero__meta">Discover the latest blockbuster movies and book your seats instantly.</p>
-                    </div>
+            {/* Center layer — poster for every slide, video only for the active one */}
+            <div className="cgv-hero__stage">
+                {featuredMovies.map((movie, i) => (
+                    <HeroPosterLayer
+                        key={movie.movieId}
+                        posterUrl={movie.posterUrl}
+                        fallbackUrl={HERO_FALLBACK_BG}
+                        title={movie.title}
+                        active={i === safeIndex}
+                        videoPlaying={i === safeIndex && videoPlaying}
+                        showTapToPlay={i === safeIndex && canTapPlay && !videoPlaying}
+                        onTapPlay={() => setManualPlay(true)}
+                    />
+                ))}
+                {shouldMountVideo && activeMovie && (
+                    <HeroVideoLayer
+                        key={activeMovie.movieId}
+                        videoId={trailerId as string}
+                        muted={muted}
+                        playRequested={playRequested}
+                        isVisible={videoPlaying}
+                        onPlayingChange={setVideoPlaying}
+                    />
                 )}
-
-                {/* Stats row */}
-                <div className="cgv-hero__stats" aria-label="Cinema statistics">
-                    <div className="cgv-hero__stat">
-                        <span className="cgv-hero__stat-value">{totalMovies}+</span>
-                        <span className="cgv-hero__stat-label">Movies</span>
-                    </div>
-                    <div className="cgv-hero__stat">
-                        <span className="cgv-hero__stat-value">12</span>
-                        <span className="cgv-hero__stat-label">Theaters</span>
-                    </div>
-                    <div className="cgv-hero__stat">
-                        <span className="cgv-hero__stat-value">4K</span>
-                        <span className="cgv-hero__stat-label">Premium screens</span>
-                    </div>
-                </div>
             </div>
+
+            <HeroControls
+                showNav={slideCount > 1}
+                onPrev={goPrev}
+                onNext={goNext}
+                showMute={!!trailerId}
+                muted={muted}
+                pulsing={videoPlaying && muted}
+                onToggleMute={() => setMuted((m) => !m)}
+            />
+
+            {activeMovie ? (
+                <HeroOverlayInfo
+                    key={activeMovie.movieId}
+                    movie={activeMovie}
+                    synopsis={activeDetail?.synopsis}
+                    direction={direction}
+                    onBook={onBook}
+                    onDetails={onMovieClick}
+                />
+            ) : (
+                <div className="cgv-hoverlay">
+                    <p className="cgv-hoverlay__eyebrow">CGV Premium</p>
+                    <h1 className="cgv-hoverlay__title">Now Showing</h1>
+                    <p className="cgv-hoverlay__desc">Discover the latest blockbuster movies and book your seats instantly.</p>
+                </div>
+            )}
         </section>
     );
 };

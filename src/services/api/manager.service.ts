@@ -1,9 +1,25 @@
 import axiosInstance from "@/services/axios/axiosInstance";
 import type { Cinema, CreateCinemaPayload, UpdateCinemaPayload } from "@/features/manager/types/cinema.types";
 
+/** Read coordinates under any of the common field-name variants — the
+ *  backend returns `latitude`/`longitude`, but this stays resilient if
+ *  that ever changes to `lat`/`lng` etc. */
+const readCoord = (r: Record<string, unknown>, keys: string[]): number | null => {
+    for (const key of keys) {
+        const v = r[key];
+        if (v !== undefined && v !== null && v !== "") return Number(v);
+    }
+    return null;
+};
+
 export const getCinemasApi = async (): Promise<Cinema[]> => {
     const { data } = await axiosInstance.get("/cinemas");
-    return Array.isArray(data) ? data : (data.items ?? data.data ?? []);
+    const list: Record<string, unknown>[] = Array.isArray(data) ? data : (data.items ?? data.data ?? []);
+    return list.map((r) => ({
+        ...(r as unknown as Cinema),
+        latitude: readCoord(r, ["latitude", "lat"]),
+        longitude: readCoord(r, ["longitude", "lng", "long"]),
+    }));
 };
 
 export const createCinemaApi = async (

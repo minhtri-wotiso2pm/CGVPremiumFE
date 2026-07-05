@@ -32,9 +32,17 @@
     transition: color 0.15s;
 }
 
-.cgv-st-breadcrumb a:hover { color: var(--cgv-text-secondary, #b09090); }
-.cgv-st-breadcrumb__sep { user-select: none; }
-.cgv-st-breadcrumb__current { color: var(--cgv-text-secondary, #b09090); }
+.cgv-st-breadcrumb a:hover {
+    color: var(--cgv-text-secondary, #b09090);
+}
+
+.cgv-st-breadcrumb__sep {
+    user-select: none;
+}
+
+.cgv-st-breadcrumb__current {
+    color: var(--cgv-text-secondary, #b09090);
+}
 
 /* Two-column grid */
 .cgv-st-inner {
@@ -64,8 +72,8 @@
 }
 
 .cgv-st-movie-card {
-    background: var(--cgv-surface, rgba(16,5,5,0.96));
-    border: 1px solid var(--cgv-border, rgba(255,255,255,0.07));
+    background: var(--cgv-surface, rgba(16, 5, 5, 0.96));
+    border: 1px solid var(--cgv-border, rgba(255, 255, 255, 0.07));
     border-radius: 14px;
     overflow: hidden;
 }
@@ -80,7 +88,7 @@
 .cgv-st-movie-poster-fallback {
     width: 100%;
     aspect-ratio: 2 / 3;
-    background: rgba(255,255,255,0.03);
+    background: rgba(255, 255, 255, 0.03);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -118,8 +126,8 @@
     font-size: 11px;
     font-weight: 600;
     color: var(--cgv-text-secondary, #b09090);
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--cgv-border, rgba(255,255,255,0.07));
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--cgv-border, rgba(255, 255, 255, 0.07));
     border-radius: 4px;
     padding: 3px 7px;
 }
@@ -135,8 +143,8 @@
     font-size: 10px;
     font-weight: 500;
     color: var(--cgv-text-muted, #6b4a4a);
-    background: rgba(255,255,255,0.04);
-    border: 1px solid var(--cgv-border, rgba(255,255,255,0.07));
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--cgv-border, rgba(255, 255, 255, 0.07));
     border-radius: 4px;
     padding: 2px 6px;
     letter-spacing: 0.03em;
@@ -144,7 +152,9 @@
 
 /* Mobile: horizontal movie card */
 @media (max-width: 900px) {
-    .cgv-st-movie-card { display: flex; }
+    .cgv-st-movie-card {
+        display: flex;
+    }
 
     .cgv-st-movie-poster {
         width: 90px;
@@ -164,7 +174,9 @@
         justify-content: center;
     }
 
-    .cgv-st-movie-title { font-size: 14px; }
+    .cgv-st-movie-title {
+        font-size: 14px;
+    }
 }
 
 /* ══════════════════════════════════════════
@@ -207,7 +219,9 @@
     scroll-snap-type: x mandatory;
 }
 
-.cgv-st-dates::-webkit-scrollbar { display: none; }
+.cgv-st-dates::-webkit-scrollbar {
+    display: none;
+}
 
 .cgv-st-date {
     display: flex;
@@ -217,8 +231,8 @@
     min-width: 66px;
     padding: 12px 8px 10px;
     border-radius: 14px;
-    border: 1.5px solid var(--cgv-border, rgba(255,255,255,0.07));
-    background: rgba(255,255,255,0.025);
+    border: 1.5px solid var(--cgv-border, rgba(255, 255, 255, 0.07));
+    background: rgba(255, 255, 255, 0.025);
     cursor: pointer;
     transition: border-color 0.2s, background 0.2s, transform 0.18s, box-shadow 0.2s;
     scroll-snap-align: start;
@@ -234,9 +248,9 @@
 
 .cgv-st-date--active {
     border-color: var(--cgv-crimson, #E8001C) !important;
-    background: linear-gradient(160deg, rgba(232,0,28,0.22) 0%, rgba(180,0,15,0.10) 100%) !important;
+    background: linear-gradient(160deg, rgba(232, 0, 28, 0.22) 0%, rgba(180, 0, 15, 0.10) 100%) !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 0 0 1px rgba(232,0,28,0.18), 0 6px 20px rgba(232,0,28,0.20) !important;
+    box-shadow: 0 0 0 1px rgba(232, 0, 28, 0.18), 0 6px 20px rgba(232, 0, 28, 0.20) !important;
 }
 
 /* TODAY badge — visible whether active or not */
@@ -287,7 +301,7 @@
 }
 
 .cgv-st-date--active .cgv-st-date__month {
-    color: rgba(232,0,28,0.7);
+    color: rgba(232, 0, 28, 0.7);
 }
 
 /* ══════════════════════════════════════════
@@ -303,7 +317,7 @@
 .cgv-st-cinema-btn {
     padding: 8px 16px;
     border-radius: 8px;
-    border: 1.5px solid var(--cgv-border, rgba(255,255,255,0.07));
+    border: 1.5px solid var(--cgv-border, rgba(255, 255, 255, 0.07));
     background: transparent;
     color: var(--cgv-text-secondary, #b09090);
     font-family: inherit;
@@ -340,7 +354,7 @@
 .cgv-st-roomtype {
     padding: 6px 16px;
     border-radius: 20px;
-    border: 1.5px solid var(--cgv-border, rgba(255,255,255,0.07));
+    border: 1.5px solid var(--cgv-border, rgba(255, 255, 255, 0.07));
     background: transparent;
     color: var(--cgv-text-secondary, #b09090);
     font-family: inherit;
@@ -374,7 +388,48 @@
 }
 
 @media (max-width: 480px) {
-    .cgv-st-grid { grid-template-columns: repeat(3, 1fr); }
+    .cgv-st-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Cinema-grouped layout — shown when "All Cinemas" yields showtimes
+   spanning more than one cinema, so each venue is clearly separated. */
+.cgv-st-cinema-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.cgv-st-cinema-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.cgv-st-cinema-group:not(:first-child) {
+    padding-top: 22px;
+    border-top: 1px solid var(--cgv-border, rgba(255, 255, 255, 0.07));
+}
+
+.cgv-st-cinema-group__header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.cgv-st-cinema-group__name {
+    font-family: var(--cgv-font-body, 'Playfair Display', Georgia, serif);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--cgv-text-primary, #f0e8e8);
+}
+
+.cgv-st-cinema-group__address {
+    font-family: var(--cgv-font-body, 'Inter', sans-serif);
+    font-size: 12px;
+    color: var(--cgv-text-muted, #6b4a4a);
 }
 
 /* ══════════════════════════════════════════
@@ -390,8 +445,8 @@
     gap: 4px;
     padding: 14px 8px;
     border-radius: 10px;
-    border: 1.5px solid var(--cgv-border, rgba(255,255,255,0.07));
-    background: rgba(255,255,255,0.025);
+    border: 1.5px solid var(--cgv-border, rgba(255, 255, 255, 0.07));
+    background: rgba(255, 255, 255, 0.025);
     cursor: pointer;
     transition: border-color 0.2s, background 0.2s, transform 0.18s, box-shadow 0.2s;
     font-family: inherit;
@@ -454,7 +509,7 @@
     gap: 12px;
     padding: 52px 24px;
     text-align: center;
-    border: 1px dashed var(--cgv-border, rgba(255,255,255,0.07));
+    border: 1px dashed var(--cgv-border, rgba(255, 255, 255, 0.07));
     border-radius: 14px;
 }
 
@@ -524,18 +579,21 @@
 ══════════════════════════════════════════ */
 
 @keyframes cgv-st-shimmer {
-    0%   { background-position: -500px 0; }
-    100% { background-position: 500px 0; }
+    0% {
+        background-position: -500px 0;
+    }
+
+    100% {
+        background-position: 500px 0;
+    }
 }
 
 .cgv-st-skel {
     border-radius: 6px;
-    background: linear-gradient(
-        90deg,
-        rgba(255,255,255,0.04) 25%,
-        rgba(255,255,255,0.09) 50%,
-        rgba(255,255,255,0.04) 75%
-    );
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.04) 25%,
+            rgba(255, 255, 255, 0.09) 50%,
+            rgba(255, 255, 255, 0.04) 75%);
     background-size: 1000px 100%;
     animation: cgv-st-shimmer 1.6s ease-in-out infinite;
 }
@@ -547,17 +605,57 @@
 }
 
 @media (max-width: 900px) {
-    .cgv-st-skel-poster { width: 90px; }
+    .cgv-st-skel-poster {
+        width: 90px;
+    }
 }
 
-.cgv-st-skel-title    { height: 20px; width: 75%; }
-.cgv-st-skel-badge    { height: 24px; width: 44px; border-radius: 6px; }
-.cgv-st-skel-duration { height: 24px; width: 60px; border-radius: 4px; }
-.cgv-st-skel-genre    { height: 20px; width: 56px; border-radius: 4px; }
-.cgv-st-skel-date     { min-width: 60px; height: 78px; border-radius: 10px; flex-shrink: 0; }
-.cgv-st-skel-cinema   { height: 38px; width: 150px; border-radius: 8px; }
-.cgv-st-skel-roomtype { height: 34px; width: 80px; border-radius: 20px; }
-.cgv-st-skel-card     { height: 76px; border-radius: 10px; }
+.cgv-st-skel-title {
+    height: 20px;
+    width: 75%;
+}
+
+.cgv-st-skel-badge {
+    height: 24px;
+    width: 44px;
+    border-radius: 6px;
+}
+
+.cgv-st-skel-duration {
+    height: 24px;
+    width: 60px;
+    border-radius: 4px;
+}
+
+.cgv-st-skel-genre {
+    height: 20px;
+    width: 56px;
+    border-radius: 4px;
+}
+
+.cgv-st-skel-date {
+    min-width: 60px;
+    height: 78px;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.cgv-st-skel-cinema {
+    height: 38px;
+    width: 150px;
+    border-radius: 8px;
+}
+
+.cgv-st-skel-roomtype {
+    height: 34px;
+    width: 80px;
+    border-radius: 20px;
+}
+
+.cgv-st-skel-card {
+    height: 76px;
+    border-radius: 10px;
+}
 
 /* ══════════════════════════════════════════
    ANIMATIONS
@@ -568,6 +666,13 @@
 }
 
 @keyframes cgv-st-fade {
-    from { opacity: 0; transform: translateY(8px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

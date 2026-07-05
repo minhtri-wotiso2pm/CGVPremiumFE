@@ -7,18 +7,46 @@ import type { MyBooking } from "@/features/booking/types/ticket.types";
 
 const fmtVnd = (n: number) => `${n.toLocaleString("vi-VN")} ₫`;
 
+const fmtTime = (iso: string): string => {
+    try {
+        return new Date(iso).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", hour12: false });
+    } catch { return ""; }
+};
+
+const fmtDate = (iso: string): string => {
+    try {
+        return new Date(iso).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+    } catch { return ""; }
+};
+
+const fmtDateTime = (iso: string): string => {
+    const d = fmtDate(iso);
+    const t = fmtTime(iso);
+    return d && t ? `${t}, ${d}` : d || t;
+};
+
 const statusStyle = (status: string): { bg: string; color: string; label: string } => {
     const s = status.toLowerCase();
     if (s === "paid") return { bg: "rgba(34,197,94,0.14)", color: "#4ade80", label: "Paid" };
     if (s === "pending") return { bg: "rgba(245,158,11,0.14)", color: "#fbbf24", label: "Pending" };
     if (s === "cancelled") return { bg: "rgba(148,163,184,0.14)", color: "#94a3b8", label: "Cancelled" };
+    if (s === "expired") return { bg: "rgba(148,163,184,0.14)", color: "#94a3b8", label: "Expired" };
     return { bg: "rgba(148,163,184,0.14)", color: "#94a3b8", label: status };
 };
 
+const detailRow = (label: string, value: string) => (
+    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, padding: "3px 0" }}>
+        <span style={{ color: "#a08888" }}>{label}</span>
+        <span style={{ color: "#e8dcdc" }}>{value}</span>
+    </div>
+);
+
 const BookingCard: FC<{ booking: MyBooking }> = ({ booking }) => {
-    const [open, setOpen] = useState(false);
+    const [detailOpen, setDetailOpen] = useState(false);
+    const [ticketsOpen, setTicketsOpen] = useState(false);
     const st = statusStyle(booking.status);
     const seatLabels = (booking.seats ?? []).map((s) => `${s.seatRow}${String(s.seatCol).padStart(2, "0")}`);
+    const hasDiscount = booking.discountAmount > 0;
 
     return (
         <div style={{
@@ -31,6 +59,16 @@ const BookingCard: FC<{ booking: MyBooking }> = ({ booking }) => {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
                 <div>
                     <div style={{ fontSize: 16, fontWeight: 700, color: "#f0e8e8", marginBottom: 4 }}>{booking.movieTitle}</div>
+                    {booking.startTime && (
+                        <div style={{ fontSize: 12.5, color: "#c8b0b0", marginBottom: 2 }}>
+                            {fmtDateTime(booking.startTime)}
+                        </div>
+                    )}
+                    {(booking.cinemaName || booking.roomName) && (
+                        <div style={{ fontSize: 12.5, color: "#a08888", marginBottom: 2 }}>
+                            {booking.cinemaName}{booking.cinemaName && booking.roomName ? " · " : ""}{booking.roomName}
+                        </div>
+                    )}
                     <div style={{ fontSize: 12.5, color: "#a08888" }}>
                         Code: <span style={{ color: "#c8b0b0", letterSpacing: "0.04em" }}>{booking.bookingCode}</span>
                     </div>
@@ -51,20 +89,63 @@ const BookingCard: FC<{ booking: MyBooking }> = ({ booking }) => {
                 </div>
             </div>
 
-            <div style={{ marginTop: 14, display: "flex", justifyContent: "flex-end" }}>
+            <div style={{ marginTop: 14, display: "flex", justifyContent: "flex-end", gap: 8 }}>
                 <button
-                    onClick={() => setOpen((v) => !v)}
+                    onClick={() => setDetailOpen((v) => !v)}
+                    style={{
+                        border: "1px solid rgba(255,255,255,0.16)", background: "rgba(255,255,255,0.05)",
+                        color: "#e8dcdc", borderRadius: 8, padding: "7px 16px", fontSize: 12.5,
+                        fontWeight: 600, cursor: "pointer",
+                    }}
+                >
+                    {detailOpen ? "Hide detail" : "View detail"}
+                </button>
+                <button
+                    onClick={() => setTicketsOpen((v) => !v)}
                     style={{
                         border: "1px solid rgba(232,0,28,0.4)", background: "rgba(232,0,28,0.08)",
                         color: "#f0a8a8", borderRadius: 8, padding: "7px 16px", fontSize: 12.5,
                         fontWeight: 600, cursor: "pointer",
                     }}
                 >
-                    {open ? "Hide tickets" : "View tickets"}
+                    {ticketsOpen ? "Hide tickets" : "View tickets"}
                 </button>
             </div>
 
-            {open && (
+            {detailOpen && (
+                <div style={{ marginTop: 16, borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 16 }}>
+                    <p style={{ margin: "0 0 6px", fontSize: 12.5, fontWeight: 700, color: "#f0e8e8", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                        Booking detail
+                    </p>
+                    {detailRow("Booked on", fmtDateTime(booking.bookingDate))}
+                    {detailRow("Subtotal", fmtVnd(booking.subTotal))}
+                    {hasDiscount && detailRow("Discount", `-${fmtVnd(booking.discountAmount)}`)}
+                    {booking.voucherApplied && detailRow(
+                        `Voucher (${booking.voucherApplied.voucherCode})`,
+                        `-${fmtVnd(booking.voucherApplied.discountApplied)}`,
+                    )}
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13.5, padding: "6px 0 0", marginTop: 4, borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                        <span style={{ color: "#e8dcdc", fontWeight: 700 }}>Total</span>
+                        <span style={{ color: "#f0e8e8", fontWeight: 700 }}>{fmtVnd(booking.finalAmount)}</span>
+                    </div>
+
+                    {booking.fnbItems.length > 0 && (
+                        <div style={{ marginTop: 14 }}>
+                            <p style={{ margin: "0 0 6px", fontSize: 12.5, fontWeight: 700, color: "#f0e8e8", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+                                Food &amp; drinks
+                            </p>
+                            {booking.fnbItems.map((item, i) => (
+                                <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, padding: "3px 0" }}>
+                                    <span style={{ color: "#a08888" }}>{item.itemName} × {item.quantity}</span>
+                                    <span style={{ color: "#e8dcdc" }}>{fmtVnd(item.subTotal)}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {ticketsOpen && (
                 <div style={{ marginTop: 16, borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 16 }}>
                     <TicketQrList
                         bookingId={booking.bookingID}

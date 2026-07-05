@@ -134,8 +134,8 @@ const RoomManagementPage: FC = () => {
             align: "right",
             render: (_, record) => (
                 <div style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
-                    <Tooltip title="Edit seat layout">
-                        <button className="dash-icon-btn" aria-label="Edit layout" onClick={() => navigate(`/manager/rooms/${record.roomId}/layout`)}>
+                    <Tooltip title="Manage seats">
+                        <button className="dash-icon-btn" aria-label="Manage seats" onClick={() => navigate(`/manager/rooms/${record.roomId}/seats`)}>
                             <GridIcon />
                         </button>
                     </Tooltip>

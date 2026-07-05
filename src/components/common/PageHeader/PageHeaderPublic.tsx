@@ -63,7 +63,7 @@ const NAV_CONFIG: Record<string, NavItem[]> = {
         { label: "Home", path: "/customer" },
         { label: "Theaters", path: "/customer/theaters" },
         { label: "Promotions", path: "/customer/promotions" },
-        { label: "My Tickets", path: "/customer/tickets" },
+        { label: "My Tickets", path: "/customer/profile/tickets" },
     ],
     STAFF: [
         { label: "Dashboard", path: "/staff" },

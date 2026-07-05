@@ -1,5 +1,5 @@
 /* ─────────────────────────────────────────────
-   Seat Layout Editor — light dashboard theme
+   Seat Management — light dashboard theme
 ───────────────────────────────────────────── */
 .rle-wrap {
     display: flex;
@@ -7,41 +7,79 @@
     gap: 18px;
 }
 
-/* Palette / toolbar */
-.rle-palette {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 8px;
+/* Two-column layout: grid view + side panel (Generate / Bulk actions) */
+.rle-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: 20px;
+    align-items: start;
 }
 
-.rle-tool {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    padding: 7px 12px;
-    border-radius: 8px;
-    border: 1px solid var(--dash-border);
-    background: #fff;
-    font-size: 12.5px;
+@media (max-width: 900px) {
+    .rle-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.rle-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.rle-panel-title {
+    margin: 0 0 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--dash-text-1);
+}
+
+.rle-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.rle-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--dash-text-2);
-    cursor: pointer;
-    transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
-    user-select: none;
 }
 
-.rle-tool:hover {
-    border-color: var(--dash-border-strong, rgba(0, 0, 0, 0.2));
+.rle-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: var(--dash-text-2);
 }
 
-.rle-tool--active {
-    border-color: #E8001C;
-    background: rgba(232, 0, 28, 0.04);
+.rle-hint {
+    margin: 0;
+    font-size: 11px;
+    color: var(--dash-text-3);
+}
+
+/* Warning banner — room must be inactive to mutate seats */
+.rle-warning {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(232, 0, 28, 0.25);
+    background: rgba(232, 0, 28, 0.05);
+    font-size: 13px;
     color: var(--dash-text-1);
-    box-shadow: 0 0 0 2px rgba(232, 0, 28, 0.1);
 }
 
+/* Swatch used in the legend */
 .rle-swatch {
     width: 13px;
     height: 13px;
@@ -99,6 +137,21 @@
     font-weight: 700;
     color: var(--dash-text-3);
     flex-shrink: 0;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 3px 0;
+    user-select: none;
+    transition: background 0.12s, color 0.12s;
+}
+
+.rle-rowlabel:hover {
+    background: rgba(22, 119, 255, 0.1);
+    color: #1677ff;
+}
+
+.rle-rowlabel--selected {
+    background: #1677ff;
+    color: #fff;
 }
 
 .rle-collabels {
@@ -114,6 +167,21 @@
     font-size: 10px;
     font-weight: 600;
     color: var(--dash-text-3);
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 2px 0;
+    user-select: none;
+    transition: background 0.12s, color 0.12s;
+}
+
+.rle-collabel:hover {
+    background: rgba(22, 119, 255, 0.1);
+    color: #1677ff;
+}
+
+.rle-collabel--selected {
+    background: #1677ff;
+    color: #fff;
 }
 
 .rle-cell {
@@ -137,23 +205,37 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
 }
 
+.rle-cell--empty {
+    background: transparent;
+    border: 1px dashed rgba(0, 0, 0, 0.06);
+    cursor: default;
+}
+
+.rle-cell--empty:hover {
+    transform: none;
+    box-shadow: none;
+}
+
 .rle-cell--walkway {
     background: transparent;
-    border: 1.5px dashed rgba(0, 0, 0, 0.1);
+    border: 1.5px dashed rgba(0, 0, 0, 0.25);
     color: transparent;
     border-radius: 5px;
 }
 
 .rle-cell--walkway:hover {
-    border-color: rgba(232, 0, 28, 0.35);
     box-shadow: none;
-    transform: none;
 }
 
 .rle-cell--inactive {
     opacity: 0.4;
     filter: grayscale(0.7);
     position: relative;
+}
+
+.rle-cell--selected {
+    box-shadow: 0 0 0 2px #1677ff, 0 2px 8px rgba(22, 119, 255, 0.35) !important;
+    transform: translateY(-1px);
 }
 
 /* Legend */
@@ -171,10 +253,4 @@
     gap: 7px;
     font-size: 12px;
     color: var(--dash-text-2);
-}
-
-.rle-summary {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
 }

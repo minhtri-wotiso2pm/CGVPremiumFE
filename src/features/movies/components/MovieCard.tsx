@@ -1,6 +1,6 @@
 import type { FC } from "react";
 import type { Movie } from "@/features/movies/types/movie.types";
-import MovieStatusBadge, { AgeBadge } from "./MovieStatusBadge";
+import MovieStatusBadge, { AgeBadge, RankBadge } from "./MovieStatusBadge";
 import "./movies.css";
 
 interface Props {
@@ -19,7 +19,7 @@ function formatDuration(minutes: number): string {
 const FALLBACK_POSTER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='300' viewBox='0 0 200 300'%3E%3Crect width='200' height='300' fill='%23120505'/%3E%3Ctext x='100' y='155' text-anchor='middle' fill='%235a4040' font-size='14' font-family='sans-serif'%3ENo Image%3C/text%3E%3C/svg%3E";
 
 const MovieCard: FC<Props> = ({ movie, onClick, onBook }) => {
-    const { movieId, title, genres, ageRating, posterUrl, durationMinutes, status } = movie;
+    const { movieId, title, genres, ageRating, posterUrl, durationMinutes, status, isTopSelling, salesRank } = movie;
 
     return (
         <article
@@ -44,6 +44,13 @@ const MovieCard: FC<Props> = ({ movie, onClick, onBook }) => {
                 <div className="cgv-card__age">
                     <AgeBadge rating={ageRating} />
                 </div>
+
+                {/* Sales rank — top right of poster */}
+                {isTopSelling && (
+                    <div className="cgv-card__rank">
+                        <RankBadge rank={salesRank} isTopSelling={isTopSelling} />
+                    </div>
+                )}
 
                 {/* Hover overlay */}
                 <div className="cgv-card__overlay" aria-hidden="true">

@@ -1,4 +1,5 @@
-export type SeatStatus = "AVAILABLE" | "UNAVAILABLE" | "SOLD" | "RESERVED";
+/** Seat map runtime status per API_REPORT (§3): available, held, booked. */
+export type SeatStatus = "AVAILABLE" | "HELD" | "BOOKED";
 export type SeatType = "STANDARD" | "VIP" | "COUPLE" | "IMAX";
 
 export interface Seat {

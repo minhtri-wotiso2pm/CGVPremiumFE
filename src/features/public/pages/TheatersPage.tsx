@@ -2,12 +2,20 @@ import { type FC, useMemo, useState } from "react";
 import { useCinemas } from "@/features/manager/hooks/useCinemas";
 import type { Cinema } from "@/features/manager/types/cinema.types";
 import { normalizeText } from "@/utils/string";
+import TheaterMap from "../components/TheaterMap";
 import "../theaters.css";
 
 const SearchIcon = () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="11" cy="11" r="8" />
         <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </svg>
+);
+
+const ResetIcon = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="1 4 1 10 7 10" />
+        <path d="M3.51 15a9 9 0 102.13-9.36L1 10" />
     </svg>
 );
 
@@ -29,20 +37,29 @@ const PinIcon = () => (
     </svg>
 );
 
-const TheaterCard: FC<{ cinema: Cinema }> = ({ cinema }) => {
+const TheaterCard: FC<{ cinema: Cinema; selected: boolean; onSelect: () => void }> = ({ cinema, selected, onSelect }) => {
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
         `${cinema.cinemaName}, ${cinema.address}`,
     )}`;
 
     return (
-        <div className="thtr-card">
+        <div className={`thtr-card${selected ? " thtr-card--selected" : ""}`}>
             <div className="thtr-card__icon"><CinemaIcon /></div>
             <h3 className="thtr-card__name">{cinema.cinemaName}</h3>
             <p className="thtr-card__address">{cinema.address}</p>
-            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="thtr-card__cta">
-                <PinIcon />
-                Get Directions
-            </a>
+
+            <div className="thtr-card__actions">
+                <button
+                    className={`thtr-card__select${selected ? " thtr-card__select--active" : ""}`}
+                    onClick={onSelect}
+                >
+                    {selected ? "Selected" : "Select Cinema"}
+                </button>
+                <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="thtr-card__cta">
+                    <PinIcon />
+                    Get Directions
+                </a>
+            </div>
         </div>
     );
 };
@@ -50,6 +67,7 @@ const TheaterCard: FC<{ cinema: Cinema }> = ({ cinema }) => {
 const TheatersPage: FC = () => {
     const { data: cinemas = [], isLoading } = useCinemas();
     const [search, setSearch] = useState("");
+    const [selectedCinemaId, setSelectedCinemaId] = useState<number | null>(null);
 
     const activeCinemas = useMemo(
         () => cinemas.filter((c) => c.status === "ACTIVE"),
@@ -64,22 +82,33 @@ const TheatersPage: FC = () => {
         );
     }, [activeCinemas, search]);
 
+    const handleReset = () => {
+        setSearch("");
+        setSelectedCinemaId(null);
+    };
+
     return (
         <div className="thtr-page">
             <div className="thtr-head">
                 <span className="thtr-head__eyebrow">CGV Premium</span>
-                <h1 className="thtr-head__title">Our Theaters</h1>
+                <h1 className="thtr-head__title">Select Your Cinema</h1>
                 <p className="thtr-head__sub">Find a CGV Premium cinema near you.</p>
             </div>
 
-            <div className="thtr-search">
-                <span className="thtr-search__icon"><SearchIcon /></span>
-                <input
-                    type="text"
-                    placeholder="Search by name or address..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
+            <div className="thtr-toolbar">
+                <div className="thtr-search">
+                    <span className="thtr-search__icon"><SearchIcon /></span>
+                    <input
+                        type="text"
+                        placeholder="Search by name or address..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                </div>
+                <button className="thtr-reset" onClick={handleReset} aria-label="Reset filters">
+                    <ResetIcon />
+                    Reset
+                </button>
             </div>
 
             {!isLoading && (
@@ -89,8 +118,13 @@ const TheatersPage: FC = () => {
             )}
 
             {isLoading ? (
-                <div className="thtr-grid">
-                    {Array.from({ length: 6 }).map((_, i) => <div key={i} className="thtr-skel" />)}
+                <div className="thtr-layout">
+                    <div className="thtr-list">
+                        {Array.from({ length: 4 }).map((_, i) => <div key={i} className="thtr-skel" />)}
+                    </div>
+                    <div className="thtr-map">
+                        <div className="thtr-skel" style={{ height: "100%" }} />
+                    </div>
                 </div>
             ) : filtered.length === 0 ? (
                 <div className="thtr-empty">
@@ -100,8 +134,22 @@ const TheatersPage: FC = () => {
                     <p style={{ margin: "6px 0 0", fontSize: 14 }}>Please check back soon.</p>
                 </div>
             ) : (
-                <div className="thtr-grid">
-                    {filtered.map((c) => <TheaterCard key={c.cinemaId} cinema={c} />)}
+                <div className="thtr-layout">
+                    <div className="thtr-list">
+                        {filtered.map((c) => (
+                            <TheaterCard
+                                key={c.cinemaId}
+                                cinema={c}
+                                selected={c.cinemaId === selectedCinemaId}
+                                onSelect={() => setSelectedCinemaId(c.cinemaId)}
+                            />
+                        ))}
+                    </div>
+                    <TheaterMap
+                        cinemas={filtered}
+                        selectedCinemaId={selectedCinemaId}
+                        onSelect={setSelectedCinemaId}
+                    />
                 </div>
             )}
         </div>

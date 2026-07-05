@@ -7,6 +7,10 @@ export interface Cinema {
     status: CinemaStatus;
     createdAt: string;
     updatedAt: string;
+    /** Not yet provided by the backend — see the "Theaters map" BE
+     *  requirements note. Cinemas without coordinates just get no map pin. */
+    latitude?: number | null;
+    longitude?: number | null;
 }
 
 export interface CreateCinemaPayload {

@@ -3,8 +3,11 @@ import type {
     Room,
     CreateRoomPayload,
     UpdateRoomPayload,
-    RoomLayout,
-    UpdateRoomLayoutPayload,
+    ConfigSeat,
+    GetRoomSeatsParams,
+    GenerateSeatsPayload,
+    BulkUpdateSeatsPayload,
+    BulkDeleteSeatsPayload,
 } from "@/features/manager/types/room.types";
 
 /** Backend returns status in either case across environments — normalize to uppercase. */
@@ -39,26 +42,63 @@ export const deleteRoomApi = async (roomId: number): Promise<void> => {
     await axiosInstance.delete(`/rooms/${roomId}`);
 };
 
-/* ─── Layout (public GET, manager PUT) ─── */
-export const getRoomLayoutApi = async (roomId: number): Promise<RoomLayout> => {
-    const { data } = await axiosInstance.get(`/rooms/${roomId}/layout`);
-    return {
-        roomId: Number(data.roomId ?? roomId),
-        totalRows: Number(data.totalRows ?? 0),
-        totalCols: Number(data.totalCols ?? 0),
-        seats: Array.isArray(data.seats) ? data.seats : [],
-    };
+/* ─── Seats (API_REPORT §4.6 — public GET with filters, Manager generate
+   + bulk PATCH/DELETE; mutations only allowed while the room is inactive) ─── */
+const normalizeConfigSeat = (s: Record<string, unknown>): ConfigSeat => ({
+    seatId: Number(s.seatId ?? s.seatID ?? 0),
+    roomId: Number(s.roomId ?? s.roomID ?? 0),
+    rowLabel: String(s.rowLabel ?? ""),
+    seatNumber: Number(s.seatNumber ?? 0),
+    seatCode: String(s.seatCode ?? ""),
+    seatTypeId: Number(s.seatTypeId ?? 0),
+    type: String(s.type ?? ""),
+    status: String(s.status ?? "active").toLowerCase() === "inactive" ? "inactive" : "active",
+    isGap: Boolean(s.isGap),
+});
+
+export const getRoomSeatsApi = async (
+    roomId: number,
+    params?: GetRoomSeatsParams,
+): Promise<ConfigSeat[]> => {
+    const { data } = await axiosInstance.get(`/rooms/${roomId}/seats`, {
+        params: {
+            seatId: params?.seatId,
+            rows: params?.rows?.join(","),
+            columns: params?.columns?.join(","),
+        },
+    });
+    // Real response is grouped by row: { roomId, rows: [{ rowLabel, seats: [...] }] }
+    // — flatten it back into a single seat list. Fall back to a bare array or
+    // an {items}/{data} envelope in case the shape ever changes.
+    let list: Record<string, unknown>[];
+    if (Array.isArray(data)) {
+        list = data;
+    } else if (Array.isArray(data?.rows)) {
+        list = (data.rows as Record<string, unknown>[]).flatMap(
+            (r) => (Array.isArray(r.seats) ? (r.seats as Record<string, unknown>[]) : []),
+        );
+    } else {
+        list = data?.items ?? data?.data ?? [];
+    }
+    return list.map(normalizeConfigSeat);
 };
 
-export const updateRoomLayoutApi = async (
+// Response shape isn't documented — the caller invalidates and refetches
+// getRoomSeatsApi afterward, so we don't need to parse the body here.
+export const generateSeatsApi = async (roomId: number, payload: GenerateSeatsPayload): Promise<void> => {
+    await axiosInstance.post(`/rooms/${roomId}/seats/generate`, payload);
+};
+
+export const bulkUpdateSeatsApi = async (
     roomId: number,
-    payload: UpdateRoomLayoutPayload,
-): Promise<RoomLayout> => {
-    const { data } = await axiosInstance.put(`/rooms/${roomId}/layout`, payload);
-    return {
-        roomId: Number(data.roomId ?? roomId),
-        totalRows: Number(data.totalRows ?? payload.totalRows),
-        totalCols: Number(data.totalCols ?? payload.totalCols),
-        seats: Array.isArray(data.seats) ? data.seats : [],
-    };
+    payload: BulkUpdateSeatsPayload,
+): Promise<void> => {
+    await axiosInstance.patch(`/rooms/${roomId}/seats/bulk`, payload);
+};
+
+export const bulkDeleteSeatsApi = async (
+    roomId: number,
+    payload: BulkDeleteSeatsPayload,
+): Promise<void> => {
+    await axiosInstance.delete(`/rooms/${roomId}/seats/bulk`, { data: payload });
 };

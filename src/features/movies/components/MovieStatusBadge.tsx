@@ -36,4 +36,17 @@ export const AgeBadge: FC<AgeBadgeProps> = ({ rating }) => {
     return <span className={`cgv-age-badge ${cls}`}>{rating}</span>;
 };
 
+/** Top-selling rank badge: gold/silver/bronze medal for rank 1-3, generic
+ *  "HOT" badge for any other top seller (rank 4+ or no rank). Renders
+ *  nothing for movies that aren't marked as top-selling. */
+interface RankBadgeProps { rank: number | null; isTopSelling: boolean }
+
+export const RankBadge: FC<RankBadgeProps> = ({ rank, isTopSelling }) => {
+    if (!isTopSelling) return null;
+    if (rank === 1) return <span className="cgv-rank-badge cgv-rank-badge--gold">Top 1</span>;
+    if (rank === 2) return <span className="cgv-rank-badge cgv-rank-badge--silver">Top 2</span>;
+    if (rank === 3) return <span className="cgv-rank-badge cgv-rank-badge--bronze">Top 3</span>;
+    return <span className="cgv-rank-badge cgv-rank-badge--hot">Hot Trending</span>;
+};
+
 export default MovieStatusBadge;

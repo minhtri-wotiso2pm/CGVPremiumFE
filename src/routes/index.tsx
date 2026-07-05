@@ -39,7 +39,7 @@ import CinemaManagementPage from "@/features/manager/pages/CinemaManagementPage"
 import MovieManagementPage from "@/features/manager/pages/MovieManagementPage";
 import FnbManagementPage from "@/features/manager/pages/FnbManagementPage";
 import RoomManagementPage from "@/features/manager/pages/RoomManagementPage";
-import SeatLayoutEditorPage from "@/features/manager/pages/SeatLayoutEditorPage";
+import SeatManagementPage from "@/features/manager/pages/SeatManagementPage";
 import SeatTypeManagementPage from "@/features/manager/pages/SeatTypeManagementPage";
 import ShowtimeManagementPage from "@/features/manager/pages/ShowtimeManagementPage";
 import ReportsPage from "@/features/reports/pages/ReportsPage";
@@ -293,8 +293,8 @@ export const router = createBrowserRouter([
                                 element: <RoomManagementPage />,
                             },
                             {
-                                path: "rooms/:roomId/layout",
-                                element: <SeatLayoutEditorPage />,
+                                path: "rooms/:roomId/seats",
+                                element: <SeatManagementPage />,
                             },
                             {
                                 path: "seat-types",

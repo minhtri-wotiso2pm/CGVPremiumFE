@@ -11,6 +11,11 @@ export interface Movie {
     posterUrl: string;
     durationMinutes: number;
     status: string;
+    /** Sales ranking fields from GET /api/movie. salesRank is 1-based
+     *  (1 = best-selling); null when the movie isn't a top seller. */
+    ticketsSold: number;
+    isTopSelling: boolean;
+    salesRank: number | null;
 }
 
 export interface MovieDetail extends Movie {

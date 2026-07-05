@@ -44,10 +44,17 @@ export interface SeatTypePayload {
 
 export type SeatTypeModalType = "create" | "edit" | "delete";
 
-/* ─── Room seat layout (§7) ─── */
+/* ─── Room seats (API_REPORT §4.6 — generate + bulk PATCH/DELETE, no
+   more /layout endpoint) ─── */
 
-/** A materialized seat returned by GET /api/rooms/{id}/layout. */
-export interface LayoutSeat {
+/** Seat CONFIG status (whether the position is enabled at all) — distinct
+ *  from the booking-time runtime status (available/held/booked) used on
+ *  the customer seat map. */
+export type SeatConfigStatus = "active" | "inactive";
+
+/** GET /api/rooms/{roomId}/seats — includes the new isGap field marking
+ *  walkway/non-seat positions inside the grid. */
+export interface ConfigSeat {
     seatId: number;
     roomId: number;
     rowLabel: string;
@@ -55,28 +62,48 @@ export interface LayoutSeat {
     seatCode: string;
     seatTypeId: number;
     type: string;
-    status: string;
+    status: SeatConfigStatus | string;
+    isGap: boolean;
 }
 
-export interface RoomLayout {
-    roomId: number;
-    totalRows: number;
-    totalCols: number;
-    seats: LayoutSeat[];
+export interface GetRoomSeatsParams {
+    seatId?: number;
+    rows?: string[];
+    columns?: number[];
 }
 
-/** One cell in the PUT /api/rooms/{id}/layout payload (seat OR walkway). */
-export interface LayoutCellPayload {
-    rowLabel: string;
-    colIndex: number;
-    seatName: string | null;
-    seatTypeId: number | null;
-    status: string | null;
-    isWalkway: boolean;
+/** POST /api/rooms/{roomId}/seats/generate — per real Swagger schema.
+ *  Generates `rows` rows of `column` seats each (starting from row A and
+ *  continuing after any existing rows), all with the same seat type and
+ *  status. There's no isGap here — mark specific seats as a gap afterward
+ *  via a bulk update. */
+export interface GenerateSeatsPayload {
+    rows: number;
+    column: number;
+    seatTypeId: number;
+    status: SeatConfigStatus;
 }
 
-export interface UpdateRoomLayoutPayload {
-    totalRows: number;
-    totalCols: number;
-    seats: LayoutCellPayload[];
+/** Selector `mode` accepted by the bulk PATCH/DELETE endpoints. Confirmed
+ *  against the live API's validation error ("Selector mode must be IDS,
+ *  ROWS, or COLS") — IDS targets seat IDs, ROWS targets row labels, COLS
+ *  targets column numbers (all as strings). */
+export type SeatSelectorMode = "IDS" | "ROWS" | "COLS";
+
+export interface SeatSelector {
+    mode: SeatSelectorMode;
+    target: string[];
+}
+
+export interface BulkUpdateSeatsPayload {
+    selectors: SeatSelector[];
+    update: {
+        seatTypeId?: number;
+        status?: SeatConfigStatus;
+        isGap?: boolean;
+    };
+}
+
+export interface BulkDeleteSeatsPayload {
+    selectors: SeatSelector[];
 }

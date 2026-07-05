@@ -2,7 +2,12 @@
    Customer Theaters — dark CGV theme
 ───────────────────────────────────────────── */
 .thtr-page {
-    max-width: 1160px;
+    /* The route's <main> wrapper is a column flex container — a plain
+       margin:0 auto item there shrinks to its content width instead of
+       stretching (cross-axis auto margins override stretch), so this
+       needs an explicit width to actually fill it before max-width caps it. */
+    width: 100%;
+    max-width: 1320px;
     margin: 0 auto;
     padding: 48px 24px 72px;
     font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
@@ -48,9 +53,17 @@
     margin: 0;
 }
 
+.thtr-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 28px 0 36px;
+}
+
 .thtr-search {
+    width: 100%;
     max-width: 420px;
-    margin: 28px auto 36px;
     position: relative;
 }
 
@@ -85,6 +98,29 @@
     pointer-events: none;
 }
 
+.thtr-reset {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    color: #c8b0b0;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s, color 0.18s;
+}
+
+.thtr-reset:hover {
+    background: rgba(232, 0, 28, 0.1);
+    border-color: rgba(232, 0, 28, 0.35);
+    color: #f0e8e8;
+}
+
 .thtr-count {
     text-align: center;
     font-size: 13px;
@@ -92,10 +128,82 @@
     margin: -20px 0 28px;
 }
 
-.thtr-grid {
+/* Two-column layout: scrollable list + map */
+.thtr-layout {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
+    grid-template-columns: minmax(320px, 420px) 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+@media (max-width: 900px) {
+    .thtr-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+.thtr-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-height: 620px;
+    overflow-y: auto;
+    padding-right: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(232, 0, 28, 0.3) transparent;
+}
+
+.thtr-list::-webkit-scrollbar {
+    width: 5px;
+}
+
+.thtr-list::-webkit-scrollbar-thumb {
+    background: rgba(232, 0, 28, 0.3);
+    border-radius: 4px;
+}
+
+.thtr-map {
+    position: relative;
+    /* Without an explicit width, this grid item's 1fr track collapses to
+       near-zero: Leaflet's tile panes are absolutely positioned, so they
+       don't contribute to the item's auto/min-content width, and the grid
+       algorithm sizes the track off that near-empty intrinsic content. */
+    width: 100%;
+    min-width: 0;
+    height: 620px;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.thtr-map__notice {
+    position: absolute;
+    left: 50%;
+    bottom: 16px;
+    transform: translateX(-50%);
+    z-index: 1000;
+    max-width: 86%;
+    padding: 10px 16px;
+    border-radius: 10px;
+    background: rgba(11, 11, 11, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #c8b0b0;
+    font-size: 12.5px;
+    text-align: center;
+    backdrop-filter: blur(6px);
+    pointer-events: none;
+}
+
+/* Leaflet popup — restyled to match the dark theme */
+.thtr-map .leaflet-popup-content-wrapper,
+.thtr-map .leaflet-popup-tip {
+    background: rgba(20, 6, 6, 0.96);
+    color: #f0e8e8;
+}
+
+.thtr-map .leaflet-popup-content {
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 13px;
 }
 
 .thtr-card {
@@ -105,6 +213,7 @@
     border: 1px solid rgba(255, 255, 255, 0.07);
     border-radius: 16px;
     padding: 22px 22px 20px;
+    flex-shrink: 0;
     transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.22s, box-shadow 0.22s;
 }
 
@@ -112,6 +221,11 @@
     transform: translateY(-3px);
     border-color: rgba(232, 0, 28, 0.4);
     box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+
+.thtr-card--selected {
+    border-color: #E8001C;
+    box-shadow: 0 0 0 1px rgba(232, 0, 28, 0.4), 0 16px 40px rgba(232, 0, 28, 0.18);
 }
 
 .thtr-card__icon {
@@ -141,6 +255,43 @@
     line-height: 1.6;
     margin: 0 0 18px;
     flex: 1;
+}
+
+.thtr-card__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.thtr-card__select {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 11px 0;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(135deg, #E8001C, #b50016);
+    color: #fff;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(232, 0, 28, 0.3);
+    transition: opacity 0.18s, transform 0.18s;
+}
+
+.thtr-card__select:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.thtr-card__select--active {
+    background: rgba(255, 255, 255, 0.08);
+    color: #f0a8a8;
+    box-shadow: none;
+    border: 1px solid rgba(232, 0, 28, 0.4);
 }
 
 .thtr-card__cta {

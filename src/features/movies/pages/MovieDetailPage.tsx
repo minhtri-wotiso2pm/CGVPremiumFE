@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { useAppSelector } from "@/store/hooks";
 import { useMovieDetail } from "../hooks/useMovieDetail";
 import { useMovies } from "../hooks/useMovies";
+import { useRelatedMovies } from "../hooks/useRelatedMovies";
 import MovieDetailHero from "../components/MovieDetailHero";
 import MovieDetailTrailer from "../components/MovieDetailTrailer";
 import MovieDetailSkeleton from "../components/MovieDetailSkeleton";
@@ -33,8 +34,7 @@ const MovieDetailPage: FC = () => {
 
     const { data: movie, isLoading, isError } = useMovieDetail(id);
     const { movies } = useMovies();
-
-    const related = movies.filter((m) => m.movieId !== id).slice(0, 10);
+    const { data: related = [] } = useRelatedMovies(id, movie?.genres ?? [], movies);
 
     const scrollToTrailer = () => {
         trailerRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -109,7 +109,7 @@ const MovieDetailPage: FC = () => {
                 {related.length > 0 && (
                     <section className="cgv-detail-section" aria-labelledby="related-heading">
                         <div className="cgv-movie-section__heading">
-                            <h2 className="cgv-movie-section__title" id="related-heading">More Movies</h2>
+                            <h2 className="cgv-movie-section__title" id="related-heading">You Might Also Like</h2>
                             <div className="cgv-movie-section__rule" aria-hidden="true" />
                         </div>
                         <div className="cgv-movie-grid">

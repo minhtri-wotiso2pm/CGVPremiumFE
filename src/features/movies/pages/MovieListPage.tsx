@@ -22,6 +22,7 @@ import { type FC, useCallback } from "react";
 
 /* Components */
 import MovieHero from "@/features/movies/components/MovieHero";
+import TopSellingSection from "@/features/movies/components/TopSellingSection";
 import MovieFilterBar from "@/features/movies/components/MovieFilterBar";
 import MovieGrid from "@/features/movies/components/MovieGrid";
 import MoviePagination from "@/features/movies/components/MoviePagination";
@@ -39,6 +40,7 @@ import { MOVIE_PAGE_SIZE } from "@/features/movies/constants/movie.constants";
 /* Utils */
 import {
     getFeaturedMovies,
+    getTopSellingCarouselMovies,
     getMovieGenres,
     getMovieSectionTitle,
 } from "@/features/movies/utils/movie.utils";
@@ -93,7 +95,8 @@ const MovieListPage: FC<Props> = ({ onMovieClick, onBook }) => {
         genre
     );
 
-    const featuredMovies = getFeaturedMovies(movies, 5);
+    const featuredMovies = getFeaturedMovies(movies, 3);
+    const topSellingMovies = getTopSellingCarouselMovies(movies, 10);
 
     /* Pagination */
     const {
@@ -132,6 +135,13 @@ const MovieListPage: FC<Props> = ({ onMovieClick, onBook }) => {
                 featuredMovies={featuredMovies}
                 totalMovies={movies.length}
                 onMovieClick={handleMovieClick}
+                onBook={handleBook}
+            />
+
+            {/* Top selling carousel */}
+            <TopSellingSection
+                movies={topSellingMovies}
+                onCardClick={handleMovieClick}
                 onBook={handleBook}
             />
 
