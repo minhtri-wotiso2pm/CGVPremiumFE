@@ -1,7 +1,7 @@
 import { type FC } from "react";
 import { Modal } from "antd";
-import type { SeatType } from "../types/room.types";
-import { useDeleteSeatType } from "../hooks/useSeatTypes";
+import type { SeatType } from "@/features/manager/types/room.types";
+import { useDeleteSeatType } from "@/features/manager/hooks/useSeatTypes";
 
 interface Props {
     seatType: SeatType | null;

@@ -1,13 +1,12 @@
 import { type FC, useEffect } from "react";
 import { Modal, Form, Input, InputNumber } from "antd";
-import type { SeatType, SeatTypePayload } from "../types/room.types";
+import type { SeatType, SeatTypePayload } from "@/features/manager/types/room.types";
 import {
     seatTypeNameRules,
     seatTypeCapacityRules,
     seatTypeExtraPriceRules,
-} from "../schemas/room.schema";
-import { useCreateSeatType } from "../hooks/useSeatTypes";
-import { useUpdateSeatType } from "../hooks/useSeatTypes";
+} from "@/features/manager/schemas/room.schema";
+import { useCreateSeatType, useUpdateSeatType } from "@/features/manager/hooks/useSeatTypes";
 
 interface Props {
     mode: "create" | "edit";

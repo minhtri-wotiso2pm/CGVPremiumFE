@@ -1,9 +1,9 @@
 import { type FC, useState } from "react";
 import { Button, Table, Tooltip } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { useSeatTypes } from "../hooks/useSeatTypes";
-import type { SeatType, SeatTypeModalType } from "../types/room.types";
-import { SEAT_TYPE_PAGE_SIZE } from "../constants/room.constants";
+import { useSeatTypes } from "@/features/manager/hooks/useSeatTypes";
+import type { SeatType, SeatTypeModalType } from "@/features/manager/types/room.types";
+import { SEAT_TYPE_PAGE_SIZE } from "@/features/manager/constants/room.constants";
 import SeatTypeModal from "../components/SeatTypeModal";
 import DeleteSeatTypeModal from "../components/DeleteSeatTypeModal";
 
@@ -108,7 +108,7 @@ const SeatTypeManagementPage: FC = () => {
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
                     <div>
                         <h1 className="dash-page-title">Seat Types</h1>
-                        <p className="dash-page-sub">Define seat categories and their pricing used across your rooms.</p>
+                        <p className="dash-page-sub">Define seat categories and their pricing used across all cinemas.</p>
                     </div>
                     <Button type="primary" icon={<PlusIcon />} onClick={() => openModal("create")} style={{ display: "flex", alignItems: "center", gap: 6 }}>
                         Add Seat Type

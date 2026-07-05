@@ -40,12 +40,12 @@ import MovieManagementPage from "@/features/manager/pages/MovieManagementPage";
 import FnbManagementPage from "@/features/manager/pages/FnbManagementPage";
 import RoomManagementPage from "@/features/manager/pages/RoomManagementPage";
 import SeatManagementPage from "@/features/manager/pages/SeatManagementPage";
-import SeatTypeManagementPage from "@/features/manager/pages/SeatTypeManagementPage";
 import ShowtimeManagementPage from "@/features/manager/pages/ShowtimeManagementPage";
 import ReportsPage from "@/features/reports/pages/ReportsPage";
 import VoucherManagementPage from "@/features/vouchers/pages/VoucherManagementPage";
 import AdminDashboard from "@/features/admin/pages/AdminDashboard";
 import UserManagementPage from "@/features/admin/pages/UserManagementPage";
+import SeatTypeManagementPage from "@/features/admin/pages/SeatTypeManagementPage";
 import AdminProfilePage from "@/features/admin/pages/AdminProfilePage";
 
 import WelcomePage from "@/features/public/pages/WelcomePage";
@@ -297,10 +297,6 @@ export const router = createBrowserRouter([
                                 element: <SeatManagementPage />,
                             },
                             {
-                                path: "seat-types",
-                                element: <SeatTypeManagementPage />,
-                            },
-                            {
                                 path: "showtimes",
                                 element: <ShowtimeManagementPage />,
                             },
@@ -352,6 +348,10 @@ export const router = createBrowserRouter([
                             {
                                 path: "products",
                                 element: <FnbManagementPage />,
+                            },
+                            {
+                                path: "seat-types",
+                                element: <SeatTypeManagementPage />,
                             },
                             {
                                 path: "promotions",

@@ -38,6 +38,14 @@ const FnbIcon = () => (
         <path d="M16 10a4 4 0 01-8 0" />
     </svg>
 );
+const SeatIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 3h16a1 1 0 011 1v7a4 4 0 01-4 4H7a4 4 0 01-4-4V4a1 1 0 011-1z" />
+        <path d="M4 15v4a1 1 0 001 1h14a1 1 0 001-1v-4" />
+        <line x1="8" y1="20" x2="8" y2="23" />
+        <line x1="16" y1="20" x2="16" y2="23" />
+    </svg>
+);
 const PromotionIcon = () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
@@ -86,6 +94,12 @@ const ADMIN_MENU: MenuGroup[] = [
                 label: "F&B Management",
                 icon: <FnbIcon />,
                 path: "/admin/products",
+            },
+            {
+                key: "seat-types",
+                label: "Seat Types",
+                icon: <SeatIcon />,
+                path: "/admin/seat-types",
             },
             {
                 key: "promotions",

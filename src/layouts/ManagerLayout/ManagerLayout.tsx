@@ -15,14 +15,6 @@ const RoomIcon = () => (
         <polyline points="9 22 9 12 15 12 15 22" />
     </svg>
 );
-const SeatIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 3h16a1 1 0 011 1v7a4 4 0 01-4 4H7a4 4 0 01-4-4V4a1 1 0 011-1z" />
-        <path d="M4 15v4a1 1 0 001 1h14a1 1 0 001-1v-4" />
-        <line x1="8" y1="20" x2="8" y2="23" />
-        <line x1="16" y1="20" x2="16" y2="23" />
-    </svg>
-);
 const ShowtimeIcon = () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -63,12 +55,6 @@ const MANAGER_MENU: MenuGroup[] = [
                 label: "Room Management",
                 icon: <RoomIcon />,
                 path: "/manager/rooms",
-            },
-            {
-                key: "seat-types",
-                label: "Seat Types",
-                icon: <SeatIcon />,
-                path: "/manager/seat-types",
             },
         ],
     },
