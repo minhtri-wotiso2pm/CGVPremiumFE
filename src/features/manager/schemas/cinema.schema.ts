@@ -15,3 +15,13 @@ export const addressRules: Rule[] = [
 export const statusRules: Rule[] = [
     { required: true, message: "Please select a status" },
 ];
+
+export const latitudeRules: Rule[] = [
+    { required: true, message: "Latitude is required" },
+    { type: "number", min: -90, max: 90, message: "Must be between -90 and 90" },
+];
+
+export const longitudeRules: Rule[] = [
+    { required: true, message: "Longitude is required" },
+    { type: "number", min: -180, max: 180, message: "Must be between -180 and 180" },
+];

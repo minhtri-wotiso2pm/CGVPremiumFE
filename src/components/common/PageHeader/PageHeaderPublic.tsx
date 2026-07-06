@@ -10,9 +10,25 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAppSelector } from "@/store/hooks";
 
 import { useLogout } from "@/features/auth/hooks/useLogoutMutation";
+import { buildLoginRedirectState } from "@/features/auth/utils/authRedirect";
 import { SPLASH_TOTAL_MS } from "@/components/common/SplashScreen/SplashScreen";
 import { useIntroEntrance } from "@/components/common/SplashScreen/useIntroEntrance";
 import "./PageHeaderPublic.css";
+
+/** Guest clicked a nav item that requires auth (e.g. My Tickets) — send
+ *  them to /login but remember where they actually wanted to go, so
+ *  LoginPage/PublicRoute can bounce them back there after signing in. */
+const goToNavItem = (
+    navigate: ReturnType<typeof useNavigate>,
+    item: { path: string; requireAuth?: boolean },
+    isAuthed: boolean,
+) => {
+    if (item.requireAuth && !isAuthed) {
+        navigate("/login", { state: buildLoginRedirectState({ pathname: item.path, search: "" }) });
+    } else {
+        navigate(item.path);
+    }
+};
 
 /* ─────────────────────────────────────────────────────────────
    DESIGN TOKENS (Dark Mode — extend for Light Mode later)
@@ -58,7 +74,7 @@ const NAV_CONFIG: Record<string, NavItem[]> = {
         { label: "Theaters", path: "/theaters" },
         { label: "Promotions", path: "/promotions" },
         { label: "About", path: "/about" },
-        { label: "My Tickets", path: "/login", requireAuth: true },
+        { label: "My Tickets", path: "/customer/profile/tickets", requireAuth: true },
     ],
     CUSTOMER: [
         { label: "Home", path: "/customer" },
@@ -544,7 +560,7 @@ const MobileDrawer: FC<DrawerProps> = ({
                         return (
                             <button
                                 key={item.path}
-                                onClick={() => { navigate(user ? item.path : "/login"); onClose(); }}
+                                onClick={() => { goToNavItem(navigate, item, !!user); onClose(); }}
                                 style={{
                                     width: "100%", background: isActive ? H.crimsonSubtle : "none",
                                     border: "none", borderLeft: isActive ? `3px solid ${H.crimson}` : "3px solid transparent",
@@ -728,13 +744,7 @@ const PageHeader: FC = () => {
                                     key={item.path}
                                     ref={(el) => { itemRefs.current[item.path] = el; }}
                                     className={`cgv-fh__navlink${isActive ? " cgv-fh__navlink--active" : ""}`}
-                                    onClick={() => {
-                                        if (item.requireAuth && !user) {
-                                            navigate("/login");
-                                        } else {
-                                            navigate(item.path);
-                                        }
-                                    }}
+                                    onClick={() => goToNavItem(navigate, item, !!user)}
                                     onMouseEnter={() => setHoverPath(item.path)}
                                     onMouseLeave={() => setHoverPath(null)}
                                     aria-current={isActive ? "page" : undefined}

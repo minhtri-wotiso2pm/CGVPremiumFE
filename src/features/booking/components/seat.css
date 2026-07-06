@@ -370,6 +370,39 @@
     background: rgba(13, 123, 212, 0.12);
 }
 
+/* ECONOMY */
+.cgv-seat--economy.cgv-seat--available {
+    border-color: rgba(74, 155, 110, 0.38);
+    background: rgba(74, 155, 110, 0.06);
+}
+.cgv-seat--economy.cgv-seat--available:hover:not(:disabled) {
+    border-color: rgba(74, 155, 110, 0.65);
+    background: rgba(74, 155, 110, 0.12);
+}
+
+/* POOR */
+.cgv-seat--poor.cgv-seat--available {
+    border-color: rgba(138, 138, 138, 0.4);
+    background: rgba(138, 138, 138, 0.07);
+}
+.cgv-seat--poor.cgv-seat--available:hover:not(:disabled) {
+    border-color: rgba(138, 138, 138, 0.65);
+    background: rgba(138, 138, 138, 0.13);
+}
+
+/* Layout gap (aisle) — invisible spacer, same footprint as a seat */
+.cgv-seat-gap {
+    display: inline-block;
+    width: 36px;
+    height: 34px;
+    flex-shrink: 0;
+}
+
+/* Couple seats keep the exact same width/gap footprint as every other
+ * seat (see SEAT_TYPE_COLOR for their distinct color) — any attempt to
+ * visually "touch" a pair by shrinking its width throws off column
+ * alignment with every other row, since rows mix pair and non-pair seats. */
+
 /* Seat column number text */
 .cgv-seat__col {
     font-size: 10px;
@@ -385,6 +418,8 @@
 .cgv-seat--unavailable .cgv-seat__col { color: rgba(255, 255, 255, 0.12); }
 .cgv-seat--vip.cgv-seat--available .cgv-seat__col { color: rgba(201, 162, 39, 0.7); }
 .cgv-seat--couple.cgv-seat--available .cgv-seat__col { color: rgba(124, 92, 191, 0.7); }
+.cgv-seat--economy.cgv-seat--available .cgv-seat__col { color: rgba(74, 155, 110, 0.75); }
+.cgv-seat--poor.cgv-seat--available .cgv-seat__col { color: rgba(138, 138, 138, 0.8); }
 
 /* ══════════════════════════════════════════════
    SEAT LEGEND
@@ -422,6 +457,8 @@
 .cgv-seats-legend-box--unavailable{ background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.04); opacity: 0.3; }
 .cgv-seats-legend-box--vip        { background: rgba(201,162,39,0.06); border-color: rgba(201,162,39,0.38); }
 .cgv-seats-legend-box--couple     { background: rgba(124,92,191,0.06); border-color: rgba(124,92,191,0.38); }
+.cgv-seats-legend-box--economy    { background: rgba(74,155,110,0.06); border-color: rgba(74,155,110,0.38); }
+.cgv-seats-legend-box--poor       { background: rgba(138,138,138,0.07); border-color: rgba(138,138,138,0.4); }
 
 /* ══════════════════════════════════════════════
    BOOKING SUMMARY  (desktop sticky sidebar)

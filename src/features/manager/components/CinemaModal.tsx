@@ -1,8 +1,8 @@
 import { type FC, useEffect } from "react";
-import { Modal, Form, Input, Select } from "antd";
+import { Modal, Form, Input, InputNumber, Select } from "antd";
 import type { Cinema, CreateCinemaPayload, CinemaStatus } from "../types/cinema.types";
 import { CINEMA_STATUS_OPTIONS } from "../constants/cinema.constants";
-import { cinemaNameRules, addressRules, statusRules } from "../schemas/cinema.schema";
+import { cinemaNameRules, addressRules, statusRules, latitudeRules, longitudeRules } from "../schemas/cinema.schema";
 import { useCreateCinema } from "../hooks/useCreateCinema";
 import { useUpdateCinema } from "../hooks/useUpdateCinema";
 
@@ -17,6 +17,8 @@ interface FormValues {
     cinemaName: string;
     address: string;
     status: CinemaStatus;
+    latitude: number;
+    longitude: number;
 }
 
 const CinemaModal: FC<Props> = ({ mode, cinema, open, onClose }) => {
@@ -34,10 +36,14 @@ const CinemaModal: FC<Props> = ({ mode, cinema, open, onClose }) => {
                     cinemaName: cinema.cinemaName,
                     address: cinema.address,
                     status: cinema.status,
+                    latitude: cinema.latitude ?? 0,
+                    longitude: cinema.longitude ?? 0,
                 });
             } else {
                 form.resetFields();
                 form.setFieldValue("status", "ACTIVE");
+                form.setFieldValue("latitude", 0);
+                form.setFieldValue("longitude", 0);
             }
         }
     }, [open, isEdit, cinema, form]);
@@ -48,6 +54,8 @@ const CinemaModal: FC<Props> = ({ mode, cinema, open, onClose }) => {
             cinemaName: values.cinemaName.trim(),
             address: values.address.trim(),
             status: values.status,
+            latitude: values.latitude,
+            longitude: values.longitude,
         };
 
         if (isEdit && cinema) {
@@ -105,6 +113,34 @@ const CinemaModal: FC<Props> = ({ mode, cinema, open, onClose }) => {
                         style={{ resize: "none" }}
                     />
                 </Form.Item>
+
+                <div style={{ display: "flex", gap: 12 }}>
+                    <Form.Item
+                        label="Latitude"
+                        name="latitude"
+                        rules={latitudeRules}
+                        style={{ flex: 1 }}
+                    >
+                        <InputNumber
+                            placeholder="e.g. 10.7769"
+                            step={0.000001}
+                            style={{ width: "100%" }}
+                        />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Longitude"
+                        name="longitude"
+                        rules={longitudeRules}
+                        style={{ flex: 1 }}
+                    >
+                        <InputNumber
+                            placeholder="e.g. 106.7009"
+                            step={0.000001}
+                            style={{ width: "100%" }}
+                        />
+                    </Form.Item>
+                </div>
 
                 <Form.Item
                     label="Status"

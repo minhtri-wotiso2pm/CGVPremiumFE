@@ -1,6 +1,6 @@
 /** Seat map runtime status per API_REPORT (§3): available, held, booked. */
 export type SeatStatus = "AVAILABLE" | "HELD" | "BOOKED";
-export type SeatType = "STANDARD" | "VIP" | "COUPLE" | "IMAX";
+export type SeatType = "STANDARD" | "ECONOMY" | "POOR" | "VIP" | "COUPLE" | "IMAX";
 
 export interface Seat {
     seatId: number;
@@ -10,6 +10,8 @@ export interface Seat {
     extraPrice: number;
     price: number;
     status: SeatStatus | string;
+    /** True for a layout gap (aisle) — not a real, bookable seat. */
+    isGap: boolean;
 }
 
 export interface SeatMapResponse {

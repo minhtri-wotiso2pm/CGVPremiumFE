@@ -1,83 +1,11 @@
 /* ─────────────────────────────────────────────
-   Reports — light dashboard theme
+   Report Dashboard — premium BI layout
+   (light theme, matches dash-* design tokens)
 ───────────────────────────────────────────── */
-.rpt-filters {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-}
 
-.rpt-filters__spacer {
-    flex: 1 1 auto;
-}
-
-/* Summary cards */
-.rpt-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-    gap: 14px;
-    margin-bottom: 24px;
-}
-
-.rpt-card {
-    background: #fff;
-    border: 1px solid var(--dash-border);
-    border-radius: 12px;
-    padding: 16px 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    min-height: 92px;
-}
-
-.rpt-card--hero {
-    grid-column: span 2;
-    background: linear-gradient(135deg, rgba(232, 0, 28, 0.05), rgba(232, 0, 28, 0.02));
-    border-color: rgba(232, 0, 28, 0.16);
-}
-
-.rpt-card__label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--dash-text-3);
-}
-
-.rpt-card__value {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--dash-text-1);
-    line-height: 1.1;
-    font-variant-numeric: tabular-nums;
-}
-
-.rpt-card--hero .rpt-card__value {
-    font-size: 30px;
-    color: var(--dash-crimson);
-}
-
-.rpt-card__hint {
-    font-size: 12px;
-    color: var(--dash-text-2);
-}
-
-.rpt-card--skeleton .rpt-card__value,
-.rpt-card--skeleton .rpt-card__label {
-    background: linear-gradient(90deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.09), rgba(0, 0, 0, 0.05));
-    background-size: 200% 100%;
-    animation: rpt-shimmer 1.4s ease-in-out infinite;
-    border-radius: 5px;
-    color: transparent;
-    height: 14px;
-    width: 70%;
-}
-
-.rpt-card--skeleton .rpt-card__value {
-    height: 24px;
-    width: 55%;
+.rpt-page {
+    --rpt-radius: 16px;
+    --rpt-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.09);
 }
 
 @keyframes rpt-shimmer {
@@ -85,13 +13,604 @@
     100% { background-position: -200% 0; }
 }
 
+@keyframes rpt-fade-up {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.rpt-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.rpt-export-group {
+    display: flex;
+    gap: 8px;
+}
+
+/* ── Filters — left: date/cinema/search, right: refresh + export ── */
+.rpt-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 22px;
+}
+
+.rpt-filters__left {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.rpt-filters__right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .rpt-section-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--dash-text-1);
+    margin: 30px 0 14px;
+    letter-spacing: -0.01em;
+}
+
+.rpt-page > .rpt-section-title:first-of-type {
+    margin-top: 8px;
+}
+
+/* ── KPI cards ── */
+.rpt-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 8px;
+}
+
+.rpt-kpi {
+    position: relative;
+    background: var(--dash-surface);
+    border: 1px solid var(--dash-border);
+    border-radius: var(--rpt-radius);
+    padding: 20px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 118px;
+    overflow: hidden;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    animation: rpt-fade-up 0.35s ease both;
+}
+
+.rpt-kpi:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--rpt-shadow-hover);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.rpt-kpi--hero {
+    grid-column: span 2;
+    background: linear-gradient(135deg, rgba(232, 0, 28, 0.055), rgba(232, 0, 28, 0.01) 60%);
+    border-color: rgba(232, 0, 28, 0.16);
+}
+
+.rpt-kpi--hero:hover {
+    border-color: rgba(232, 0, 28, 0.28);
+}
+
+.rpt-kpi__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--dash-crimson-subtle);
+    color: var(--dash-crimson);
+    flex-shrink: 0;
+}
+
+.rpt-kpi__label {
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--dash-text-3);
+}
+
+.rpt-kpi__value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--dash-text-1);
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+}
+
+.rpt-kpi--hero .rpt-kpi__value {
+    font-size: 30px;
+    color: var(--dash-crimson);
+}
+
+.rpt-kpi__foot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 18px;
+}
+
+.rpt-kpi__delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #1B9E4B;
+}
+
+.rpt-kpi__delta--down {
+    color: var(--dash-crimson);
+}
+
+.rpt-kpi__hint {
+    font-size: 12px;
+    color: var(--dash-text-2);
+}
+
+/* KPI skeleton */
+.rpt-kpi--skeleton { animation: none; }
+
+.rpt-kpi__skel-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(90deg, rgba(0,0,0,0.05), rgba(0,0,0,0.1), rgba(0,0,0,0.05));
+    background-size: 200% 100%;
+    animation: rpt-shimmer 1.4s ease-in-out infinite;
+}
+
+.rpt-kpi__skel-line {
+    height: 12px;
+    border-radius: 5px;
+    background: linear-gradient(90deg, rgba(0,0,0,0.05), rgba(0,0,0,0.1), rgba(0,0,0,0.05));
+    background-size: 200% 100%;
+    animation: rpt-shimmer 1.4s ease-in-out infinite;
+}
+
+/* ── Chart cards (shared chrome) ── */
+.rpt-chart-card {
+    background: var(--dash-surface);
+    border: 1px solid var(--dash-border);
+    border-radius: var(--rpt-radius);
+    padding: 20px 22px 8px;
+    display: flex;
+    flex-direction: column;
+    transition: box-shadow 0.22s ease;
+}
+
+.rpt-chart-card:hover {
+    box-shadow: var(--dash-shadow);
+}
+
+.rpt-chart-card__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 6px;
+}
+
+.rpt-chart-card__title {
+    margin: 0;
     font-size: 14px;
     font-weight: 700;
     color: var(--dash-text-1);
-    margin: 0 0 12px;
 }
 
+.rpt-chart-card__subtitle {
+    margin: 3px 0 0;
+    font-size: 12px;
+    color: var(--dash-text-2);
+}
+
+.rpt-chart-card__body {
+    flex: 1;
+    min-height: 0;
+}
+
+.rpt-chart-skeleton {
+    width: 100%;
+    border-radius: 10px;
+    background: linear-gradient(90deg, rgba(0,0,0,0.04), rgba(0,0,0,0.08), rgba(0,0,0,0.04));
+    background-size: 200% 100%;
+    animation: rpt-shimmer 1.5s ease-in-out infinite;
+}
+
+.rpt-chart-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-align: center;
+    color: var(--dash-text-3);
+    padding: 24px;
+}
+
+.rpt-chart-empty__icon { opacity: 0.5; }
+
+.rpt-chart-empty__title {
+    margin: 0;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--dash-text-2);
+}
+
+.rpt-chart-empty__desc {
+    margin: 0;
+    font-size: 12px;
+    color: var(--dash-text-3);
+    max-width: 320px;
+}
+
+/* Recharts tooltip */
+.rpt-tooltip {
+    background: #fff;
+    border: 1px solid var(--dash-border-strong);
+    border-radius: 8px;
+    padding: 8px 12px;
+    box-shadow: var(--dash-shadow);
+}
+
+.rpt-tooltip__label {
+    margin: 0 0 3px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--dash-text-1);
+}
+
+.rpt-tooltip__value {
+    margin: 0;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--dash-crimson);
+}
+
+.rpt-tooltip__row {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: var(--dash-text-2);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.rpt-tooltip__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+/* Rich revenue-point tooltip (RevenueAreaChart) */
+.rpt-tooltip--rich {
+    padding: 10px 14px 12px;
+    min-width: 190px;
+}
+
+.rpt-tooltip__hero {
+    margin: 0 0 8px;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--dash-text-1);
+}
+
+.rpt-tooltip__rows {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding-top: 7px;
+    border-top: 1px dashed var(--dash-border-strong);
+}
+
+.rpt-tooltip__row-icon {
+    display: inline-flex;
+    color: var(--dash-text-3);
+    flex-shrink: 0;
+}
+
+.rpt-tooltip__bar {
+    display: flex;
+    height: 5px;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 9px;
+    background: var(--dash-border);
+}
+
+.rpt-tooltip__bar-fill {
+    height: 100%;
+}
+
+.rpt-tooltip__bar-fill--ticket {
+    background: var(--dash-crimson);
+}
+
+.rpt-tooltip__bar-fill--fnb {
+    background: #1D1D1F;
+}
+
+/* ── Revenue analytics (area + donut) ── */
+.rpt-analytics-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+    margin-bottom: 8px;
+}
+
+/* ── Donut ── */
+.rpt-donut {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Wraps only the 220px chart itself (not the legend below), so the
+   centered label always aligns with the ring regardless of legend height. */
+.rpt-donut__ring {
+    position: relative;
+    width: 100%;
+    height: 220px;
+}
+
+.rpt-donut__center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+    max-width: 116px;
+}
+
+.rpt-donut__center-value {
+    text-align: center;
+    line-height: 1.15;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--dash-text-1);
+}
+
+.rpt-donut__center-label {
+    font-size: 10px;
+    color: var(--dash-text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.rpt-donut__legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 4px;
+}
+
+.rpt-donut__legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: var(--dash-text-2);
+    font-weight: 600;
+}
+
+.rpt-donut__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* ── Movie performance table / mobile card fallback ── */
+.rpt-movie-cards {
+    display: none;
+}
+
+.rpt-movie-card {
+    background: var(--dash-surface);
+    border: 1px solid var(--dash-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+}
+
+.rpt-movie-card__head {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+
+.rpt-movie-card__head-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+}
+
+.rpt-movie-card__title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--dash-text-1);
+}
+
+.rpt-movie-card__revenue {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--dash-crimson);
+    white-space: nowrap;
+}
+
+.rpt-movie-poster {
+    width: 32px;
+    height: 46px;
+    flex-shrink: 0;
+    object-fit: cover;
+    border-radius: 5px;
+    background: var(--dash-border);
+}
+
+.rpt-movie-poster--empty {
+    background: var(--dash-border);
+}
+
+.rpt-movie-card__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--dash-text-2);
+    margin-bottom: 8px;
+}
+
+/* ── Top selling (3-card grid) ── */
+.rpt-top-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 8px;
+}
+
+/* ── Quick insights ── */
+.rpt-insights-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 8px;
+}
+
+.rpt-insight {
+    background: var(--dash-surface);
+    border: 1px solid var(--dash-border);
+    border-radius: 14px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    animation: rpt-fade-up 0.35s ease both;
+}
+
+.rpt-insight:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--dash-shadow);
+}
+
+.rpt-insight__label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--dash-text-3);
+}
+
+.rpt-insight__value {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--dash-text-1);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rpt-insight__sub {
+    font-size: 12px;
+    color: var(--dash-text-2);
+}
+
+.rpt-insight--skeleton { animation: none; }
+
+/* ─────────────────────────────────────────────
+   Responsive
+───────────────────────────────────────────── */
+
+/* Tablet — charts drop to 2 columns */
+@media (max-width: 1080px) {
+    .rpt-kpi-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .rpt-analytics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rpt-top-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .rpt-insights-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 860px) {
+    .rpt-kpi--hero {
+        grid-column: span 3;
+    }
+}
+
+/* Mobile — KPI carousel, tables become cards */
 @media (max-width: 640px) {
-    .rpt-card--hero { grid-column: span 1; }
+    .rpt-header-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .rpt-export-group {
+        flex-wrap: wrap;
+    }
+
+    /* KPI carousel: horizontal scroll-snap instead of a wrapping grid */
+    .rpt-kpi-grid {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 12px;
+        margin: 0 -20px 8px;
+        padding: 0 20px 4px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .rpt-kpi {
+        flex: 0 0 78%;
+        scroll-snap-align: start;
+    }
+
+    .rpt-kpi--hero {
+        flex-basis: 86%;
+    }
+
+    .rpt-top-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rpt-insights-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Movie performance: cards instead of the scrollable table */
+    .rpt-movie-table {
+        display: none;
+    }
+
+    .rpt-movie-cards {
+        display: block;
+    }
 }

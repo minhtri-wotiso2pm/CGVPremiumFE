@@ -5,6 +5,7 @@ import { useAppDispatch } from "@/store/hooks";
 import { loginSuccess } from "@/store/slices/authSlice";
 import { loginApi } from "@/services/api/auth.service";
 import { getDashboardByRole } from "../utils/getDashboardByRole";
+import { getSafeRedirect, type LoginRedirectState } from "../utils/authRedirect";
 import axios from "axios";
 import { getUserProfileApi } from "@/services/api/user.service";
 /* ─────────────────────────────────────────────────────────────
@@ -200,7 +201,7 @@ export default function LoginPage() {
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const location = useLocation();
-    const redirectTo = (location.state as { from?: string } | null)?.from ?? null;
+    const redirectTo = (location.state as LoginRedirectState | null)?.from ?? null;
 
     /* Form state */
     const [email, setEmail] = useState("");
@@ -252,7 +253,7 @@ export default function LoginPage() {
                 style: { background: "#1a0f0f", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, cursor: "pointer" },
                 onClick: () => notification.destroy(notifKey),
             });
-            navigate(redirectTo ?? getDashboardByRole(user.role), { replace: true });
+            navigate(getSafeRedirect(redirectTo, getDashboardByRole(user.role), user.role), { replace: true });
         } catch (err: unknown) {
             console.error("LOGIN ERROR:", err);
 
@@ -269,7 +270,7 @@ export default function LoginPage() {
         } finally {
             setLoading(false);
         }
-    }, [email, password, rememberMe, dispatch, navigate]);
+    }, [email, password, rememberMe, dispatch, navigate, redirectTo]);
 
     const handleKeyDown = useCallback(
         (e: React.KeyboardEvent) => { if (e.key === "Enter") handleLogin(); },

@@ -17,6 +17,8 @@ export interface CreateCinemaPayload {
     cinemaName: string;
     address: string;
     status: CinemaStatus;
+    latitude: number;
+    longitude: number;
 }
 
 export type UpdateCinemaPayload = CreateCinemaPayload;

@@ -8,6 +8,7 @@ import {
     formatPrice,
     getSeatTypes,
     getSeatLabel,
+    buildCouplePairMap,
 } from "../utils/seat.utils";
 import type { Seat, SeatNavState } from "../types/seat.types";
 import { notify } from "@/utils/notify";
@@ -32,6 +33,16 @@ const SeatSelectionPage: FC = () => {
 
     const seatRowMap = useMemo(
         () => (data ? buildSeatRowMap(data.seats) : new Map<string, Seat[]>()),
+        [data]
+    );
+
+    const seatById = useMemo(
+        () => new Map<number, Seat>((data?.seats ?? []).map((s) => [s.seatId, s])),
+        [data]
+    );
+
+    const couplePairMap = useMemo(
+        () => buildCouplePairMap(data?.seats ?? []),
         [data]
     );
 
@@ -76,6 +87,8 @@ const SeatSelectionPage: FC = () => {
     const seatTypes  = useMemo(() => getSeatTypes(seatRowMap), [seatRowMap]);
     const hasVip     = seatTypes.has("VIP");
     const hasCouple  = seatTypes.has("COUPLE");
+    const hasEconomy = seatTypes.has("ECONOMY");
+    const hasPoor    = seatTypes.has("POOR");
 
     const totalPrice = useMemo(
         () => Array.from(selectedSeats.values()).reduce((sum, s) => sum + (s.price ?? 0), 0),
@@ -84,6 +97,33 @@ const SeatSelectionPage: FC = () => {
 
     const toggleSeat = useCallback((seat: Seat) => {
         if (!isSeatSelectable(seat)) return;
+
+        // Couple seats are sold as a pair — toggle both halves together.
+        const partnerId = couplePairMap.get(seat.seatId);
+        const partner = partnerId != null ? seatById.get(partnerId) : undefined;
+
+        if (partnerId != null) {
+            if (!partner || !isSeatSelectable(partner)) {
+                notify.warning(
+                    "Không thể chọn ghế đôi",
+                    `Ghế đôi ${getSeatLabel(seat)} phải chọn cả cặp, nhưng ghế đi kèm hiện không khả dụng.`
+                );
+                return;
+            }
+            setSelectedSeats((prev) => {
+                const next = new Map(prev);
+                if (next.has(seat.seatId)) {
+                    next.delete(seat.seatId);
+                    next.delete(partnerId);
+                } else {
+                    next.set(seat.seatId, seat);
+                    next.set(partnerId, partner);
+                }
+                return next;
+            });
+            return;
+        }
+
         setSelectedSeats((prev) => {
             const next = new Map(prev);
             if (next.has(seat.seatId)) {
@@ -93,15 +133,17 @@ const SeatSelectionPage: FC = () => {
             }
             return next;
         });
-    }, []);
+    }, [couplePairMap, seatById]);
 
     const removeSeat = useCallback((seatId: number) => {
         setSelectedSeats((prev) => {
             const next = new Map(prev);
             next.delete(seatId);
+            const partnerId = couplePairMap.get(seatId);
+            if (partnerId != null) next.delete(partnerId);
             return next;
         });
-    }, []);
+    }, [couplePairMap]);
 
     const clearAll = useCallback(() => setSelectedSeats(new Map()), []);
 
@@ -179,7 +221,7 @@ const SeatSelectionPage: FC = () => {
                                         selectedSeatIds={selectedSeatIds}
                                         onSeatSelect={toggleSeat}
                                     />
-                                    <SeatLegend hasVip={hasVip} hasCouple={hasCouple} />
+                                    <SeatLegend hasVip={hasVip} hasCouple={hasCouple} hasEconomy={hasEconomy} hasPoor={hasPoor} />
                                 </>
                             )}
                         </div>

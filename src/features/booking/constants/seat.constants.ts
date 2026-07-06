@@ -10,13 +10,17 @@ export const SEAT_STATUS = {
 } as const;
 
 export const SEAT_TYPE_COLOR: Record<string, string> = {
-    VIP:    "#c9a227",
-    COUPLE: "#7c5cbf",
-    IMAX:   "#0d7bd4",
+    ECONOMY: "#4a9b6e",
+    POOR:    "#8a8a8a",
+    VIP:     "#c9a227",
+    COUPLE:  "#7c5cbf",
+    IMAX:    "#0d7bd4",
 };
 
 export const SEAT_TYPE_LABEL: Record<string, string> = {
     STANDARD: "Standard",
+    ECONOMY:  "Economy",
+    POOR:     "Poor",
     VIP:      "VIP",
     COUPLE:   "Couple",
     IMAX:     "IMAX",

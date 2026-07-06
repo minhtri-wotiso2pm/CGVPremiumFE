@@ -24,6 +24,7 @@ export const getSeatMapApi = async (showtimeId: number): Promise<SeatMapResponse
         status:     String(s.status                                    ?? "AVAILABLE"),
         extraPrice: Number(s.extraPrice ?? s.extra_price               ?? 0),
         price:      Number(s.price                                     ?? 0),
+        isGap:      Boolean(s.isGap ?? s.is_gap                        ?? false),
     }));
 
     return {
