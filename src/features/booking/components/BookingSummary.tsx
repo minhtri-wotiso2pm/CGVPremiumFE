@@ -127,7 +127,7 @@ const BookingSummary: FC<Props> = ({
                     disabled={count === 0 || isContinueLoading}
                     onClick={onContinue}
                 >
-                    {isContinueLoading ? "Đang giữ ghế..." : <> Continue <ArrowIcon /> </>}
+                    {isContinueLoading ? "Holding seats..." : <> Continue <ArrowIcon /> </>}
                 </button>
                 {count > 0 && (
                     <button className="cgv-seats-clear-btn" onClick={onClearAll}>

@@ -72,6 +72,28 @@
     margin: 0 4px;
 }
 
+/* ─── Back button (step row) ──────────────── */
+.cgv-pay-back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: rgba(240,232,232,0.6);
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-right: 14px;
+    transition: background 0.16s, border-color 0.16s, color 0.16s;
+}
+.cgv-pay-back-btn:hover {
+    background: rgba(232,0,28,0.1);
+    border-color: rgba(232,0,28,0.3);
+    color: #f0e8e8;
+}
+
 /* ─── Hold timer ──────────────────────────── */
 .cgv-pay-timer {
     display: flex;
@@ -479,6 +501,14 @@
 
 .cgv-pay-method__desc--warn { color: #ff9800; }
 
+/* Fixed (non-selectable) method shown when the order total is 0 —
+   no radio, not clickable, just an informational confirmation. */
+.cgv-pay-method--free {
+    border-color: #E8001C;
+    background: rgba(232,0,28,0.06);
+    cursor: default;
+}
+
 /* ─── Pay button ──────────────────────────── */
 .cgv-pay-btn {
     width: 100%;
@@ -577,22 +607,6 @@
     40%            { transform: scale(1);   opacity: 1; }
 }
 
-.cgv-pay-cancel-btn {
-    margin-top: 8px;
-    padding: 9px 20px;
-    background: transparent;
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 8px;
-    color: rgba(240,232,232,0.5);
-    font-size: 12px;
-    cursor: pointer;
-    transition: border-color 150ms ease, color 150ms ease;
-}
-
-.cgv-pay-cancel-btn:hover {
-    border-color: rgba(255,255,255,0.25);
-    color: #f0e8e8;
-}
 
 /* ─── Mobile bottom bar ───────────────────── */
 .cgv-pay-mobile-bar {

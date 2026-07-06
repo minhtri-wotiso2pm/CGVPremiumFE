@@ -42,7 +42,7 @@ const SeatLegend: FC<Props> = ({ hasVip, hasCouple, hasEconomy, hasPoor }) => (
         {hasCouple && (
             <div className="cgv-seats-legend-item">
                 <span className="cgv-seats-legend-box cgv-seats-legend-box--couple" />
-                Couple (chọn theo cặp)
+                Couple (select as a pair)
             </div>
         )}
     </div>

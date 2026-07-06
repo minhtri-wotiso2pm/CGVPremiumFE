@@ -13,9 +13,9 @@ const TYPE_EMOJI: Record<string, string> = {
 const TYPE_LABEL: Record<string, string> = {
     combo:    "Combo",
     snack:    "Snack",
-    food:     "Đồ ăn",
-    drink:    "Đồ uống",
-    beverage: "Đồ uống",
+    food:     "Food",
+    drink:    "Drink",
+    beverage: "Drink",
 };
 
 interface Props {
@@ -60,7 +60,7 @@ const FnbProductCard: FC<Props> = ({ product, quantity, onAdd, onRemove }) => {
                             className="cgv-fnb-qty__btn"
                             onClick={onRemove}
                             disabled={quantity === 0}
-                            aria-label={`Giảm ${product.itemName}`}
+                            aria-label={`Decrease ${product.itemName}`}
                         >
                             −
                         </button>
@@ -69,7 +69,7 @@ const FnbProductCard: FC<Props> = ({ product, quantity, onAdd, onRemove }) => {
                             className="cgv-fnb-qty__btn cgv-fnb-qty__btn--add"
                             onClick={onAdd}
                             disabled={maxReached}
-                            aria-label={`Thêm ${product.itemName}`}
+                            aria-label={`Increase ${product.itemName}`}
                         >
                             +
                         </button>

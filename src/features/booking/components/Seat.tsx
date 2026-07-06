@@ -34,12 +34,12 @@ const Seat: FC<Props> = ({ seat, isSelected, onSelect }) => {
             className={classNames}
             onClick={handleClick}
             disabled={!selectable}
-            aria-label={`${getSeatLabel(seat)}${isSelected ? " (đã chọn)" : selectable ? "" : " (không khả dụng)"}`}
+            aria-label={`${getSeatLabel(seat)}${isSelected ? " (selected)" : selectable ? "" : " (unavailable)"}`}
             aria-pressed={isSelected}
             title={
                 selectable
                     ? `${getSeatLabel(seat)} · ${seat.seatType}`
-                    : `${getSeatLabel(seat)} · Không khả dụng`
+                    : `${getSeatLabel(seat)} · Unavailable`
             }
         >
             <span className="cgv-seat__col">{seat.seatCol}</span>

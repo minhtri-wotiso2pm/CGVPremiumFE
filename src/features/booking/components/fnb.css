@@ -71,6 +71,28 @@
     margin: 0 4px;
 }
 
+/* ─── Back button (step row) ──────────────── */
+.cgv-fnb-back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: rgba(240,232,232,0.6);
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-right: 14px;
+    transition: background 0.16s, border-color 0.16s, color 0.16s;
+}
+.cgv-fnb-back-btn:hover {
+    background: rgba(232,0,28,0.1);
+    border-color: rgba(232,0,28,0.3);
+    color: #f0e8e8;
+}
+
 /* ─── Hold timer ──────────────────────────── */
 .cgv-fnb-timer {
     display: flex;
@@ -476,7 +498,7 @@
     transform: none;
 }
 
-.cgv-fnb-skip-btn {
+.cgv-fnb-back-link {
     width: 100%;
     padding: 10px;
     background: transparent;
@@ -489,7 +511,7 @@
     transition: border-color 150ms ease, color 150ms ease;
 }
 
-.cgv-fnb-skip-btn:hover {
+.cgv-fnb-back-link:hover {
     border-color: rgba(255,255,255,0.2);
     color: #f0e8e8;
 }
@@ -574,13 +596,16 @@
     gap: 10px;
 }
 
-.cgv-fnb-mobile-bar__skip {
-    padding: 11px 16px;
+.cgv-fnb-mobile-bar__back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    padding: 11px 0;
     background: transparent;
     border: 1px solid rgba(255,255,255,0.12);
     border-radius: 8px;
     color: rgba(240,232,232,0.6);
-    font-size: 13px;
     cursor: pointer;
     flex-shrink: 0;
 }

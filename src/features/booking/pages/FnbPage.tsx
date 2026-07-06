@@ -10,11 +10,22 @@ import "../components/fnb.css";
 /* ── Helpers ──────────────────────────────── */
 const GROUP_LABELS: Record<string, string> = {
     combo:    "COMBO",
-    snack:    "ĐỒ ĂN NHẸ",
-    food:     "ĐỒ ĂN",
-    drink:    "ĐỒ UỐNG",
-    beverage: "ĐỒ UỐNG",
+    snack:    "SNACKS",
+    food:     "FOOD",
+    drink:    "DRINKS",
+    beverage: "DRINKS",
 };
+
+/** Fixed display order regardless of what order the API returns products
+ *  in: Combo first, then Snacks, then Drinks, then everything else. */
+const GROUP_ORDER = ["combo", "snack", "drink", "beverage", "food"];
+
+const BackIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <line x1="19" y1="12" x2="5" y2="12" />
+        <polyline points="12 19 5 12 12 5" />
+    </svg>
+);
 
 function formatCountdown(ms: number): string {
     const total = Math.floor(ms / 1000);
@@ -30,7 +41,16 @@ function groupProducts(products: Product[]) {
         if (!map.has(key)) map.set(key, []);
         map.get(key)!.push(p);
     }
-    return Array.from(map.entries()).map(([type, items]) => ({
+    const entries = Array.from(map.entries());
+    entries.sort(([a], [b]) => {
+        const ia = GROUP_ORDER.indexOf(a);
+        const ib = GROUP_ORDER.indexOf(b);
+        if (ia === -1 && ib === -1) return 0;
+        if (ia === -1) return 1;
+        if (ib === -1) return -1;
+        return ia - ib;
+    });
+    return entries.map(([type, items]) => ({
         type,
         label: GROUP_LABELS[type] ?? type.toUpperCase(),
         items,
@@ -79,7 +99,7 @@ const FnbPage: FC = () => {
         startTime,
     } = navState;
 
-    /* ── Redirect nếu không có state hợp lệ ── */
+    /* ── Redirect if there's no valid nav state ── */
     useEffect(() => {
         if (!showtimeId) navigate("/customer", { replace: true });
     }, [showtimeId, navigate]);
@@ -171,15 +191,20 @@ const FnbPage: FC = () => {
         navigate("/customer/booking/payment", { state: buildPaymentState(items) });
     }, [navigate, navState, fnbItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const handleSkip = useCallback(() => {
-        navigate("/customer/booking/payment", { state: buildPaymentState([]) });
-    }, [navigate, navState]); // eslint-disable-line react-hooks/exhaustive-deps
+    /* Back to Seat Selection — navigate(-1) fires a native popstate event,
+       which the app-level useSeatHoldBackGuard already listens for to
+       release the current seat hold, same as pressing the browser Back
+       button. Keeping this on that one shared mechanism avoids a second,
+       divergent "release hold" code path. */
+    const handleBack = useCallback(() => {
+        navigate(-1);
+    }, [navigate]);
 
     /* ── Date format ──────────────────────────── */
     const showDateStr = useMemo(() => {
         if (!startTime) return "";
         try {
-            return new Date(startTime).toLocaleString("vi-VN", {
+            return new Date(startTime).toLocaleString("en-US", {
                 weekday: "short", day: "2-digit", month: "2-digit",
                 hour: "2-digit", minute: "2-digit",
             });
@@ -195,19 +220,22 @@ const FnbPage: FC = () => {
 
                 {/* ── Step indicator ── */}
                 <div className="cgv-fnb-steps">
+                    <button className="cgv-fnb-back-btn" onClick={handleBack} aria-label="Back to seat selection">
+                        <BackIcon />
+                    </button>
                     <div className="cgv-fnb-step cgv-fnb-step--done">
                         <span className="cgv-fnb-step__num">✓</span>
-                        Chọn ghế
+                        Select Seats
                     </div>
                     <div className="cgv-fnb-step__sep" />
                     <div className="cgv-fnb-step cgv-fnb-step--active">
                         <span className="cgv-fnb-step__num">2</span>
-                        Đồ ăn & Thức uống
+                        Food &amp; Beverage
                     </div>
                     <div className="cgv-fnb-step__sep" />
                     <div className="cgv-fnb-step">
                         <span className="cgv-fnb-step__num">3</span>
-                        Thanh toán
+                        Payment
                     </div>
                 </div>
 
@@ -219,11 +247,11 @@ const FnbPage: FC = () => {
                         <span className="cgv-fnb-timer__icon">⏱</span>
                         {isExpired ? (
                             <span style={{ color: "#ff6b6b", fontWeight: 600 }}>
-                                Ghế đã hết hạn giữ — vui lòng quay lại chọn ghế
+                                Your seat hold has expired — please go back and select seats again
                             </span>
                         ) : (
                             <>
-                                <span>Ghế của bạn được giữ trong</span>
+                                <span>Your seats are held for</span>
                                 <span className="cgv-fnb-timer__count">
                                     {formatCountdown(timeLeft)}
                                 </span>
@@ -244,19 +272,19 @@ const FnbPage: FC = () => {
                             </>
                         ) : isError ? (
                             <div className="cgv-fnb-state">
-                                <p className="cgv-fnb-state__title">Không tải được sản phẩm</p>
+                                <p className="cgv-fnb-state__title">Couldn't load products</p>
                                 <p className="cgv-fnb-state__body">
-                                    Vui lòng kiểm tra kết nối và thử lại.
+                                    Please check your connection and try again.
                                 </p>
                                 <button className="cgv-fnb-retry-btn" onClick={() => refetch()}>
-                                    Thử lại
+                                    Retry
                                 </button>
                             </div>
                         ) : products.length === 0 ? (
                             <div className="cgv-fnb-state">
-                                <p className="cgv-fnb-state__title">Chưa có sản phẩm</p>
+                                <p className="cgv-fnb-state__title">No products available</p>
                                 <p className="cgv-fnb-state__body">
-                                    Rạp hiện chưa có đồ ăn thức uống. Bạn có thể bỏ qua bước này.
+                                    This cinema doesn't have food &amp; beverage items yet. You can continue without adding any.
                                 </p>
                             </div>
                         ) : (
@@ -282,7 +310,7 @@ const FnbPage: FC = () => {
                     {/* ── Right: summary sidebar ── */}
                     <aside className="cgv-fnb-right">
                         <div className="cgv-fnb-summary">
-                            <p className="cgv-fnb-summary__title">Tóm tắt đơn hàng</p>
+                            <p className="cgv-fnb-summary__title">Order Summary</p>
 
                             {/* Movie info */}
                             <div className="cgv-fnb-summary__movie">
@@ -314,7 +342,7 @@ const FnbPage: FC = () => {
                             {/* Seat list */}
                             {(selectedSeats ?? []).length > 0 && (
                                 <div>
-                                    <p className="cgv-fnb-summary__sec">Ghế đã chọn</p>
+                                    <p className="cgv-fnb-summary__sec">Selected Seats</p>
                                     <div className="cgv-fnb-summary__chips">
                                         {selectedSeats.map((s) => (
                                             <span key={s.seatId} className="cgv-fnb-summary__chip">
@@ -327,9 +355,9 @@ const FnbPage: FC = () => {
 
                             {/* F&B list */}
                             <div>
-                                <p className="cgv-fnb-summary__sec">Đồ ăn & Thức uống</p>
+                                <p className="cgv-fnb-summary__sec">Food &amp; Beverage</p>
                                 {fnbSummaryItems.length === 0 ? (
-                                    <p className="cgv-fnb-summary__fnb-empty">Chưa chọn món</p>
+                                    <p className="cgv-fnb-summary__fnb-empty">No items selected</p>
                                 ) : (
                                     fnbSummaryItems.map((item) => (
                                         <div
@@ -352,7 +380,7 @@ const FnbPage: FC = () => {
                                 <div className="cgv-fnb-summary__hr" />
                                 <div className="cgv-fnb-summary__row" style={{ marginTop: 8 }}>
                                     <span className="cgv-fnb-summary__row-label">
-                                        Ghế ({(seatIds ?? []).length})
+                                        Seats ({(seatIds ?? []).length})
                                     </span>
                                     <span className="cgv-fnb-summary__row-val">
                                         {formatPrice(seatsTotal)}
@@ -360,7 +388,7 @@ const FnbPage: FC = () => {
                                 </div>
                                 {fnbTotal > 0 && (
                                     <div className="cgv-fnb-summary__row" style={{ marginTop: 6 }}>
-                                        <span className="cgv-fnb-summary__row-label">F&B</span>
+                                        <span className="cgv-fnb-summary__row-label">F&amp;B</span>
                                         <span className="cgv-fnb-summary__row-val">
                                             {formatPrice(fnbTotal)}
                                         </span>
@@ -368,7 +396,7 @@ const FnbPage: FC = () => {
                                 )}
                                 <div className="cgv-fnb-summary__hr" style={{ marginTop: 10 }} />
                                 <div className="cgv-fnb-summary__total" style={{ marginTop: 10 }}>
-                                    <span className="cgv-fnb-summary__total-label">Tạm tính</span>
+                                    <span className="cgv-fnb-summary__total-label">Estimated Total</span>
                                     <span className="cgv-fnb-summary__total-val">
                                         {formatPrice(grandTotal)}
                                     </span>
@@ -381,10 +409,10 @@ const FnbPage: FC = () => {
                                 onClick={handleContinue}
                                 disabled={isExpired}
                             >
-                                Tiếp tục thanh toán
+                                Continue to Payment
                             </button>
-                            <button className="cgv-fnb-skip-btn" onClick={handleSkip}>
-                                Bỏ qua — không chọn F&amp;B
+                            <button className="cgv-fnb-back-link" onClick={handleBack}>
+                                Back to seat selection
                             </button>
                         </div>
                     </aside>
@@ -396,23 +424,23 @@ const FnbPage: FC = () => {
                 <div className="cgv-fnb-mobile-bar__info">
                     <span className="cgv-fnb-mobile-bar__label">
                         {fnbSummaryItems.length > 0
-                            ? `${fnbSummaryItems.reduce((s, i) => s + i.qty, 0)} món`
-                            : "Chưa chọn món"}
+                            ? `${fnbSummaryItems.reduce((s, i) => s + i.qty, 0)} items`
+                            : "No items selected"}
                     </span>
                     <span className="cgv-fnb-mobile-bar__total">
                         {formatPrice(grandTotal)}
                     </span>
                 </div>
                 <div className="cgv-fnb-mobile-bar__btns">
-                    <button className="cgv-fnb-mobile-bar__skip" onClick={handleSkip}>
-                        Bỏ qua
+                    <button className="cgv-fnb-mobile-bar__back" onClick={handleBack} aria-label="Back">
+                        <BackIcon />
                     </button>
                     <button
                         className="cgv-fnb-mobile-bar__continue"
                         onClick={handleContinue}
                         disabled={isExpired}
                     >
-                        Tiếp tục
+                        Continue
                     </button>
                 </div>
             </div>

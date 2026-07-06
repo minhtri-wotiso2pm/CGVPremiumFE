@@ -75,8 +75,8 @@ const SeatSelectionPage: FC = () => {
             }
             if (lostSeats.length > 0) {
                 notify.warning(
-                    "Ghế vừa được đặt",
-                    `${lostSeats.map(getSeatLabel).join(", ")} vừa được người khác giữ hoặc mua. Vui lòng chọn ghế khác.`
+                    "Seat just taken",
+                    `${lostSeats.map(getSeatLabel).join(", ")} was just held or booked by someone else. Please choose another seat.`
                 );
                 return stillValid;
             }
@@ -105,8 +105,8 @@ const SeatSelectionPage: FC = () => {
         if (partnerId != null) {
             if (!partner || !isSeatSelectable(partner)) {
                 notify.warning(
-                    "Không thể chọn ghế đôi",
-                    `Ghế đôi ${getSeatLabel(seat)} phải chọn cả cặp, nhưng ghế đi kèm hiện không khả dụng.`
+                    "Can't select this couple seat",
+                    `Couple seat ${getSeatLabel(seat)} must be selected as a pair, but its partner seat is currently unavailable.`
                 );
                 return;
             }
@@ -166,8 +166,8 @@ const SeatSelectionPage: FC = () => {
                 },
                 onError: () => {
                     notify.warning(
-                        "Không thể giữ ghế",
-                        "Ghế bạn chọn có thể đã được đặt. Vui lòng chọn lại."
+                        "Couldn't hold your seats",
+                        "One or more of your selected seats may have just been booked. Please choose again."
                     );
                 },
             }
@@ -261,7 +261,7 @@ const SeatSelectionPage: FC = () => {
                     disabled={selectedCount === 0 || isHolding}
                     onClick={handleContinue}
                 >
-                    {isHolding ? "Đang giữ ghế..." : "Continue"}
+                    {isHolding ? "Holding seats..." : "Continue"}
                 </button>
             </div>
         </div>

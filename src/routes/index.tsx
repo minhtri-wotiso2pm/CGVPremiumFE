@@ -48,6 +48,7 @@ import AdminDashboard from "@/features/admin/pages/AdminDashboard";
 import UserManagementPage from "@/features/admin/pages/UserManagementPage";
 import SeatTypeManagementPage from "@/features/admin/pages/SeatTypeManagementPage";
 import AdminProfilePage from "@/features/admin/pages/AdminProfilePage";
+import ActivityLogPage from "@/features/admin/pages/ActivityLogPage";
 
 import WelcomePage from "@/features/public/pages/WelcomePage";
 import ShowtimePage from "@/features/booking/pages/ShowtimePage";
@@ -377,6 +378,10 @@ export const router = createBrowserRouter([
                             {
                                 path: "reports",
                                 element: <ReportsPage scope="admin" />,
+                            },
+                            {
+                                path: "activity-logs",
+                                element: <ActivityLogPage />,
                             },
                             {
                                 path: "profile",

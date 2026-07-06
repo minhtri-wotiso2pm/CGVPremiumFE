@@ -17,6 +17,13 @@ import type { BookingConfirmationNavState } from "../types/payment.types";
 import "../components/payment.css";
 
 /* ── Helpers ──────────────────────────────── */
+const BackIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <line x1="19" y1="12" x2="5" y2="12" />
+        <polyline points="12 19 5 12 12 5" />
+    </svg>
+);
+
 function formatCountdown(ms: number): string {
     const total = Math.floor(ms / 1000);
     const m = Math.floor(total / 60);
@@ -26,7 +33,7 @@ function formatCountdown(ms: number): string {
 
 function formatDateTime(iso: string): string {
     try {
-        return new Date(iso).toLocaleString("vi-VN", {
+        return new Date(iso).toLocaleString("en-US", {
             weekday: "short",
             day: "2-digit",
             month: "2-digit",
@@ -125,7 +132,7 @@ const PaymentPage: FC = () => {
                 });
                 setPricing(result);
             } catch {
-                setPricingError("Không tải được thông tin giá. Vui lòng thử lại.");
+                setPricingError("Couldn't load pricing information. Please try again.");
             } finally {
                 setIsPricingLoading(false);
             }
@@ -169,7 +176,7 @@ const PaymentPage: FC = () => {
                 count += 1;
                 if (count > 200) {
                     stopPolling();
-                    setPaymentError("Phiên thanh toán đã hết hạn. Vui lòng thử lại.");
+                    setPaymentError("Your payment session has expired. Please try again.");
                     setIsWaiting(false);
                     return;
                 }
@@ -192,7 +199,7 @@ const PaymentPage: FC = () => {
                     } else if (s === "FAILED" || s === "EXPIRED" || s === "CANCELLED") {
                         stopPolling();
                         setPaymentError(
-                            "Thanh toán thất bại hoặc đã bị hủy. Vui lòng thử lại.",
+                            "Payment failed or was cancelled. Please try again.",
                         );
                         setIsWaiting(false);
                     }
@@ -203,6 +210,22 @@ const PaymentPage: FC = () => {
         },
         [stopPolling, navigate, moviePoster, roomType],
     );
+
+    /* ── Back to F&B ───────────────────────── */
+    const handleBack = useCallback(() => {
+        navigate(-1);
+    }, [navigate]);
+
+    /* ── Derived ──────────────────────────── */
+    const walletBalance = walletData?.balance ?? 0;
+    const finalAmount = pricing?.finalAmount ?? 0;
+    // A fully-discounted (voucher/membership) order has nothing to charge —
+    // there's no PayOS transaction to run, so wallet is the only valid
+    // method and it isn't a user choice.
+    const isFreeOrder = !!pricing && finalAmount === 0;
+    const effectivePaymentMethod = isFreeOrder ? "wallet" : paymentMethod;
+    const walletInsufficient = effectivePaymentMethod === "wallet" && walletBalance < finalAmount;
+    const canPay = !!pricing && !isExpired && !walletInsufficient && !isWaiting;
 
     /* ── Pay handler ──────────────────────── */
     const handlePay = useCallback(async () => {
@@ -225,11 +248,11 @@ const PaymentPage: FC = () => {
 
             const paymentInit = await doInitiatePayment({
                 bookingId: booking.bookingID,
-                paymentMethod,
+                paymentMethod: effectivePaymentMethod,
             });
             paymentInitRef.current = paymentInit;
 
-            if (paymentMethod === "payos" && paymentInit.checkoutUrl) {
+            if (effectivePaymentMethod === "payos" && paymentInit.checkoutUrl) {
                 window.open(paymentInit.checkoutUrl, "_blank", "noopener,noreferrer");
             }
 
@@ -238,25 +261,12 @@ const PaymentPage: FC = () => {
             setIsWaiting(false);
             const msg = (err as { response?: { data?: { message?: string } } })
                 ?.response?.data?.message;
-            setPaymentError(msg ?? "Đã có lỗi xảy ra. Vui lòng thử lại.");
+            setPaymentError(msg ?? "Something went wrong. Please try again.");
         }
     }, [
         pricing, isExpired, doCreateBooking, doInitiatePayment,
-        showtimeId, seatIds, fnbItems, appliedVoucher, paymentMethod, startPolling,
+        showtimeId, seatIds, fnbItems, appliedVoucher, effectivePaymentMethod, startPolling,
     ]);
-
-    const handleCancelPayment = useCallback(() => {
-        stopPolling();
-        setIsWaiting(false);
-        bookingRef.current = null;
-        paymentInitRef.current = null;
-    }, [stopPolling]);
-
-    /* ── Derived ──────────────────────────── */
-    const walletBalance = walletData?.balance ?? 0;
-    const finalAmount = pricing?.finalAmount ?? 0;
-    const walletInsufficient = paymentMethod === "wallet" && walletBalance < finalAmount;
-    const canPay = !!pricing && !isExpired && !walletInsufficient && !isWaiting;
 
     const seatCount = (seatIds ?? []).length;
     const hasFnb = (fnbItems ?? []).length > 0;
@@ -271,19 +281,22 @@ const PaymentPage: FC = () => {
 
                 {/* ── Step indicator ── */}
                 <div className="cgv-pay-steps">
+                    <button className="cgv-pay-back-btn" onClick={handleBack} aria-label="Back to food & beverage">
+                        <BackIcon />
+                    </button>
                     <div className="cgv-pay-step cgv-pay-step--done">
                         <span className="cgv-pay-step__num">✓</span>
-                        Chọn ghế
+                        Select Seats
                     </div>
                     <div className="cgv-pay-step__sep" />
                     <div className="cgv-pay-step cgv-pay-step--done">
                         <span className="cgv-pay-step__num">✓</span>
-                        Đồ ăn & Thức uống
+                        Food &amp; Beverage
                     </div>
                     <div className="cgv-pay-step__sep" />
                     <div className="cgv-pay-step cgv-pay-step--active">
                         <span className="cgv-pay-step__num">3</span>
-                        Thanh toán
+                        Payment
                     </div>
                 </div>
 
@@ -295,11 +308,11 @@ const PaymentPage: FC = () => {
                         <span className="cgv-pay-timer__icon">⏱</span>
                         {isExpired ? (
                             <span style={{ color: "#ff6b6b", fontWeight: 600 }}>
-                                Ghế đã hết hạn giữ — vui lòng quay lại chọn ghế
+                                Your seat hold has expired — please go back and select seats again
                             </span>
                         ) : (
                             <>
-                                <span>Ghế của bạn được giữ trong</span>
+                                <span>Your seats are held for</span>
                                 <span className="cgv-pay-timer__count">
                                     {formatCountdown(timeLeft)}
                                 </span>
@@ -348,7 +361,7 @@ const PaymentPage: FC = () => {
                             {/* Seats */}
                             {(selectedSeats ?? []).length > 0 && (
                                 <div className="cgv-pay-review__section">
-                                    <p className="cgv-pay-review__sec-label">Ghế đã chọn</p>
+                                    <p className="cgv-pay-review__sec-label">Selected Seats</p>
                                     <div className="cgv-pay-seat-chips">
                                         {selectedSeats.map((s) => (
                                             <span key={s.seatId} className="cgv-pay-seat-chip">
@@ -358,7 +371,7 @@ const PaymentPage: FC = () => {
                                     </div>
                                     {pricing && (
                                         <p className="cgv-pay-seat-subtotal">
-                                            {seatCount} ghế ·{" "}
+                                            {seatCount} seat{seatCount !== 1 ? "s" : ""} ·{" "}
                                             {formatPrice(pricing.seatsSubTotal)}
                                         </p>
                                     )}
@@ -367,9 +380,9 @@ const PaymentPage: FC = () => {
 
                             {/* F&B */}
                             <div className="cgv-pay-review__section">
-                                <p className="cgv-pay-review__sec-label">Đồ ăn & Thức uống</p>
+                                <p className="cgv-pay-review__sec-label">Food &amp; Beverage</p>
                                 {!hasFnb ? (
-                                    <p className="cgv-pay-fnb-empty">Không có F&B</p>
+                                    <p className="cgv-pay-fnb-empty">No F&amp;B</p>
                                 ) : fnbDetails.length > 0 ? (
                                     fnbDetails.map((item) => (
                                         <div
@@ -392,7 +405,7 @@ const PaymentPage: FC = () => {
                                             className="cgv-pay-fnb-item"
                                         >
                                             <span className="cgv-pay-fnb-name">
-                                                {item.quantity}× Món #{item.itemId}
+                                                {item.quantity}× Item #{item.itemId}
                                             </span>
                                         </div>
                                     ))
@@ -406,7 +419,7 @@ const PaymentPage: FC = () => {
 
                         {/* Pricing */}
                         <div className="cgv-pay-card">
-                            <p className="cgv-pay-card__title">Chi tiết giá</p>
+                            <p className="cgv-pay-card__title">Price Details</p>
                             {isPricingLoading ? (
                                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                                     <div className="cgv-pay-skel" style={{ width: "100%" }} />
@@ -421,14 +434,14 @@ const PaymentPage: FC = () => {
                             ) : pricing ? (
                                 <>
                                     <div className="cgv-pay-price-row">
-                                        <span>Ghế ({seatCount})</span>
+                                        <span>Seats ({seatCount})</span>
                                         <span className="cgv-pay-price-row__val">
                                             {formatPrice(pricing.seatsSubTotal)}
                                         </span>
                                     </div>
                                     {pricing.fnBSubTotal > 0 && (
                                         <div className="cgv-pay-price-row">
-                                            <span>Đồ ăn & Thức uống</span>
+                                            <span>Food &amp; Beverage</span>
                                             <span className="cgv-pay-price-row__val">
                                                 {formatPrice(pricing.fnBSubTotal)}
                                             </span>
@@ -436,7 +449,7 @@ const PaymentPage: FC = () => {
                                     )}
                                     {pricing.membershipDiscount > 0 && (
                                         <div className="cgv-pay-price-row cgv-pay-price-row--discount">
-                                            <span>Ưu đãi thành viên</span>
+                                            <span>Membership discount</span>
                                             <span className="cgv-pay-price-row__val">
                                                 −{formatPrice(pricing.membershipDiscount)}
                                             </span>
@@ -453,7 +466,7 @@ const PaymentPage: FC = () => {
                                     <div className="cgv-pay-price-hr" />
                                     <div className="cgv-pay-price-total">
                                         <span className="cgv-pay-price-total__label">
-                                            Tổng thanh toán
+                                            Total
                                         </span>
                                         <span className="cgv-pay-price-total__val">
                                             {formatPrice(pricing.finalAmount)}
@@ -465,7 +478,7 @@ const PaymentPage: FC = () => {
 
                         {/* Voucher */}
                         <div className="cgv-pay-card">
-                            <p className="cgv-pay-card__title">Mã khuyến mãi</p>
+                            <p className="cgv-pay-card__title">Promo Code</p>
                             {appliedVoucher ? (
                                 <div className="cgv-pay-voucher-applied">
                                     <span className="cgv-pay-voucher-applied__code">
@@ -474,7 +487,7 @@ const PaymentPage: FC = () => {
                                     <button
                                         className="cgv-pay-voucher-remove"
                                         onClick={handleRemoveVoucher}
-                                        aria-label="Xóa voucher"
+                                        aria-label="Remove voucher"
                                     >
                                         ×
                                     </button>
@@ -484,7 +497,7 @@ const PaymentPage: FC = () => {
                                     <input
                                         className="cgv-pay-voucher-input"
                                         type="text"
-                                        placeholder="Nhập mã voucher"
+                                        placeholder="Enter promo code"
                                         value={voucherInput}
                                         onChange={(e) => setVoucherInput(e.target.value)}
                                         onKeyDown={(e) => {
@@ -497,7 +510,7 @@ const PaymentPage: FC = () => {
                                         onClick={handleApplyVoucher}
                                         disabled={!voucherInput.trim() || isWaiting}
                                     >
-                                        Áp dụng
+                                        Apply
                                     </button>
                                 </div>
                             )}
@@ -506,62 +519,74 @@ const PaymentPage: FC = () => {
                         {/* Payment method */}
                         {!isWaiting && (
                             <div className="cgv-pay-card">
-                                <p className="cgv-pay-card__title">Phương thức thanh toán</p>
-                                <div className="cgv-pay-methods">
-                                    {/* PayOS */}
-                                    <div
-                                        className={`cgv-pay-method${paymentMethod === "payos" ? " cgv-pay-method--selected" : ""}`}
-                                        onClick={() => setPaymentMethod("payos")}
-                                        role="radio"
-                                        aria-checked={paymentMethod === "payos"}
-                                        tabIndex={0}
-                                        onKeyDown={(e) => {
-                                            if (e.key === "Enter" || e.key === " ")
-                                                setPaymentMethod("payos");
-                                        }}
-                                    >
-                                        <div className="cgv-pay-method__radio">
-                                            <div className="cgv-pay-method__radio-dot" />
-                                        </div>
-                                        <span className="cgv-pay-method__icon">💳</span>
-                                        <div className="cgv-pay-method__info">
-                                            <p className="cgv-pay-method__name">PayOS</p>
-                                            <p className="cgv-pay-method__desc">
-                                                Thanh toán qua cổng PayOS (QR / thẻ)
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Wallet */}
-                                    <div
-                                        className={`cgv-pay-method${paymentMethod === "wallet" ? " cgv-pay-method--selected" : ""}`}
-                                        onClick={() => setPaymentMethod("wallet")}
-                                        role="radio"
-                                        aria-checked={paymentMethod === "wallet"}
-                                        tabIndex={0}
-                                        onKeyDown={(e) => {
-                                            if (e.key === "Enter" || e.key === " ")
-                                                setPaymentMethod("wallet");
-                                        }}
-                                    >
-                                        <div className="cgv-pay-method__radio">
-                                            <div className="cgv-pay-method__radio-dot" />
-                                        </div>
+                                <p className="cgv-pay-card__title">Payment Method</p>
+                                {isFreeOrder ? (
+                                    <div className="cgv-pay-method cgv-pay-method--free">
                                         <span className="cgv-pay-method__icon">👛</span>
                                         <div className="cgv-pay-method__info">
-                                            <p className="cgv-pay-method__name">Ví điện tử</p>
-                                            <p
-                                                className={`cgv-pay-method__desc${walletInsufficient ? " cgv-pay-method__desc--warn" : ""}`}
-                                            >
-                                                {walletData
-                                                    ? walletInsufficient
-                                                        ? `Số dư không đủ (${formatPrice(walletBalance)})`
-                                                        : `Số dư: ${formatPrice(walletBalance)}`
-                                                    : "Đang tải số dư..."}
+                                            <p className="cgv-pay-method__name">E-Wallet</p>
+                                            <p className="cgv-pay-method__desc">
+                                                This order is free — no charge required, confirmed via E-Wallet.
                                             </p>
                                         </div>
                                     </div>
-                                </div>
+                                ) : (
+                                    <div className="cgv-pay-methods">
+                                        {/* PayOS */}
+                                        <div
+                                            className={`cgv-pay-method${paymentMethod === "payos" ? " cgv-pay-method--selected" : ""}`}
+                                            onClick={() => setPaymentMethod("payos")}
+                                            role="radio"
+                                            aria-checked={paymentMethod === "payos"}
+                                            tabIndex={0}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter" || e.key === " ")
+                                                    setPaymentMethod("payos");
+                                            }}
+                                        >
+                                            <div className="cgv-pay-method__radio">
+                                                <div className="cgv-pay-method__radio-dot" />
+                                            </div>
+                                            <span className="cgv-pay-method__icon">💳</span>
+                                            <div className="cgv-pay-method__info">
+                                                <p className="cgv-pay-method__name">PayOS</p>
+                                                <p className="cgv-pay-method__desc">
+                                                    Pay via PayOS gateway (QR / card)
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Wallet */}
+                                        <div
+                                            className={`cgv-pay-method${paymentMethod === "wallet" ? " cgv-pay-method--selected" : ""}`}
+                                            onClick={() => setPaymentMethod("wallet")}
+                                            role="radio"
+                                            aria-checked={paymentMethod === "wallet"}
+                                            tabIndex={0}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter" || e.key === " ")
+                                                    setPaymentMethod("wallet");
+                                            }}
+                                        >
+                                            <div className="cgv-pay-method__radio">
+                                                <div className="cgv-pay-method__radio-dot" />
+                                            </div>
+                                            <span className="cgv-pay-method__icon">👛</span>
+                                            <div className="cgv-pay-method__info">
+                                                <p className="cgv-pay-method__name">E-Wallet</p>
+                                                <p
+                                                    className={`cgv-pay-method__desc${walletInsufficient ? " cgv-pay-method__desc--warn" : ""}`}
+                                                >
+                                                    {walletData
+                                                        ? walletInsufficient
+                                                            ? `Insufficient balance (${formatPrice(walletBalance)})`
+                                                            : `Balance: ${formatPrice(walletBalance)}`
+                                                        : "Loading balance..."}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
 
@@ -571,26 +596,20 @@ const PaymentPage: FC = () => {
                                 <div className="cgv-pay-waiting">
                                     <div className="cgv-pay-waiting__spinner" />
                                     <p className="cgv-pay-waiting__title">
-                                        {paymentMethod === "payos"
-                                            ? "Đang chờ thanh toán PayOS"
-                                            : "Đang xử lý thanh toán"}
+                                        {effectivePaymentMethod === "payos"
+                                            ? "Waiting for PayOS payment"
+                                            : "Processing payment"}
                                     </p>
                                     <p className="cgv-pay-waiting__desc">
-                                        {paymentMethod === "payos"
-                                            ? "Trang PayOS đã được mở trong tab mới. Vui lòng hoàn tất thanh toán tại đó."
-                                            : "Đang xử lý thanh toán qua ví điện tử..."}
+                                        {effectivePaymentMethod === "payos"
+                                            ? "The PayOS page has opened in a new tab. Please complete your payment there."
+                                            : "Processing your e-wallet payment..."}
                                     </p>
                                     <div className="cgv-pay-waiting__dots">
                                         <div className="cgv-pay-waiting__dot" />
                                         <div className="cgv-pay-waiting__dot" />
                                         <div className="cgv-pay-waiting__dot" />
                                     </div>
-                                    <button
-                                        className="cgv-pay-cancel-btn"
-                                        onClick={handleCancelPayment}
-                                    >
-                                        Hủy thanh toán
-                                    </button>
                                 </div>
                             </div>
                         )}
@@ -611,14 +630,14 @@ const PaymentPage: FC = () => {
                                 disabled={!canPay}
                             >
                                 {isExpired
-                                    ? "Ghế đã hết hạn"
+                                    ? "Seat hold expired"
                                     : walletInsufficient
-                                        ? "Số dư ví không đủ"
+                                        ? "Insufficient wallet balance"
                                         : isPricingLoading
-                                            ? "Đang tải..."
+                                            ? "Loading..."
                                             : pricing
-                                                ? `Thanh toán ${formatPrice(pricing.finalAmount)}`
-                                                : "Thanh toán"}
+                                                ? `Pay ${formatPrice(pricing.finalAmount)}`
+                                                : "Pay"}
                             </button>
                         )}
                     </aside>
@@ -628,7 +647,7 @@ const PaymentPage: FC = () => {
             {/* ── Mobile bottom bar ── */}
             <div className="cgv-pay-mobile-bar" aria-live="polite">
                 <div className="cgv-pay-mobile-bar__row">
-                    <span className="cgv-pay-mobile-bar__label">Tổng thanh toán</span>
+                    <span className="cgv-pay-mobile-bar__label">Total</span>
                     <span className="cgv-pay-mobile-bar__total">
                         {pricing ? formatPrice(pricing.finalAmount) : "—"}
                     </span>
@@ -640,12 +659,12 @@ const PaymentPage: FC = () => {
                         disabled={!canPay}
                     >
                         {isExpired
-                            ? "Ghế đã hết hạn"
+                            ? "Seat hold expired"
                             : walletInsufficient
-                                ? "Số dư không đủ"
+                                ? "Insufficient balance"
                                 : isPricingLoading
-                                    ? "Đang tải..."
-                                    : "Thanh toán"}
+                                    ? "Loading..."
+                                    : "Pay"}
                     </button>
                 )}
             </div>
