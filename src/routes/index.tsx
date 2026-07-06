@@ -25,6 +25,7 @@ import ResetPasswordSuccessPage from "@/features/auth/pages/ResetPasswordPageSuc
 import CustomerDashboard from "@/features/customer/pages/CustomerDashboard";
 import MovieDetailPage from "@/features/movies/pages/MovieDetailPage";
 import CustomerProfilePage from "@/features/customer/pages/ProfilePage";
+import TicketDetailPage from "@/features/customer/pages/TicketDetailPage";
 import {
     CustomerProfileLayout,
     TicketsPage,
@@ -56,6 +57,7 @@ import PaymentPage from "@/features/booking/pages/PaymentPage";
 import BookingConfirmationPage from "@/features/booking/pages/BookingConfirmationPage";
 import TheatersPage from "@/features/public/pages/TheatersPage";
 import PromotionsPage from "@/features/public/pages/PromotionsPage";
+import AboutUsPage from "@/features/public/pages/AboutUsPage";
 import ForbiddenPage from "@/features/common/pages/ForbiddenPage";
 import NotFoundPage from "@/features/common/pages/NotFoundPage";
 
@@ -87,6 +89,10 @@ export const router = createBrowserRouter([
                     {
                         path: "promotions",
                         element: <PromotionsPage />,
+                    },
+                    {
+                        path: "about",
+                        element: <AboutUsPage />,
                     },
                 ],
             },
@@ -211,6 +217,17 @@ export const router = createBrowserRouter([
                             {
                                 path: "promotions",
                                 element: <PromotionsPage />,
+                            },
+                            {
+                                path: "about",
+                                element: <AboutUsPage />,
+                            },
+                            {
+                                // Sibling of "profile" (not nested inside CustomerProfileLayout) so
+                                // the ticket detail view renders full-screen, without the profile
+                                // sidebar — a focused "your ticket" screen rather than a settings page.
+                                path: "profile/tickets/:bookingId",
+                                element: <TicketDetailPage />,
                             },
                             {
                                 path: "profile",

@@ -1,28 +1,18 @@
-import { type FC, useState } from "react";
+import { type FC } from "react";
 import { Spin } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useMyBookings } from "@/features/booking/hooks/useMyBookings";
-import TicketQrList from "@/features/booking/components/TicketQrList";
 import type { MyBooking } from "@/features/booking/types/ticket.types";
 
 const fmtVnd = (n: number) => `${n.toLocaleString("vi-VN")} ₫`;
 
-const fmtTime = (iso: string): string => {
-    try {
-        return new Date(iso).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", hour12: false });
-    } catch { return ""; }
-};
-
-const fmtDate = (iso: string): string => {
-    try {
-        return new Date(iso).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
-    } catch { return ""; }
-};
-
 const fmtDateTime = (iso: string): string => {
-    const d = fmtDate(iso);
-    const t = fmtTime(iso);
-    return d && t ? `${t}, ${d}` : d || t;
+    try {
+        const d = new Date(iso);
+        const time = d.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", hour12: false });
+        const date = d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+        return `${time}, ${date}`;
+    } catch { return ""; }
 };
 
 const statusStyle = (status: string): { bg: string; color: string; label: string } => {
@@ -34,127 +24,73 @@ const statusStyle = (status: string): { bg: string; color: string; label: string
     return { bg: "rgba(148,163,184,0.14)", color: "#94a3b8", label: status };
 };
 
-const detailRow = (label: string, value: string) => (
-    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, padding: "3px 0" }}>
-        <span style={{ color: "#a08888" }}>{label}</span>
-        <span style={{ color: "#e8dcdc" }}>{value}</span>
-    </div>
-);
-
-const BookingCard: FC<{ booking: MyBooking }> = ({ booking }) => {
-    const [detailOpen, setDetailOpen] = useState(false);
-    const [ticketsOpen, setTicketsOpen] = useState(false);
+/** Simplified list card: poster + the essentials only. Full ticket/QR and
+ *  price breakdown now live on the dedicated detail page (one click away)
+ *  instead of expanding inline here. */
+const BookingCard: FC<{ booking: MyBooking; onViewDetail: () => void }> = ({ booking, onViewDetail }) => {
     const st = statusStyle(booking.status);
-    const seatLabels = (booking.seats ?? []).map((s) => `${s.seatRow}${String(s.seatCol).padStart(2, "0")}`);
-    const hasDiscount = booking.discountAmount > 0;
 
     return (
-        <div style={{
-            background: "rgba(20,6,6,0.92)",
-            border: "1px solid rgba(255,255,255,0.07)",
-            borderRadius: 14,
-            padding: "18px 20px",
-            marginBottom: 14,
-        }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
-                <div>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: "#f0e8e8", marginBottom: 4 }}>{booking.movieTitle}</div>
-                    {booking.startTime && (
-                        <div style={{ fontSize: 12.5, color: "#c8b0b0", marginBottom: 2 }}>
-                            {fmtDateTime(booking.startTime)}
-                        </div>
-                    )}
-                    {(booking.cinemaName || booking.roomName) && (
-                        <div style={{ fontSize: 12.5, color: "#a08888", marginBottom: 2 }}>
-                            {booking.cinemaName}{booking.cinemaName && booking.roomName ? " · " : ""}{booking.roomName}
-                        </div>
-                    )}
-                    <div style={{ fontSize: 12.5, color: "#a08888" }}>
-                        Code: <span style={{ color: "#c8b0b0", letterSpacing: "0.04em" }}>{booking.bookingCode}</span>
-                    </div>
-                    {seatLabels.length > 0 && (
-                        <div style={{ fontSize: 12.5, color: "#a08888", marginTop: 3 }}>
-                            Seats: <span style={{ color: "#c8b0b0" }}>{seatLabels.join(", ")}</span>
-                        </div>
-                    )}
-                </div>
-                <div style={{ textAlign: "right" }}>
+        <div
+            style={{
+                display: "flex",
+                gap: 16,
+                background: "rgba(20,6,6,0.92)",
+                border: "1px solid rgba(255,255,255,0.07)",
+                borderRadius: 14,
+                padding: 16,
+                marginBottom: 14,
+                cursor: "pointer",
+            }}
+            onClick={onViewDetail}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onViewDetail(); }}
+        >
+            {booking.movie.posterUrl && (
+                <img
+                    src={booking.movie.posterUrl}
+                    alt={booking.movie.title}
+                    style={{ width: 64, height: 96, flexShrink: 0, objectFit: "cover", borderRadius: 8, background: "rgba(255,255,255,0.05)" }}
+                />
+            )}
+
+            <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+                    <div style={{ fontSize: 15.5, fontWeight: 700, color: "#f0e8e8" }}>{booking.movie.title}</div>
                     <span style={{
-                        fontSize: 10.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
+                        flexShrink: 0, fontSize: 10.5, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
                         padding: "3px 12px", borderRadius: 100, background: st.bg, color: st.color,
                     }}>
                         {st.label}
                     </span>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: "#f0e8e8", marginTop: 8 }}>{fmtVnd(booking.finalAmount)}</div>
                 </div>
-            </div>
 
-            <div style={{ marginTop: 14, display: "flex", justifyContent: "flex-end", gap: 8 }}>
-                <button
-                    onClick={() => setDetailOpen((v) => !v)}
-                    style={{
-                        border: "1px solid rgba(255,255,255,0.16)", background: "rgba(255,255,255,0.05)",
-                        color: "#e8dcdc", borderRadius: 8, padding: "7px 16px", fontSize: 12.5,
-                        fontWeight: 600, cursor: "pointer",
-                    }}
-                >
-                    {detailOpen ? "Hide detail" : "View detail"}
-                </button>
-                <button
-                    onClick={() => setTicketsOpen((v) => !v)}
-                    style={{
-                        border: "1px solid rgba(232,0,28,0.4)", background: "rgba(232,0,28,0.08)",
-                        color: "#f0a8a8", borderRadius: 8, padding: "7px 16px", fontSize: 12.5,
-                        fontWeight: 600, cursor: "pointer",
-                    }}
-                >
-                    {ticketsOpen ? "Hide tickets" : "View tickets"}
-                </button>
-            </div>
-
-            {detailOpen && (
-                <div style={{ marginTop: 16, borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 16 }}>
-                    <p style={{ margin: "0 0 6px", fontSize: 12.5, fontWeight: 700, color: "#f0e8e8", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-                        Booking detail
-                    </p>
-                    {detailRow("Booked on", fmtDateTime(booking.bookingDate))}
-                    {detailRow("Subtotal", fmtVnd(booking.subTotal))}
-                    {hasDiscount && detailRow("Discount", `-${fmtVnd(booking.discountAmount)}`)}
-                    {booking.voucherApplied && detailRow(
-                        `Voucher (${booking.voucherApplied.voucherCode})`,
-                        `-${fmtVnd(booking.voucherApplied.discountApplied)}`,
-                    )}
-                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13.5, padding: "6px 0 0", marginTop: 4, borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-                        <span style={{ color: "#e8dcdc", fontWeight: 700 }}>Total</span>
-                        <span style={{ color: "#f0e8e8", fontWeight: 700 }}>{fmtVnd(booking.finalAmount)}</span>
+                {booking.startTime && (
+                    <div style={{ fontSize: 12.5, color: "#c8b0b0", marginTop: 6 }}>
+                        {fmtDateTime(booking.startTime)}
                     </div>
+                )}
+                {(booking.cinemaName || booking.roomName) && (
+                    <div style={{ fontSize: 12.5, color: "#a08888", marginTop: 2 }}>
+                        {booking.cinemaName}{booking.cinemaName && booking.roomName ? " · " : ""}{booking.roomName}
+                    </div>
+                )}
 
-                    {booking.fnbItems.length > 0 && (
-                        <div style={{ marginTop: 14 }}>
-                            <p style={{ margin: "0 0 6px", fontSize: 12.5, fontWeight: 700, color: "#f0e8e8", textTransform: "uppercase", letterSpacing: "0.04em" }}>
-                                Food &amp; drinks
-                            </p>
-                            {booking.fnbItems.map((item, i) => (
-                                <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, padding: "3px 0" }}>
-                                    <span style={{ color: "#a08888" }}>{item.itemName} × {item.quantity}</span>
-                                    <span style={{ color: "#e8dcdc" }}>{fmtVnd(item.subTotal)}</span>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10 }}>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: "#f0e8e8" }}>{fmtVnd(booking.finalAmount)}</span>
+                    <button
+                        onClick={(e) => { e.stopPropagation(); onViewDetail(); }}
+                        style={{
+                            border: "1px solid rgba(232,0,28,0.4)", background: "rgba(232,0,28,0.08)",
+                            color: "#f0a8a8", borderRadius: 8, padding: "6px 14px", fontSize: 12,
+                            fontWeight: 600, cursor: "pointer",
+                        }}
+                    >
+                        View Detail
+                    </button>
                 </div>
-            )}
-
-            {ticketsOpen && (
-                <div style={{ marginTop: 16, borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 16 }}>
-                    <TicketQrList
-                        bookingId={booking.bookingID}
-                        seats={booking.seats}
-                        movieTitle={booking.movieTitle}
-                        bookingCode={booking.bookingCode}
-                    />
-                </div>
-            )}
+            </div>
         </div>
     );
 };
@@ -192,7 +128,13 @@ const MyTicketsPage: FC = () => {
                 </div>
             ) : (
                 <div>
-                    {bookings.map((b) => <BookingCard key={b.bookingID} booking={b} />)}
+                    {bookings.map((b) => (
+                        <BookingCard
+                            key={b.bookingID}
+                            booking={b}
+                            onViewDetail={() => navigate(`/customer/profile/tickets/${b.bookingID}`)}
+                        />
+                    ))}
                 </div>
             )}
         </div>

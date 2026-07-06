@@ -42,8 +42,14 @@ const ShowtimeModal: FC<Props> = ({ mode, showtime, cinemaId, open, onClose }) =
     const isLoading = creating || updating;
 
     const movieOptions = useMemo(
-        () => (movieData?.items ?? []).map((m) => ({ value: m.movieId, label: m.title })),
+        () => (movieData?.items ?? []).map((m) => ({ value: m.movieId, label: m.title, posterUrl: m.posterUrl })),
         [movieData],
+    );
+
+    const selectedMovieId = Form.useWatch("movieId", form);
+    const selectedMovie = useMemo(
+        () => (movieData?.items ?? []).find((m) => m.movieId === selectedMovieId) ?? null,
+        [movieData, selectedMovieId],
     );
 
     const roomOptions = useMemo(
@@ -112,8 +118,74 @@ const ShowtimeModal: FC<Props> = ({ mode, showtime, cinemaId, open, onClose }) =
                         options={movieOptions}
                         showSearch
                         optionFilterProp="label"
+                        optionRender={(option) => (
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                {option.data.posterUrl ? (
+                                    <img
+                                        src={option.data.posterUrl}
+                                        alt=""
+                                        style={{ width: 24, height: 36, objectFit: "cover", borderRadius: 3, flexShrink: 0 }}
+                                    />
+                                ) : (
+                                    <div style={{ width: 24, height: 36, borderRadius: 3, background: "rgba(0,0,0,0.08)", flexShrink: 0 }} />
+                                )}
+                                <span>{option.data.label}</span>
+                            </div>
+                        )}
                     />
                 </Form.Item>
+
+                {selectedMovie && (
+                    <div
+                        style={{
+                            display: "flex",
+                            alignItems: "flex-start",
+                            gap: 12,
+                            padding: 12,
+                            marginTop: -12,
+                            marginBottom: 24,
+                            background: "rgba(0,0,0,0.03)",
+                            border: "1px solid rgba(0,0,0,0.06)",
+                            borderRadius: 8,
+                        }}
+                    >
+                        {selectedMovie.posterUrl ? (
+                            <img
+                                src={selectedMovie.posterUrl}
+                                alt={selectedMovie.title}
+                                style={{ width: 52, height: 78, objectFit: "cover", borderRadius: 4, flexShrink: 0 }}
+                            />
+                        ) : (
+                            <div style={{ width: 52, height: 78, borderRadius: 4, flexShrink: 0, background: "rgba(0,0,0,0.08)" }} />
+                        )}
+                        <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }}>
+                            <span style={{ fontSize: 14, fontWeight: 700 }}>{selectedMovie.title}</span>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "rgba(0,0,0,0.55)" }}>
+                                {selectedMovie.ageRating && <span>{selectedMovie.ageRating}</span>}
+                                {selectedMovie.durationMinutes ? <span>{selectedMovie.durationMinutes} min</span> : null}
+                            </div>
+                            {selectedMovie.genres && selectedMovie.genres.length > 0 && (
+                                <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                                    {selectedMovie.genres.map((g) => (
+                                        <span
+                                            key={g}
+                                            style={{
+                                                fontSize: 10.5,
+                                                fontWeight: 600,
+                                                padding: "2px 8px",
+                                                borderRadius: 100,
+                                                background: "rgba(232,0,28,0.08)",
+                                                color: "#b50016",
+                                            }}
+                                        >
+                                            {g}
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
 
                 <Form.Item label="Room" name="roomId" rules={[{ required: true, message: "Please select a room" }]}>
                     <Select

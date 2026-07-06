@@ -212,7 +212,9 @@ const BookingConfirmationPage: FC = () => {
                         <TicketQrList
                             bookingId={booking.bookingID}
                             seats={booking.seats}
-                            movieTitle={booking.movieTitle}
+                            cinemaName={booking.cinemaName}
+                            roomName={booking.roomName}
+                            startTime={booking.startTime}
                             bookingCode={booking.bookingCode}
                         />
                     </div>

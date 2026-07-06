@@ -32,11 +32,21 @@ export interface MyBookingVoucher {
     discountApplied: number;
 }
 
+export interface MyBookingMovie {
+    title: string;
+    posterUrl: string;
+    ageRating: string;
+    durationMinutes: number;
+}
+
 export interface MyBooking {
     bookingID: number;
     bookingCode: string;
     showtimeID: number;
+    /** @deprecated superseded by `movie.title` — kept in case the API still
+     *  sends this flat field alongside the new nested `movie` object. */
     movieTitle: string;
+    movie: MyBookingMovie;
     startTime: string;
     cinemaName: string;
     roomName: string;

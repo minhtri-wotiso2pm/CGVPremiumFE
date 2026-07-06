@@ -28,6 +28,34 @@ const TrashIcon = () => (
         <path d="M10 11v6M14 11v6" />
     </svg>
 );
+const RefreshIcon = ({ spin }: { spin: boolean }) => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "transform 0.5s", transform: spin ? "rotate(360deg)" : "rotate(0deg)" }}>
+        <polyline points="23 4 23 10 17 10" />
+        <polyline points="1 20 1 14 7 14" />
+        <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
+    </svg>
+);
+
+/* ── Stat pill (mirrors CinemaManagementPage) ── */
+const StatPill: FC<{ label: string; value: number; accent?: boolean; muted?: boolean }> = ({
+    label, value, accent, muted,
+}) => (
+    <div style={{
+        display: "flex", alignItems: "center", gap: 8,
+        padding: "6px 14px", borderRadius: 20,
+        background: accent ? "rgba(232,0,28,0.06)" : muted ? "rgba(0,0,0,0.03)" : "rgba(34,197,94,0.06)",
+        border: `1px solid ${accent ? "rgba(232,0,28,0.14)" : muted ? "var(--dash-border)" : "rgba(34,197,94,0.18)"}`,
+    }}>
+        <span style={{
+            width: 6, height: 6, borderRadius: "50%", flexShrink: 0,
+            background: accent ? "#E8001C" : muted ? "var(--dash-text-3)" : "#22c55e",
+        }} />
+        <span style={{ fontSize: 12, fontWeight: 600, color: "var(--dash-text-1)", fontVariantNumeric: "tabular-nums" }}>
+            {value}
+        </span>
+        <span style={{ fontSize: 12, color: "var(--dash-text-2)" }}>{label}</span>
+    </div>
+);
 
 const fmtDate = (iso: string) => (iso ? dayjs(iso.slice(0, 10)).format("DD/MM/YYYY") : "—");
 const fmtDiscount = (v: Voucher) =>
@@ -47,6 +75,19 @@ const VoucherManagementPage: FC = () => {
     const { data, isLoading, isError, refetch, isFetching } = useVouchers(params);
     const items = data?.items ?? [];
     const total = data?.totalItems ?? items.length;
+
+    // Dedicated unfiltered/unpaginated fetch so the summary pills reflect
+    // all promotions, not just whatever fits on the current table page.
+    const { data: statsData } = useVouchers({ pageIndex: 1, pageSize: 1000 });
+    const stats = useMemo(() => {
+        const all = statsData?.items ?? [];
+        const now = dayjs();
+        return {
+            total: statsData?.totalItems ?? all.length,
+            active: all.filter((v) => v.isActive).length,
+            expired: all.filter((v) => dayjs(v.validUntil.slice(0, 10)).isBefore(now, "day")).length,
+        };
+    }, [statsData]);
 
     const openModal = (t: VoucherModalType, voucher?: Voucher) => {
         setSelected(voucher ?? null);
@@ -153,9 +194,13 @@ const VoucherManagementPage: FC = () => {
                         <h1 className="dash-page-title">Promotion Management</h1>
                         <p className="dash-page-sub">Create and manage discount vouchers and promotional campaigns.</p>
                     </div>
-                    <Button type="primary" icon={<PlusIcon />} onClick={() => openModal("create")} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        Add Promotion
-                    </Button>
+                    {!isLoading && !isError && stats.total > 0 && (
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                            <StatPill label="Total" value={stats.total} muted />
+                            <StatPill label="Active" value={stats.active} />
+                            <StatPill label="Expired" value={stats.expired} accent />
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -169,6 +214,16 @@ const VoucherManagementPage: FC = () => {
                         onSearch={(v) => { setApplied(v); setPage(1); }}
                         style={{ width: 260 }}
                     />
+                </div>
+                <div className="dash-toolbar__right">
+                    <Tooltip title="Refresh data">
+                        <button className="dash-icon-btn" onClick={() => refetch()} aria-label="Refresh" disabled={isFetching}>
+                            <RefreshIcon spin={isFetching} />
+                        </button>
+                    </Tooltip>
+                    <Button type="primary" icon={<PlusIcon />} onClick={() => openModal("create")} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        Add Promotion
+                    </Button>
                 </div>
             </div>
 

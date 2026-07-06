@@ -32,6 +32,34 @@ const TrashIcon = () => (
         <path d="M10 11v6M14 11v6" />
     </svg>
 );
+const RefreshIcon = ({ spin }: { spin: boolean }) => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "transform 0.5s", transform: spin ? "rotate(360deg)" : "rotate(0deg)" }}>
+        <polyline points="23 4 23 10 17 10" />
+        <polyline points="1 20 1 14 7 14" />
+        <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
+    </svg>
+);
+
+/* ── Stat pill (mirrors CinemaManagementPage) ── */
+const StatPill: FC<{ label: string; value: number; accent?: boolean; muted?: boolean }> = ({
+    label, value, accent, muted,
+}) => (
+    <div style={{
+        display: "flex", alignItems: "center", gap: 8,
+        padding: "6px 14px", borderRadius: 20,
+        background: accent ? "rgba(232,0,28,0.06)" : muted ? "rgba(0,0,0,0.03)" : "rgba(34,197,94,0.06)",
+        border: `1px solid ${accent ? "rgba(232,0,28,0.14)" : muted ? "var(--dash-border)" : "rgba(34,197,94,0.18)"}`,
+    }}>
+        <span style={{
+            width: 6, height: 6, borderRadius: "50%", flexShrink: 0,
+            background: accent ? "#E8001C" : muted ? "var(--dash-text-3)" : "#22c55e",
+        }} />
+        <span style={{ fontSize: 12, fontWeight: 600, color: "var(--dash-text-1)", fontVariantNumeric: "tabular-nums" }}>
+            {value}
+        </span>
+        <span style={{ fontSize: 12, color: "var(--dash-text-2)" }}>{label}</span>
+    </div>
+);
 
 const fmtDate = (iso: string) => (iso ? dayjs(iso.slice(0, 19)).format("DD/MM/YYYY") : "—");
 const fmtTime = (iso: string) => (iso ? dayjs(iso.slice(0, 19)).format("HH:mm") : "");
@@ -66,6 +94,22 @@ const ShowtimeManagementPage: FC = () => {
     const items = data?.items ?? [];
     const total = data?.totalItems ?? items.length;
 
+    // Dedicated unfiltered/unpaginated fetch so the summary pills reflect
+    // all of this cinema's showtimes, not just the current date/status filter page.
+    const statsParams = useMemo(
+        () => ({ cinemaId: cinemaId ?? undefined, page: 1, pageSize: 1000, sortBy: "startTime", sortDir: "asc" }),
+        [cinemaId],
+    );
+    const { data: statsData } = useManagerShowtimes(statsParams, cinemaId != null);
+    const stats = useMemo(() => {
+        const all = statsData?.items ?? [];
+        return {
+            total: statsData?.totalItems ?? all.length,
+            scheduled: all.filter((s) => s.status === "scheduled").length,
+            cancelled: all.filter((s) => s.status === "cancelled").length,
+        };
+    }, [statsData]);
+
     const openModal = (t: ShowtimeModalType, showtime?: ManagerShowtime) => {
         setSelected(showtime ?? null);
         setModalType(t);
@@ -82,11 +126,27 @@ const ShowtimeManagementPage: FC = () => {
             title: "Movie",
             key: "movie",
             render: (_, r) => (
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                    <span style={{ fontWeight: 600, fontSize: 13, color: "var(--dash-text-1)" }}>{r.movie.title}</span>
-                    {r.movie.ageRating && (
-                        <span style={{ fontSize: 11, color: "var(--dash-text-3)" }}>{r.movie.ageRating}</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    {r.movie.posterUrl ? (
+                        <img
+                            src={r.movie.posterUrl}
+                            alt=""
+                            style={{ width: 32, height: 46, objectFit: "cover", borderRadius: 4, flexShrink: 0 }}
+                        />
+                    ) : (
+                        <div style={{ width: 32, height: 46, borderRadius: 4, flexShrink: 0, background: "var(--dash-border)" }} />
                     )}
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                        <span style={{ fontWeight: 600, fontSize: 13, color: "var(--dash-text-1)" }}>{r.movie.title}</span>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            {r.movie.ageRating && (
+                                <span style={{ fontSize: 11, color: "var(--dash-text-3)" }}>{r.movie.ageRating}</span>
+                            )}
+                            {r.movie.durationMin ? (
+                                <span style={{ fontSize: 11, color: "var(--dash-text-3)" }}>· {r.movie.durationMin} min</span>
+                            ) : null}
+                        </div>
+                    </div>
                 </div>
             ),
         },
@@ -173,15 +233,13 @@ const ShowtimeManagementPage: FC = () => {
                             Schedule and manage showtimes{user?.cinema ? ` for ${user.cinema.cinemaName}` : ""}.
                         </p>
                     </div>
-                    <Button
-                        type="primary"
-                        icon={<PlusIcon />}
-                        onClick={() => openModal("create")}
-                        disabled={!cinemaId}
-                        style={{ display: "flex", alignItems: "center", gap: 6 }}
-                    >
-                        Add Showtime
-                    </Button>
+                    {cinemaId && !isLoading && stats.total > 0 && (
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                            <StatPill label="Total" value={stats.total} muted />
+                            <StatPill label="Scheduled" value={stats.scheduled} />
+                            <StatPill label="Cancelled" value={stats.cancelled} accent />
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -208,6 +266,21 @@ const ShowtimeManagementPage: FC = () => {
                                 options={[...SHOWTIME_STATUS_FILTER_OPTIONS]}
                                 style={{ width: 150 }}
                             />
+                        </div>
+                        <div className="dash-toolbar__right">
+                            <Tooltip title="Refresh data">
+                                <button className="dash-icon-btn" onClick={() => refetch()} aria-label="Refresh" disabled={isFetching}>
+                                    <RefreshIcon spin={isFetching} />
+                                </button>
+                            </Tooltip>
+                            <Button
+                                type="primary"
+                                icon={<PlusIcon />}
+                                onClick={() => openModal("create")}
+                                style={{ display: "flex", alignItems: "center", gap: 6 }}
+                            >
+                                Add Showtime
+                            </Button>
                         </div>
                     </div>
 

@@ -3,22 +3,21 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import type { Cinema } from "@/features/manager/types/cinema.types";
 import "leaflet/dist/leaflet.css";
-import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
-import markerIcon from "leaflet/dist/images/marker-icon.png";
-import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
-// Vite fingerprints leaflet's default marker image paths, which breaks the
-// library's own lookup at runtime — point it at the bundled asset URLs.
-const defaultIcon = L.icon({
-    iconUrl: markerIcon,
-    iconRetinaUrl: markerIcon2x,
-    shadowUrl: markerShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
+// Brand-red pin (matches the site's crimson accent) instead of Leaflet's
+// default blue marker — a self-contained inline SVG, same teardrop shape
+// used elsewhere on this page (e.g. the "Get Directions" pin icon), so no
+// external image asset is needed.
+const redPin = L.divIcon({
+    className: "thtr-map-pin",
+    html: `<svg width="30" height="42" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" fill="#E8001C" stroke="#7a0010" stroke-width="0.6"/>
+        <circle cx="12" cy="10" r="3.5" fill="#fff"/>
+    </svg>`,
+    iconSize: [30, 42],
+    iconAnchor: [15, 42],
+    popupAnchor: [0, -38],
 });
-L.Marker.prototype.options.icon = defaultIcon;
 
 const VIETNAM_CENTER: [number, number] = [16.0, 106.0];
 const DEFAULT_ZOOM = 6;
@@ -82,6 +81,7 @@ const TheaterMap: FC<Props> = ({ cinemas, selectedCinemaId, onSelect }) => {
                     <Marker
                         key={c.cinemaId}
                         position={[c.latitude, c.longitude]}
+                        icon={redPin}
                         eventHandlers={{ click: () => onSelect(c.cinemaId) }}
                     >
                         <Popup>

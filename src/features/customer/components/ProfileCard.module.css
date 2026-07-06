@@ -9,12 +9,10 @@
 
 .skeletonHero {
     height: 140px;
-    background: linear-gradient(
-        135deg,
-        rgba(20, 3, 3, 1) 0%,
-        rgba(60, 6, 16, 0.75) 50%,
-        rgba(12, 2, 2, 1) 100%
-    );
+    background: linear-gradient(135deg,
+            rgba(20, 3, 3, 1) 0%,
+            rgba(60, 6, 16, 0.75) 50%,
+            rgba(12, 2, 2, 1) 100%);
     position: relative;
     overflow: hidden;
 }
@@ -23,18 +21,21 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.035) 50%,
-        transparent 100%
-    );
+    background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.035) 50%,
+            transparent 100%);
     animation: skeletonSweep 1.8s ease-in-out infinite;
 }
 
 @keyframes skeletonSweep {
-    0%   { transform: translateX(-100%); }
-    100% { transform: translateX(100%); }
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 .skeletonBody {
@@ -63,8 +64,15 @@
 }
 
 @keyframes cardIn {
-    from { opacity: 0; transform: translateY(18px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* ─── Hero banner ─── */
@@ -72,13 +80,11 @@
     position: relative;
     height: 140px;
     background:
-        linear-gradient(
-            158deg,
+        linear-gradient(158deg,
             rgba(6, 1, 1, 1) 0%,
             rgba(90, 8, 22, 0.92) 35%,
             rgba(155, 10, 32, 0.55) 58%,
-            rgba(6, 1, 1, 1) 100%
-        );
+            rgba(6, 1, 1, 1) 100%);
     overflow: hidden;
 }
 
@@ -94,13 +100,11 @@
 .heroLines {
     position: absolute;
     inset: 0;
-    background: repeating-linear-gradient(
-        90deg,
-        transparent,
-        transparent 58px,
-        rgba(255, 255, 255, 0.018) 58px,
-        rgba(255, 255, 255, 0.018) 60px
-    );
+    background: repeating-linear-gradient(90deg,
+            transparent,
+            transparent 58px,
+            rgba(255, 255, 255, 0.018) 58px,
+            rgba(255, 255, 255, 0.018) 60px);
     pointer-events: none;
 }
 
@@ -213,6 +217,7 @@
 }
 
 .memberBadge {
+    font-family: 'Inter', sans-serif;
     font-size: 9px;
     font-weight: 700;
     letter-spacing: 0.22em;
@@ -277,11 +282,9 @@
 /* ─── Points section ─── */
 .pointsSection {
     margin: 0 20px 28px;
-    background: linear-gradient(
-        135deg,
-        rgba(245, 158, 11, 0.065) 0%,
-        rgba(200, 120, 6, 0.09) 100%
-    );
+    background: linear-gradient(135deg,
+            rgba(245, 158, 11, 0.065) 0%,
+            rgba(200, 120, 6, 0.09) 100%);
     border: 1px solid rgba(245, 158, 11, 0.2);
     border-radius: 12px;
     padding: 18px 22px;
@@ -349,17 +352,47 @@
 
 /* ─── Responsive ─── */
 @media (max-width: 720px) {
-    .hero { height: 110px; }
-    .identity { margin-top: -48px; }
-    .avatar { width: 96px; height: 96px; }
-    .name { font-size: 20px; }
-    .infoGrid { grid-template-columns: repeat(2, 1fr); }
-    .infoItem { padding: 16px 14px; }
-    .pointsSection { margin: 0 16px 24px; padding: 14px 16px; }
-    .points { font-size: 28px; }
+    .hero {
+        height: 110px;
+    }
+
+    .identity {
+        margin-top: -48px;
+    }
+
+    .avatar {
+        width: 96px;
+        height: 96px;
+    }
+
+    .name {
+        font-size: 20px;
+    }
+
+    .infoGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .infoItem {
+        padding: 16px 14px;
+    }
+
+    .pointsSection {
+        margin: 0 16px 24px;
+        padding: 14px 16px;
+    }
+
+    .points {
+        font-size: 28px;
+    }
 }
 
 @media (max-width: 420px) {
-    .infoGrid { grid-template-columns: 1fr; }
-    .heroBtn span:last-child { display: none; }
+    .infoGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .heroBtn span:last-child {
+        display: none;
+    }
 }

@@ -44,9 +44,13 @@ const TheaterCard: FC<{ cinema: Cinema; selected: boolean; onSelect: () => void 
 
     return (
         <div className={`thtr-card${selected ? " thtr-card--selected" : ""}`}>
-            <div className="thtr-card__icon"><CinemaIcon /></div>
-            <h3 className="thtr-card__name">{cinema.cinemaName}</h3>
-            <p className="thtr-card__address">{cinema.address}</p>
+            <div className="thtr-card__head">
+                <div className="thtr-card__icon"><CinemaIcon /></div>
+                <div className="thtr-card__info">
+                    <h3 className="thtr-card__name">{cinema.cinemaName}</h3>
+                    <p className="thtr-card__address">{cinema.address}</p>
+                </div>
+            </div>
 
             <div className="thtr-card__actions">
                 <button

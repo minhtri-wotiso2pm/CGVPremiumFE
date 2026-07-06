@@ -40,6 +40,34 @@ const TrashIcon = () => (
         <path d="M10 11v6M14 11v6" />
     </svg>
 );
+const RefreshIcon = ({ spin }: { spin: boolean }) => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "transform 0.5s", transform: spin ? "rotate(360deg)" : "rotate(0deg)" }}>
+        <polyline points="23 4 23 10 17 10" />
+        <polyline points="1 20 1 14 7 14" />
+        <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
+    </svg>
+);
+
+/* ── Stat pill (mirrors CinemaManagementPage) ── */
+const StatPill: FC<{ label: string; value: number; accent?: boolean; muted?: boolean }> = ({
+    label, value, accent, muted,
+}) => (
+    <div style={{
+        display: "flex", alignItems: "center", gap: 8,
+        padding: "6px 14px", borderRadius: 20,
+        background: accent ? "rgba(232,0,28,0.06)" : muted ? "rgba(0,0,0,0.03)" : "rgba(34,197,94,0.06)",
+        border: `1px solid ${accent ? "rgba(232,0,28,0.14)" : muted ? "var(--dash-border)" : "rgba(34,197,94,0.18)"}`,
+    }}>
+        <span style={{
+            width: 6, height: 6, borderRadius: "50%", flexShrink: 0,
+            background: accent ? "#E8001C" : muted ? "var(--dash-text-3)" : "#22c55e",
+        }} />
+        <span style={{ fontSize: 12, fontWeight: 600, color: "var(--dash-text-1)", fontVariantNumeric: "tabular-nums" }}>
+            {value}
+        </span>
+        <span style={{ fontSize: 12, color: "var(--dash-text-2)" }}>{label}</span>
+    </div>
+);
 
 const RoomManagementPage: FC = () => {
     const navigate = useNavigate();
@@ -48,7 +76,7 @@ const RoomManagementPage: FC = () => {
     const user = useAppSelector((s) => s.auth.user);
     const cinemaId = user?.cinema?.cinemaId ?? null;
 
-    const { data: allRooms = [], isLoading, isError, refetch } = useRooms();
+    const { data: allRooms = [], isLoading, isError, refetch, isFetching } = useRooms();
 
     const [search, setSearch] = useState("");
     const [type, setType] = useState("");
@@ -61,6 +89,12 @@ const RoomManagementPage: FC = () => {
         () => (cinemaId ? allRooms.filter((r) => r.cinemaId === cinemaId) : allRooms),
         [allRooms, cinemaId],
     );
+
+    const stats = useMemo(() => ({
+        total: rooms.length,
+        active: rooms.filter((r) => r.status === "ACTIVE").length,
+        inactive: rooms.filter((r) => r.status !== "ACTIVE").length,
+    }), [rooms]);
 
     const filtered = useMemo(() => {
         let result = rooms;
@@ -164,15 +198,13 @@ const RoomManagementPage: FC = () => {
                             Manage screening rooms{user?.cinema ? ` for ${user.cinema.cinemaName}` : ""}.
                         </p>
                     </div>
-                    <Button
-                        type="primary"
-                        icon={<PlusIcon />}
-                        onClick={() => openModal("create")}
-                        disabled={!cinemaId}
-                        style={{ display: "flex", alignItems: "center", gap: 6 }}
-                    >
-                        Add Room
-                    </Button>
+                    {cinemaId && !isLoading && rooms.length > 0 && (
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                            <StatPill label="Total" value={stats.total} muted />
+                            <StatPill label="Active" value={stats.active} />
+                            <StatPill label="Inactive" value={stats.inactive} accent />
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -191,6 +223,21 @@ const RoomManagementPage: FC = () => {
                             <Search placeholder="Search by room name..." allowClear value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: 240 }} />
                             <Select value={type} onChange={setType} options={[...ROOM_TYPE_FILTER_OPTIONS]} style={{ width: 130 }} />
                             <Select value={status} onChange={setStatus} options={[...ROOM_STATUS_FILTER_OPTIONS]} style={{ width: 136 }} />
+                        </div>
+                        <div className="dash-toolbar__right">
+                            <Tooltip title="Refresh data">
+                                <button className="dash-icon-btn" onClick={() => refetch()} aria-label="Refresh" disabled={isFetching}>
+                                    <RefreshIcon spin={isFetching} />
+                                </button>
+                            </Tooltip>
+                            <Button
+                                type="primary"
+                                icon={<PlusIcon />}
+                                onClick={() => openModal("create")}
+                                style={{ display: "flex", alignItems: "center", gap: 6 }}
+                            >
+                                Add Room
+                            </Button>
                         </div>
                     </div>
 

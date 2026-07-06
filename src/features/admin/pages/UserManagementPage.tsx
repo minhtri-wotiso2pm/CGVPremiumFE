@@ -1,4 +1,4 @@
-import { useState, useCallback, type FC } from "react";
+import { useState, useCallback, useMemo, type FC } from "react";
 import { useUsers } from "../hooks/useUsers";
 import { useDebounce } from "@/hooks/useDebounce";
 import { ADMIN_PAGE_SIZE } from "../constants/admin.constants";
@@ -11,6 +11,27 @@ import ChangeRoleModal from "../components/ChangeRoleModal";
 import ChangeStatusModal from "../components/ChangeStatusModal";
 import ChangePasswordModal from "../components/ChangePasswordModal";
 import DeleteUserModal from "../components/DeleteUserModal";
+
+/* ── Stat pill (mirrors CinemaManagementPage) ── */
+const StatPill: FC<{ label: string; value: number; accent?: boolean; muted?: boolean }> = ({
+    label, value, accent, muted,
+}) => (
+    <div style={{
+        display: "flex", alignItems: "center", gap: 8,
+        padding: "6px 14px", borderRadius: 20,
+        background: accent ? "rgba(232,0,28,0.06)" : muted ? "rgba(0,0,0,0.03)" : "rgba(34,197,94,0.06)",
+        border: `1px solid ${accent ? "rgba(232,0,28,0.14)" : muted ? "var(--dash-border)" : "rgba(34,197,94,0.18)"}`,
+    }}>
+        <span style={{
+            width: 6, height: 6, borderRadius: "50%", flexShrink: 0,
+            background: accent ? "#E8001C" : muted ? "var(--dash-text-3)" : "#22c55e",
+        }} />
+        <span style={{ fontSize: 12, fontWeight: 600, color: "var(--dash-text-1)", fontVariantNumeric: "tabular-nums" }}>
+            {value}
+        </span>
+        <span style={{ fontSize: 12, color: "var(--dash-text-2)" }}>{label}</span>
+    </div>
+);
 
 const UserManagementPage: FC = () => {
     /* ── Filters ── */
@@ -33,6 +54,18 @@ const UserManagementPage: FC = () => {
 
     /* ── Data ── */
     const { data, isLoading, isFetching } = useUsers(params);
+
+    // Dedicated unfiltered/unpaginated fetch so the summary pills reflect
+    // all users, not just whatever fits on the current filtered table page.
+    const { data: statsData } = useUsers({ page: 1, pageSize: 1000 });
+    const stats = useMemo(() => {
+        const all = statsData?.items ?? [];
+        return {
+            total: statsData?.totalItems ?? all.length,
+            active: all.filter((u) => u.status === "active").length,
+            banned: all.filter((u) => u.status === "banned").length,
+        };
+    }, [statsData]);
 
     /* ── Active modal + selected user ── */
     const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
@@ -77,11 +110,20 @@ const UserManagementPage: FC = () => {
         <div className="dash-fade-in">
             {/* Page header */}
             <div className="dash-page-header">
-                <div>
-                    <h1 className="dash-page-title">User Management</h1>
-                    <p className="dash-page-sub">
-                        {data?.totalItems !== undefined ? `${data.totalItems} total users` : "Loading…"}
-                    </p>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+                    <div>
+                        <h1 className="dash-page-title">User Management</h1>
+                        <p className="dash-page-sub">
+                            {data?.totalItems !== undefined ? `${data.totalItems} total users` : "Loading…"}
+                        </p>
+                    </div>
+                    {stats.total > 0 && (
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                            <StatPill label="Total" value={stats.total} muted />
+                            <StatPill label="Active" value={stats.active} />
+                            <StatPill label="Banned" value={stats.banned} accent />
+                        </div>
+                    )}
                 </div>
             </div>
 

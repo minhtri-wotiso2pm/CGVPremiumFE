@@ -19,5 +19,17 @@ export const createBookingApi = async (payload: CreateBookingRequest): Promise<B
 
 export const getMyBookingsApi = async (): Promise<MyBooking[]> => {
     const { data } = await axiosInstance.get("/bookings/my");
-    return Array.isArray(data) ? data : (data?.items ?? []);
+    const list: Record<string, unknown>[] = Array.isArray(data) ? data : (data?.items ?? []);
+    return list.map((b) => {
+        const rawMovie = (b.movie ?? {}) as Record<string, unknown>;
+        return {
+            ...(b as unknown as MyBooking),
+            movie: {
+                title: String(rawMovie.title ?? b.movieTitle ?? ""),
+                posterUrl: String(rawMovie.posterUrl ?? ""),
+                ageRating: String(rawMovie.ageRating ?? ""),
+                durationMinutes: Number(rawMovie.durationMinutes ?? 0),
+            },
+        };
+    });
 };

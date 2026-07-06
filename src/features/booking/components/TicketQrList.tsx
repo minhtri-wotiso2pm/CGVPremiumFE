@@ -11,6 +11,16 @@ type SeatLike = BookingSeat | MyBookingSeat;
 const seatLabel = (seat?: SeatLike) =>
     seat ? `${seat.seatRow}${String(seat.seatCol).padStart(2, "0")}` : "";
 
+// Self-contained inline logo (no external asset) embedded in the QR's
+// center — a white rounded badge with the brand wordmark, kept small
+// enough (with errorLevel="Q") that the code still scans reliably.
+const QR_LOGO = "data:image/svg+xml," + encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60">
+        <rect width="60" height="60" rx="14" fill="#fff"/>
+        <text x="30" y="38" font-family="Arial, sans-serif" font-weight="800" font-size="18" fill="#E8001C" text-anchor="middle">CGV</text>
+    </svg>`,
+);
+
 const PrinterIcon = () => (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="6 9 6 2 18 2 18 9" />
@@ -19,14 +29,74 @@ const PrinterIcon = () => (
     </svg>
 );
 
-/* ── Single ticket card ── */
-const TicketCard: FC<{
+const CheckCircleIcon = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+        <polyline points="22 4 12 14.01 9 11.01" />
+    </svg>
+);
+
+const CalendarIcon = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" />
+        <line x1="16" y1="2" x2="16" y2="6" />
+        <line x1="8" y1="2" x2="8" y2="6" />
+        <line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+);
+
+const FilmIcon = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="2" width="20" height="20" rx="2.18" />
+        <line x1="7" y1="2" x2="7" y2="22" />
+        <line x1="17" y1="2" x2="17" y2="22" />
+        <line x1="2" y1="12" x2="22" y2="12" />
+    </svg>
+);
+
+const PinIcon = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+        <circle cx="12" cy="10" r="3" />
+    </svg>
+);
+
+const TagIcon = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
+        <line x1="7" y1="7" x2="7.01" y2="7" strokeWidth="3" />
+    </svg>
+);
+
+const SeatIcon = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 3h16a1 1 0 011 1v7a4 4 0 01-4 4H7a4 4 0 01-4-4V4a1 1 0 011-1z" />
+        <path d="M4 15v4a1 1 0 001 1h14a1 1 0 001-1v-4" />
+    </svg>
+);
+
+const InfoRow: FC<{ icon: React.ReactNode; children: React.ReactNode }> = ({ icon, children }) => (
+    <div className="tkt-card__row">
+        <span className="tkt-card__row-icon">{icon}</span>
+        <span>{children}</span>
+    </div>
+);
+
+interface TicketCardProps {
     ticket: Ticket;
     label: string;
-    movieTitle: string;
+    cinemaName: string;
+    roomName: string;
+    startTime: string;
     bookingCode: string;
-}> = ({ ticket, label, movieTitle, bookingCode }) => {
+}
+
+/* ── Single ticket card — redesigned to match the E-Ticket mockup:
+   cinema/room header, big seat code, QR with an embedded logo, a VALID/
+   USED badge, icon-labeled info rows, and a booking-code footer strip. ── */
+const TicketCard: FC<TicketCardProps> = ({ ticket, label, cinemaName, roomName, startTime, bookingCode }) => {
     const cardRef = useRef<HTMLDivElement>(null);
+    const isValid = ticket.status.toLowerCase() !== "used";
 
     const handleDownload = () => {
         const canvas = cardRef.current?.querySelector("canvas");
@@ -40,16 +110,48 @@ const TicketCard: FC<{
         link.remove();
     };
 
-    const statusClass = ticket.status.toLowerCase() === "used" ? "tkt-card__status--used" : "tkt-card__status--valid";
+    const dateTime = (() => {
+        try {
+            const d = new Date(startTime);
+            const time = d.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", hour12: false });
+            const date = d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
+            return `${time}, ${date}`;
+        } catch { return ""; }
+    })();
 
     return (
-        <div className="tkt-card" ref={cardRef}>
-            {label && <div className="tkt-card__seat">{label}</div>}
-            <p className="tkt-card__movie" title={movieTitle}>{movieTitle}</p>
-            <div className="tkt-card__qr">
-                <QRCode value={ticket.qrCode} size={140} bordered={false} />
+        <div className="tkt-card-outer">
+            <div className="tkt-card" ref={cardRef}>
+                <div className="tkt-card__head">
+                    <p className="tkt-card__cinema">{cinemaName}</p>
+                    {roomName && <p className="tkt-card__room">{roomName}</p>}
+                </div>
+
+                {label && <div className="tkt-card__seat">{label}</div>}
+
+                <div className="tkt-card__qr">
+                    <QRCode value={ticket.qrCode} size={140} bordered={false} icon={QR_LOGO} iconSize={32} errorLevel="Q" />
+                </div>
+
+                <span className={`tkt-card__valid${isValid ? "" : " tkt-card__valid--used"}`}>
+                    <CheckCircleIcon />
+                    {isValid ? "VALID" : "USED"}
+                </span>
+
+                <div className="tkt-card__info">
+                    {dateTime && <InfoRow icon={<CalendarIcon />}>{dateTime}</InfoRow>}
+                    <InfoRow icon={<FilmIcon />}>CGV</InfoRow>
+                    <InfoRow icon={<PinIcon />}>{cinemaName}</InfoRow>
+                    <InfoRow icon={<TagIcon />}>{bookingCode}</InfoRow>
+                    {label && <InfoRow icon={<SeatIcon />}>Seat: {label}</InfoRow>}
+                </div>
+
+                <div className="tkt-card__footer">
+                    <span className="tkt-card__footer-label">Booking code</span>
+                    <span className="tkt-card__footer-code">{bookingCode}</span>
+                </div>
             </div>
-            <span className={`tkt-card__status ${statusClass}`}>{ticket.status}</span>
+
             <button className="tkt-card__dl" onClick={handleDownload}>Download</button>
         </div>
     );
@@ -58,11 +160,13 @@ const TicketCard: FC<{
 interface Props {
     bookingId: number;
     seats?: SeatLike[];
-    movieTitle: string;
+    cinemaName: string;
+    roomName: string;
+    startTime: string;
     bookingCode: string;
 }
 
-const TicketQrList: FC<Props> = ({ bookingId, seats = [], movieTitle, bookingCode }) => {
+const TicketQrList: FC<Props> = ({ bookingId, seats = [], cinemaName, roomName, startTime, bookingCode }) => {
     const listRef = useRef<HTMLDivElement>(null);
     const { data: tickets = [], isLoading } = useTickets(bookingId);
 
@@ -79,7 +183,7 @@ const TicketQrList: FC<Props> = ({ bookingId, seats = [], movieTitle, bookingCod
         const body = cards.map((c) => `
             <div class="tk">
                 <div class="seat">${c.label}</div>
-                <div class="movie">${movieTitle}</div>
+                <div class="movie">${cinemaName}</div>
                 <img src="${c.dataUrl}" width="180" height="180" />
                 <div class="code">${bookingCode}</div>
             </div>`).join("");
@@ -133,7 +237,9 @@ const TicketQrList: FC<Props> = ({ bookingId, seats = [], movieTitle, bookingCod
                         key={t.ticketID}
                         ticket={t}
                         label={seatLabel(seats[i])}
-                        movieTitle={movieTitle}
+                        cinemaName={cinemaName}
+                        roomName={roomName}
+                        startTime={startTime}
                         bookingCode={bookingCode}
                     />
                 ))}

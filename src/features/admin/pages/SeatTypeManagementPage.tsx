@@ -1,11 +1,13 @@
-import { type FC, useState } from "react";
-import { Button, Table, Tooltip } from "antd";
+import { type FC, useMemo, useState } from "react";
+import { Button, Input, Table, Tooltip } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useSeatTypes } from "@/features/manager/hooks/useSeatTypes";
 import type { SeatType, SeatTypeModalType } from "@/features/manager/types/room.types";
 import { SEAT_TYPE_PAGE_SIZE } from "@/features/manager/constants/room.constants";
 import SeatTypeModal from "../components/SeatTypeModal";
 import DeleteSeatTypeModal from "../components/DeleteSeatTypeModal";
+
+const { Search } = Input;
 
 const PlusIcon = () => (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -25,14 +27,55 @@ const TrashIcon = () => (
         <path d="M10 11v6M14 11v6" />
     </svg>
 );
+const RefreshIcon = ({ spin }: { spin: boolean }) => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "transform 0.5s", transform: spin ? "rotate(360deg)" : "rotate(0deg)" }}>
+        <polyline points="23 4 23 10 17 10" />
+        <polyline points="1 20 1 14 7 14" />
+        <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
+    </svg>
+);
+
+/* ── Stat pill (mirrors CinemaManagementPage) ── */
+const StatPill: FC<{ label: string; value: number; accent?: boolean; muted?: boolean }> = ({
+    label, value, accent, muted,
+}) => (
+    <div style={{
+        display: "flex", alignItems: "center", gap: 8,
+        padding: "6px 14px", borderRadius: 20,
+        background: accent ? "rgba(232,0,28,0.06)" : muted ? "rgba(0,0,0,0.03)" : "rgba(34,197,94,0.06)",
+        border: `1px solid ${accent ? "rgba(232,0,28,0.14)" : muted ? "var(--dash-border)" : "rgba(34,197,94,0.18)"}`,
+    }}>
+        <span style={{
+            width: 6, height: 6, borderRadius: "50%", flexShrink: 0,
+            background: accent ? "#E8001C" : muted ? "var(--dash-text-3)" : "#22c55e",
+        }} />
+        <span style={{ fontSize: 12, fontWeight: 600, color: "var(--dash-text-1)", fontVariantNumeric: "tabular-nums" }}>
+            {value}
+        </span>
+        <span style={{ fontSize: 12, color: "var(--dash-text-2)" }}>{label}</span>
+    </div>
+);
 
 const formatVnd = (n: number) => `${n.toLocaleString("vi-VN")} ₫`;
 
 const SeatTypeManagementPage: FC = () => {
-    const { data: seatTypes = [], isLoading, isError, refetch } = useSeatTypes();
+    const { data: seatTypes = [], isLoading, isError, refetch, isFetching } = useSeatTypes();
 
+    const [search, setSearch] = useState("");
     const [modalType, setModalType] = useState<SeatTypeModalType | null>(null);
     const [selected, setSelected] = useState<SeatType | null>(null);
+
+    const stats = useMemo(() => ({
+        total: seatTypes.length,
+        withExtra: seatTypes.filter((s) => s.extraPrice > 0).length,
+        free: seatTypes.filter((s) => s.extraPrice <= 0).length,
+    }), [seatTypes]);
+
+    const filtered = useMemo(() => {
+        const q = search.trim().toLowerCase();
+        if (!q) return seatTypes;
+        return seatTypes.filter((s) => s.typeName.toLowerCase().includes(q));
+    }, [seatTypes, search]);
 
     const openModal = (type: SeatTypeModalType, seatType?: SeatType) => {
         setSelected(seatType ?? null);
@@ -110,9 +153,13 @@ const SeatTypeManagementPage: FC = () => {
                         <h1 className="dash-page-title">Seat Types</h1>
                         <p className="dash-page-sub">Define seat categories and their pricing used across all cinemas.</p>
                     </div>
-                    <Button type="primary" icon={<PlusIcon />} onClick={() => openModal("create")} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                        Add Seat Type
-                    </Button>
+                    {!isLoading && !isError && seatTypes.length > 0 && (
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                            <StatPill label="Total" value={stats.total} muted />
+                            <StatPill label="Has Extra Fee" value={stats.withExtra} />
+                            <StatPill label="Free" value={stats.free} accent />
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -122,22 +169,40 @@ const SeatTypeManagementPage: FC = () => {
                     <Button onClick={() => refetch()}>Retry</Button>
                 </div>
             ) : (
-                <div className="dash-card" style={{ overflow: "hidden" }}>
-                    <Table<SeatType>
-                        dataSource={seatTypes}
-                        columns={columns}
-                        rowKey="seatTypeId"
-                        loading={isLoading}
-                        pagination={{
-                            pageSize: SEAT_TYPE_PAGE_SIZE,
-                            hideOnSinglePage: true,
-                            showTotal: (t, range) => `${range[0]}–${range[1]} of ${t} seat types`,
-                            style: { padding: "12px 16px", marginBottom: 0 },
-                        }}
-                        scroll={{ x: 520 }}
-                        rowHoverable
-                    />
-                </div>
+                <>
+                    <div className="dash-toolbar">
+                        <div className="dash-toolbar__left">
+                            <Search placeholder="Search by type name..." allowClear value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: 240 }} />
+                        </div>
+                        <div className="dash-toolbar__right">
+                            <Tooltip title="Refresh data">
+                                <button className="dash-icon-btn" onClick={() => refetch()} aria-label="Refresh" disabled={isFetching}>
+                                    <RefreshIcon spin={isFetching} />
+                                </button>
+                            </Tooltip>
+                            <Button type="primary" icon={<PlusIcon />} onClick={() => openModal("create")} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                Add Seat Type
+                            </Button>
+                        </div>
+                    </div>
+
+                    <div className="dash-card" style={{ overflow: "hidden" }}>
+                        <Table<SeatType>
+                            dataSource={filtered}
+                            columns={columns}
+                            rowKey="seatTypeId"
+                            loading={isLoading}
+                            pagination={{
+                                pageSize: SEAT_TYPE_PAGE_SIZE,
+                                hideOnSinglePage: true,
+                                showTotal: (t, range) => `${range[0]}–${range[1]} of ${t} seat types`,
+                                style: { padding: "12px 16px", marginBottom: 0 },
+                            }}
+                            scroll={{ x: 520 }}
+                            rowHoverable
+                        />
+                    </div>
+                </>
             )}
 
             <SeatTypeModal

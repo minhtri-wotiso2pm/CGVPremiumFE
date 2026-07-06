@@ -8,8 +8,8 @@
 
 :root {
     /* Vertical space layouts must reserve under the fixed header:
-       top offset (20) + header height (80) + breathing room (20) */
-    --cgv-fh-clearance: 100px;
+       top offset (20) + header height (55) + breathing room (10) */
+    --cgv-fh-clearance: 85px;
     /* Sticky offset for elements that pin below the floating header
        while scrolling: top (20) + scrolled height (64) + gap (12) */
     --cgv-fh-sticky-offset: 70px;
@@ -310,7 +310,8 @@
 
 @media (max-width: 768px) {
     :root {
-        --cgv-fh-clearance: 92px;
+        /* top (12) + header height (64) + breathing room (10) */
+        --cgv-fh-clearance: 86px;
         /* top (12) + scrolled height (51) + gap (10) */
         --cgv-fh-sticky-offset: 73px;
     }

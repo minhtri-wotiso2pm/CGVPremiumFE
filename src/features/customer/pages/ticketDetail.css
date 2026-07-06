@@ -1,0 +1,244 @@
+/* ─────────────────────────────────────────────
+   Ticket Detail — standalone full-screen page
+───────────────────────────────────────────── */
+.tktd-page {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 24px 24px 72px;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+}
+
+.tktd-body {
+    display: flex;
+    align-items: flex-start;
+    gap: 28px;
+}
+
+.tktd-movie-col {
+    flex: 0 0 340px;
+    position: sticky;
+    top: 24px;
+}
+
+.tktd-tickets-col {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Ticket cards span 2 across in this column, then continue in order below */
+.tktd-tickets-col .tkt-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 860px) {
+    .tktd-body {
+        flex-direction: column;
+    }
+
+    .tktd-movie-col {
+        flex-basis: auto;
+        width: 100%;
+        position: static;
+    }
+
+    .tktd-tickets-col .tkt-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 520px) {
+    .tktd-tickets-col .tkt-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.tktd-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+}
+
+.tktd-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    color: #f0e8e8;
+    cursor: pointer;
+    transition: background 0.18s, border-color 0.18s;
+    flex-shrink: 0;
+}
+
+.tktd-back:hover {
+    background: rgba(232, 0, 28, 0.12);
+    border-color: rgba(232, 0, 28, 0.35);
+}
+
+.tktd-title {
+    flex: 1;
+    text-align: center;
+    font-size: 17px;
+    font-weight: 700;
+    color: #f0e8e8;
+    margin: 0;
+}
+
+.tktd-status {
+    flex-shrink: 0;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 100px;
+}
+
+.tktd-movie {
+    display: flex;
+    gap: 18px;
+    padding: 20px;
+    margin-bottom: 24px;
+    background: rgba(20, 6, 6, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+}
+
+.tktd-poster {
+    width: 84px;
+    height: 126px;
+    flex-shrink: 0;
+    object-fit: cover;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.tktd-movie-info {
+    min-width: 0;
+}
+
+.tktd-movie-title {
+    margin: 0 0 8px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #f0e8e8;
+    line-height: 1.3;
+}
+
+.tktd-movie-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 12.5px;
+    color: #a08888;
+}
+
+.tktd-age-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 8px;
+    border-radius: 5px;
+    background: rgba(232, 0, 28, 0.75);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.tktd-showtime {
+    margin: 0 0 3px;
+    font-size: 13.5px;
+    color: #f0e8e8;
+    font-weight: 600;
+}
+
+.tktd-cinema {
+    margin: 0;
+    font-size: 12.5px;
+    color: #a08888;
+}
+
+/* ── Booking summary — receipt-style breakdown below the movie card ── */
+.tktd-summary {
+    padding: 20px;
+    background: rgba(20, 6, 6, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+}
+
+.tktd-summary__title {
+    margin: 0 0 14px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #f0e8e8;
+}
+
+.tktd-summary__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 5px 0;
+    font-size: 12.5px;
+    color: #d8caca;
+}
+
+.tktd-summary__row--muted {
+    font-size: 12px;
+    color: #a08888;
+}
+
+.tktd-summary__group {
+    padding: 8px 0;
+    margin: 4px 0;
+    border-top: 1px dashed rgba(255, 255, 255, 0.12);
+}
+
+.tktd-summary__group-label {
+    margin: 0 0 4px;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #a08888;
+}
+
+.tktd-summary__voucher-code {
+    font-weight: 700;
+    color: #f0e8e8;
+    letter-spacing: 0.02em;
+}
+
+.tktd-summary__discount {
+    color: #4ade80;
+    font-weight: 600;
+}
+
+.tktd-summary__row--total {
+    margin-top: 4px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    font-size: 15px;
+    font-weight: 800;
+    color: #fff;
+}
+
+.tktd-summary__row--total span:last-child {
+    color: #ff4d5e;
+}
+
+.tktd-back-link {
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(255, 255, 255, 0.05);
+    color: #f0e8e8;
+    border-radius: 8px;
+    padding: 9px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
