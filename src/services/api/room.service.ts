@@ -20,6 +20,7 @@ const normalizeRoom = (r: Record<string, unknown>): Room => ({
     status: String(r.status ?? "ACTIVE").toUpperCase() === "INACTIVE" ? "INACTIVE" : "ACTIVE",
     description: String(r.description ?? ""),
     createdAt: String(r.createdAt ?? ""),
+    roomTypeId: Number(r.roomTypeId ?? 0),
 });
 
 export const getRoomsApi = async (): Promise<Room[]> => {

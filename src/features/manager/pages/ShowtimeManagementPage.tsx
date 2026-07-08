@@ -13,6 +13,14 @@ import {
 } from "../constants/showtime-mgmt.constants";
 import ShowtimeModal from "../components/ShowtimeModal";
 import DeleteShowtimeModal from "../components/DeleteShowtimeModal";
+import GenerateShowtimeWizard from "../components/wizard/GenerateShowtimeWizard";
+import "./showtimeType.css";
+
+const WandIcon = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8L19 13M15 9h0M17.8 6.2L19 5M3 21l9-9M12.2 6.2L11 5" />
+    </svg>
+);
 
 const PlusIcon = () => (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -75,6 +83,7 @@ const ShowtimeManagementPage: FC = () => {
     const [page, setPage] = useState(1);
     const [modalType, setModalType] = useState<ShowtimeModalType | null>(null);
     const [selected, setSelected] = useState<ManagerShowtime | null>(null);
+    const [wizardOpen, setWizardOpen] = useState(false);
 
     const params = useMemo(
         () => ({
@@ -97,7 +106,7 @@ const ShowtimeManagementPage: FC = () => {
     // Dedicated unfiltered/unpaginated fetch so the summary pills reflect
     // all of this cinema's showtimes, not just the current date/status filter page.
     const statsParams = useMemo(
-        () => ({ cinemaId: cinemaId ?? undefined, page: 1, pageSize: 1000, sortBy: "startTime", sortDir: "asc" }),
+        () => ({ cinemaId: cinemaId ?? undefined, page: 1, pageSize: 100, sortBy: "startTime", sortDir: "asc" }),
         [cinemaId],
     );
     const { data: statsData } = useManagerShowtimes(statsParams, cinemaId != null);
@@ -273,6 +282,10 @@ const ShowtimeManagementPage: FC = () => {
                                     <RefreshIcon spin={isFetching} />
                                 </button>
                             </Tooltip>
+                            <button className="stt-btn stt-btn--ghost" onClick={() => setWizardOpen(true)}>
+                                <WandIcon />
+                                Generate from Type
+                            </button>
                             <Button
                                 type="primary"
                                 icon={<PlusIcon />}
@@ -323,6 +336,11 @@ const ShowtimeManagementPage: FC = () => {
                         onClose={closeModal}
                     />
                     <DeleteShowtimeModal showtime={selected} open={modalType === "delete"} onClose={closeModal} />
+                    <GenerateShowtimeWizard
+                        open={wizardOpen}
+                        onClose={() => setWizardOpen(false)}
+                        cinemaId={cinemaId}
+                    />
                 </>
             )}
         </div>

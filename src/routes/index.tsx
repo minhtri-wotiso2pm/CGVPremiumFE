@@ -42,6 +42,8 @@ import FnbManagementPage from "@/features/manager/pages/FnbManagementPage";
 import RoomManagementPage from "@/features/manager/pages/RoomManagementPage";
 import SeatManagementPage from "@/features/manager/pages/SeatManagementPage";
 import ShowtimeManagementPage from "@/features/manager/pages/ShowtimeManagementPage";
+import ShowtimeTypeManagementPage from "@/features/manager/pages/ShowtimeTypeManagementPage";
+import ShowtimeCalendarPage from "@/features/manager/pages/ShowtimeCalendarPage";
 import ReportsPage from "@/features/reports/pages/ReportsPage";
 import VoucherManagementPage from "@/features/vouchers/pages/VoucherManagementPage";
 import AdminDashboard from "@/features/admin/pages/AdminDashboard";
@@ -317,6 +319,14 @@ export const router = createBrowserRouter([
                             {
                                 path: "showtimes",
                                 element: <ShowtimeManagementPage />,
+                            },
+                            {
+                                path: "showtime-types",
+                                element: <ShowtimeTypeManagementPage />,
+                            },
+                            {
+                                path: "showtime-calendar",
+                                element: <ShowtimeCalendarPage />,
                             },
                             {
                                 path: "reports",

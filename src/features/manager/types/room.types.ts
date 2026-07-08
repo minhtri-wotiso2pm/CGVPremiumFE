@@ -1,7 +1,9 @@
 export type RoomStatus = "ACTIVE" | "INACTIVE";
 
 /** Valid room types per API_REPORT (§1). */
-export const ROOM_TYPES = ["Standard", "VIP", "IMAX", "3D"] as const;
+// export const ROOM_TYPES = ["Standard", "VIP", "IMAX", "3D"] as const;
+export const ROOM_TYPES = ["1", "2", "3", "4"] as const;
+
 export type RoomType = (typeof ROOM_TYPES)[number];
 
 export interface Room {
@@ -13,18 +15,25 @@ export interface Room {
     status: RoomStatus;
     description: string;
     createdAt: string;
+    roomTypeId: number
 }
 
 export interface CreateRoomPayload {
     cinemaId: number;
     name: string;
-    type: string;
+    roomTypeId: number;
     status: RoomStatus;
     description: string;
 }
 
 /** PUT /api/rooms/{id} — same shape as create (cinemaId included). */
-export type UpdateRoomPayload = CreateRoomPayload;
+export interface UpdateRoomPayload {
+    cinemaId: number;
+    name: string;
+    roomTypeId: number;
+    status: RoomStatus;
+    description: string;
+}
 
 export type RoomModalType = "create" | "edit" | "delete";
 

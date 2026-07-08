@@ -20,7 +20,7 @@ interface Props {
 
 interface FormValues {
     name: string;
-    type: string;
+    roomTypeId: number;
     status: RoomStatus;
     description: string;
 }
@@ -38,13 +38,13 @@ const RoomModal: FC<Props> = ({ mode, room, cinemaId, open, onClose }) => {
             if (isEdit && room) {
                 form.setFieldsValue({
                     name: room.name,
-                    type: room.type,
+                    roomTypeId: room.roomTypeId,
                     status: room.status,
                     description: room.description,
                 });
             } else {
                 form.resetFields();
-                form.setFieldsValue({ type: "Standard", status: "ACTIVE" });
+                form.setFieldsValue({ roomTypeId: 1, status: "ACTIVE" });
             }
         }
     }, [open, isEdit, room, form]);
@@ -54,7 +54,7 @@ const RoomModal: FC<Props> = ({ mode, room, cinemaId, open, onClose }) => {
         const payload: CreateRoomPayload = {
             cinemaId,
             name: values.name.trim(),
-            type: values.type,
+            roomTypeId: values.roomTypeId,
             status: values.status,
             description: (values.description ?? "").trim(),
         };
@@ -83,7 +83,7 @@ const RoomModal: FC<Props> = ({ mode, room, cinemaId, open, onClose }) => {
                     <Input placeholder="e.g. Room 01" maxLength={100} showCount />
                 </Form.Item>
 
-                <Form.Item label="Room Type" name="type" rules={roomTypeRules}>
+                <Form.Item label="Room Type" name="roomTypeId" rules={roomTypeRules}>
                     <Select placeholder="Select room type" options={ROOM_TYPE_OPTIONS} />
                 </Form.Item>
 
