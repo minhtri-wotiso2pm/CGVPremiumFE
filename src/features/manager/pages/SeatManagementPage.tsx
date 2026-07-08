@@ -184,7 +184,7 @@ const SeatManagementPage: FC = () => {
             payload: {
                 cinemaId: room.cinemaId,
                 name: room.name,
-                type: room.type,
+                roomTypeId: room.roomTypeId,
                 status: "INACTIVE",
                 description: room.description,
             },

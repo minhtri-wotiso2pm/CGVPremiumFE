@@ -10,20 +10,20 @@ import {
 } from "../hooks/useFnbProductMutations";
 
 interface FormValues {
-    itemName:          string;
-    itemType:          string;
-    description:       string;
-    price:             number;
-    stockQuantity:     number;
-    isOnMenu:          boolean;
+    itemName: string;
+    itemType: string;
+    description: string;
+    price: number;
+    stockQuantity: number;
+    isOnMenu: boolean;
     isLoyaltyEligible: boolean;
-    status?:           string;
+    status?: string;
 }
 
 interface Props {
-    mode:    "create" | "edit";
+    mode: "create" | "edit";
     product: FnbProduct | null;
-    open:    boolean;
+    open: boolean;
     onClose: () => void;
 }
 
@@ -48,7 +48,7 @@ const FnbProductFormModal: FC<Props> = ({ mode, product, open, onClose }) => {
     const isEdit = mode === "edit";
 
     /* ── Image state ── */
-    const [imageFile,    setImageFile]    = useState<File | null>(null);
+    const [imageFile, setImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -57,12 +57,12 @@ const FnbProductFormModal: FC<Props> = ({ mode, product, open, onClose }) => {
         isEdit ? (product?.itemID ?? null) : null,
     );
 
-    const { mutate: create,       isPending: creating  } = useCreateFnbProduct();
-    const { mutate: update,       isPending: updating  } = useUpdateFnbProduct();
-    const { mutate: uploadImage,  isPending: uploading } = useUploadFnbProductImage();
+    const { mutate: create, isPending: creating } = useCreateFnbProduct();
+    const { mutate: update, isPending: updating } = useUpdateFnbProduct();
+    const { mutate: uploadImage, isPending: uploading } = useUploadFnbProductImage();
 
-    const isSubmitting   = creating || updating || uploading;
-    const isFormLoading  = isEdit && detailLoading;
+    const isSubmitting = creating || updating || uploading;
+    const isFormLoading = isEdit && detailLoading;
 
     /* ── Populate form on open ── */
     useEffect(() => {
@@ -76,14 +76,14 @@ const FnbProductFormModal: FC<Props> = ({ mode, product, open, onClose }) => {
         }
         if (detail) {
             form.setFieldsValue({
-                itemName:          detail.itemName,
-                itemType:          detail.itemType,
-                description:       detail.description ?? "",
-                price:             detail.price,
-                stockQuantity:     detail.stockQuantity,
-                isOnMenu:          detail.isOnMenu,
+                itemName: detail.itemName,
+                itemType: detail.itemType,
+                description: detail.description ?? "",
+                price: detail.price,
+                stockQuantity: detail.stockQuantity,
+                isOnMenu: detail.isOnMenu,
                 isLoyaltyEligible: detail.isLoyaltyEligible,
-                status:            detail.status,
+                status: detail.status,
             });
             setImageFile(null);
             setImagePreview(detail.imageURL ?? null);
@@ -125,13 +125,13 @@ const FnbProductFormModal: FC<Props> = ({ mode, product, open, onClose }) => {
         };
 
         const basePayload = {
-            itemName:          values.itemName.trim(),
-            itemType:          values.itemType as FnbItemType,
-            description:       values.description?.trim() || null,
-            price:             values.price,
-            stockQuantity:     values.stockQuantity,
-            imageURL:          isEdit ? (detail?.imageURL ?? null) : null,
-            isOnMenu:          values.isOnMenu,
+            itemName: values.itemName.trim(),
+            itemType: values.itemType as FnbItemType,
+            description: values.description?.trim() || null,
+            price: values.price,
+            stockQuantity: values.stockQuantity,
+            imageURL: isEdit ? (detail?.imageURL ?? null) : null,
+            isOnMenu: values.isOnMenu,
             isLoyaltyEligible: values.isLoyaltyEligible,
         };
 
@@ -196,12 +196,18 @@ const FnbProductFormModal: FC<Props> = ({ mode, product, open, onClose }) => {
                                 name="price"
                                 rules={[{ required: true, message: "Nhập giá sản phẩm" }]}
                             >
-                                <InputNumber
+                                <InputNumber<number>
                                     min={0}
                                     step={1000}
                                     placeholder="75000"
-                                    formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ".")}
-                                    parser={(v) => Number(v?.replace(/\./g, "") ?? 0)}
+                                    formatter={(value) =>
+                                        value != null
+                                            ? value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+                                            : ""
+                                    }
+                                    parser={(value) =>
+                                        Number(value?.replace(/\./g, "") ?? 0)
+                                    }
                                     style={{ width: "100%" }}
                                 />
                             </Form.Item>

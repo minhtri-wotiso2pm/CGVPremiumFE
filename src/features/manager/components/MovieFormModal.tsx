@@ -3,7 +3,6 @@ import {
     Modal, Form, Input, Select, InputNumber, DatePicker, Row, Col, Spin,
 } from "antd";
 import dayjs from "dayjs";
-import type { MovieListItem } from "../types/movie-mgmt.types";
 import { AGE_RATING_OPTIONS, MOVIE_STATUS_OPTIONS } from "../types/movie-mgmt.types";
 import { useManagerMovieDetail } from "../hooks/useMovieDetail";
 import { useCreateMovie, useUpdateMovie, useUploadMoviePoster } from "../hooks/useMovieMutations";
@@ -51,7 +50,7 @@ const MovieFormModal: FC<Props> = ({ mode, movieId, open, onClose }) => {
     const isEdit = mode === "edit";
 
     /* ── Poster state ── */
-    const [posterFile, setPosterFile]       = useState<File | null>(null);
+    const [posterFile, setPosterFile] = useState<File | null>(null);
     const [posterPreview, setPosterPreview] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -80,17 +79,17 @@ const MovieFormModal: FC<Props> = ({ mode, movieId, open, onClose }) => {
         }
         if (detail) {
             form.setFieldsValue({
-                title:           detail.title,
-                director:        detail.director,
-                cast:            detail.cast,
-                synopsis:        detail.synopsis,
+                title: detail.title,
+                director: detail.director,
+                cast: detail.cast,
+                synopsis: detail.synopsis,
                 durationMinutes: detail.durationMinutes,
-                ageRating:       detail.ageRating,
+                ageRating: detail.ageRating,
                 showingFromDate: detail.showingFromDate ? dayjs(detail.showingFromDate) : undefined,
-                showingToDate:   detail.showingToDate   ? dayjs(detail.showingToDate)   : undefined,
-                trailerUrl:      detail.trailerUrl ?? "",
-                genres:          detail.genres ?? [],
-                status:          detail.status,
+                showingToDate: detail.showingToDate ? dayjs(detail.showingToDate) : undefined,
+                trailerUrl: detail.trailerUrl ?? "",
+                genres: detail.genres ?? [],
+                status: detail.status,
             });
             setPosterPreview(detail.posterUrl ?? null);
             setPosterFile(null);
@@ -125,18 +124,18 @@ const MovieFormModal: FC<Props> = ({ mode, movieId, open, onClose }) => {
         }
 
         const basePayload = {
-            title:           values.title.trim(),
-            genres:          values.genres ?? [],
-            ageRating:       values.ageRating,
-            director:        values.director.trim(),
-            cast:            values.cast?.trim() ?? "",
-            synopsis:        values.synopsis?.trim() ?? "",
+            title: values.title.trim(),
+            genres: values.genres ?? [],
+            ageRating: values.ageRating,
+            director: values.director.trim(),
+            cast: values.cast?.trim() ?? "",
+            synopsis: values.synopsis?.trim() ?? "",
             durationMinutes: values.durationMinutes,
             showingFromDate: values.showingFromDate.format("YYYY-MM-DD"),
-            showingToDate:   values.showingToDate.format("YYYY-MM-DD"),
-            posterUrl:       detail?.posterUrl ?? null,
-            posterPublicId:  detail?.posterPublicId ?? null,
-            trailerUrl:      values.trailerUrl?.trim() || null,
+            showingToDate: values.showingToDate.format("YYYY-MM-DD"),
+            posterUrl: detail?.posterUrl ?? null,
+            posterPublicId: detail?.posterPublicId ?? null,
+            trailerUrl: values.trailerUrl?.trim() || null,
         };
 
         if (isEdit && movieId) {

@@ -121,14 +121,29 @@ export const exportReportApi = async (q: ExportReportQuery): Promise<void> => {
         responseType: "blob",
     });
 
+    const contentTypeHeader = response.headers["content-type"];
+
+    const contentType =
+        typeof contentTypeHeader === "string"
+            ? contentTypeHeader
+            : EXPORT_MIME[q.format];
+
     const blob = new Blob([response.data], {
-        type: response.headers["content-type"] ?? EXPORT_MIME[q.format],
+        type: contentType,
     });
 
     // Prefer the server-provided filename, else build a readable default.
     let filename = `report-${q.reportType}-${q.startDate}_${q.endDate}.${EXPORT_EXT[q.format]}`;
-    const disposition = response.headers["content-disposition"] as string | undefined;
-    const match = disposition?.match(/filename\*?=(?:UTF-8'')?"?([^";]+)"?/i);
+    const dispositionHeader = response.headers["content-disposition"];
+
+    const disposition =
+        typeof dispositionHeader === "string"
+            ? dispositionHeader
+            : undefined;
+
+    const match = disposition?.match(
+        /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i
+    );
     if (match?.[1]) filename = decodeURIComponent(match[1]);
 
     const url = window.URL.createObjectURL(blob);

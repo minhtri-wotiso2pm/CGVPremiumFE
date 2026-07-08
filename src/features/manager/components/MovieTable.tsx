@@ -1,5 +1,5 @@
 import { type FC } from "react";
-import { Table, Tooltip, Button } from "antd";
+import { Table, Tooltip } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import type { MovieListItem, MovieModalType } from "../types/movie-mgmt.types";
 import { MOVIE_STATUS_LABELS } from "../types/movie-mgmt.types";
@@ -19,8 +19,8 @@ const StatusBadge: FC<{ status: string }> = ({ status }) => {
     const label = MOVIE_STATUS_LABELS[status] ?? status;
     const cls =
         status === "now_showing" ? "dash-badge dash-badge--active"
-        : status === "coming_soon" ? "dash-badge dash-badge--pending"
-        : "dash-badge dash-badge--inactive";
+            : status === "coming_soon" ? "dash-badge dash-badge--pending"
+                : "dash-badge dash-badge--inactive";
     return <span className={cls}>{label}</span>;
 };
 

@@ -1,4 +1,4 @@
-import { useState, type FC } from "react";
+import { useState, type FC, type JSX } from "react";
 import { Popover } from "antd";
 import type { AdminUser, UserModalType } from "../types/user.types";
 
@@ -52,9 +52,9 @@ interface Props {
 }
 
 const roleClass: Record<string, string> = {
-    admin:    "dash-role--admin",
-    manager:  "dash-role--manager",
-    staff:    "dash-role--staff",
+    admin: "dash-role--admin",
+    manager: "dash-role--manager",
+    staff: "dash-role--staff",
     customer: "dash-role--customer",
 };
 const statusClass: Record<string, string> = {
@@ -64,10 +64,10 @@ const statusClass: Record<string, string> = {
 };
 
 const actions: { key: UserModalType; label: string; icon: JSX.Element; danger?: boolean }[] = [
-    { key: "update",   label: "Edit Info",         icon: <EditIcon /> },
-    { key: "role",     label: "Change Role",        icon: <ShieldIcon /> },
-    { key: "status",   label: "Change Status",      icon: <ToggleIcon /> },
-    { key: "password", label: "Change Password",    icon: <LockIcon /> },
+    { key: "update", label: "Edit Info", icon: <EditIcon /> },
+    { key: "role", label: "Change Role", icon: <ShieldIcon /> },
+    { key: "status", label: "Change Status", icon: <ToggleIcon /> },
+    { key: "password", label: "Change Password", icon: <LockIcon /> },
 ];
 
 const UserActionMenu: FC<Props> = ({ user, isProcessing, onAction }) => {

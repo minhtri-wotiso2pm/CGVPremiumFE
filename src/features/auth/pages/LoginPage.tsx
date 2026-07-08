@@ -7,7 +7,6 @@ import { loginApi } from "@/services/api/auth.service";
 import { getDashboardByRole } from "../utils/getDashboardByRole";
 import { getSafeRedirect, type LoginRedirectState } from "../utils/authRedirect";
 import axios from "axios";
-import { getUserProfileApi } from "@/services/api/user.service";
 /* ─────────────────────────────────────────────────────────────
 DESIGN TOKENS — CGVPremium Design System
 ───────────────────────────────────────────────────────────── */

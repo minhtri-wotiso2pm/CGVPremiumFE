@@ -7,23 +7,23 @@ import {
 } from "../types/fnb-mgmt.types";
 
 interface Props {
-    data:         FnbProduct[];
-    total:        number;
-    page:         number;
-    pageSize:     number;
-    loading:      boolean;
+    data: FnbProduct[];
+    total: number;
+    page: number;
+    pageSize: number;
+    loading: boolean;
     onPageChange: (page: number, pageSize: number) => void;
-    onAction:     (product: FnbProduct, type: FnbModalType) => void;
+    onAction: (product: FnbProduct, type: FnbModalType) => void;
 }
 
 /* ── Status badge ── */
 const StatusBadge: FC<{ status: string }> = ({ status }) => {
     const label = FNB_STATUS_LABELS[status as keyof typeof FNB_STATUS_LABELS] ?? status;
     const cls =
-        status === "in_stock"     ? "dash-badge dash-badge--active"
-        : status === "low_stock"  ? "dash-badge dash-badge--pending"
-        : status === "out_of_stock" ? "dash-badge dash-badge--inactive"
-        : "dash-badge dash-badge--inactive";
+        status === "in_stock" ? "dash-badge dash-badge--active"
+            : status === "low_stock" ? "dash-badge dash-badge--pending"
+                : status === "out_of_stock" ? "dash-badge dash-badge--inactive"
+                    : "dash-badge dash-badge--inactive";
     return <span className={cls}>{label}</span>;
 };
 
