@@ -55,7 +55,7 @@ const ShowtimeModal: FC<Props> = ({ mode, showtime, cinemaId, open, onClose }) =
     const roomOptions = useMemo(
         () => allRooms
             .filter((r) => r.cinemaId === cinemaId && r.status === "ACTIVE")
-            .map((r) => ({ value: r.roomId, label: `${r.name} · ${r.type}` })),
+            .map((r) => ({ value: r.roomId, label: `${r.name} · ${r.roomTypeId}` })),
         [allRooms, cinemaId],
     );
 

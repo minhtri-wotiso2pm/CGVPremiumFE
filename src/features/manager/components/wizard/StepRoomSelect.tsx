@@ -40,7 +40,7 @@ const StepRoomSelect: FC<Props> = ({ cinemaId, roomId, onSelect }) => {
                             <span className="stt-room-card__icon"><RoomIcon /></span>
                             <div className="stt-room-card__info">
                                 <span className="stt-room-card__name">{r.name}</span>
-                                <span className="stt-room-card__meta">{r.type} · {r.capacity} seats</span>
+                                <span className="stt-room-card__meta">{r.roomTypeId} · {r.capacity} seats</span>
                             </div>
                         </button>
                     ))}
