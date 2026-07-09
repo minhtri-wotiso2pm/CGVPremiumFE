@@ -178,12 +178,12 @@ const MovieFormModal: FC<Props> = ({ mode, movieId, open, onClose }) => {
     /* ── Render ── */
     return (
         <Modal
-            title={isEdit ? "Sửa thông tin phim" : "Thêm phim mới"}
+            title={isEdit ? "Edit Movie" : "Add New Movie"}
             open={open}
             onOk={handleSubmit}
             onCancel={handleCancel}
-            okText={isEdit ? "Lưu thay đổi" : "Tạo phim"}
-            cancelText="Hủy"
+            okText={isEdit ? "Save Changes" : "Create Movie"}
+            cancelText="Cancel"
             confirmLoading={isLoading}
             maskClosable={!isLoading}
             width={680}
@@ -191,7 +191,7 @@ const MovieFormModal: FC<Props> = ({ mode, movieId, open, onClose }) => {
         >
             {isFormLoading ? (
                 <div style={{ padding: "48px 0", textAlign: "center" }}>
-                    <Spin tip="Đang tải thông tin phim..." />
+                    <Spin tip="Loading movie details..." />
                 </div>
             ) : (
                 <Form
@@ -200,29 +200,29 @@ const MovieFormModal: FC<Props> = ({ mode, movieId, open, onClose }) => {
                     requiredMark={false}
                     style={{ marginTop: 4 }}
                 >
-                    <SectionLabel>Thông tin cơ bản</SectionLabel>
+                    <SectionLabel>Basic Information</SectionLabel>
 
                     <Form.Item
-                        label="Tên phim"
+                        label="Movie Title"
                         name="title"
-                        rules={[{ required: true, message: "Vui lòng nhập tên phim" }]}
+                        rules={[{ required: true, message: "Please enter the movie title" }]}
                     >
-                        <Input placeholder="Tên phim" maxLength={200} showCount />
+                        <Input placeholder="Movie title" maxLength={200} showCount />
                     </Form.Item>
 
                     <Row gutter={16}>
                         <Col span={12}>
                             <Form.Item
-                                label="Đạo diễn"
+                                label="Director"
                                 name="director"
-                                rules={[{ required: true, message: "Vui lòng nhập tên đạo diễn" }]}
+                                rules={[{ required: true, message: "Please enter the director's name" }]}
                             >
-                                <Input placeholder="Tên đạo diễn" maxLength={100} />
+                                <Input placeholder="Director's name" maxLength={100} />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
-                            <Form.Item label="Diễn viên chính" name="cast">
-                                <Input placeholder="Diễn viên chính (ngăn cách bởi dấu phẩy)" maxLength={200} />
+                            <Form.Item label="Main Cast" name="cast">
+                                <Input placeholder="Main cast (comma-separated)" maxLength={200} />
                             </Form.Item>
                         </Col>
                     </Row>
@@ -230,9 +230,9 @@ const MovieFormModal: FC<Props> = ({ mode, movieId, open, onClose }) => {
                     <Row gutter={16}>
                         <Col span={8}>
                             <Form.Item
-                                label="Thời lượng (phút)"
+                                label="Duration (minutes)"
                                 name="durationMinutes"
-                                rules={[{ required: true, message: "Vui lòng nhập thời lượng" }]}
+                                rules={[{ required: true, message: "Please enter the duration" }]}
                             >
                                 <InputNumber
                                     min={1} max={600}
@@ -243,27 +243,27 @@ const MovieFormModal: FC<Props> = ({ mode, movieId, open, onClose }) => {
                         </Col>
                         <Col span={8}>
                             <Form.Item
-                                label="Xếp hạng tuổi"
+                                label="Age Rating"
                                 name="ageRating"
-                                rules={[{ required: true, message: "Chọn xếp hạng" }]}
+                                rules={[{ required: true, message: "Select an age rating" }]}
                             >
-                                <Select placeholder="Chọn xếp hạng" options={AGE_RATING_OPTIONS} />
+                                <Select placeholder="Select rating" options={AGE_RATING_OPTIONS} />
                             </Form.Item>
                         </Col>
                         {isEdit && (
                             <Col span={8}>
-                                <Form.Item label="Trạng thái" name="status">
-                                    <Select placeholder="Trạng thái" options={MOVIE_STATUS_OPTIONS} />
+                                <Form.Item label="Status" name="status">
+                                    <Select placeholder="Status" options={MOVIE_STATUS_OPTIONS} />
                                 </Form.Item>
                             </Col>
                         )}
                     </Row>
 
-                    <SectionLabel>Nội dung</SectionLabel>
+                    <SectionLabel>Content</SectionLabel>
 
-                    <Form.Item label="Tóm tắt nội dung" name="synopsis">
+                    <Form.Item label="Synopsis" name="synopsis">
                         <Input.TextArea
-                            placeholder="Mô tả nội dung phim..."
+                            placeholder="Describe the movie's plot..."
                             rows={3}
                             maxLength={1000}
                             showCount
@@ -275,43 +275,43 @@ const MovieFormModal: FC<Props> = ({ mode, movieId, open, onClose }) => {
                         <Input placeholder="https://youtube.com/watch?v=..." />
                     </Form.Item>
 
-                    <SectionLabel>Lịch chiếu</SectionLabel>
+                    <SectionLabel>Screening Schedule</SectionLabel>
 
                     <Row gutter={16}>
                         <Col span={12}>
                             <Form.Item
-                                label="Ngày bắt đầu chiếu"
+                                label="Showing From"
                                 name="showingFromDate"
-                                rules={[{ required: true, message: "Chọn ngày bắt đầu" }]}
+                                rules={[{ required: true, message: "Select a start date" }]}
                             >
                                 <DatePicker
                                     format="DD/MM/YYYY"
-                                    placeholder="Chọn ngày"
+                                    placeholder="Select date"
                                     style={{ width: "100%" }}
                                 />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
                             <Form.Item
-                                label="Ngày kết thúc chiếu"
+                                label="Showing To"
                                 name="showingToDate"
-                                rules={[{ required: true, message: "Chọn ngày kết thúc" }]}
+                                rules={[{ required: true, message: "Select an end date" }]}
                             >
                                 <DatePicker
                                     format="DD/MM/YYYY"
-                                    placeholder="Chọn ngày"
+                                    placeholder="Select date"
                                     style={{ width: "100%" }}
                                 />
                             </Form.Item>
                         </Col>
                     </Row>
 
-                    <SectionLabel>Thể loại</SectionLabel>
+                    <SectionLabel>Genres</SectionLabel>
 
                     <Form.Item name="genres">
                         <Select
                             mode="multiple"
-                            placeholder={genresLoading ? "Đang tải thể loại..." : "Chọn thể loại phim"}
+                            placeholder={genresLoading ? "Loading genres..." : "Select movie genres"}
                             options={genreOptions}
                             loading={genresLoading}
                             allowClear
@@ -319,7 +319,7 @@ const MovieFormModal: FC<Props> = ({ mode, movieId, open, onClose }) => {
                         />
                     </Form.Item>
 
-                    <SectionLabel>Poster phim</SectionLabel>
+                    <SectionLabel>Movie Poster</SectionLabel>
 
                     <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
                         {/* Preview */}
@@ -343,7 +343,7 @@ const MovieFormModal: FC<Props> = ({ mode, movieId, open, onClose }) => {
 
                         <div style={{ flex: 1 }}>
                             <p style={{ margin: "0 0 8px", fontSize: 13, color: "var(--dash-text-2)" }}>
-                                {posterPreview ? "Poster đã được chọn. Nhấn bên dưới để thay đổi." : "Chọn ảnh poster (JPG, PNG — tỷ lệ 2:3 khuyến nghị)."}
+                                {posterPreview ? "Poster selected. Click below to change it." : "Select a poster image (JPG, PNG — 2:3 ratio recommended)."}
                             </p>
                             <input
                                 ref={fileInputRef}
@@ -368,7 +368,7 @@ const MovieFormModal: FC<Props> = ({ mode, movieId, open, onClose }) => {
                                     gap: 6,
                                 }}
                             >
-                                📂 {posterPreview ? "Đổi poster" : "Chọn ảnh"}
+                                📂 {posterPreview ? "Change Poster" : "Select Image"}
                             </button>
                             {posterFile && (
                                 <p style={{ margin: "6px 0 0", fontSize: 11, color: "var(--dash-text-3)" }}>

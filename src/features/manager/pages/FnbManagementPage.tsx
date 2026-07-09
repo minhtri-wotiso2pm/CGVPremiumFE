@@ -134,16 +134,16 @@ const FnbManagementPage: FC = () => {
             <div className="dash-page-header" style={{ marginBottom: 20 }}>
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
                     <div>
-                        <h1 className="dash-page-title">Quản lý F&amp;B</h1>
-                        <p className="dash-page-sub">Quản lý danh sách sản phẩm bắp, nước và combo bán tại rạp.</p>
+                        <h1 className="dash-page-title">F&amp;B Management</h1>
+                        <p className="dash-page-sub">Manage the list of popcorn, drinks, and combos sold at the theater.</p>
                     </div>
                     {!isLoading && !isError && products.length > 0 && (
                         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-                            <StatPill label="Tổng"        value={stats.total}      color="muted" />
-                            <StatPill label="Còn hàng"    value={stats.inStock}    color="green" />
-                            <StatPill label="Sắp hết"     value={stats.lowStock}   color="yellow" />
-                            <StatPill label="Hết / Dừng"  value={stats.outOfStock} color="red" />
-                            <StatPill label="Trên menu"   value={stats.onMenu}     color="green" />
+                            <StatPill label="Total"          value={stats.total}      color="muted" />
+                            <StatPill label="In Stock"       value={stats.inStock}    color="green" />
+                            <StatPill label="Low Stock"      value={stats.lowStock}   color="yellow" />
+                            <StatPill label="Out / Inactive" value={stats.outOfStock} color="red" />
+                            <StatPill label="On Menu"        value={stats.onMenu}     color="green" />
                         </div>
                     )}
                 </div>
@@ -154,12 +154,12 @@ const FnbManagementPage: FC = () => {
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "64px 24px", textAlign: "center" }}>
                     <div style={{ color: "var(--dash-text-3)" }}><AlertIcon /></div>
                     <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: "var(--dash-text-1)" }}>
-                        Không tải được danh sách sản phẩm
+                        Failed to Load Product List
                     </p>
                     <p style={{ margin: 0, fontSize: 13, color: "var(--dash-text-2)" }}>
-                        Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại.
+                        An error occurred while loading data. Please try again.
                     </p>
-                    <Button onClick={() => refetch()} style={{ marginTop: 4 }}>Thử lại</Button>
+                    <Button onClick={() => refetch()} style={{ marginTop: 4 }}>Retry</Button>
                 </div>
             )}
 
@@ -168,10 +168,10 @@ const FnbManagementPage: FC = () => {
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "72px 24px", textAlign: "center" }}>
                     <div style={{ color: "var(--dash-text-3)", opacity: 0.5 }}><BagIcon /></div>
                     <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: "var(--dash-text-1)" }}>
-                        Chưa có sản phẩm F&amp;B nào
+                        No F&amp;B Products Yet
                     </p>
                     <p style={{ margin: 0, fontSize: 13, color: "var(--dash-text-2)" }}>
-                        Thêm sản phẩm đầu tiên để bắt đầu bán F&amp;B.
+                        Add the first product to start selling F&amp;B.
                     </p>
                     <Button
                         type="primary"
@@ -179,7 +179,7 @@ const FnbManagementPage: FC = () => {
                         onClick={() => openModal("create")}
                         style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}
                     >
-                        Thêm sản phẩm
+                        Add Product
                     </Button>
                 </div>
             )}
@@ -204,13 +204,13 @@ const FnbManagementPage: FC = () => {
                     {isFilterEmpty ? (
                         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "52px 24px", textAlign: "center" }}>
                             <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: "var(--dash-text-1)" }}>
-                                Không tìm thấy kết quả
+                                No Results Found
                             </p>
                             <p style={{ margin: 0, fontSize: 13, color: "var(--dash-text-2)" }}>
-                                Thử điều chỉnh từ khóa hoặc bộ lọc.
+                                Try adjusting your keyword or filters.
                             </p>
                             <Button size="small" onClick={() => { setSearch(""); setItemType(""); setStatus(""); setIsOnMenu(""); }}>
-                                Xóa bộ lọc
+                                Clear Filters
                             </Button>
                         </div>
                     ) : (

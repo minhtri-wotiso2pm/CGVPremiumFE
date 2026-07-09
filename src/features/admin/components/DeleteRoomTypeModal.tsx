@@ -1,10 +1,10 @@
 import { type FC } from "react";
 import { Modal } from "antd";
-import type { MovieListItem } from "../types/movie-mgmt.types";
-import { useDeleteMovie } from "../hooks/useMovieMutations";
+import type { RoomTypeItem } from "@/features/manager/types/roomType.types";
+import { useDeleteRoomType } from "@/features/manager/hooks/useRoomTypes";
 
 interface Props {
-    movie: MovieListItem | null;
+    roomType: RoomTypeItem | null;
     open: boolean;
     onClose: () => void;
 }
@@ -18,12 +18,12 @@ const WarningIcon = () => (
     </svg>
 );
 
-const DeleteMovieModal: FC<Props> = ({ movie, open, onClose }) => {
-    const { mutate: deleteMovie, isPending } = useDeleteMovie();
+const DeleteRoomTypeModal: FC<Props> = ({ roomType, open, onClose }) => {
+    const { mutate: remove, isPending } = useDeleteRoomType();
 
     const handleDelete = () => {
-        if (!movie) return;
-        deleteMovie(movie.movieId, { onSuccess: onClose });
+        if (!roomType) return;
+        remove(roomType.roomTypeId, { onSuccess: onClose });
     };
 
     return (
@@ -31,7 +31,7 @@ const DeleteMovieModal: FC<Props> = ({ movie, open, onClose }) => {
             open={open}
             onCancel={!isPending ? onClose : undefined}
             onOk={handleDelete}
-            okText="Delete Movie"
+            okText="Delete"
             cancelText="Cancel"
             okButtonProps={{ danger: true, loading: isPending }}
             cancelButtonProps={{ disabled: isPending }}
@@ -40,7 +40,7 @@ const DeleteMovieModal: FC<Props> = ({ movie, open, onClose }) => {
             title={
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <WarningIcon />
-                    <span>Delete Movie</span>
+                    <span>Delete Room Type</span>
                 </div>
             }
             destroyOnHidden
@@ -48,14 +48,14 @@ const DeleteMovieModal: FC<Props> = ({ movie, open, onClose }) => {
             <div style={{ padding: "4px 0 8px" }}>
                 <p style={{ margin: 0, fontSize: 14, color: "var(--dash-text-1)", lineHeight: 1.6 }}>
                     Are you sure you want to delete{" "}
-                    <strong>"{movie?.title}"</strong>?
+                    <strong>{roomType?.typeName}</strong>?
                 </p>
                 <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--dash-text-2)" }}>
-                    This action cannot be undone. All data related to this movie will be permanently deleted.
+                    This action cannot be undone. Rooms currently using this type must be reassigned first — the system will block deletion if any are still using it.
                 </p>
             </div>
         </Modal>
     );
 };
 
-export default DeleteMovieModal;
+export default DeleteRoomTypeModal;

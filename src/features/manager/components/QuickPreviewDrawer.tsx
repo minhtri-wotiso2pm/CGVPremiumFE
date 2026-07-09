@@ -1,4 +1,5 @@
 import { type FC } from "react";
+import { createPortal } from "react-dom";
 import { useShowtimeTypeDetail } from "../hooks/useShowtimeTypes";
 import { formatSlotShort } from "../utils/showtimeType.utils";
 
@@ -29,7 +30,7 @@ const QuickPreviewDrawer: FC<Props> = ({ showtimeTypeId, onClose, onGenerateFrom
     const first = sortedSlots[0]?.startTime;
     const last = sortedSlots[sortedSlots.length - 1]?.startTime;
 
-    return (
+    return createPortal(
         <>
             <div className={`stt-drawer-overlay${open ? " stt-drawer-overlay--open" : ""}`} onClick={onClose} aria-hidden="true" />
             <aside className={`stt-drawer${open ? " stt-drawer--open" : ""}`} aria-hidden={!open}>
@@ -99,7 +100,8 @@ const QuickPreviewDrawer: FC<Props> = ({ showtimeTypeId, onClose, onGenerateFrom
                     </>
                 )}
             </aside>
-        </>
+        </>,
+        document.body,
     );
 };
 

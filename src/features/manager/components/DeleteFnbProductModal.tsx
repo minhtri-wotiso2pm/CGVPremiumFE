@@ -31,8 +31,8 @@ const DeleteFnbProductModal: FC<Props> = ({ product, open, onClose }) => {
             open={open}
             onCancel={!isPending ? onClose : undefined}
             onOk={handleDelete}
-            okText="Xóa sản phẩm"
-            cancelText="Hủy"
+            okText="Delete Product"
+            cancelText="Cancel"
             okButtonProps={{ danger: true, loading: isPending }}
             cancelButtonProps={{ disabled: isPending }}
             maskClosable={!isPending}
@@ -40,18 +40,18 @@ const DeleteFnbProductModal: FC<Props> = ({ product, open, onClose }) => {
             title={
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <WarningIcon />
-                    <span>Xóa sản phẩm F&B</span>
+                    <span>Delete F&amp;B Product</span>
                 </div>
             }
             destroyOnHidden
         >
             <div style={{ padding: "4px 0 8px" }}>
                 <p style={{ margin: 0, fontSize: 14, color: "var(--dash-text-1)", lineHeight: 1.6 }}>
-                    Bạn có chắc muốn xóa sản phẩm{" "}
+                    Are you sure you want to delete{" "}
                     <strong>"{product?.itemName}"</strong>?
                 </p>
                 <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--dash-text-2)" }}>
-                    Hành động này không thể hoàn tác.
+                    This action cannot be undone.
                 </p>
             </div>
         </Modal>

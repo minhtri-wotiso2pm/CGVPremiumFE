@@ -41,7 +41,7 @@ const MovieToolbar: FC<Props> = ({
     <div className="dash-toolbar">
         <div className="dash-toolbar__left">
             <Search
-                placeholder="Tìm theo tên phim..."
+                placeholder="Search by movie title..."
                 allowClear
                 value={search}
                 onChange={(e) => onSearchChange(e.target.value)}
@@ -55,7 +55,7 @@ const MovieToolbar: FC<Props> = ({
             />
         </div>
         <div className="dash-toolbar__right">
-            <Tooltip title="Làm mới dữ liệu">
+            <Tooltip title="Refresh data">
                 <button
                     className="dash-icon-btn"
                     onClick={onRefresh}
@@ -71,7 +71,7 @@ const MovieToolbar: FC<Props> = ({
                 onClick={onAdd}
                 style={{ display: "flex", alignItems: "center", gap: 6 }}
             >
-                Thêm phim
+                Add Movie
             </Button>
         </div>
     </div>

@@ -5,16 +5,18 @@ import type { ColumnsType } from "antd/es/table";
 import { useAppSelector } from "@/store/hooks";
 import { useProfile } from "@/features/customer/hooks/useProfile";
 import { useRooms } from "../hooks/useRooms";
+import { useRoomTypes } from "../hooks/useRoomTypes";
 import type { Room, RoomModalType } from "../types/room.types";
 import {
     ROOM_PAGE_SIZE,
-    ROOM_TYPE_FILTER_OPTIONS,
     ROOM_STATUS_FILTER_OPTIONS,
 } from "../constants/room.constants";
 import RoomModal from "../components/RoomModal";
 import DeleteRoomModal from "../components/DeleteRoomModal";
 
 const { Search } = Input;
+
+const formatVnd = (n: number) => `${n.toLocaleString("vi-VN")} ₫`;
 
 const PlusIcon = () => (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -77,12 +79,23 @@ const RoomManagementPage: FC = () => {
     const cinemaId = user?.cinema?.cinemaId ?? null;
 
     const { data: allRooms = [], isLoading, isError, refetch, isFetching } = useRooms();
+    const { data: roomTypes = [] } = useRoomTypes();
 
     const [search, setSearch] = useState("");
-    const [type, setType] = useState("");
+    const [roomTypeId, setRoomTypeId] = useState<number | "">("");
     const [status, setStatus] = useState("");
     const [modalType, setModalType] = useState<RoomModalType | null>(null);
     const [selected, setSelected] = useState<Room | null>(null);
+
+    const roomTypeById = useMemo(
+        () => new Map(roomTypes.map((t) => [t.roomTypeId, t])),
+        [roomTypes],
+    );
+
+    const roomTypeFilterOptions = useMemo(() => [
+        { value: "", label: "All Types" },
+        ...roomTypes.map((t) => ({ value: t.roomTypeId, label: t.typeName })),
+    ], [roomTypes]);
 
     // Defensive scope: only rooms of the manager's own cinema.
     const rooms = useMemo(
@@ -100,10 +113,10 @@ const RoomManagementPage: FC = () => {
         let result = rooms;
         const q = search.trim().toLowerCase();
         if (q) result = result.filter((r) => r.name.toLowerCase().includes(q));
-        if (type) result = result.filter((r) => r.type === type);
+        if (roomTypeId !== "") result = result.filter((r) => r.roomTypeId === roomTypeId);
         if (status) result = result.filter((r) => r.status === status);
         return result;
-    }, [rooms, search, type, status]);
+    }, [rooms, search, roomTypeId, status]);
 
     const openModal = (t: RoomModalType, room?: Room) => {
         setSelected(room ?? null);
@@ -133,12 +146,16 @@ const RoomManagementPage: FC = () => {
         },
         {
             title: "Type",
-            dataIndex: "type",
             key: "type",
-            width: 110,
-            render: (t: string) => (
-                <span className="dash-badge" style={{ background: "rgba(232,0,28,0.06)", color: "var(--dash-crimson)", border: "1px solid rgba(232,0,28,0.14)" }}>{t}</span>
-            ),
+            width: 150,
+            render: (_, r) => {
+                const t = roomTypeById.get(r.roomTypeId);
+                return (
+                    <span className="dash-badge" style={{ background: "rgba(232,0,28,0.06)", color: "var(--dash-crimson)", border: "1px solid rgba(232,0,28,0.14)" }}>
+                        {t ? `${t.typeName}${t.extraPrice > 0 ? ` +${formatVnd(t.extraPrice)}` : ""}` : "—"}
+                    </span>
+                );
+            },
         },
         {
             title: "Capacity",
@@ -221,7 +238,7 @@ const RoomManagementPage: FC = () => {
                     <div className="dash-toolbar">
                         <div className="dash-toolbar__left">
                             <Search placeholder="Search by room name..." allowClear value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: 240 }} />
-                            <Select value={type} onChange={setType} options={[...ROOM_TYPE_FILTER_OPTIONS]} style={{ width: 130 }} />
+                            <Select value={roomTypeId} onChange={setRoomTypeId} options={roomTypeFilterOptions} style={{ width: 150 }} />
                             <Select value={status} onChange={setStatus} options={[...ROOM_STATUS_FILTER_OPTIONS]} style={{ width: 136 }} />
                         </div>
                         <div className="dash-toolbar__right">

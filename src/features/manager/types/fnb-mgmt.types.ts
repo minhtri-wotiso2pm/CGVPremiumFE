@@ -4,45 +4,45 @@ export type FnbItemStatus = "in_stock" | "low_stock" | "out_of_stock" | "inactiv
 export const FNB_TYPE_OPTIONS: { value: FnbItemType; label: string }[] = [
     { value: "combo", label: "Combo" },
     { value: "snack", label: "Snack" },
-    { value: "beverage", label: "Đồ uống" },
-    { value: "dessert", label: "Tráng miệng" },
+    { value: "beverage", label: "Beverage" },
+    { value: "dessert", label: "Dessert" },
 ];
 
 export const FNB_TYPE_FILTER_OPTIONS: { value: string; label: string }[] = [
-    { value: "", label: "Tất cả loại" },
+    { value: "", label: "All Types" },
     { value: "combo", label: "Combo" },
     { value: "snack", label: "Snack" },
-    { value: "beverage", label: "Đồ uống" },
-    { value: "dessert", label: "Tráng miệng" },
+    { value: "beverage", label: "Beverage" },
+    { value: "dessert", label: "Dessert" },
 ];
 
 export const FNB_STATUS_OPTIONS: { value: FnbItemStatus; label: string }[] = [
-    { value: "in_stock", label: "Còn hàng" },
-    { value: "low_stock", label: "Sắp hết" },
-    { value: "out_of_stock", label: "Hết hàng" },
-    { value: "inactive", label: "Ngừng bán" },
+    { value: "in_stock", label: "In Stock" },
+    { value: "low_stock", label: "Low Stock" },
+    { value: "out_of_stock", label: "Out of Stock" },
+    { value: "inactive", label: "Inactive" },
 ];
 
 export const FNB_STATUS_FILTER_OPTIONS: { value: string; label: string }[] = [
-    { value: "", label: "Tất cả trạng thái" },
-    { value: "in_stock", label: "Còn hàng" },
-    { value: "low_stock", label: "Sắp hết" },
-    { value: "out_of_stock", label: "Hết hàng" },
-    { value: "inactive", label: "Ngừng bán" },
+    { value: "", label: "All Statuses" },
+    { value: "in_stock", label: "In Stock" },
+    { value: "low_stock", label: "Low Stock" },
+    { value: "out_of_stock", label: "Out of Stock" },
+    { value: "inactive", label: "Inactive" },
 ];
 
 export const FNB_STATUS_LABELS: Record<FnbItemStatus, string> = {
-    in_stock: "Còn hàng",
-    low_stock: "Sắp hết",
-    out_of_stock: "Hết hàng",
-    inactive: "Ngừng bán",
+    in_stock: "In Stock",
+    low_stock: "Low Stock",
+    out_of_stock: "Out of Stock",
+    inactive: "Inactive",
 };
 
 export const FNB_TYPE_LABELS: Record<FnbItemType, string> = {
     combo: "Combo",
     snack: "Snack",
-    beverage: "Đồ uống",
-    dessert: "Tráng miệng",
+    beverage: "Beverage",
+    dessert: "Dessert",
 };
 
 export interface FnbProduct {

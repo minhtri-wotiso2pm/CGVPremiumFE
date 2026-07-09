@@ -49,6 +49,7 @@ import VoucherManagementPage from "@/features/vouchers/pages/VoucherManagementPa
 import AdminDashboard from "@/features/admin/pages/AdminDashboard";
 import UserManagementPage from "@/features/admin/pages/UserManagementPage";
 import SeatTypeManagementPage from "@/features/admin/pages/SeatTypeManagementPage";
+import RoomTypeManagementPage from "@/features/admin/pages/RoomTypeManagementPage";
 import AdminProfilePage from "@/features/admin/pages/AdminProfilePage";
 import ActivityLogPage from "@/features/admin/pages/ActivityLogPage";
 
@@ -376,6 +377,10 @@ export const router = createBrowserRouter([
                             {
                                 path: "products",
                                 element: <FnbManagementPage />,
+                            },
+                            {
+                                path: "room-types",
+                                element: <RoomTypeManagementPage />,
                             },
                             {
                                 path: "seat-types",

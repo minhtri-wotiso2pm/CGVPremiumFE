@@ -1,8 +1,10 @@
-import { type FC } from "react";
+import { type FC, useState } from "react";
 import { Spin } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useMyBookings } from "@/features/booking/hooks/useMyBookings";
 import type { MyBooking } from "@/features/booking/types/ticket.types";
+import { canRequestRefund } from "@/features/booking/utils/refund.utils";
+import RefundModal, { type RefundBookingInfo } from "@/features/booking/components/RefundModal";
 
 const fmtVnd = (n: number) => `${n.toLocaleString("vi-VN")} ₫`;
 
@@ -21,14 +23,16 @@ const statusStyle = (status: string): { bg: string; color: string; label: string
     if (s === "pending") return { bg: "rgba(245,158,11,0.14)", color: "#fbbf24", label: "Pending" };
     if (s === "cancelled") return { bg: "rgba(148,163,184,0.14)", color: "#94a3b8", label: "Cancelled" };
     if (s === "expired") return { bg: "rgba(148,163,184,0.14)", color: "#94a3b8", label: "Expired" };
+    if (s === "refunded") return { bg: "rgba(96,165,250,0.14)", color: "#60a5fa", label: "Refunded" };
     return { bg: "rgba(148,163,184,0.14)", color: "#94a3b8", label: status };
 };
 
 /** Simplified list card: poster + the essentials only. Full ticket/QR and
  *  price breakdown now live on the dedicated detail page (one click away)
  *  instead of expanding inline here. */
-const BookingCard: FC<{ booking: MyBooking; onViewDetail: () => void }> = ({ booking, onViewDetail }) => {
+const BookingCard: FC<{ booking: MyBooking; onViewDetail: () => void; onRefund: () => void }> = ({ booking, onViewDetail, onRefund }) => {
     const st = statusStyle(booking.status);
+    const refundEligible = canRequestRefund(booking.status, booking.startTime);
 
     return (
         <div
@@ -79,16 +83,30 @@ const BookingCard: FC<{ booking: MyBooking; onViewDetail: () => void }> = ({ boo
 
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 10 }}>
                     <span style={{ fontSize: 14, fontWeight: 700, color: "#f0e8e8" }}>{fmtVnd(booking.finalAmount)}</span>
-                    <button
-                        onClick={(e) => { e.stopPropagation(); onViewDetail(); }}
-                        style={{
-                            border: "1px solid rgba(232,0,28,0.4)", background: "rgba(232,0,28,0.08)",
-                            color: "#f0a8a8", borderRadius: 8, padding: "6px 14px", fontSize: 12,
-                            fontWeight: 600, cursor: "pointer",
-                        }}
-                    >
-                        View Detail
-                    </button>
+                    <div style={{ display: "flex", gap: 8 }}>
+                        {refundEligible && (
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onRefund(); }}
+                                style={{
+                                    border: "1px solid rgba(255,255,255,0.14)", background: "rgba(255,255,255,0.04)",
+                                    color: "#c8b0b0", borderRadius: 8, padding: "6px 14px", fontSize: 12,
+                                    fontWeight: 600, cursor: "pointer",
+                                }}
+                            >
+                                Request Refund
+                            </button>
+                        )}
+                        <button
+                            onClick={(e) => { e.stopPropagation(); onViewDetail(); }}
+                            style={{
+                                border: "1px solid rgba(232,0,28,0.4)", background: "rgba(232,0,28,0.08)",
+                                color: "#f0a8a8", borderRadius: 8, padding: "6px 14px", fontSize: 12,
+                                fontWeight: 600, cursor: "pointer",
+                            }}
+                        >
+                            View Detail
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -98,6 +116,7 @@ const BookingCard: FC<{ booking: MyBooking; onViewDetail: () => void }> = ({ boo
 const MyTicketsPage: FC = () => {
     const navigate = useNavigate();
     const { data: bookings = [], isLoading, isError, refetch } = useMyBookings();
+    const [refundTarget, setRefundTarget] = useState<RefundBookingInfo | null>(null);
 
     return (
         <div>
@@ -133,10 +152,20 @@ const MyTicketsPage: FC = () => {
                             key={b.bookingID}
                             booking={b}
                             onViewDetail={() => navigate(`/customer/profile/tickets/${b.bookingID}`)}
+                            onRefund={() =>
+                                setRefundTarget({
+                                    bookingID: b.bookingID,
+                                    bookingCode: b.bookingCode,
+                                    movieTitle: b.movie.title,
+                                    finalAmount: b.finalAmount,
+                                })
+                            }
                         />
                     ))}
                 </div>
             )}
+
+            <RefundModal open={refundTarget != null} booking={refundTarget} onClose={() => setRefundTarget(null)} />
         </div>
     );
 };

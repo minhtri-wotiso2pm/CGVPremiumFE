@@ -1,4 +1,5 @@
 import { type FC } from "react";
+import { createPortal } from "react-dom";
 import type { ShowtimeTypeListItem } from "../types/showtimeType.types";
 import { useDeleteShowtimeType } from "../hooks/useShowtimeTypes";
 
@@ -25,7 +26,7 @@ const DeleteShowtimeTypeModal: FC<Props> = ({ showtimeType, open, onClose }) => 
         deleteType(showtimeType.id, { onSuccess: onClose });
     };
 
-    return (
+    return createPortal(
         <div className="stt-modal-overlay" onClick={() => { if (!isPending) onClose(); }}>
             <div className="stt-modal stt-modal--sm" onClick={(e) => e.stopPropagation()}>
                 <div className="stt-confirm">
@@ -44,7 +45,8 @@ const DeleteShowtimeTypeModal: FC<Props> = ({ showtimeType, open, onClose }) => 
                     </div>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body,
     );
 };
 

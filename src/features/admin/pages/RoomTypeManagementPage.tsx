@@ -1,0 +1,223 @@
+import { type FC, useMemo, useState } from "react";
+import { Button, Input, Table, Tooltip } from "antd";
+import type { ColumnsType } from "antd/es/table";
+import { useRoomTypes } from "@/features/manager/hooks/useRoomTypes";
+import type { RoomTypeItem, RoomTypeModalType } from "@/features/manager/types/roomType.types";
+import { ROOM_TYPE_PAGE_SIZE } from "@/features/manager/constants/roomType.constants";
+import RoomTypeModal from "../components/RoomTypeModal";
+import DeleteRoomTypeModal from "../components/DeleteRoomTypeModal";
+
+const { Search } = Input;
+
+const PlusIcon = () => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+        <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+    </svg>
+);
+const EditIcon = () => (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+    </svg>
+);
+const TrashIcon = () => (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="3 6 5 6 21 6" />
+        <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+        <path d="M10 11v6M14 11v6" />
+    </svg>
+);
+const RefreshIcon = ({ spin }: { spin: boolean }) => (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transition: "transform 0.5s", transform: spin ? "rotate(360deg)" : "rotate(0deg)" }}>
+        <polyline points="23 4 23 10 17 10" />
+        <polyline points="1 20 1 14 7 14" />
+        <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15" />
+    </svg>
+);
+
+/* ── Stat pill (mirrors CinemaManagementPage / SeatTypeManagementPage) ── */
+const StatPill: FC<{ label: string; value: number; accent?: boolean; muted?: boolean }> = ({
+    label, value, accent, muted,
+}) => (
+    <div style={{
+        display: "flex", alignItems: "center", gap: 8,
+        padding: "6px 14px", borderRadius: 20,
+        background: accent ? "rgba(232,0,28,0.06)" : muted ? "rgba(0,0,0,0.03)" : "rgba(34,197,94,0.06)",
+        border: `1px solid ${accent ? "rgba(232,0,28,0.14)" : muted ? "var(--dash-border)" : "rgba(34,197,94,0.18)"}`,
+    }}>
+        <span style={{
+            width: 6, height: 6, borderRadius: "50%", flexShrink: 0,
+            background: accent ? "#E8001C" : muted ? "var(--dash-text-3)" : "#22c55e",
+        }} />
+        <span style={{ fontSize: 12, fontWeight: 600, color: "var(--dash-text-1)", fontVariantNumeric: "tabular-nums" }}>
+            {value}
+        </span>
+        <span style={{ fontSize: 12, color: "var(--dash-text-2)" }}>{label}</span>
+    </div>
+);
+
+const formatVnd = (n: number) => `${n.toLocaleString("vi-VN")} ₫`;
+
+const RoomTypeManagementPage: FC = () => {
+    const { data: roomTypes = [], isLoading, isError, refetch, isFetching } = useRoomTypes();
+
+    const [search, setSearch] = useState("");
+    const [modalType, setModalType] = useState<RoomTypeModalType | null>(null);
+    const [selected, setSelected] = useState<RoomTypeItem | null>(null);
+
+    const stats = useMemo(() => ({
+        total: roomTypes.length,
+        withExtra: roomTypes.filter((t) => t.extraPrice > 0).length,
+        free: roomTypes.filter((t) => t.extraPrice <= 0).length,
+    }), [roomTypes]);
+
+    const filtered = useMemo(() => {
+        const q = search.trim().toLowerCase();
+        if (!q) return roomTypes;
+        return roomTypes.filter((t) => t.typeName.toLowerCase().includes(q));
+    }, [roomTypes, search]);
+
+    const openModal = (type: RoomTypeModalType, roomType?: RoomTypeItem) => {
+        setSelected(roomType ?? null);
+        setModalType(type);
+    };
+    const closeModal = () => {
+        setModalType(null);
+        setSelected(null);
+    };
+
+    const columns: ColumnsType<RoomTypeItem> = [
+        {
+            title: "#",
+            key: "index",
+            width: 52,
+            render: (_, __, i) => (
+                <span style={{ fontSize: 12, color: "var(--dash-text-3)", fontVariantNumeric: "tabular-nums" }}>{i + 1}</span>
+            ),
+        },
+        {
+            title: "Type Name",
+            dataIndex: "typeName",
+            key: "typeName",
+            render: (name: string) => (
+                <span style={{ fontWeight: 600, fontSize: 13, color: "var(--dash-text-1)" }}>{name}</span>
+            ),
+        },
+        {
+            title: "Extra Price",
+            dataIndex: "extraPrice",
+            key: "extraPrice",
+            width: 150,
+            render: (p: number) => (
+                <span style={{ fontSize: 13, color: p > 0 ? "var(--dash-crimson)" : "var(--dash-text-2)", fontWeight: p > 0 ? 600 : 400 }}>
+                    {p > 0 ? `+${formatVnd(p)}` : "No extra"}
+                </span>
+            ),
+        },
+        {
+            title: "Description",
+            dataIndex: "description",
+            key: "description",
+            render: (d: string) => (
+                <span style={{ fontSize: 13, color: "var(--dash-text-2)" }}>{d || "—"}</span>
+            ),
+            responsive: ["md"],
+        },
+        {
+            title: "",
+            key: "actions",
+            width: 96,
+            align: "right",
+            render: (_, record) => (
+                <div style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
+                    <Tooltip title="Edit">
+                        <button className="dash-icon-btn" aria-label="Edit room type" onClick={() => openModal("edit", record)}>
+                            <EditIcon />
+                        </button>
+                    </Tooltip>
+                    <Tooltip title="Delete">
+                        <button className="dash-icon-btn" aria-label="Delete room type" onClick={() => openModal("delete", record)} style={{ color: "#E8001C" }}>
+                            <TrashIcon />
+                        </button>
+                    </Tooltip>
+                </div>
+            ),
+        },
+    ];
+
+    return (
+        <div className="dash-fade-in">
+            <div className="dash-page-header" style={{ marginBottom: 20 }}>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+                    <div>
+                        <h1 className="dash-page-title">Room Types</h1>
+                        <p className="dash-page-sub">Define screening room categories and their pricing used across all cinemas.</p>
+                    </div>
+                    {!isLoading && !isError && roomTypes.length > 0 && (
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                            <StatPill label="Total" value={stats.total} muted />
+                            <StatPill label="Has Extra Fee" value={stats.withExtra} />
+                            <StatPill label="Free" value={stats.free} accent />
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {isError ? (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "64px 24px", textAlign: "center" }}>
+                    <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: "var(--dash-text-1)" }}>Failed to load room types</p>
+                    <Button onClick={() => refetch()}>Retry</Button>
+                </div>
+            ) : (
+                <>
+                    <div className="dash-toolbar">
+                        <div className="dash-toolbar__left">
+                            <Search placeholder="Search by type name..." allowClear value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: 240 }} />
+                        </div>
+                        <div className="dash-toolbar__right">
+                            <Tooltip title="Refresh data">
+                                <button className="dash-icon-btn" onClick={() => refetch()} aria-label="Refresh" disabled={isFetching}>
+                                    <RefreshIcon spin={isFetching} />
+                                </button>
+                            </Tooltip>
+                            <Button type="primary" icon={<PlusIcon />} onClick={() => openModal("create")} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                Add Room Type
+                            </Button>
+                        </div>
+                    </div>
+
+                    <div className="dash-card" style={{ overflow: "hidden" }}>
+                        <Table<RoomTypeItem>
+                            dataSource={filtered}
+                            columns={columns}
+                            rowKey="roomTypeId"
+                            loading={isLoading}
+                            pagination={{
+                                pageSize: ROOM_TYPE_PAGE_SIZE,
+                                hideOnSinglePage: true,
+                                showTotal: (t, range) => `${range[0]}–${range[1]} of ${t} room types`,
+                                style: { padding: "12px 16px", marginBottom: 0 },
+                            }}
+                            scroll={{ x: 560 }}
+                            rowHoverable
+                        />
+                    </div>
+                </>
+            )}
+
+            <RoomTypeModal
+                mode={modalType === "edit" ? "edit" : "create"}
+                roomType={selected}
+                open={modalType === "create" || modalType === "edit"}
+                onClose={closeModal}
+            />
+            <DeleteRoomTypeModal
+                roomType={selected}
+                open={modalType === "delete"}
+                onClose={closeModal}
+            />
+        </div>
+    );
+};
+
+export default RoomTypeManagementPage;

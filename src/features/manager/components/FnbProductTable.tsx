@@ -115,7 +115,7 @@ const FnbProductTable: FC<Props> = ({
             render: (_, r) => <ImageCell url={(r as FnbProduct & { imageURL?: string | null }).imageURL} name={r.itemName} />,
         },
         {
-            title: "Tên sản phẩm",
+            title: "Product Name",
             dataIndex: "itemName",
             key: "itemName",
             render: (name: string, r) => (
@@ -128,14 +128,14 @@ const FnbProductTable: FC<Props> = ({
                             border: "1px solid rgba(234,179,8,0.3)",
                             color: "#ca8a04", fontWeight: 600,
                         }}>
-                            Tích điểm
+                            Loyalty
                         </span>
                     )}
                 </div>
             ),
         },
         {
-            title: "Loại",
+            title: "Type",
             dataIndex: "itemType",
             key: "itemType",
             width: 110,
@@ -146,7 +146,7 @@ const FnbProductTable: FC<Props> = ({
             ),
         },
         {
-            title: "Giá",
+            title: "Price",
             dataIndex: "price",
             key: "price",
             width: 110,
@@ -157,7 +157,7 @@ const FnbProductTable: FC<Props> = ({
             ),
         },
         {
-            title: "Tồn kho",
+            title: "Stock",
             dataIndex: "stockQuantity",
             key: "stockQuantity",
             width: 90,
@@ -173,7 +173,7 @@ const FnbProductTable: FC<Props> = ({
             ),
         },
         {
-            title: "Trên menu",
+            title: "On Menu",
             dataIndex: "isOnMenu",
             key: "isOnMenu",
             width: 90,
@@ -182,12 +182,12 @@ const FnbProductTable: FC<Props> = ({
                     fontSize: 12, fontWeight: 600,
                     color: v ? "#22c55e" : "var(--dash-text-3)",
                 }}>
-                    {v ? "Hiện" : "Ẩn"}
+                    {v ? "Shown" : "Hidden"}
                 </span>
             ),
         },
         {
-            title: "Trạng thái",
+            title: "Status",
             dataIndex: "status",
             key: "status",
             width: 110,
@@ -200,12 +200,12 @@ const FnbProductTable: FC<Props> = ({
             align: "center",
             render: (_, record) => (
                 <div style={{ display: "flex", gap: 4, justifyContent: "center" }}>
-                    <Tooltip title="Sửa">
+                    <Tooltip title="Edit">
                         <button className="dash-icon-btn" onClick={() => onAction(record, "edit")} aria-label="Edit">
                             <EditIcon />
                         </button>
                     </Tooltip>
-                    <Tooltip title="Xóa">
+                    <Tooltip title="Delete">
                         <button className="dash-icon-btn dash-icon-btn--danger" onClick={() => onAction(record, "delete")} aria-label="Delete">
                             <TrashIcon />
                         </button>
@@ -228,7 +228,7 @@ const FnbProductTable: FC<Props> = ({
                     total,
                     showSizeChanger: true,
                     pageSizeOptions: ["10", "20", "50"],
-                    showTotal: (t, range) => `${range[0]}–${range[1]} / ${t} sản phẩm`,
+                    showTotal: (t, range) => `${range[0]}–${range[1]} of ${t} products`,
                     style: { padding: "12px 16px", marginBottom: 0 },
                 }}
                 scroll={{ x: 720 }}

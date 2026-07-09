@@ -113,7 +113,7 @@ const MovieTable: FC<Props> = ({
             render: (_, r) => <PosterCell url={r.posterUrl} title={r.title} />,
         },
         {
-            title: "Tên phim",
+            title: "Movie Title",
             dataIndex: "title",
             key: "title",
             render: (title: string) => (
@@ -123,7 +123,7 @@ const MovieTable: FC<Props> = ({
             ),
         },
         {
-            title: "Thể loại",
+            title: "Genres",
             dataIndex: "genres",
             key: "genres",
             render: (genres: string[] | undefined) => {
@@ -149,19 +149,19 @@ const MovieTable: FC<Props> = ({
             responsive: ["md"],
         },
         {
-            title: "Thời lượng",
+            title: "Duration",
             dataIndex: "durationMinutes",
             key: "duration",
             width: 100,
             render: (d?: number) => (
                 <span style={{ fontSize: 12, color: "var(--dash-text-2)" }}>
-                    {d ? `${d} phút` : "—"}
+                    {d ? `${d} min` : "—"}
                 </span>
             ),
             responsive: ["lg"],
         },
         {
-            title: "Xếp hạng",
+            title: "Age Rating",
             dataIndex: "ageRating",
             key: "ageRating",
             width: 80,
@@ -176,7 +176,7 @@ const MovieTable: FC<Props> = ({
             responsive: ["lg"],
         },
         {
-            title: "Trạng thái",
+            title: "Status",
             dataIndex: "status",
             key: "status",
             width: 120,
@@ -189,7 +189,7 @@ const MovieTable: FC<Props> = ({
             align: "center",
             render: (_, record) => (
                 <div style={{ display: "flex", gap: 4, justifyContent: "center" }}>
-                    <Tooltip title="Sửa">
+                    <Tooltip title="Edit">
                         <button
                             className="dash-icon-btn"
                             onClick={() => onAction(record, "edit")}
@@ -198,7 +198,7 @@ const MovieTable: FC<Props> = ({
                             <EditIcon />
                         </button>
                     </Tooltip>
-                    <Tooltip title="Xóa">
+                    <Tooltip title="Delete">
                         <button
                             className="dash-icon-btn dash-icon-btn--danger"
                             onClick={() => onAction(record, "delete")}
@@ -225,7 +225,7 @@ const MovieTable: FC<Props> = ({
                     total,
                     showSizeChanger: true,
                     pageSizeOptions: ["10", "20", "50"],
-                    showTotal: (t, range) => `${range[0]}–${range[1]} / ${t} phim`,
+                    showTotal: (t, range) => `${range[0]}–${range[1]} of ${t} movies`,
                     style: { padding: "12px 16px", marginBottom: 0 },
                 }}
                 scroll={{ x: 640 }}

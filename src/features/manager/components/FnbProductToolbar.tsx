@@ -28,9 +28,9 @@ const PlusIcon = () => (
 );
 
 const ON_MENU_FILTER_OPTIONS = [
-    { value: "",     label: "Tất cả menu" },
-    { value: "true", label: "Đang trên menu" },
-    { value: "false", label: "Đang ẩn" },
+    { value: "",     label: "All Menu Items" },
+    { value: "true", label: "On Menu" },
+    { value: "false", label: "Hidden" },
 ];
 
 interface Props {
@@ -55,7 +55,7 @@ const FnbProductToolbar: FC<Props> = ({
         <div style={{ display: "flex", gap: 8, flex: 1, flexWrap: "wrap" }}>
             <Input
                 prefix={<SearchIcon />}
-                placeholder="Tìm tên sản phẩm..."
+                placeholder="Search product name..."
                 value={search}
                 onChange={(e) => onSearchChange(e.target.value)}
                 allowClear
@@ -85,7 +85,7 @@ const FnbProductToolbar: FC<Props> = ({
                 className="dash-icon-btn"
                 onClick={onRefresh}
                 disabled={isRefreshing}
-                title="Làm mới"
+                title="Refresh"
                 style={{ width: 32, height: 32 }}
             >
                 <RefreshIcon />
@@ -96,7 +96,7 @@ const FnbProductToolbar: FC<Props> = ({
                 onClick={onAdd}
                 style={{ display: "flex", alignItems: "center", gap: 6 }}
             >
-                Thêm sản phẩm
+                Add Product
             </Button>
         </div>
     </div>

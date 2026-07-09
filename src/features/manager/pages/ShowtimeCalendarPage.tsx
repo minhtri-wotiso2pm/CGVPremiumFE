@@ -1,4 +1,5 @@
 import { type FC, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import { Select, Tooltip } from "antd";
 import dayjs, { type Dayjs } from "dayjs";
 import { useAppSelector } from "@/store/hooks";
@@ -182,7 +183,7 @@ const ShowtimeCalendarPage: FC = () => {
 
             <ShowtimeDetailModal showtime={selected} onClose={() => setSelected(null)} />
 
-            {moreDay && (
+            {moreDay && createPortal(
                 <div className="stt-modal-overlay" onClick={() => setMoreDay(null)}>
                     <div className="stt-modal stt-modal--sm" onClick={(e) => e.stopPropagation()}>
                         <div className="stt-modal__header">
@@ -193,7 +194,8 @@ const ShowtimeCalendarPage: FC = () => {
                             <CalendarDayView date={moreDay.date} items={moreDay.items} onSelect={(s) => { setMoreDay(null); setSelected(s); }} />
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body,
             )}
         </div>
     );

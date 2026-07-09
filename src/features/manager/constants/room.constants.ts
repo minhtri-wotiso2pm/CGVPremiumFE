@@ -1,18 +1,9 @@
-import { ROOM_TYPES } from "../types/room.types";
-
 export const ROOM_QUERY_KEY = ["rooms"] as const;
 export const SEAT_TYPE_QUERY_KEY = ["seat-types"] as const;
 export const ROOM_SEATS_QUERY_KEY = (roomId: number) => ["room-seats", roomId] as const;
 
 export const ROOM_PAGE_SIZE = 10;
 export const SEAT_TYPE_PAGE_SIZE = 10;
-
-export const ROOM_TYPE_OPTIONS = ROOM_TYPES.map((t) => ({ value: t, label: t }));
-
-export const ROOM_TYPE_FILTER_OPTIONS = [
-    { value: "", label: "All Types" },
-    ...ROOM_TYPE_OPTIONS,
-];
 
 export const ROOM_STATUS_OPTIONS = [
     { value: "ACTIVE", label: "Active" },

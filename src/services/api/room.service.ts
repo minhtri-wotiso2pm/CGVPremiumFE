@@ -11,17 +11,22 @@ import type {
 } from "@/features/manager/types/room.types";
 
 /** Backend returns status in either case across environments — normalize to uppercase. */
-const normalizeRoom = (r: Record<string, unknown>): Room => ({
-    roomId: Number(r.roomId),
-    cinemaId: Number(r.cinemaId),
-    name: String(r.name ?? ""),
-    type: String(r.type ?? "Standard"),
-    capacity: Number(r.capacity ?? 0),
-    status: String(r.status ?? "ACTIVE").toUpperCase() === "INACTIVE" ? "INACTIVE" : "ACTIVE",
-    description: String(r.description ?? ""),
-    createdAt: String(r.createdAt ?? ""),
-    roomTypeId: Number(r.roomTypeId ?? 0),
-});
+const normalizeRoom = (r: Record<string, unknown>): Room => {
+    // Room type comes back as a nested `room_type` object (roomTypeId,
+    // typeName, extraPrice, description) rather than a flat roomTypeId —
+    // fall back to a flat field in case some responses ever shift shape.
+    const roomType = r.room_type as Record<string, unknown> | undefined;
+    return {
+        roomId: Number(r.roomId),
+        cinemaId: Number(r.cinemaId),
+        name: String(r.name ?? ""),
+        capacity: Number(r.capacity ?? 0),
+        status: String(r.status ?? "ACTIVE").toUpperCase() === "INACTIVE" ? "INACTIVE" : "ACTIVE",
+        description: String(r.description ?? ""),
+        createdAt: String(r.createdAt ?? ""),
+        roomTypeId: Number(roomType?.roomTypeId ?? r.roomTypeId ?? 0),
+    };
+};
 
 export const getRoomsApi = async (): Promise<Room[]> => {
     const { data } = await axiosInstance.get("/rooms");

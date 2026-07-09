@@ -12,6 +12,27 @@ import QuickPreviewDrawer from "../components/QuickPreviewDrawer";
 import GenerateShowtimeWizard from "../components/wizard/GenerateShowtimeWizard";
 import "./showtimeType.css";
 
+/* ── Stat pill (mirrors RoomManagementPage / CinemaManagementPage) ── */
+const StatPill: FC<{ label: string; value: number; accent?: boolean; muted?: boolean }> = ({
+    label, value, accent, muted,
+}) => (
+    <div style={{
+        display: "flex", alignItems: "center", gap: 8,
+        padding: "6px 14px", borderRadius: 20,
+        background: accent ? "rgba(232,0,28,0.06)" : muted ? "rgba(0,0,0,0.03)" : "rgba(34,197,94,0.06)",
+        border: `1px solid ${accent ? "rgba(232,0,28,0.14)" : muted ? "var(--dash-border)" : "rgba(34,197,94,0.18)"}`,
+    }}>
+        <span style={{
+            width: 6, height: 6, borderRadius: "50%", flexShrink: 0,
+            background: accent ? "#E8001C" : muted ? "var(--dash-text-3)" : "#22c55e",
+        }} />
+        <span style={{ fontSize: 12, fontWeight: 600, color: "var(--dash-text-1)", fontVariantNumeric: "tabular-nums" }}>
+            {value}
+        </span>
+        <span style={{ fontSize: 12, color: "var(--dash-text-2)" }}>{label}</span>
+    </div>
+);
+
 const ShowtimeTypeManagementPage: FC = () => {
     useProfile();
     const user = useAppSelector((s) => s.auth.user);
@@ -29,6 +50,15 @@ const ShowtimeTypeManagementPage: FC = () => {
     const [wizardTypeId, setWizardTypeId] = useState<number | null>(null);
 
     const { data, isLoading, isError, refetch } = useShowtimeTypes(cinemaId);
+
+    const stats = useMemo(() => {
+        const items = data?.items ?? [];
+        return {
+            total: items.length,
+            active: items.filter((t) => t.isActive).length,
+            inactive: items.filter((t) => !t.isActive).length,
+        };
+    }, [data]);
 
     const filtered = useMemo(() => {
         let result = data?.items ?? [];
@@ -63,10 +93,21 @@ const ShowtimeTypeManagementPage: FC = () => {
     return (
         <div className="dash-fade-in">
             <div className="dash-page-header" style={{ marginBottom: 20 }}>
-                <h1 className="dash-page-title">Showtime Type Management</h1>
-                <p className="dash-page-sub">
-                    Define reusable daily slot schedules{user?.cinema ? ` for ${user.cinema.cinemaName}` : ""}, used to generate showtimes in bulk.
-                </p>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+                    <div>
+                        <h1 className="dash-page-title">Showtime Type Management</h1>
+                        <p className="dash-page-sub">
+                            Define reusable daily slot schedules{user?.cinema ? ` for ${user.cinema.cinemaName}` : ""}, used to generate showtimes in bulk.
+                        </p>
+                    </div>
+                    {cinemaId && (
+                        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                            <StatPill label="Total" value={stats.total} muted />
+                            <StatPill label="Active" value={stats.active} />
+                            <StatPill label="Inactive" value={stats.inactive} accent />
+                        </div>
+                    )}
+                </div>
             </div>
 
             {!cinemaId && !isLoading ? (

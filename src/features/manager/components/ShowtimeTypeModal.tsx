@@ -1,4 +1,5 @@
 import { type FC, useState } from "react";
+import { createPortal } from "react-dom";
 import { Input, Switch } from "antd";
 import type { ShowtimeTypeListItem, ShowtimeTypeModalType } from "../types/showtimeType.types";
 import { useCreateShowtimeType, useUpdateShowtimeType } from "../hooks/useShowtimeTypes";
@@ -73,7 +74,7 @@ const ShowtimeTypeModalForm: FC<FormProps> = ({ mode, showtimeType, cinemaId, on
         }
     };
 
-    return (
+    return createPortal(
         <div className="stt-modal-overlay" onClick={() => { if (!isLoading) onClose(); }}>
             <div className="stt-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="stt-modal__header">
@@ -118,7 +119,8 @@ const ShowtimeTypeModalForm: FC<FormProps> = ({ mode, showtimeType, cinemaId, on
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body,
     );
 };
 

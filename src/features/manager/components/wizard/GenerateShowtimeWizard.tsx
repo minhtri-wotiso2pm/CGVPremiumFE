@@ -1,4 +1,5 @@
 import { type FC, useState } from "react";
+import { createPortal } from "react-dom";
 import { INITIAL_WIZARD_STATE, type GenerateWizardState } from "../../types/generateWizard.types";
 import WizardStepper from "./WizardStepper";
 import StepMovieSelect from "./StepMovieSelect";
@@ -45,7 +46,7 @@ const GenerateShowtimeWizardInner: FC<InnerProps> = ({ cinemaId, initialShowtime
     const goNext = () => setStep((s) => Math.min(5, s + 1));
     const goBack = () => setStep((s) => Math.max(1, s - 1));
 
-    return (
+    return createPortal(
         <div className="stt-modal-overlay" onClick={onClose}>
             <div className="stt-wizard" onClick={(e) => e.stopPropagation()}>
                 <div className="stt-wizard__header">
@@ -99,7 +100,8 @@ const GenerateShowtimeWizardInner: FC<InnerProps> = ({ cinemaId, initialShowtime
                     )}
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body,
     );
 };
 

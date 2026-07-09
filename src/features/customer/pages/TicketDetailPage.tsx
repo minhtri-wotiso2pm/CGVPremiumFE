@@ -1,8 +1,10 @@
-import { type FC } from "react";
+import { type FC, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Spin } from "antd";
 import { useMyBookings } from "@/features/booking/hooks/useMyBookings";
 import TicketQrList from "@/features/booking/components/TicketQrList";
+import RefundModal, { type RefundBookingInfo } from "@/features/booking/components/RefundModal";
+import { canRequestRefund } from "@/features/booking/utils/refund.utils";
 import "./ticketDetail.css";
 
 const BackIcon = () => (
@@ -28,6 +30,7 @@ const statusStyle = (status: string): { bg: string; color: string; label: string
     if (s === "pending") return { bg: "rgba(245,158,11,0.9)", color: "#fff", label: "Pending" };
     if (s === "cancelled") return { bg: "rgba(148,163,184,0.5)", color: "#fff", label: "Cancelled" };
     if (s === "expired") return { bg: "rgba(148,163,184,0.5)", color: "#fff", label: "Expired" };
+    if (s === "refunded") return { bg: "rgba(96,165,250,0.85)", color: "#fff", label: "Refunded" };
     return { bg: "rgba(148,163,184,0.5)", color: "#fff", label: status };
 };
 
@@ -39,6 +42,7 @@ const TicketDetailPage: FC = () => {
     const navigate = useNavigate();
     const { data: bookings = [], isLoading, isError } = useMyBookings();
     const booking = bookings.find((b) => String(b.bookingID) === bookingId);
+    const [refundTarget, setRefundTarget] = useState<RefundBookingInfo | null>(null);
 
     if (isLoading) {
         return (
@@ -60,6 +64,7 @@ const TicketDetailPage: FC = () => {
     }
 
     const st = statusStyle(booking.status);
+    const refundEligible = canRequestRefund(booking.status, booking.startTime);
 
     return (
         <div className="tktd-page">
@@ -69,6 +74,25 @@ const TicketDetailPage: FC = () => {
                 </button>
                 <h1 className="tktd-title">E-Ticket</h1>
                 <span className="tktd-status" style={{ background: st.bg, color: st.color }}>{st.label}</span>
+                {refundEligible && (
+                    <button
+                        onClick={() =>
+                            setRefundTarget({
+                                bookingID: booking.bookingID,
+                                bookingCode: booking.bookingCode,
+                                movieTitle: booking.movie.title,
+                                finalAmount: booking.finalAmount,
+                            })
+                        }
+                        style={{
+                            marginLeft: 10, border: "1px solid rgba(255,255,255,0.14)", background: "rgba(255,255,255,0.04)",
+                            color: "#c8b0b0", borderRadius: 8, padding: "6px 14px", fontSize: 12.5,
+                            fontWeight: 600, cursor: "pointer",
+                        }}
+                    >
+                        Request Refund
+                    </button>
+                )}
             </div>
 
             <div className="tktd-body">
@@ -163,6 +187,8 @@ const TicketDetailPage: FC = () => {
                     />
                 </div>
             </div>
+
+            <RefundModal open={refundTarget != null} booking={refundTarget} onClose={() => setRefundTarget(null)} />
         </div>
     );
 };

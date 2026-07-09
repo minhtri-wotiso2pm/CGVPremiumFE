@@ -1,4 +1,5 @@
 import { type FC } from "react";
+import { createPortal } from "react-dom";
 import dayjs from "dayjs";
 import type { ManagerShowtime } from "../../types/showtime-mgmt.types";
 import { SHOWTIME_STATUS_BADGE } from "../../constants/showtime-mgmt.constants";
@@ -15,7 +16,7 @@ interface Props {
 const ShowtimeDetailModal: FC<Props> = ({ showtime, onClose }) => {
     if (!showtime) return null;
 
-    return (
+    return createPortal(
         <div className="stt-modal-overlay" onClick={onClose}>
             <div className="stt-modal stt-modal--sm" onClick={(e) => e.stopPropagation()}>
                 <div className="stt-modal__header">
@@ -59,7 +60,8 @@ const ShowtimeDetailModal: FC<Props> = ({ showtime, onClose }) => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body,
     );
 };
 

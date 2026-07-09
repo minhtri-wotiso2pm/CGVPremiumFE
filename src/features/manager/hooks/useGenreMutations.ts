@@ -9,10 +9,10 @@ export function useCreateGenre() {
         mutationFn: createGenreApi,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: GENRE_QUERY_KEY });
-            notify.success("Thêm thể loại", "Thể loại mới đã được thêm thành công.");
+            notify.success("Genre Added", "The new genre has been added successfully.");
         },
         onError: () => {
-            notify.error("Thêm thất bại", "Không thể thêm thể loại. Vui lòng thử lại.");
+            notify.error("Failed to Add Genre", "Could not add the genre. Please try again.");
         },
     });
 }
@@ -24,10 +24,10 @@ export function useUpdateGenre() {
             updateGenreApi(genreId, genreName),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: GENRE_QUERY_KEY });
-            notify.success("Cập nhật thể loại", "Tên thể loại đã được cập nhật.");
+            notify.success("Genre Updated", "The genre name has been updated.");
         },
         onError: () => {
-            notify.error("Cập nhật thất bại", "Không thể cập nhật thể loại. Vui lòng thử lại.");
+            notify.error("Update Failed", "Could not update the genre. Please try again.");
         },
     });
 }
@@ -38,10 +38,10 @@ export function useDeleteGenre() {
         mutationFn: deleteGenreApi,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: GENRE_QUERY_KEY });
-            notify.success("Đã xóa thể loại", "Thể loại đã được xóa.");
+            notify.success("Genre Deleted", "The genre has been removed.");
         },
         onError: () => {
-            notify.error("Xóa thất bại", "Không thể xóa thể loại. Vui lòng thử lại.");
+            notify.error("Delete Failed", "Could not delete the genre. Please try again.");
         },
     });
 }

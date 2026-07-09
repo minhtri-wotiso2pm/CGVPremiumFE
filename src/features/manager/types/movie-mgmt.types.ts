@@ -1,31 +1,31 @@
 export type MovieMgmtStatus = "now_showing" | "coming_soon" | "ended";
 
 export const MOVIE_STATUS_LABELS: Record<string, string> = {
-    now_showing: "Đang chiếu",
-    coming_soon: "Sắp chiếu",
-    ended:       "Đã kết thúc",
+    now_showing: "Now Showing",
+    coming_soon: "Coming Soon",
+    ended:       "Ended",
 };
 
 export const AGE_RATING_OPTIONS = [
-    { value: "P",   label: "P — Mọi lứa tuổi" },
-    { value: "K",   label: "K — Dưới 13 (có phụ huynh)" },
-    { value: "T13", label: "T13 — Từ 13 tuổi" },
-    { value: "T16", label: "T16 — Từ 16 tuổi" },
-    { value: "T18", label: "T18 — Từ 18 tuổi" },
-    { value: "C18", label: "C18 — Chỉ 18+ (hạn chế)" },
+    { value: "P",   label: "P — All ages" },
+    { value: "K",   label: "K — Under 13 (parental guidance)" },
+    { value: "T13", label: "T13 — Age 13+" },
+    { value: "T16", label: "T16 — Age 16+" },
+    { value: "T18", label: "T18 — Age 18+" },
+    { value: "C18", label: "C18 — 18+ only (restricted)" },
 ];
 
 export const MOVIE_STATUS_OPTIONS = [
-    { value: "now_showing", label: "Đang chiếu" },
-    { value: "coming_soon", label: "Sắp chiếu" },
-    { value: "ended",       label: "Đã kết thúc" },
+    { value: "now_showing", label: "Now Showing" },
+    { value: "coming_soon", label: "Coming Soon" },
+    { value: "ended",       label: "Ended" },
 ];
 
 export const MOVIE_STATUS_FILTER_OPTIONS = [
-    { value: "",            label: "Tất cả trạng thái" },
-    { value: "now_showing", label: "Đang chiếu" },
-    { value: "coming_soon", label: "Sắp chiếu" },
-    { value: "ended",       label: "Đã kết thúc" },
+    { value: "",            label: "All Statuses" },
+    { value: "now_showing", label: "Now Showing" },
+    { value: "coming_soon", label: "Coming Soon" },
+    { value: "ended",       label: "Ended" },
 ];
 
 /* ── List item (from GET /api/movie paged) ── */

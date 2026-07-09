@@ -137,12 +137,12 @@ const MovieManagementPage: FC = () => {
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "64px 24px", textAlign: "center" }}>
                     <div style={{ color: "var(--dash-text-3)" }}><AlertIcon /></div>
                     <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: "var(--dash-text-1)" }}>
-                        Không tải được danh sách phim
+                        Failed to load movie list
                     </p>
                     <p style={{ margin: 0, fontSize: 13, color: "var(--dash-text-2)" }}>
-                        Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại.
+                        An error occurred while loading data. Please try again.
                     </p>
-                    <Button onClick={() => refetch()} style={{ marginTop: 4 }}>Thử lại</Button>
+                    <Button onClick={() => refetch()} style={{ marginTop: 4 }}>Retry</Button>
                 </div>
             )}
 
@@ -150,10 +150,10 @@ const MovieManagementPage: FC = () => {
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16, padding: "72px 24px", textAlign: "center" }}>
                     <div style={{ color: "var(--dash-text-3)", opacity: 0.5 }}><FilmIcon /></div>
                     <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: "var(--dash-text-1)" }}>
-                        Chưa có phim nào
+                        No Movies Yet
                     </p>
                     <p style={{ margin: 0, fontSize: 13, color: "var(--dash-text-2)" }}>
-                        Thêm phim đầu tiên vào hệ thống.
+                        Add the first movie to the system.
                     </p>
                     <Button
                         type="primary"
@@ -161,7 +161,7 @@ const MovieManagementPage: FC = () => {
                         onClick={() => openModal("create")}
                         style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 4 }}
                     >
-                        Thêm phim
+                        Add Movie
                     </Button>
                 </div>
             )}
@@ -181,13 +181,13 @@ const MovieManagementPage: FC = () => {
                     {isFilterEmpty ? (
                         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, padding: "52px 24px", textAlign: "center" }}>
                             <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: "var(--dash-text-1)" }}>
-                                Không tìm thấy kết quả
+                                No Results Found
                             </p>
                             <p style={{ margin: 0, fontSize: 13, color: "var(--dash-text-2)" }}>
-                                Thử điều chỉnh từ khóa hoặc bộ lọc trạng thái.
+                                Try adjusting your keyword or status filter.
                             </p>
                             <Button size="small" onClick={() => { setSearch(""); setStatus(""); }}>
-                                Xóa bộ lọc
+                                Clear Filters
                             </Button>
                         </div>
                     ) : (
@@ -213,15 +213,15 @@ const MovieManagementPage: FC = () => {
             <div className="dash-page-header" style={{ marginBottom: 20 }}>
                 <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
                     <div>
-                        <h1 className="dash-page-title">Quản lý phim</h1>
-                        <p className="dash-page-sub">Quản lý danh sách phim và thể loại trong hệ thống.</p>
+                        <h1 className="dash-page-title">Movie Management</h1>
+                        <p className="dash-page-sub">Manage the list of movies and genres in the system.</p>
                     </div>
                     {!isLoading && !isError && movies.length > 0 && (
                         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-                            <StatPill label="Tổng"        value={stats.total}      color="muted" />
-                            <StatPill label="Đang chiếu"  value={stats.nowShowing} color="green" />
-                            <StatPill label="Sắp chiếu"   value={stats.comingSoon} color="blue" />
-                            <StatPill label="Đã kết thúc" value={stats.ended}      color="red" />
+                            <StatPill label="Total"       value={stats.total}      color="muted" />
+                            <StatPill label="Now Showing" value={stats.nowShowing} color="green" />
+                            <StatPill label="Coming Soon" value={stats.comingSoon} color="blue" />
+                            <StatPill label="Ended"       value={stats.ended}      color="red" />
                         </div>
                     )}
                 </div>
@@ -231,8 +231,8 @@ const MovieManagementPage: FC = () => {
             <Tabs
                 defaultActiveKey="movies"
                 items={[
-                    { key: "movies", label: "Phim",      children: movieTabContent },
-                    { key: "genres", label: "Thể loại",  children: <GenreSection /> },
+                    { key: "movies", label: "Movies",  children: movieTabContent },
+                    { key: "genres", label: "Genres",  children: <GenreSection /> },
                 ]}
             />
 

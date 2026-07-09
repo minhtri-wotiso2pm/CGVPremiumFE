@@ -1,7 +1,7 @@
 import { type FC, useEffect } from "react";
 import { Modal, Form, Input, Select } from "antd";
 import type { Room, CreateRoomPayload, RoomStatus } from "../types/room.types";
-import { ROOM_TYPE_OPTIONS, ROOM_STATUS_OPTIONS } from "../constants/room.constants";
+import { ROOM_STATUS_OPTIONS } from "../constants/room.constants";
 import {
     roomNameRules,
     roomTypeRules,
@@ -9,6 +9,7 @@ import {
     roomDescriptionRules,
 } from "../schemas/room.schema";
 import { useCreateRoom, useUpdateRoom } from "../hooks/useRooms";
+import { useRoomTypes } from "../hooks/useRoomTypes";
 
 interface Props {
     mode: "create" | "edit";
@@ -25,13 +26,21 @@ interface FormValues {
     description: string;
 }
 
+const formatVnd = (n: number) => `${n.toLocaleString("vi-VN")} ₫`;
+
 const RoomModal: FC<Props> = ({ mode, room, cinemaId, open, onClose }) => {
     const [form] = Form.useForm<FormValues>();
     const { mutate: create, isPending: creating } = useCreateRoom();
     const { mutate: update, isPending: updating } = useUpdateRoom();
+    const { data: roomTypes = [], isLoading: roomTypesLoading } = useRoomTypes();
 
     const isLoading = creating || updating;
     const isEdit = mode === "edit";
+
+    const roomTypeOptions = roomTypes.map((t) => ({
+        value: t.roomTypeId,
+        label: t.extraPrice > 0 ? `${t.typeName} (+${formatVnd(t.extraPrice)})` : t.typeName,
+    }));
 
     useEffect(() => {
         if (open) {
@@ -44,7 +53,7 @@ const RoomModal: FC<Props> = ({ mode, room, cinemaId, open, onClose }) => {
                 });
             } else {
                 form.resetFields();
-                form.setFieldsValue({ roomTypeId: 1, status: "ACTIVE" });
+                form.setFieldsValue({ status: "ACTIVE" });
             }
         }
     }, [open, isEdit, room, form]);
@@ -84,7 +93,13 @@ const RoomModal: FC<Props> = ({ mode, room, cinemaId, open, onClose }) => {
                 </Form.Item>
 
                 <Form.Item label="Room Type" name="roomTypeId" rules={roomTypeRules}>
-                    <Select placeholder="Select room type" options={ROOM_TYPE_OPTIONS} />
+                    <Select
+                        placeholder={roomTypesLoading ? "Loading room types..." : "Select room type"}
+                        options={roomTypeOptions}
+                        loading={roomTypesLoading}
+                        showSearch
+                        optionFilterProp="label"
+                    />
                 </Form.Item>
 
                 <Form.Item label="Status" name="status" rules={roomStatusRules}>

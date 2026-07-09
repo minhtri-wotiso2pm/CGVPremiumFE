@@ -23,13 +23,7 @@ export { default as TicketsPage } from "./MyTicketsPage";
 
 export { default as MembershipPage } from "./MembershipPage";
 
-export const WalletPage: FC = () => (
-    <ProfilePlaceholder
-        icon="💳"
-        title="EGift Wallet"
-        subtitle="Manage your digital gift cards, credits, and redeem rewards with ease."
-    />
-);
+export { default as WalletPage } from "./WalletPage";
 
 export const SettingsPage: FC = () => (
     <ProfilePlaceholder

@@ -14,10 +14,10 @@ export function useCreateMovie() {
         mutationFn: createMovieApi,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: MOVIE_LIST_QUERY_KEY });
-            notify.success("Tạo phim thành công", "Phim mới đã được thêm vào danh sách.");
+            notify.success("Movie Created", "The new movie has been added to the list.");
         },
         onError: () => {
-            notify.error("Tạo phim thất bại", "Vui lòng kiểm tra lại thông tin và thử lại.");
+            notify.error("Failed to Create Movie", "Please check the details and try again.");
         },
     });
 }
@@ -30,10 +30,10 @@ export function useUpdateMovie() {
         onSuccess: (_, { movieId }) => {
             queryClient.invalidateQueries({ queryKey: MOVIE_LIST_QUERY_KEY });
             queryClient.invalidateQueries({ queryKey: ["manager-movie-detail", movieId] });
-            notify.success("Cập nhật thành công", "Thông tin phim đã được lưu.");
+            notify.success("Updated Successfully", "The movie details have been saved.");
         },
         onError: () => {
-            notify.error("Cập nhật thất bại", "Vui lòng kiểm tra lại thông tin và thử lại.");
+            notify.error("Update Failed", "Please check the details and try again.");
         },
     });
 }
@@ -44,10 +44,10 @@ export function useDeleteMovie() {
         mutationFn: deleteMovieApi,
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: MOVIE_LIST_QUERY_KEY });
-            notify.success("Đã xóa phim", "Phim đã được xóa khỏi danh sách.");
+            notify.success("Movie Deleted", "The movie has been removed from the list.");
         },
         onError: () => {
-            notify.error("Xóa thất bại", "Không thể xóa phim. Vui lòng thử lại.");
+            notify.error("Delete Failed", "Could not delete the movie. Please try again.");
         },
     });
 }
@@ -62,7 +62,7 @@ export function useUploadMoviePoster() {
             queryClient.invalidateQueries({ queryKey: ["manager-movie-detail", movieId] });
         },
         onError: () => {
-            notify.warning("Tải poster thất bại", "Phim đã được lưu nhưng không thể upload poster.");
+            notify.warning("Poster Upload Failed", "The movie was saved but the poster could not be uploaded.");
         },
     });
 }

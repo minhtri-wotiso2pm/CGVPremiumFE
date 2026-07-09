@@ -1,21 +1,16 @@
 export type RoomStatus = "ACTIVE" | "INACTIVE";
 
-/** Valid room types per API_REPORT (§1). */
-// export const ROOM_TYPES = ["Standard", "VIP", "IMAX", "3D"] as const;
-export const ROOM_TYPES = ["1", "2", "3", "4"] as const;
-
-export type RoomType = (typeof ROOM_TYPES)[number];
-
 export interface Room {
     roomId: number;
     cinemaId: number;
     name: string;
-    type: RoomType | string;
     capacity: number;
     status: RoomStatus;
     description: string;
     createdAt: string;
-    roomTypeId: number
+    /** Real room type — see roomType.types.ts (RoomTypeItem) for the
+     *  resolved name/extraPrice, fetched separately via useRoomTypes(). */
+    roomTypeId: number;
 }
 
 export interface CreateRoomPayload {

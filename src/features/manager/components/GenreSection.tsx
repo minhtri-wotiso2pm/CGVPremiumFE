@@ -75,7 +75,7 @@ const GenreRow: FC<{
                         autoFocus
                         style={{ flex: 1 }}
                     />
-                    <Tooltip title="Lưu">
+                    <Tooltip title="Save">
                         <button
                             className="dash-icon-btn"
                             onClick={onEditSave}
@@ -85,7 +85,7 @@ const GenreRow: FC<{
                             {isSaving ? <Spin size="small" /> : <CheckIcon />}
                         </button>
                     </Tooltip>
-                    <Tooltip title="Hủy">
+                    <Tooltip title="Cancel">
                         <button className="dash-icon-btn" onClick={onEditCancel}>
                             <XIcon />
                         </button>
@@ -99,7 +99,7 @@ const GenreRow: FC<{
                     }}>
                         {genre.genreName}
                     </span>
-                    <Tooltip title="Sửa tên">
+                    <Tooltip title="Rename">
                         <button
                             className="dash-icon-btn"
                             onClick={() => onEdit(genre)}
@@ -108,7 +108,7 @@ const GenreRow: FC<{
                             <EditIcon />
                         </button>
                     </Tooltip>
-                    <Tooltip title="Xóa">
+                    <Tooltip title="Delete">
                         <button
                             className="dash-icon-btn dash-icon-btn--danger"
                             onClick={() => onDelete(genre)}
@@ -167,16 +167,16 @@ const GenreSection: FC = () => {
     return (
         <div style={{ maxWidth: 560 }}>
             <p style={{ margin: "0 0 4px", fontSize: 14, fontWeight: 600, color: "var(--dash-text-1)" }}>
-                Danh sách thể loại
+                Genre List
             </p>
             <p style={{ margin: "0 0 16px", fontSize: 13, color: "var(--dash-text-2)" }}>
-                Thể loại dùng khi gán cho phim. Thêm hoặc chỉnh sửa tên thể loại tại đây.
+                Genres used when assigning to movies. Add or edit genre names here.
             </p>
 
             {/* Add new genre */}
             <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
                 <Input
-                    placeholder="Tên thể loại mới..."
+                    placeholder="New genre name..."
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter") handleCreate(); }}
@@ -190,7 +190,7 @@ const GenreSection: FC = () => {
                     loading={creating}
                     disabled={!newName.trim()}
                 >
-                    Thêm
+                    Add
                 </Button>
             </div>
 
@@ -202,7 +202,7 @@ const GenreSection: FC = () => {
                     </div>
                 ) : genres.length === 0 ? (
                     <div style={{ padding: "32px 24px", textAlign: "center", color: "var(--dash-text-3)", fontSize: 13 }}>
-                        Chưa có thể loại nào. Thêm thể loại đầu tiên ở trên.
+                        No genres yet. Add the first genre above.
                     </div>
                 ) : (
                     genres.map((genre) => (
@@ -224,7 +224,7 @@ const GenreSection: FC = () => {
             </div>
 
             <p style={{ margin: "10px 0 0", fontSize: 11, color: "var(--dash-text-3)" }}>
-                {genres.length > 0 && `${genres.length} thể loại`}
+                {genres.length > 0 && `${genres.length} genre${genres.length === 1 ? "" : "s"}`}
             </p>
         </div>
     );

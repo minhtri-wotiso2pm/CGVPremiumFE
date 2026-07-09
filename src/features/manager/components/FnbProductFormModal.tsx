@@ -153,12 +153,12 @@ const FnbProductFormModal: FC<Props> = ({ mode, product, open, onClose }) => {
     /* ── Render ── */
     return (
         <Modal
-            title={isEdit ? "Sửa sản phẩm F&B" : "Thêm sản phẩm F&B"}
+            title={isEdit ? "Edit F&B Product" : "Add F&B Product"}
             open={open}
             onOk={handleSubmit}
             onCancel={!isSubmitting ? onClose : undefined}
-            okText={isEdit ? "Lưu thay đổi" : "Thêm sản phẩm"}
-            cancelText="Hủy"
+            okText={isEdit ? "Save Changes" : "Add Product"}
+            cancelText="Cancel"
             confirmLoading={isSubmitting}
             maskClosable={!isSubmitting}
             width={620}
@@ -166,35 +166,35 @@ const FnbProductFormModal: FC<Props> = ({ mode, product, open, onClose }) => {
         >
             {isFormLoading ? (
                 <div style={{ padding: "48px 0", textAlign: "center" }}>
-                    <Spin tip="Đang tải thông tin sản phẩm..." />
+                    <Spin tip="Loading product details..." />
                 </div>
             ) : (
                 <Form form={form} layout="vertical" requiredMark={false} style={{ marginTop: 4 }}>
-                    <SectionLabel>Thông tin cơ bản</SectionLabel>
+                    <SectionLabel>Basic Information</SectionLabel>
 
                     <Form.Item
-                        label="Tên sản phẩm"
+                        label="Product Name"
                         name="itemName"
-                        rules={[{ required: true, message: "Vui lòng nhập tên sản phẩm" }]}
+                        rules={[{ required: true, message: "Please enter the product name" }]}
                     >
-                        <Input placeholder="Vd: Combo Bắp Nước Lớn" maxLength={200} showCount />
+                        <Input placeholder="e.g. Large Popcorn Combo" maxLength={200} showCount />
                     </Form.Item>
 
                     <Row gutter={16}>
                         <Col span={12}>
                             <Form.Item
-                                label="Loại sản phẩm"
+                                label="Product Type"
                                 name="itemType"
-                                rules={[{ required: true, message: "Chọn loại sản phẩm" }]}
+                                rules={[{ required: true, message: "Select a product type" }]}
                             >
-                                <Select placeholder="Chọn loại" options={FNB_TYPE_OPTIONS} />
+                                <Select placeholder="Select type" options={FNB_TYPE_OPTIONS} />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
                             <Form.Item
-                                label="Giá (VND)"
+                                label="Price (VND)"
                                 name="price"
-                                rules={[{ required: true, message: "Nhập giá sản phẩm" }]}
+                                rules={[{ required: true, message: "Enter the product price" }]}
                             >
                                 <InputNumber<number>
                                     min={0}
@@ -217,25 +217,25 @@ const FnbProductFormModal: FC<Props> = ({ mode, product, open, onClose }) => {
                     <Row gutter={16}>
                         <Col span={isEdit ? 12 : 24}>
                             <Form.Item
-                                label="Tồn kho"
+                                label="Stock Quantity"
                                 name="stockQuantity"
-                                rules={[{ required: true, message: "Nhập số lượng tồn kho" }]}
+                                rules={[{ required: true, message: "Enter the stock quantity" }]}
                             >
                                 <InputNumber min={0} placeholder="50" style={{ width: "100%" }} />
                             </Form.Item>
                         </Col>
                         {isEdit && (
                             <Col span={12}>
-                                <Form.Item label="Trạng thái" name="status">
-                                    <Select placeholder="Trạng thái" options={FNB_STATUS_OPTIONS} />
+                                <Form.Item label="Status" name="status">
+                                    <Select placeholder="Status" options={FNB_STATUS_OPTIONS} />
                                 </Form.Item>
                             </Col>
                         )}
                     </Row>
 
-                    <Form.Item label="Mô tả" name="description">
+                    <Form.Item label="Description" name="description">
                         <Input.TextArea
-                            placeholder="Mô tả ngắn về sản phẩm..."
+                            placeholder="Short description of the product..."
                             rows={2}
                             maxLength={500}
                             showCount
@@ -243,7 +243,7 @@ const FnbProductFormModal: FC<Props> = ({ mode, product, open, onClose }) => {
                         />
                     </Form.Item>
 
-                    <SectionLabel>Ảnh sản phẩm</SectionLabel>
+                    <SectionLabel>Product Image</SectionLabel>
 
                     <div style={{ display: "flex", gap: 16, alignItems: "flex-start" }}>
                         {/* Preview */}
@@ -269,8 +269,8 @@ const FnbProductFormModal: FC<Props> = ({ mode, product, open, onClose }) => {
                                 {imageFile
                                     ? `${imageFile.name} (${(imageFile.size / 1024).toFixed(0)} KB)`
                                     : imagePreview
-                                        ? "Ảnh hiện tại. Nhấn bên dưới để thay đổi."
-                                        : "Chọn ảnh từ máy (JPG, PNG, WebP)."}
+                                        ? "Current image. Click below to change it."
+                                        : "Select an image from your device (JPG, PNG, WebP)."}
                             </p>
                             <input
                                 ref={fileInputRef}
@@ -295,7 +295,7 @@ const FnbProductFormModal: FC<Props> = ({ mode, product, open, onClose }) => {
                                     gap: 6,
                                 }}
                             >
-                                📂 {imagePreview ? "Đổi ảnh" : "Chọn ảnh"}
+                                📂 {imagePreview ? "Change Image" : "Select Image"}
                             </button>
                             {imageFile && (
                                 <button
@@ -320,31 +320,31 @@ const FnbProductFormModal: FC<Props> = ({ mode, product, open, onClose }) => {
                                         color: "#E8001C",
                                     }}
                                 >
-                                    ✕ Bỏ chọn
+                                    ✕ Remove
                                 </button>
                             )}
                         </div>
                     </div>
 
-                    <SectionLabel>Hiển thị</SectionLabel>
+                    <SectionLabel>Visibility</SectionLabel>
 
                     <Row gutter={24}>
                         <Col span={12}>
                             <Form.Item
-                                label="Hiển thị trên menu"
+                                label="Show on Menu"
                                 name="isOnMenu"
                                 valuePropName="checked"
                             >
-                                <Switch checkedChildren="Hiện" unCheckedChildren="Ẩn" />
+                                <Switch checkedChildren="Shown" unCheckedChildren="Hidden" />
                             </Form.Item>
                         </Col>
                         <Col span={12}>
                             <Form.Item
-                                label="Tích điểm thành viên"
+                                label="Loyalty Points Eligible"
                                 name="isLoyaltyEligible"
                                 valuePropName="checked"
                             >
-                                <Switch checkedChildren="Có" unCheckedChildren="Không" />
+                                <Switch checkedChildren="Yes" unCheckedChildren="No" />
                             </Form.Item>
                         </Col>
                     </Row>

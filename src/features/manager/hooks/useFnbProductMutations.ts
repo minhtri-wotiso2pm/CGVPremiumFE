@@ -15,10 +15,10 @@ export function useCreateFnbProduct() {
         mutationFn: (payload: CreateFnbProductPayload) => createFnbProductApi(payload),
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: FNB_LIST_QUERY_KEY });
-            message.success("Đã thêm sản phẩm thành công");
+            message.success("Product added successfully");
         },
         onError: () => {
-            message.error("Không thể thêm sản phẩm. Vui lòng thử lại.");
+            message.error("Could not add the product. Please try again.");
         },
     });
 }
@@ -30,10 +30,10 @@ export function useUpdateFnbProduct() {
             updateFnbProductApi(productId, payload),
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: FNB_LIST_QUERY_KEY });
-            message.success("Đã cập nhật sản phẩm");
+            message.success("Product updated");
         },
         onError: () => {
-            message.error("Không thể cập nhật sản phẩm. Vui lòng thử lại.");
+            message.error("Could not update the product. Please try again.");
         },
     });
 }
@@ -47,7 +47,7 @@ export function useUploadFnbProductImage() {
             qc.invalidateQueries({ queryKey: FNB_LIST_QUERY_KEY });
         },
         onError: () => {
-            message.warning("Sản phẩm đã lưu nhưng không thể tải ảnh lên. Vui lòng thử lại.");
+            message.warning("The product was saved but the image could not be uploaded. Please try again.");
         },
     });
 }
@@ -58,10 +58,10 @@ export function useDeleteFnbProduct() {
         mutationFn: (productId: number) => deleteFnbProductApi(productId),
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: FNB_LIST_QUERY_KEY });
-            message.success("Đã xóa sản phẩm");
+            message.success("Product deleted");
         },
         onError: () => {
-            message.error("Không thể xóa sản phẩm. Vui lòng thử lại.");
+            message.error("Could not delete the product. Please try again.");
         },
     });
 }
