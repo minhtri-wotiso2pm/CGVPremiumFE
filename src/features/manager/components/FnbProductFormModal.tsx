@@ -14,8 +14,6 @@ interface FormValues {
     itemType: string;
     description: string;
     price: number;
-    stockQuantity: number;
-    isOnMenu: boolean;
     isLoyaltyEligible: boolean;
     status?: string;
 }
@@ -69,7 +67,7 @@ const FnbProductFormModal: FC<Props> = ({ mode, product, open, onClose }) => {
         if (!open) return;
         if (!isEdit) {
             form.resetFields();
-            form.setFieldsValue({ isOnMenu: true, isLoyaltyEligible: false });
+            form.setFieldsValue({ isLoyaltyEligible: false });
             setImageFile(null);
             setImagePreview(null);
             return;
@@ -80,8 +78,6 @@ const FnbProductFormModal: FC<Props> = ({ mode, product, open, onClose }) => {
                 itemType: detail.itemType,
                 description: detail.description ?? "",
                 price: detail.price,
-                stockQuantity: detail.stockQuantity,
-                isOnMenu: detail.isOnMenu,
                 isLoyaltyEligible: detail.isLoyaltyEligible,
                 status: detail.status,
             });
@@ -129,9 +125,7 @@ const FnbProductFormModal: FC<Props> = ({ mode, product, open, onClose }) => {
             itemType: values.itemType as FnbItemType,
             description: values.description?.trim() || null,
             price: values.price,
-            stockQuantity: values.stockQuantity,
             imageURL: isEdit ? (detail?.imageURL ?? null) : null,
-            isOnMenu: values.isOnMenu,
             isLoyaltyEligible: values.isLoyaltyEligible,
         };
 
@@ -139,7 +133,7 @@ const FnbProductFormModal: FC<Props> = ({ mode, product, open, onClose }) => {
             update(
                 {
                     productId: product.itemID,
-                    payload: { ...basePayload, status: (values.status ?? detail?.status ?? "in_stock") as FnbItemStatus },
+                    payload: { ...basePayload, status: (values.status ?? detail?.status ?? "active") as FnbItemStatus },
                 },
                 { onSuccess: () => doUpload(product.itemID) },
             );
@@ -214,24 +208,11 @@ const FnbProductFormModal: FC<Props> = ({ mode, product, open, onClose }) => {
                         </Col>
                     </Row>
 
-                    <Row gutter={16}>
-                        <Col span={isEdit ? 12 : 24}>
-                            <Form.Item
-                                label="Stock Quantity"
-                                name="stockQuantity"
-                                rules={[{ required: true, message: "Enter the stock quantity" }]}
-                            >
-                                <InputNumber min={0} placeholder="50" style={{ width: "100%" }} />
-                            </Form.Item>
-                        </Col>
-                        {isEdit && (
-                            <Col span={12}>
-                                <Form.Item label="Status" name="status">
-                                    <Select placeholder="Status" options={FNB_STATUS_OPTIONS} />
-                                </Form.Item>
-                            </Col>
-                        )}
-                    </Row>
+                    {isEdit && (
+                        <Form.Item label="Status" name="status">
+                            <Select placeholder="Status" options={FNB_STATUS_OPTIONS} />
+                        </Form.Item>
+                    )}
 
                     <Form.Item label="Description" name="description">
                         <Input.TextArea
@@ -326,28 +307,15 @@ const FnbProductFormModal: FC<Props> = ({ mode, product, open, onClose }) => {
                         </div>
                     </div>
 
-                    <SectionLabel>Visibility</SectionLabel>
+                    <SectionLabel>Loyalty</SectionLabel>
 
-                    <Row gutter={24}>
-                        <Col span={12}>
-                            <Form.Item
-                                label="Show on Menu"
-                                name="isOnMenu"
-                                valuePropName="checked"
-                            >
-                                <Switch checkedChildren="Shown" unCheckedChildren="Hidden" />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item
-                                label="Loyalty Points Eligible"
-                                name="isLoyaltyEligible"
-                                valuePropName="checked"
-                            >
-                                <Switch checkedChildren="Yes" unCheckedChildren="No" />
-                            </Form.Item>
-                        </Col>
-                    </Row>
+                    <Form.Item
+                        label="Loyalty Points Eligible"
+                        name="isLoyaltyEligible"
+                        valuePropName="checked"
+                    >
+                        <Switch checkedChildren="Yes" unCheckedChildren="No" />
+                    </Form.Item>
                 </Form>
             )}
         </Modal>

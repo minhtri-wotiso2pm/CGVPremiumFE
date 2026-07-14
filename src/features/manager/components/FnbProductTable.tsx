@@ -19,11 +19,7 @@ interface Props {
 /* ── Status badge ── */
 const StatusBadge: FC<{ status: string }> = ({ status }) => {
     const label = FNB_STATUS_LABELS[status as keyof typeof FNB_STATUS_LABELS] ?? status;
-    const cls =
-        status === "in_stock" ? "dash-badge dash-badge--active"
-            : status === "low_stock" ? "dash-badge dash-badge--pending"
-                : status === "out_of_stock" ? "dash-badge dash-badge--inactive"
-                    : "dash-badge dash-badge--inactive";
+    const cls = status === "active" ? "dash-badge dash-badge--active" : "dash-badge dash-badge--inactive";
     return <span className={cls}>{label}</span>;
 };
 
@@ -50,7 +46,7 @@ const ImageCell: FC<{ url?: string | null; name: string }> = ({ url, name }) => 
 /* ── Skeleton ── */
 const SkeletonRow = () => (
     <tr style={{ borderBottom: "1px solid var(--dash-border)" }}>
-        {[48, 52, 180, 100, 100, 90, 90, 90].map((w, i) => (
+        {[48, 52, 200, 110, 110, 90, 80].map((w, i) => (
             <td key={i} style={{ padding: "14px 12px" }}>
                 <div className="dash-skeleton" style={{ height: 14, width: w, borderRadius: 4 }} />
             </td>
@@ -112,7 +108,7 @@ const FnbProductTable: FC<Props> = ({
             title: "",
             key: "image",
             width: 56,
-            render: (_, r) => <ImageCell url={(r as FnbProduct & { imageURL?: string | null }).imageURL} name={r.itemName} />,
+            render: (_, r) => <ImageCell url={r.imageURL} name={r.itemName} />,
         },
         {
             title: "Product Name",
@@ -153,36 +149,6 @@ const FnbProductTable: FC<Props> = ({
             render: (p: number) => (
                 <span style={{ fontSize: 13, fontWeight: 600, color: "var(--dash-text-1)", fontVariantNumeric: "tabular-nums" }}>
                     {formatPrice(p)}
-                </span>
-            ),
-        },
-        {
-            title: "Stock",
-            dataIndex: "stockQuantity",
-            key: "stockQuantity",
-            width: 90,
-            render: (q: number, r) => (
-                <span style={{
-                    fontSize: 13,
-                    fontVariantNumeric: "tabular-nums",
-                    color: q === 0 ? "#E8001C" : r.status === "low_stock" ? "#d97706" : "var(--dash-text-1)",
-                    fontWeight: q <= 5 ? 600 : 400,
-                }}>
-                    {q}
-                </span>
-            ),
-        },
-        {
-            title: "On Menu",
-            dataIndex: "isOnMenu",
-            key: "isOnMenu",
-            width: 90,
-            render: (v: boolean) => (
-                <span style={{
-                    fontSize: 12, fontWeight: 600,
-                    color: v ? "#22c55e" : "var(--dash-text-3)",
-                }}>
-                    {v ? "Shown" : "Hidden"}
                 </span>
             ),
         },

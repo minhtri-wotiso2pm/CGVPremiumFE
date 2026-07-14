@@ -253,7 +253,11 @@ const PaymentPage: FC = () => {
             paymentInitRef.current = paymentInit;
 
             if (effectivePaymentMethod === "payos" && paymentInit.checkoutUrl) {
-                window.open(paymentInit.checkoutUrl, "_blank", "noopener,noreferrer");
+                // Full-page redirect (not a new tab) — PayOS's configured
+                // returnUrl/cancelUrl bring the browser straight back into
+                // this same tab, so there's no separate tab left polling.
+                window.location.href = paymentInit.checkoutUrl;
+                return;
             }
 
             startPolling(paymentInit.paymentId);
@@ -597,12 +601,12 @@ const PaymentPage: FC = () => {
                                     <div className="cgv-pay-waiting__spinner" />
                                     <p className="cgv-pay-waiting__title">
                                         {effectivePaymentMethod === "payos"
-                                            ? "Waiting for PayOS payment"
+                                            ? "Redirecting to PayOS"
                                             : "Processing payment"}
                                     </p>
                                     <p className="cgv-pay-waiting__desc">
                                         {effectivePaymentMethod === "payos"
-                                            ? "The PayOS page has opened in a new tab. Please complete your payment there."
+                                            ? "You'll be redirected to PayOS to complete your payment."
                                             : "Processing your e-wallet payment..."}
                                     </p>
                                     <div className="cgv-pay-waiting__dots">

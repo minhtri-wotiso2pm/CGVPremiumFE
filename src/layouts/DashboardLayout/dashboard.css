@@ -17,6 +17,13 @@
     --dash-crimson-dim: #B50016;
     --dash-crimson-subtle: rgba(232,0,28,0.08);
     --dash-crimson-border: rgba(232,0,28,0.2);
+    /* Sidebar (soft red) */
+    --dash-sidebar-bg: #FBE7E8;
+    --dash-sidebar-border: rgba(184,32,48,0.14);
+    --dash-sidebar-hover-bg: rgba(255,255,255,0.55);
+    --dash-sidebar-text: #8B5A5A;
+    --dash-sidebar-text-hover: #4A2020;
+    --dash-sidebar-icon: #C79191;
     /* Text */
     --dash-text-1: #1D1D1F;
     --dash-text-2: #6E6E73;
@@ -60,8 +67,8 @@
 .dash-sidebar {
     width: var(--dash-sidebar-w);
     height: 100%;
-    background: var(--dash-surface);
-    border-right: 1px solid var(--dash-border);
+    background: var(--dash-sidebar-bg);
+    border-right: 1px solid var(--dash-sidebar-border);
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
@@ -79,7 +86,7 @@
     align-items: center;
     justify-content: center;
     padding: 0 16px;
-    border-bottom: 1px solid var(--dash-border);
+    border-bottom: 1px solid var(--dash-sidebar-border);
     flex-shrink: 0;
     overflow: hidden;
 }
@@ -100,7 +107,7 @@
     font-weight: 700;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--dash-text-3);
+    color: var(--dash-sidebar-icon);
     padding: 6px 18px 4px;
     white-space: nowrap;
     overflow: hidden;
@@ -120,7 +127,7 @@
     font-family: var(--dash-font);
     font-size: 13px;
     font-weight: 500;
-    color: var(--dash-text-2);
+    color: var(--dash-sidebar-text);
     background: none;
     text-align: left;
     white-space: nowrap;
@@ -130,13 +137,14 @@
     width: calc(100% - 16px);
 }
 .dash-sidebar__item:hover:not(:disabled) {
-    background: var(--dash-surface-hover);
-    color: var(--dash-text-1);
+    background: var(--dash-sidebar-hover-bg);
+    color: var(--dash-sidebar-text-hover);
 }
 .dash-sidebar__item--active {
-    background: var(--dash-crimson-subtle) !important;
+    background: #FFFFFF !important;
     color: var(--dash-crimson) !important;
     font-weight: 600;
+    box-shadow: 0 1px 3px rgba(184,32,48,0.14);
 }
 .dash-sidebar__item--active .dash-sidebar__item-icon { color: var(--dash-crimson); }
 .dash-sidebar__item:disabled { opacity: 0.45; cursor: not-allowed; }
@@ -145,15 +153,15 @@
     width: 20px; height: 20px;
     flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
-    color: var(--dash-text-3);
+    color: var(--dash-sidebar-icon);
 }
-.dash-sidebar__item:hover:not(:disabled) .dash-sidebar__item-icon { color: var(--dash-text-1); }
+.dash-sidebar__item:hover:not(:disabled) .dash-sidebar__item-icon { color: var(--dash-sidebar-text-hover); }
 .dash-sidebar__item-label { flex: 1; overflow: hidden; text-overflow: ellipsis; }
 
 /* Bottom section (logout + collapse) */
 .dash-sidebar__bottom {
     flex-shrink: 0;
-    border-top: 1px solid var(--dash-border);
+    border-top: 1px solid var(--dash-sidebar-border);
 }
 
 /* Logout btn */
@@ -176,7 +184,7 @@
     overflow: hidden;
     letter-spacing: 0.01em;
 }
-.dash-sidebar__logout:hover { background: var(--dash-crimson-subtle); }
+.dash-sidebar__logout:hover { background: var(--dash-sidebar-hover-bg); }
 .dash-sidebar__logout .dash-sidebar__item-icon { color: var(--dash-crimson); }
 
 /* Collapse btn */
@@ -186,19 +194,19 @@
     gap: 8px;
     width: 100%;
     padding: 11px 18px;
-    border-top: 1px solid var(--dash-border);
+    border-top: 1px solid var(--dash-sidebar-border);
     border-left: none; border-right: none; border-bottom: none;
     background: none;
     cursor: pointer;
     font-family: var(--dash-font);
     font-size: 12px;
-    color: var(--dash-text-3);
+    color: var(--dash-sidebar-icon);
     transition: color 0.15s, background 0.15s;
     text-align: left;
     white-space: nowrap;
     overflow: hidden;
 }
-.dash-sidebar__collapse:hover { color: var(--dash-text-1); background: var(--dash-surface-hover); }
+.dash-sidebar__collapse:hover { color: var(--dash-sidebar-text-hover); background: var(--dash-sidebar-hover-bg); }
 
 /* ── Header ── */
 .dash-header {

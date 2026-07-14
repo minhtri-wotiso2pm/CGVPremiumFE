@@ -78,7 +78,6 @@ const FnbManagementPage: FC = () => {
     const [search,   setSearch]   = useState("");
     const [itemType, setItemType] = useState("");
     const [status,   setStatus]   = useState("");
-    const [isOnMenu, setIsOnMenu] = useState("");
     const [page,     setPage]     = useState(1);
     const [pageSize, setPageSize] = useState(PAGE_SIZE);
 
@@ -88,11 +87,9 @@ const FnbManagementPage: FC = () => {
 
     /* ── Stats ── */
     const stats = useMemo(() => ({
-        total:      products.length,
-        inStock:    products.filter((p) => p.status === "in_stock").length,
-        lowStock:   products.filter((p) => p.status === "low_stock").length,
-        outOfStock: products.filter((p) => p.status === "out_of_stock" || p.status === "inactive").length,
-        onMenu:     products.filter((p) => p.isOnMenu).length,
+        total:    products.length,
+        active:   products.filter((p) => p.status === "active").length,
+        inactive: products.filter((p) => p.status === "inactive").length,
     }), [products]);
 
     /* ── Client-side filter ── */
@@ -102,10 +99,8 @@ const FnbManagementPage: FC = () => {
         if (q)       r = r.filter((p) => p.itemName.toLowerCase().includes(q));
         if (itemType) r = r.filter((p) => p.itemType === itemType);
         if (status)  r = r.filter((p) => p.status === status);
-        if (isOnMenu === "true")  r = r.filter((p) => p.isOnMenu);
-        if (isOnMenu === "false") r = r.filter((p) => !p.isOnMenu);
         return r;
-    }, [products, search, itemType, status, isOnMenu]);
+    }, [products, search, itemType, status]);
 
     /* ── Pagination ── */
     const paged = useMemo(
@@ -139,11 +134,9 @@ const FnbManagementPage: FC = () => {
                     </div>
                     {!isLoading && !isError && products.length > 0 && (
                         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-                            <StatPill label="Total"          value={stats.total}      color="muted" />
-                            <StatPill label="In Stock"       value={stats.inStock}    color="green" />
-                            <StatPill label="Low Stock"      value={stats.lowStock}   color="yellow" />
-                            <StatPill label="Out / Inactive" value={stats.outOfStock} color="red" />
-                            <StatPill label="On Menu"        value={stats.onMenu}     color="green" />
+                            <StatPill label="Total"    value={stats.total}    color="muted" />
+                            <StatPill label="Active"   value={stats.active}   color="green" />
+                            <StatPill label="Inactive" value={stats.inactive} color="red" />
                         </div>
                     )}
                 </div>
@@ -191,12 +184,10 @@ const FnbManagementPage: FC = () => {
                         search={search}
                         itemType={itemType}
                         status={status}
-                        isOnMenu={isOnMenu}
                         isRefreshing={isFetching}
                         onSearchChange={(v) => { setSearch(v); resetPage(); }}
                         onTypeChange={(v)   => { setItemType(v); resetPage(); }}
                         onStatusChange={(v) => { setStatus(v); resetPage(); }}
-                        onMenuChange={(v)   => { setIsOnMenu(v); resetPage(); }}
                         onRefresh={() => refetch()}
                         onAdd={() => openModal("create")}
                     />
@@ -209,7 +200,7 @@ const FnbManagementPage: FC = () => {
                             <p style={{ margin: 0, fontSize: 13, color: "var(--dash-text-2)" }}>
                                 Try adjusting your keyword or filters.
                             </p>
-                            <Button size="small" onClick={() => { setSearch(""); setItemType(""); setStatus(""); setIsOnMenu(""); }}>
+                            <Button size="small" onClick={() => { setSearch(""); setItemType(""); setStatus(""); }}>
                                 Clear Filters
                             </Button>
                         </div>

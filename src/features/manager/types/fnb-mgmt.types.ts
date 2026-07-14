@@ -1,5 +1,5 @@
 export type FnbItemType = "combo" | "snack" | "beverage" | "dessert";
-export type FnbItemStatus = "in_stock" | "low_stock" | "out_of_stock" | "inactive";
+export type FnbItemStatus = "active" | "inactive";
 
 export const FNB_TYPE_OPTIONS: { value: FnbItemType; label: string }[] = [
     { value: "combo", label: "Combo" },
@@ -17,24 +17,18 @@ export const FNB_TYPE_FILTER_OPTIONS: { value: string; label: string }[] = [
 ];
 
 export const FNB_STATUS_OPTIONS: { value: FnbItemStatus; label: string }[] = [
-    { value: "in_stock", label: "In Stock" },
-    { value: "low_stock", label: "Low Stock" },
-    { value: "out_of_stock", label: "Out of Stock" },
+    { value: "active", label: "Active" },
     { value: "inactive", label: "Inactive" },
 ];
 
 export const FNB_STATUS_FILTER_OPTIONS: { value: string; label: string }[] = [
     { value: "", label: "All Statuses" },
-    { value: "in_stock", label: "In Stock" },
-    { value: "low_stock", label: "Low Stock" },
-    { value: "out_of_stock", label: "Out of Stock" },
+    { value: "active", label: "Active" },
     { value: "inactive", label: "Inactive" },
 ];
 
 export const FNB_STATUS_LABELS: Record<FnbItemStatus, string> = {
-    in_stock: "In Stock",
-    low_stock: "Low Stock",
-    out_of_stock: "Out of Stock",
+    active: "Active",
     inactive: "Inactive",
 };
 
@@ -47,23 +41,17 @@ export const FNB_TYPE_LABELS: Record<FnbItemType, string> = {
 
 export interface FnbProduct {
     itemID: number;
-    cinemaID: number;
     itemName: string;
     itemType: FnbItemType;
+    description: string | null;
     price: number;
-    stockQuantity: number;
-    isOnMenu: boolean;
     status: FnbItemStatus;
     isLoyaltyEligible: boolean;
-
-}
-
-export interface FnbProductDetail extends FnbProduct {
-    description: string | null;
     imageURL: string | null;
-    isLoyaltyEligible: boolean;
     updatedAt: string;
 }
+
+export type FnbProductDetail = FnbProduct;
 
 export interface FnbProductListResponse {
     products: FnbProduct[];
@@ -74,9 +62,7 @@ export interface CreateFnbProductPayload {
     itemType: FnbItemType;
     description: string | null;
     price: number;
-    stockQuantity: number;
     imageURL: string | null;
-    isOnMenu: boolean;
     isLoyaltyEligible: boolean;
 }
 

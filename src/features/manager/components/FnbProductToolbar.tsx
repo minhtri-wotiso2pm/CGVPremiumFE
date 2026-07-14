@@ -27,29 +27,21 @@ const PlusIcon = () => (
     </svg>
 );
 
-const ON_MENU_FILTER_OPTIONS = [
-    { value: "",     label: "All Menu Items" },
-    { value: "true", label: "On Menu" },
-    { value: "false", label: "Hidden" },
-];
-
 interface Props {
     search:         string;
     itemType:       string;
     status:         string;
-    isOnMenu:       string;
     isRefreshing:   boolean;
     onSearchChange:  (v: string) => void;
     onTypeChange:    (v: string) => void;
     onStatusChange:  (v: string) => void;
-    onMenuChange:    (v: string) => void;
     onRefresh:       () => void;
     onAdd:           () => void;
 }
 
 const FnbProductToolbar: FC<Props> = ({
-    search, itemType, status, isOnMenu,
-    isRefreshing, onSearchChange, onTypeChange, onStatusChange, onMenuChange, onRefresh, onAdd,
+    search, itemType, status,
+    isRefreshing, onSearchChange, onTypeChange, onStatusChange, onRefresh, onAdd,
 }) => (
     <div className="dash-toolbar">
         <div style={{ display: "flex", gap: 8, flex: 1, flexWrap: "wrap" }}>
@@ -72,12 +64,6 @@ const FnbProductToolbar: FC<Props> = ({
                 options={FNB_STATUS_FILTER_OPTIONS}
                 onChange={onStatusChange}
                 style={{ width: 160 }}
-            />
-            <Select
-                value={isOnMenu}
-                options={ON_MENU_FILTER_OPTIONS}
-                onChange={onMenuChange}
-                style={{ width: 150 }}
             />
         </div>
         <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>

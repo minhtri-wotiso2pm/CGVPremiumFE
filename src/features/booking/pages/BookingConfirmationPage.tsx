@@ -1,7 +1,9 @@
 import { type FC, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import type { BookingConfirmationNavState } from "../types/payment.types";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { Spin } from "antd";
+import type { BookingConfirmationNavState, BookingResponse } from "../types/payment.types";
 import { formatPrice } from "../utils/seat.utils";
+import { useMyBookings } from "../hooks/useMyBookings";
 import TicketQrList from "../components/TicketQrList";
 import "../components/payment.css";
 
@@ -36,6 +38,7 @@ function formatDateShort(iso: string): string {
 }
 
 const PAYMENT_LABELS: Record<string, string> = {
+    payos:  "PayOS",
     vnpay:  "VNPay",
     wallet: "Ví điện tử",
     cash:   "Tiền mặt",
@@ -48,10 +51,58 @@ const BookingConfirmationPage: FC = () => {
     const navigate  = useNavigate();
     const { state } = useLocation();
     const navState  = (state ?? {}) as BookingConfirmationNavState;
-
-    const { booking, paymentMethod, moviePoster, roomType } = navState;
+    const [searchParams] = useSearchParams();
 
     const [copied, setCopied] = useState(false);
+
+    // PayOS redirects the browser straight back to this URL with query
+    // params instead of a client-side navigate() — there's no router
+    // state in that case, so we fall back to re-fetching the booking by
+    // ID (same GET /bookings/my + find-by-ID approach TicketDetailPage
+    // already uses) and rebuild the same view the Wallet flow shows.
+    const urlBookingId = searchParams.get("bookingId");
+    const isPayosReturn = !navState.booking && urlBookingId != null;
+    const isPayosPaid = isPayosReturn
+        && searchParams.get("status")?.toUpperCase() === "PAID"
+        && searchParams.get("cancel") !== "true";
+
+    const { data: myBookings, isLoading: isLoadingBookings } = useMyBookings(isPayosPaid);
+    const foundBooking = myBookings?.find((b) => String(b.bookingID) === urlBookingId);
+
+    let booking: BookingResponse | undefined = navState.booking;
+    let paymentMethod = navState.paymentMethod;
+    let moviePoster = navState.moviePoster;
+    const roomType = navState.roomType;
+
+    if (!booking && isPayosPaid && foundBooking) {
+        booking = {
+            bookingID: foundBooking.bookingID,
+            bookingCode: foundBooking.bookingCode,
+            showtimeID: foundBooking.showtimeID,
+            movieTitle: foundBooking.movie?.title || foundBooking.movieTitle,
+            startTime: foundBooking.startTime,
+            cinemaName: foundBooking.cinemaName,
+            roomName: foundBooking.roomName,
+            subTotal: foundBooking.subTotal,
+            discountAmount: foundBooking.discountAmount,
+            finalAmount: foundBooking.finalAmount,
+            status: foundBooking.status,
+            bookingDate: foundBooking.bookingDate,
+            seats: foundBooking.seats,
+            fnbItems: foundBooking.fnbItems,
+            voucherApplied: foundBooking.voucherApplied,
+        };
+        moviePoster = foundBooking.movie?.posterUrl;
+        paymentMethod = "payos";
+    }
+
+    if (!booking && isPayosPaid && isLoadingBookings) {
+        return (
+            <div className="cgv-confirm-page" style={{ display: "flex", justifyContent: "center", padding: "80px 0" }}>
+                <Spin size="large" />
+            </div>
+        );
+    }
 
     if (!booking) {
         navigate("/customer", { replace: true });

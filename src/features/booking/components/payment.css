@@ -688,6 +688,11 @@
     to   { transform: scale(1);   opacity: 1; }
 }
 
+.cgv-confirm-icon--cancelled {
+    background: rgba(232,0,28,0.12);
+    border-color: rgba(232,0,28,0.3);
+}
+
 .cgv-confirm-title {
     font-size: 22px;
     font-weight: 700;
