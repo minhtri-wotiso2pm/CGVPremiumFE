@@ -94,6 +94,7 @@ const PaymentPage: FC = () => {
     const [isPricingLoading, setIsPricingLoading] = useState(true);
     const [pricingError, setPricingError] = useState<string | null>(null);
 
+
     /* ── Payment state ────────────────────── */
     const [isWaiting, setIsWaiting] = useState(false);
     const [paymentError, setPaymentError] = useState<string | null>(null);
@@ -110,33 +111,65 @@ const PaymentPage: FC = () => {
     const { data: walletData } = useWallet();
 
     /* ── Calculate pricing ────────────────── */
+
     const fetchPricing = useCallback(
-        async (voucherCode: string | null) => {
+        async (voucherCode: string | null = null) => {
+
             if (!showtimeId) return;
+
             setIsPricingLoading(true);
             setPricingError(null);
+
             try {
+
                 const result = await calcPricing({
                     customerId: null,
                     showtimeId,
+
                     seatIds: seatIds ?? [],
-                    fnbItems: fnbItems ?? [],
+
+                    fnbItems: (fnbItems ?? []).map(item => ({
+                        itemId: item.productId,
+                        quantity: item.quantity,
+                    })),
+
                     voucherCode,
                 });
+
                 setPricing(result);
-            } catch {
-                setPricingError("Không tải được thông tin giá. Vui lòng thử lại.");
+
+            } catch (error) {
+
+                console.error("Calculate pricing error:", error);
+
+                setPricingError(
+                    "Không tải được thông tin giá. Vui lòng thử lại."
+                );
+
             } finally {
+
                 setIsPricingLoading(false);
+
             }
+
         },
-        [calcPricing, showtimeId, seatIds, fnbItems],
+        [
+            calcPricing,
+            showtimeId,
+            seatIds,
+            fnbItems,
+        ]
     );
 
+
     useEffect(() => {
-        fetchPricing(null);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    const loadPricing = async () => {
+        await fetchPricing();
+    };
+
+    loadPricing();
+
+}, [fetchPricing]);
 
     /* ── Voucher handlers ─────────────────── */
     const handleApplyVoucher = useCallback(() => {
@@ -214,7 +247,10 @@ const PaymentPage: FC = () => {
                 customerId: null,
                 showtimeId,
                 seatIds: seatIds ?? [],
-                fnbItems: fnbItems ?? [],
+                fnbItems: (fnbItems ?? []).map(item => ({
+    itemId: item.productId,
+    quantity: item.quantity,
+})),
                 voucherCode: appliedVoucher,
             });
             bookingRef.current = booking;
@@ -388,11 +424,11 @@ const PaymentPage: FC = () => {
                                     /* pricing loading — show placeholder items */
                                     (fnbItems ?? []).map((item) => (
                                         <div
-                                            key={item.itemId}
+                                            key={item.productId}
                                             className="cgv-pay-fnb-item"
                                         >
                                             <span className="cgv-pay-fnb-name">
-                                                {item.quantity}× Món #{item.itemId}
+                                                {item.quantity}× Món #{item.productId}
                                             </span>
                                         </div>
                                     ))

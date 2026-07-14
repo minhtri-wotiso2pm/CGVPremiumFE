@@ -20,16 +20,31 @@ const MovieDetailPage: FC = () => {
 
     const user = useAppSelector((state) => state.auth.user);
     const isPublic = location.pathname.startsWith("/movies/");
-    const homeLink = isPublic ? "/" : "/customer";
-    const moviesLink = isPublic ? "/" : "/customer";
+    const isStaff = location.pathname.startsWith("/staff");
 
-    const handleBook = useCallback((movieId: number) => {
-        if (!user) {
-            navigate("/login", { state: { from: `/customer/movie/${movieId}/showtimes` } });
-        } else {
+    const homeLink = isPublic
+        ? "/"
+        : isStaff
+            ? "/staff/counter-booking"
+            : "/customer";
+
+    const moviesLink = homeLink;
+
+    const handleBook = useCallback(
+        (movieId: number) => {
+            if (!user) {
+                navigate("/login", {
+                    state: {
+                        from: `/customer/movie/${movieId}/showtimes`,
+                    },
+                });
+                return;
+            }
+
             goShowtimes(movieId);
-        }
-    }, [user, navigate, goShowtimes]);
+        },
+        [user, navigate, goShowtimes]
+    );
     const trailerRef = useRef<HTMLDivElement>(null);
 
     const { data: movie, isLoading, isError } = useMovieDetail(id);
@@ -61,7 +76,10 @@ const MovieDetailPage: FC = () => {
                     </div>
                     <h2 className="cgv-state-card__title">Movie not found</h2>
                     <p className="cgv-state-card__body">We couldn't load this movie. It may have been removed or the link is invalid.</p>
-                    <button className="cgv-state-card__btn cgv-state-card__btn--primary" onClick={() => navigate("/customer/movies")}>
+                    <button
+                        className="cgv-state-card__btn cgv-state-card__btn--primary"
+                        onClick={() => navigate(homeLink)}
+                    >
                         Back to Movies
                     </button>
                 </div>

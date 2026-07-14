@@ -1,5 +1,10 @@
 import { type FC, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import {
+    Link,
+    useNavigate,
+    useParams,
+    useLocation,
+} from "react-router-dom";
 import { useMovieDetail } from "@/features/movies/hooks/useMovieDetail";
 import { useShowtimes } from "../hooks/useShowtimes";
 import { ALL_ROOM_TYPES } from "../constants/showtime.constants";
@@ -14,9 +19,15 @@ import ShowtimeGrid from "../components/ShowtimeGrid";
 import ShowtimeSkeleton, { ShowtimeGridSkeleton, ShowtimeMovieInfoSkeleton } from "../components/ShowtimeSkeleton";
 import "../components/showtime.css";
 
+console.log("ShowtimePage rendered");
 const ShowtimePage: FC = () => {
     const { movieId } = useParams<{ movieId: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const prefix = location.pathname.startsWith("/staff")
+        ? "/staff"
+        : "/customer";
     const id = Number(movieId);
 
     /* ── Movie data (cached from MovieDetailPage if visited) ── */
@@ -84,20 +95,23 @@ const ShowtimePage: FC = () => {
 
     const handleShowtimeSelect = (showtimeId: number) => {
         const showtime = allShowtimes.find((s) => s.showtimeId === showtimeId);
+        
         const state: SeatNavState = {
-            movieId:       id,
-            movieTitle:    movie?.title,
-            moviePoster:   movie?.posterUrl,
+            movieId: id,
+            movieTitle: movie?.title,
+            moviePoster: movie?.posterUrl,
             movieDuration: movie?.durationMinutes,
-            movieAgeRating:movie?.ageRating,
-            startTime:     showtime?.startTime,
-            endTime:       showtime?.endTime,
-            cinemaId:      showtime?.cinema.cinemaId,
-            cinemaName:    showtime?.cinema.cinemaName,
-            roomName:      showtime?.room.roomName,
-            roomType:      showtime?.room.roomType,
+            movieAgeRating: movie?.ageRating,
+            startTime: showtime?.startTime,
+            endTime: showtime?.endTime,
+            cinemaId: showtime?.cinema.cinemaId,
+            cinemaName: showtime?.cinema.cinemaName,
+            roomName: showtime?.room.roomName,
+            roomType: showtime?.room.roomType,
         };
-        navigate(`/customer/seats/${showtimeId}`, { state });
+        console.log("showtime =", showtime);
+console.log("state =", state);
+        navigate(`${prefix}/seats/${showtimeId}`, { state });
     };
 
     const hasCinemaOrRoomFilter =
@@ -107,13 +121,13 @@ const ShowtimePage: FC = () => {
         <div className="cgv-st-page cgv-st-fade-in">
             {/* Breadcrumb */}
             <nav className="cgv-st-breadcrumb" aria-label="Breadcrumb">
-                <Link to="/customer">Home</Link>
+                <Link to={prefix}>Home</Link>
                 <span className="cgv-st-breadcrumb__sep" aria-hidden="true">›</span>
-                <Link to="/customer">Movies</Link>
+                <Link to={prefix}>Movies</Link>
                 {movie && (
                     <>
                         <span className="cgv-st-breadcrumb__sep" aria-hidden="true">›</span>
-                        <Link to={`/customer/movies/${id}`}>{movie.title}</Link>
+                        <Link to={`${prefix}/movies/${id}`}>{movie.title}</Link>
                     </>
                 )}
                 <span className="cgv-st-breadcrumb__sep" aria-hidden="true">›</span>

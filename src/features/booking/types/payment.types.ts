@@ -132,3 +132,17 @@ export interface BookingConfirmationNavState {
     moviePoster?: string;
     roomType?: string;
 }
+export interface MemberInfo {
+    fullName: string;
+    rank: string;
+    points: number;
+    email?: string;
+    phone?: string;
+}
+
+
+export interface Voucher {
+    code: string;
+    description: string;
+    value: number;
+}

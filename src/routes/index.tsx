@@ -34,7 +34,8 @@ import {
     SettingsPage,
 } from "@/features/customer/pages/CustomerProfileRoutes";
 
-import StaffDashboard from "@/features/staff/pages/StaffDashboard";
+import CounterBookingPage from "@/features/staff/pages/CounterBookingPage";
+import CounterPaymentPage from "@/features/staff/pages/CounterPaymentPage";
 import ManagerDashboard from "@/features/manager/pages/ManagerDashboard";
 import CinemaManagementPage from "@/features/manager/pages/CinemaManagementPage";
 import MovieManagementPage from "@/features/manager/pages/MovieManagementPage";
@@ -60,6 +61,7 @@ import PromotionsPage from "@/features/public/pages/PromotionsPage";
 import AboutUsPage from "@/features/public/pages/AboutUsPage";
 import ForbiddenPage from "@/features/common/pages/ForbiddenPage";
 import NotFoundPage from "@/features/common/pages/NotFoundPage";
+import BookingSuccessPage from "@/features/customer/pages/BookingSuccessPage";
 
 import { ROLES } from "@/constants/roles";
 
@@ -100,14 +102,12 @@ export const router = createBrowserRouter([
     },
 
     // =====================
-    // PUBLIC (auth pages — redirect if logged in)
+    // PUBLIC (auth pages — gỡ bỏ path "/" bị trùng, dùng route không path làm cha)
     // =====================
     {
         element: <PublicRoute />,
         children: [
             {
-                path: "/",
-                // element: <PublicLayout />,
                 element: <PublicLayout />,
                 children: [
                     {
@@ -119,41 +119,40 @@ export const router = createBrowserRouter([
                         element: <RegisterPage />,
                     },
                     {
-                        path: "/forgotPassword",
+                        path: "forgotPassword",
                         element: <ForgotPasswordPage />,
                     },
                     {
-                        path: "/forgotPasswordSuccess",
+                        path: "forgotPasswordSuccess",
                         element: <ForgotPasswordSuccessPage />,
                     },
                     {
-                        path: "/resetPassword",
+                        path: "resetPassword",
                         element: <ResetPasswordPage />,
                     },
                     {
-                        path: "/resetPasswordSuccess",
+                        path: "resetPasswordSuccess",
                         element: <ResetPasswordSuccessPage />,
                     },
                     {
-                        path: "/registerEmail",
+                        path: "registerEmail",
                         element: <ResisterEmailPage />,
                     },
                     {
-                        path: "/registerEmailSend",
+                        path: "registerEmailSend",
                         element: <RegisterEmailSendPage />,
                     },
                     {
-                        path: "/registerSuccess",
+                        path: "registerSuccess",
                         element: <RegisterSuccessPage />,
                     },
-
                 ],
             },
         ],
     },
 
     // =====================
-    // 403
+    // 403 Forbidden
     // =====================
     {
         path: "/403",
@@ -161,18 +160,16 @@ export const router = createBrowserRouter([
     },
 
     // =====================
-    // PROTECTED
+    // PROTECTED ROUTES
     // =====================
     {
         element: <ProtectedRoute />,
         children: [
+            // ---------------------
             // CUSTOMER
+            // ---------------------
             {
-                element: (
-                    <PermissionRoute
-                        allowedRoles={[ROLES.CUSTOMER]}
-                    />
-                ),
+                element: <PermissionRoute allowedRoles={[ROLES.CUSTOMER]} />,
                 children: [
                     {
                         path: "/customer",
@@ -211,6 +208,25 @@ export const router = createBrowserRouter([
                                 element: <BookingConfirmationPage />,
                             },
                             {
+                                path: "booking/success",
+                                element: <BookingSuccessPage bookingData={{
+                                    movieTitle: "",
+                                    movieImage: "",
+                                    cinemaName: "",
+                                    showTime: "",
+                                    roomName: "",
+                                    seats: [],
+                                    bookingCode: "",
+                                    ticketCount: 0,
+                                    ticketPrice: 0,
+                                    fnbTotal: 0,
+                                    discount: 0,
+                                    totalAmount: 0
+                                }} onBackToHome={function (): void {
+                                    throw new Error("Function not implemented.");
+                                } } />,
+                            },
+                            {
                                 path: "theaters",
                                 element: <TheatersPage />,
                             },
@@ -223,9 +239,7 @@ export const router = createBrowserRouter([
                                 element: <AboutUsPage />,
                             },
                             {
-                                // Sibling of "profile" (not nested inside CustomerProfileLayout) so
-                                // the ticket detail view renders full-screen, without the profile
-                                // sidebar — a focused "your ticket" screen rather than a settings page.
+                                // Xem chi tiết vé (full screen, không ôm sidebar profile)
                                 path: "profile/tickets/:bookingId",
                                 element: <TicketDetailPage />,
                             },
@@ -260,38 +274,46 @@ export const router = createBrowserRouter([
                 ],
             },
 
+            // ---------------------
             // STAFF
+            // ---------------------
             {
-                element: (
-                    <PermissionRoute
-                        allowedRoles={[ROLES.STAFF]}
-                    />
-                ),
+                element: <PermissionRoute allowedRoles={[ROLES.STAFF]} />,
                 children: [
                     {
                         path: "/staff",
                         element: <StaffLayout />,
                         children: [
                             {
-                                path: "dashboard",
-                                element: <StaffDashboard />,
+                                path: "counter-booking",
+                                element: <CounterBookingPage />,
                             },
                             {
-                                path: "profile",
-                                element: <AdminProfilePage />,
+                                path: "movie/:movieId/showtimes",
+                                element: <ShowtimePage />,
+                            },
+                            {
+                                path: "seats/:showtimeId",
+                                element: <SeatSelectionPage />,
+                            },
+                            {
+                                path: "fnb",
+                                element: <FnbPage />,
+                            },
+                            {
+                                path: "counter-payment",
+                                element: <CounterPaymentPage />,
                             },
                         ],
                     },
                 ],
             },
 
+            // ---------------------
             // MANAGER
+            // ---------------------
             {
-                element: (
-                    <PermissionRoute
-                        allowedRoles={[ROLES.MANAGER]}
-                    />
-                ),
+                element: <PermissionRoute allowedRoles={[ROLES.MANAGER]} />,
                 children: [
                     {
                         path: "/manager",
@@ -330,13 +352,11 @@ export const router = createBrowserRouter([
                 ],
             },
 
+            // ---------------------
             // ADMIN
+            // ---------------------
             {
-                element: (
-                    <PermissionRoute
-                        allowedRoles={[ROLES.ADMIN]}
-                    />
-                ),
+                element: <PermissionRoute allowedRoles={[ROLES.ADMIN]} />,
                 children: [
                     {
                         path: "/admin",
@@ -388,8 +408,9 @@ export const router = createBrowserRouter([
             },
         ],
     },
+
     // =====================
-    // 404
+    // 404 Not Found
     // =====================
     {
         path: "*",

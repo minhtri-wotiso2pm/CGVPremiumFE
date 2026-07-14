@@ -1,6 +1,8 @@
 import type { Seat, SeatNavState } from "./seat.types";
 
 export interface Product {
+    productId: number;
+    productName: string;
     itemID: number;
     cinemaID: number;
     itemName: string;
@@ -19,8 +21,10 @@ export interface ProductsResponse {
 }
 
 export interface FnbItem {
-    itemId: number;
+    productId: number;
+    productName: string;
     quantity: number;
+    price: number;
 }
 
 export interface SeatHoldRequest {
@@ -46,3 +50,4 @@ export interface FnbNavState extends SeatNavState {
 export interface PaymentNavState extends FnbNavState {
     fnbItems: FnbItem[];
 }
+

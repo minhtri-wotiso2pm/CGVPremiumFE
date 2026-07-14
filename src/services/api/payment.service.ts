@@ -16,3 +16,14 @@ export const getPaymentStatusApi = async (paymentId: number): Promise<PaymentSta
     const { data } = await axiosInstance.get(`/payments/${paymentId}`);
     return data;
 };
+export const createPayOS = (
+    bookingId: number,
+    paymentMethod: string,
+) => {
+    return axiosInstance.post("/payments/payos", {
+        bookingId,
+        paymentMethod,
+    });
+
+
+};

@@ -3,6 +3,7 @@ import { store } from "@/store/store";
 import { logout } from "@/store/slices/authSlice";
 import { notify } from "@/utils/notify";
 
+
 const axiosInstance = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL,
     headers: {

@@ -22,15 +22,34 @@ export interface SeatMapResponse {
 }
 
 export interface SeatNavState {
+    bookingId?: number;
     movieId?: number;
     movieTitle?: string;
     moviePoster?: string;
     movieDuration?: number;
     movieAgeRating?: string;
+
     startTime?: string;
     endTime?: string;
+
     cinemaId?: number;
     cinemaName?: string;
+
     roomName?: string;
     roomType?: string;
+
+    seatIds?: number[];
+
+    selectedSeats?: Seat[];
+
+    fnbItems?: {
+        productId: number;
+        productName: string;
+        quantity: number;
+        price: number;
+    }[];
+
+    seatTotal?: number;
+
+    fnbTotal?: number;
 }

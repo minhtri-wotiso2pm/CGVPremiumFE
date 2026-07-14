@@ -7,12 +7,12 @@ import { formatPrice, getSeatLabel } from "../utils/seat.utils";
 import FnbProductCard from "../components/FnbProductCard";
 import "../components/fnb.css";
 
-/* ── Helpers ──────────────────────────────── */
+
 const GROUP_LABELS: Record<string, string> = {
-    combo:    "COMBO",
-    snack:    "ĐỒ ĂN NHẸ",
-    food:     "ĐỒ ĂN",
-    drink:    "ĐỒ UỐNG",
+    combo: "COMBO",
+    snack: "ĐỒ ĂN NHẸ",
+    food: "ĐỒ ĂN",
+    drink: "ĐỒ UỐNG",
     beverage: "ĐỒ UỐNG",
 };
 
@@ -22,6 +22,7 @@ function formatCountdown(ms: number): string {
     const s = total % 60;
     return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
+
 
 function groupProducts(products: Product[]) {
     const map = new Map<string, Product[]>();
@@ -62,11 +63,16 @@ const SkeletonGrid: FC = () => (
    FnbPage
 ══════════════════════════════════════════ */
 const FnbPage: FC = () => {
-    const navigate  = useNavigate();
-    const { state } = useLocation();
-    const navState  = (state ?? {}) as FnbNavState;
+   const navigate = useNavigate();
+const location = useLocation();
 
-    const {
+const navState = (location.state ?? {}) as FnbNavState;
+
+const paymentPath = location.pathname.startsWith("/staff")
+    ? "/staff/counter-payment"
+    : "/customer/booking/payment";
+    
+   const {
         showtimeId,
         seatIds,
         selectedSeats,
@@ -111,21 +117,35 @@ const FnbPage: FC = () => {
     }, [holdExpiresAt]);
 
     const isExpired = holdExpiresAt ? timeLeft === 0 : false;
-    const isUrgent  = timeLeft > 0 && timeLeft < 2 * 60_000;
+    const isUrgent = timeLeft > 0 && timeLeft < 2 * 60_000;
+
+    console.log(navState);
 
     /* ── Products ─────────────────────────────── */
-    const { data, isLoading, isError, refetch } = useFnbProducts(cinemaId);
-    const products = data?.products ?? [];
-    const productGroups = useMemo(() => groupProducts(products), [products]);
+   const { data, isLoading, isError, refetch } = useFnbProducts(cinemaId);
+
+console.log({
+    cinemaId,
+    isLoading,
+    isError,
+    data,
+});
+   const products = useMemo(() => data?.products ?? [], [data]);
+   const productGroups = useMemo(() => {
+    return groupProducts(data?.products ?? []);
+}, [data]);
+console.log("data", data);
+console.log("products", products);
+console.log("productGroups", productGroups);
 
     /* ── Quantity handlers ────────────────────── */
     const updateQty = useCallback((itemId: number, delta: number) => {
         setFnbItems((prev) => {
             const next = new Map(prev);
-            const cur  = next.get(itemId) ?? 0;
-            const nxt  = cur + delta;
+            const cur = next.get(itemId) ?? 0;
+            const nxt = cur + delta;
             if (nxt <= 0) next.delete(itemId);
-            else          next.set(itemId, nxt);
+            else next.set(itemId, nxt);
             return next;
         });
     }, []);
@@ -158,23 +178,77 @@ const FnbPage: FC = () => {
     }, [fnbItems, products]);
 
     /* ── Navigation ───────────────────────────── */
-    const buildPaymentState = (items: FnbItem[]): PaymentNavState => ({
-        ...navState,
-        fnbItems: items,
-    });
+    
+    // =========================
+// Calculate totals
+// =========================
+const seatTotal = selectedSeats.reduce(
+    (sum, seat) => sum + (seat.price ?? 0),
+    0
+);
 
-    const handleContinue = useCallback(() => {
-        const items = Array.from(fnbItems.entries()).map(([itemId, quantity]) => ({
-            itemId,
-            quantity,
+
+
+// =========================
+// Build payment state
+// =========================
+const buildPaymentState = (items: FnbItem[]) => ({
+    bookingId: navState.bookingId,   
+
+    movieTitle,
+    moviePoster,
+    cinemaName,
+    roomName,
+    startTime,
+    selectedSeats,
+    fnbItems: items,
+    seatTotal,
+    fnbTotal,
+});
+
+// =========================
+// Continue
+// =========================
+const handleContinue = useCallback(() => {
+    const items = products
+        // Lọc bằng thuộc tính itemID tương thích với State Map
+        .filter((p) => (fnbItems.get(p.itemID) ?? 0) > 0)
+        .map((p) => ({
+            // Nếu PaymentNavState yêu cầu key là 'productId', hãy giữ nguyên việc map key
+            productId: p.productId ?? p.itemID, 
+            productName: p.itemName ?? p.productName, // Kiểm tra lại itemName ở fnbSummaryItems bạn dùng p.itemName
+            price: p.price,
+            quantity: fnbItems.get(p.itemID)!, // Lấy số lượng bằng itemID
         }));
-        navigate("/customer/booking/payment", { state: buildPaymentState(items) });
-    }, [navigate, navState, fnbItems]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const handleSkip = useCallback(() => {
-        navigate("/customer/booking/payment", { state: buildPaymentState([]) });
-    }, [navigate, navState]); // eslint-disable-line react-hooks/exhaustive-deps
-
+    navigate(paymentPath, {
+        state: buildPaymentState(items),
+    });
+}, [
+    navigate,
+    paymentPath,
+    products,
+    fnbItems,
+    seatTotal,
+    fnbTotal,
+    selectedSeats,
+    navState,
+]);
+// =========================
+// Skip F&B
+// =========================
+const handleSkip = useCallback(() => {
+    navigate(paymentPath, {
+        state: buildPaymentState([]),
+    });
+}, [
+    navigate,
+    paymentPath,
+    seatTotal,
+    fnbTotal,
+    selectedSeats,
+    navState,
+]);
     /* ── Date format ──────────────────────────── */
     const showDateStr = useMemo(() => {
         if (!startTime) return "";

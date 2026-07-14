@@ -1,3 +1,8 @@
-export default function CounterBookingPage() {
-    return <div>Counter Booking Page</div>;
-}
+import type { FC } from "react";
+import MovieListPage from "@/features/movies/pages/MovieListPage";
+
+const CounterBookingPage: FC = () => {
+    return <MovieListPage />;
+};
+
+export default CounterBookingPage;

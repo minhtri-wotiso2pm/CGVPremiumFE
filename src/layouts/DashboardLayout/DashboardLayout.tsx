@@ -28,11 +28,12 @@ const DashboardLayout: FC<Props> = ({ menuGroups }) => {
     const [mobileOpen, setMobileOpen] = useState(false);
 
     return (
+        
         <ConfigProvider
             theme={{
                 token: {
                     colorPrimary: "#E8001C",
-                    fontFamily: "Inter, 'Helvetica Neue', Arial, sans-serif",
+                    fontFamily: "Plus Jakarta Sans, Inter, Arial, sans-serif",
                     borderRadius: 8,
                     colorBgContainer: "#FFFFFF",
                     colorBgElevated: "#FFFFFF",

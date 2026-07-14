@@ -19,11 +19,15 @@ import BookingSummary from "../components/BookingSummary";
 import SeatSelectionSkeleton from "../components/SeatSelectionSkeleton";
 import "../components/seat.css";
 
+
 const SeatSelectionPage: FC = () => {
     const { showtimeId: showtimeIdStr } = useParams<{ showtimeId: string }>();
-    const navigate  = useNavigate();
-    const location  = useLocation();
-    const navState  = (location.state ?? {}) as SeatNavState;
+    const navigate = useNavigate();
+    const location = useLocation();
+    const navState = (location.state ?? {}) as SeatNavState;
+    console.log("SeatSelection navState =", navState);
+    console.log("SeatSelection bookingId =", navState.bookingId);
+    
     const showtimeId = Number(showtimeIdStr);
 
     const [selectedSeats, setSelectedSeats] = useState<Map<number, Seat>>(new Map());
@@ -84,11 +88,11 @@ const SeatSelectionPage: FC = () => {
         });
     }, [data]);
 
-    const seatTypes  = useMemo(() => getSeatTypes(seatRowMap), [seatRowMap]);
-    const hasVip     = seatTypes.has("VIP");
-    const hasCouple  = seatTypes.has("COUPLE");
+    const seatTypes = useMemo(() => getSeatTypes(seatRowMap), [seatRowMap]);
+    const hasVip = seatTypes.has("VIP");
+    const hasCouple = seatTypes.has("COUPLE");
     const hasEconomy = seatTypes.has("ECONOMY");
-    const hasPoor    = seatTypes.has("POOR");
+    const hasPoor = seatTypes.has("POOR");
 
     const totalPrice = useMemo(
         () => Array.from(selectedSeats.values()).reduce((sum, s) => sum + (s.price ?? 0), 0),
@@ -149,30 +153,52 @@ const SeatSelectionPage: FC = () => {
 
     const handleContinue = useCallback(() => {
         const seatIds = Array.from(selectedSeats.keys());
+
         holdSeats(
             { showtimeId, seatIds },
             {
                 onSuccess: (holdData) => {
-                    navigate("/customer/booking/fnb", {
-                        state: {
-                            showtimeId,
-                            seatIds,
-                            selectedSeats: Array.from(selectedSeats.values()),
-                            holdIds: holdData.holdIds,
-                            holdExpiresAt: holdData.expiresAt,
-                            ...navState,
-                        },
+                    const isStaff = location.pathname.startsWith("/staff");
+
+                    const nextPath = isStaff
+                        ? "/staff/fnb"
+                        : "/customer/booking/fnb";
+
+                    const paymentState = {
+                        ...navState, // giữ toàn bộ dữ liệu cũ
+
+                        bookingId: navState.bookingId, // truyền lại bookingId
+
+                        showtimeId,
+                        seatIds,
+                        selectedSeats: Array.from(selectedSeats.values()),
+                        holdIds: holdData.holdIds,
+                        holdExpiresAt: holdData.expiresAt,
+                    };
+
+                    console.log("Navigate state:", paymentState);
+console.log("showtimeId =", showtimeId);
+                    navigate(nextPath, {
+                        state: paymentState,
                     });
                 },
+
                 onError: () => {
                     notify.warning(
                         "Không thể giữ ghế",
-                        "Ghế bạn chọn có thể đã được đặt. Vui lòng chọn lại."
+                        "Ghế bạn chọn có thể đã được người khác đặt."
                     );
                 },
             }
         );
-    }, [navigate, showtimeId, selectedSeats, navState, holdSeats]);
+    }, [
+        navigate,
+        location.pathname,
+        showtimeId,
+        selectedSeats,
+        navState,
+        holdSeats,
+    ]);
 
     if (isLoading) return <SeatSelectionSkeleton />;
 

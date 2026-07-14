@@ -26,10 +26,22 @@ export function formatPrice(price: number): string {
     }).format(price);
 }
 
+const SEAT_TYPE_LABELS: Record<string, string> = {
+    STANDARD: "Thường",
+    ECONOMY: "Phổ thông", // Hoặc "Thường" tùy bạn, nhưng theo API nãy thấy economy đắt hơn poor tí nên để Phổ thông cho chuẩn CGV nhé
+    VIP: "VIP",
+    COUPLE: "Ghế Đôi",
+    IMAX: "IMAX",
+    POOR: "Tiêu chuẩn",
+};
+
 export function getSeatLabel(seat: Seat): string {
     const row = (seat.seatRow ?? "?").toString().toUpperCase();
     const col = String(seat.seatCol ?? 0).padStart(2, "0");
-    return `${row}${col}`;
+    const typeKey = (seat.seatType ?? "STANDARD").toString().toUpperCase();
+    const typeLabel = SEAT_TYPE_LABELS[typeKey] ?? typeKey;
+    
+    return `${row}${col} (${typeLabel})`;
 }
 
 export function getSeatTypes(seatRowMap: Map<string, Seat[]>): Set<string> {

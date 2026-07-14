@@ -158,7 +158,7 @@ const TicketCard: FC<TicketCardProps> = ({ ticket, label, cinemaName, roomName, 
 };
 
 interface Props {
-    bookingId: number;
+    bookingId: number | null;
     seats?: SeatLike[];
     cinemaName: string;
     roomName: string;
