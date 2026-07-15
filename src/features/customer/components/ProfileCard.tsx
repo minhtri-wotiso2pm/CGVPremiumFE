@@ -139,7 +139,7 @@ const ProfileCard: FC<Props> = ({ profile, loading, onEdit, onAvatar, onChangePa
                     )}
                 </div>
                 <div className={styles.infoItem}>
-                    <span className={styles.infoLabel}>Refunds Remaining</span>
+                    <span className={styles.infoLabel}>Refunds Remaining (Monthly)</span>
                     <span className={styles.infoValue}>
                         {Math.max(0, profile.total_refunds - profile.used_refunds)} / {profile.total_refunds}
                     </span>

@@ -101,7 +101,7 @@ const TicketDetailPage: FC = () => {
                 )}
                 {quotaExhausted && (
                     <span
-                        title="You've used all your refund credits for this membership tier."
+                        title="You've used all your refund credits for this month. Your quota resets at the start of next month."
                         style={{
                             marginLeft: 10, border: "1px solid rgba(232,0,28,0.25)", background: "rgba(232,0,28,0.06)",
                             color: "#e8a0a0", borderRadius: 8, padding: "6px 14px", fontSize: 12.5, fontWeight: 600,

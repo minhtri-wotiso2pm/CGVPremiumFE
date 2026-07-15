@@ -58,6 +58,11 @@ const PromotionIcon = () => (
         <line x1="7" y1="7" x2="7.01" y2="7" strokeWidth="3" />
     </svg>
 );
+const LoyaltyTierIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2l2.9 6.26L21 9.27l-4.5 4.39L17.8 21 12 17.77 6.2 21l1.3-7.34L3 9.27l6.1-1.01z" />
+    </svg>
+);
 const ReportsIcon = () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <line x1="18" y1="20" x2="18" y2="10" />
@@ -124,6 +129,12 @@ const ADMIN_MENU: MenuGroup[] = [
                 label: "Promotion Management",
                 icon: <PromotionIcon />,
                 path: "/admin/promotions",
+            },
+            {
+                key: "loyalty-tiers",
+                label: "Loyalty Tiers",
+                icon: <LoyaltyTierIcon />,
+                path: "/admin/loyalty-tiers",
             },
         ],
     },

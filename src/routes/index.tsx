@@ -52,6 +52,7 @@ import AdminDashboard from "@/features/admin/pages/AdminDashboard";
 import UserManagementPage from "@/features/admin/pages/UserManagementPage";
 import SeatTypeManagementPage from "@/features/admin/pages/SeatTypeManagementPage";
 import RoomTypeManagementPage from "@/features/admin/pages/RoomTypeManagementPage";
+import LoyaltyTierManagementPage from "@/features/admin/pages/LoyaltyTierManagementPage";
 import AdminProfilePage from "@/features/admin/pages/AdminProfilePage";
 import ActivityLogPage from "@/features/admin/pages/ActivityLogPage";
 import EmailLogPage from "@/features/admin/pages/EmailLogPage";
@@ -416,6 +417,10 @@ export const router = createBrowserRouter([
                             {
                                 path: "promotions",
                                 element: <VoucherManagementPage />,
+                            },
+                            {
+                                path: "loyalty-tiers",
+                                element: <LoyaltyTierManagementPage />,
                             },
                             {
                                 path: "reports",

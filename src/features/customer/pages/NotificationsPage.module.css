@@ -59,22 +59,20 @@
     align-items: center;
 }
 
+/* antd v6 dropped the old `.ant-select-selector` child wrapper — the box
+   (background/border) is now painted directly on the `.ant-select` root
+   itself, so this class must style the root, not a descendant. */
 .filterSelect {
     min-width: 150px;
-}
-
-.filterSelect :global(.ant-select-selector) {
     background: rgba(255, 255, 255, 0.04) !important;
     border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.filterSelect :global(.ant-select-content) {
     color: #f0e8e8 !important;
 }
 
-.filterSelect :global(.ant-select-selection-item),
-.filterSelect :global(.ant-select-selection-placeholder) {
-    color: #f0e8e8 !important;
-}
-
-.filterSelect :global(.ant-select-arrow) {
+.filterSelect :global(.ant-select-suffix) {
     color: #7a5555 !important;
 }
 

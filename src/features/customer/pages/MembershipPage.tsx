@@ -217,7 +217,7 @@ const HeroCard: FC<{ info: MembershipInfo; refundsRemaining: number | null; tota
                             <span className={styles.statValue} style={{ color: cfg.color }}>
                                 {refundsRemaining} / {totalRefunds}
                             </span>
-                            <span className={styles.statLabel}>Refunds Remaining</span>
+                            <span className={styles.statLabel}>Refunds Remaining (Monthly)</span>
                         </div>
                     )}
                 </div>
@@ -358,7 +358,7 @@ const TierRoadmap: FC<{ info: MembershipInfo; tiers: MembershipTier[] }> = ({ in
                             </span>
 
                             <span className={styles.tierStepPoints}>
-                                {tier.total_refunds} refund{tier.total_refunds !== 1 ? "s" : ""}
+                                {tier.total_refunds} refund{tier.total_refunds !== 1 ? "s" : ""}/mo
                             </span>
                         </div>
                     );
