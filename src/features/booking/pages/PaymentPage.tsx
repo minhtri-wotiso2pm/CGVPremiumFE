@@ -1,5 +1,6 @@
 import { type FC, useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useAppSelector } from "@/store/hooks";
 import type { PaymentNavState } from "../types/fnb.types";
 import type {
     BookingResponse,
@@ -53,6 +54,7 @@ const PaymentPage: FC = () => {
     const navigate = useNavigate();
     const { state } = useLocation();
     const navState = (state ?? {}) as PaymentNavState;
+    const customerId = useAppSelector((s) => s.auth.user?.userID) ?? null;
 
     const {
         showtimeId,
@@ -124,7 +126,7 @@ const PaymentPage: FC = () => {
             setPricingError(null);
             try {
                 const result = await calcPricing({
-                    customerId: null,
+                    customerId,
                     showtimeId,
                     seatIds: seatIds ?? [],
                     fnbItems: fnbItems ?? [],
@@ -137,7 +139,7 @@ const PaymentPage: FC = () => {
                 setIsPricingLoading(false);
             }
         },
-        [calcPricing, showtimeId, seatIds, fnbItems],
+        [calcPricing, showtimeId, seatIds, fnbItems, customerId],
     );
 
     useEffect(() => {
@@ -234,7 +236,7 @@ const PaymentPage: FC = () => {
         setIsWaiting(true);
         try {
             const booking = await doCreateBooking({
-                customerId: null,
+                customerId,
                 showtimeId,
                 seatIds: seatIds ?? [],
                 fnbItems: fnbItems ?? [],
@@ -268,7 +270,7 @@ const PaymentPage: FC = () => {
             setPaymentError(msg ?? "Something went wrong. Please try again.");
         }
     }, [
-        pricing, isExpired, doCreateBooking, doInitiatePayment,
+        pricing, isExpired, doCreateBooking, doInitiatePayment, customerId,
         showtimeId, seatIds, fnbItems, appliedVoucher, effectivePaymentMethod, startPolling,
     ]);
 

@@ -728,7 +728,7 @@ const PageHeader: FC = () => {
                 <div className="cgv-fh__inner">
                     {/* ── LEFT: Logo ── */}
                     <Link to={logoHref} className="cgv-fh__logo" aria-label="CGV Premium — home">
-                        <span className="cgv-fh__logo-text">CGVPREMIUM</span>
+                        <span className="cgv-fh__logo-text">CVPREMIUM</span>
                         <span className="cgv-fh__logo-dot" aria-hidden="true" />
                     </Link>
 

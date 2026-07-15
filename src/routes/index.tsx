@@ -35,6 +35,7 @@ import {
 } from "@/features/customer/pages/CustomerProfileRoutes";
 
 import StaffDashboard from "@/features/staff/pages/StaffDashboard";
+import CheckInPage from "@/features/staff/pages/CheckInPage";
 import ManagerDashboard from "@/features/manager/pages/ManagerDashboard";
 import CinemaManagementPage from "@/features/manager/pages/CinemaManagementPage";
 import MovieManagementPage from "@/features/manager/pages/MovieManagementPage";
@@ -286,6 +287,10 @@ export const router = createBrowserRouter([
                             {
                                 path: "dashboard",
                                 element: <StaffDashboard />,
+                            },
+                            {
+                                path: "checkin",
+                                element: <CheckInPage />,
                             },
                             {
                                 path: "profile",

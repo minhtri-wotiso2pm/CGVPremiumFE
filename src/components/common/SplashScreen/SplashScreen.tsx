@@ -21,7 +21,7 @@ const SplashScreen: FC<SplashScreenProps> = ({ onComplete }) => {
             <div className="cgv-splash__beam" />
             <div className="cgv-splash__center">
                 <div className="cgv-splash__logo-wrapper">
-                    <span className="cgv-splash__logo-text">CGVPREMIUM</span>
+                    <span className="cgv-splash__logo-text">CVPREMIUM</span>
                     <span className="cgv-splash__logo-dot" />
                 </div>
             </div>

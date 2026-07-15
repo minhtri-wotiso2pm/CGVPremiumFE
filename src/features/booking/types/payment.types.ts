@@ -1,5 +1,5 @@
 export interface PricingRequest {
-    customerId: null;
+    customerId: number | null;
     showtimeId: number;
     seatIds: number[];
     fnbItems: { itemId: number; quantity: number }[];
@@ -42,7 +42,7 @@ export interface PricingResponse {
 }
 
 export interface CreateBookingRequest {
-    customerId: null;
+    customerId: number | null;
     showtimeId: number;
     seatIds: number[];
     fnbItems: { itemId: number; quantity: number }[];
