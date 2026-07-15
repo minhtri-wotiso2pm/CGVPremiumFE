@@ -79,17 +79,19 @@
 }
 .dash-sidebar--collapsed { width: var(--dash-sidebar-w-sm); }
 
-/* Logo row */
+/* Logo row — the whole row doubles as the sidebar's collapse toggle. */
 .dash-sidebar__logo {
     height: var(--dash-header-h);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 0 16px;
-    border-bottom: 1px solid var(--dash-sidebar-border);
     flex-shrink: 0;
     overflow: hidden;
+    cursor: pointer;
+    transition: background 0.15s ease;
 }
+.dash-sidebar__logo:hover { background: var(--dash-sidebar-hover-bg); }
 
 /* Nav */
 .dash-sidebar__nav {
@@ -158,55 +160,37 @@
 .dash-sidebar__item:hover:not(:disabled) .dash-sidebar__item-icon { color: var(--dash-sidebar-text-hover); }
 .dash-sidebar__item-label { flex: 1; overflow: hidden; text-overflow: ellipsis; }
 
-/* Bottom section (logout + collapse) */
+/* Bottom section — Sign Out is always the last item in the sidebar */
 .dash-sidebar__bottom {
     flex-shrink: 0;
+    padding: 8px 0 10px;
     border-top: 1px solid var(--dash-sidebar-border);
 }
 
-/* Logout btn */
+/* Logout btn — same pill shape/inset as nav items for visual consistency */
 .dash-sidebar__logout {
     display: flex;
     align-items: center;
     gap: 10px;
-    width: 100%;
-    padding: 13px 18px;
+    margin: 1px 8px;
+    padding: 9px 10px;
+    width: calc(100% - 16px);
     border: none;
+    border-radius: var(--dash-radius-sm);
     background: none;
     cursor: pointer;
     font-family: var(--dash-font);
     font-size: 13px;
     font-weight: 500;
     color: var(--dash-crimson);
-    transition: color 0.15s, background 0.15s;
+    transition: background 0.15s ease;
     text-align: left;
     white-space: nowrap;
     overflow: hidden;
     letter-spacing: 0.01em;
 }
-.dash-sidebar__logout:hover { background: var(--dash-sidebar-hover-bg); }
+.dash-sidebar__logout:hover { background: rgba(232,0,28,0.08); }
 .dash-sidebar__logout .dash-sidebar__item-icon { color: var(--dash-crimson); }
-
-/* Collapse btn */
-.dash-sidebar__collapse {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    padding: 11px 18px;
-    border-top: 1px solid var(--dash-sidebar-border);
-    border-left: none; border-right: none; border-bottom: none;
-    background: none;
-    cursor: pointer;
-    font-family: var(--dash-font);
-    font-size: 12px;
-    color: var(--dash-sidebar-icon);
-    transition: color 0.15s, background 0.15s;
-    text-align: left;
-    white-space: nowrap;
-    overflow: hidden;
-}
-.dash-sidebar__collapse:hover { color: var(--dash-sidebar-text-hover); background: var(--dash-sidebar-hover-bg); }
 
 /* ── Header ── */
 .dash-header {
@@ -274,6 +258,121 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 11px; font-weight: 700; color: #fff;
     flex-shrink: 0; user-select: none; letter-spacing: 0.04em;
+}
+
+/* ── Notification dropdown (light theme counterpart of the customer
+   header's NotifDropdown) ── */
+.dash-notif-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 340px;
+    background: var(--dash-surface);
+    border: 1px solid var(--dash-border);
+    border-radius: var(--dash-radius-lg);
+    box-shadow: var(--dash-shadow-lg);
+    overflow: hidden;
+    z-index: 1100;
+    animation: dash-fade-in 0.15s ease both;
+}
+
+.dash-notif-dropdown__header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--dash-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--dash-text-1);
+}
+
+.dash-notif-dropdown__unread {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--dash-crimson);
+}
+
+.dash-notif-dropdown__empty {
+    padding: 28px 16px;
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--dash-text-3);
+}
+
+.dash-notif-dropdown__item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--dash-border);
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+.dash-notif-dropdown__item:hover { background: var(--dash-surface-hover); }
+.dash-notif-dropdown__item--unread { background: var(--dash-crimson-subtle); }
+.dash-notif-dropdown__item--unread:hover { background: rgba(232,0,28,0.1); }
+
+.dash-notif-dropdown__icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dash-notif-dropdown__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.dash-notif-dropdown__title {
+    margin: 0 0 3px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--dash-text-1);
+}
+
+.dash-notif-dropdown__message {
+    margin: 0 0 4px;
+    font-size: 11.5px;
+    color: var(--dash-text-2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dash-notif-dropdown__time {
+    font-size: 10.5px;
+    color: var(--dash-text-3);
+}
+
+.dash-notif-dropdown__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--dash-crimson);
+    flex-shrink: 0;
+    margin-top: 4px;
+}
+
+.dash-notif-dropdown__footer {
+    padding: 10px 16px;
+    text-align: center;
+}
+.dash-notif-dropdown__footer button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--dash-crimson);
+    font-family: var(--dash-font);
+    letter-spacing: 0.02em;
 }
 
 /* ── Page header ── */

@@ -31,6 +31,7 @@ import {
     TicketsPage,
     MembershipPage,
     WalletPage,
+    NotificationsPage,
     SettingsPage,
 } from "@/features/customer/pages/CustomerProfileRoutes";
 
@@ -53,6 +54,8 @@ import SeatTypeManagementPage from "@/features/admin/pages/SeatTypeManagementPag
 import RoomTypeManagementPage from "@/features/admin/pages/RoomTypeManagementPage";
 import AdminProfilePage from "@/features/admin/pages/AdminProfilePage";
 import ActivityLogPage from "@/features/admin/pages/ActivityLogPage";
+import EmailLogPage from "@/features/admin/pages/EmailLogPage";
+import DashboardNotificationsPage from "@/features/notifications/pages/DashboardNotificationsPage";
 
 import WelcomePage from "@/features/public/pages/WelcomePage";
 import ShowtimePage from "@/features/booking/pages/ShowtimePage";
@@ -262,6 +265,10 @@ export const router = createBrowserRouter([
                                         element: <WalletPage />,
                                     },
                                     {
+                                        path: "notifications",
+                                        element: <NotificationsPage />,
+                                    },
+                                    {
                                         path: "settings",
                                         element: <SettingsPage />,
                                     },
@@ -291,6 +298,10 @@ export const router = createBrowserRouter([
                             {
                                 path: "checkin",
                                 element: <CheckInPage />,
+                            },
+                            {
+                                path: "notifications",
+                                element: <DashboardNotificationsPage />,
                             },
                             {
                                 path: "profile",
@@ -344,6 +355,10 @@ export const router = createBrowserRouter([
                             {
                                 path: "reports",
                                 element: <ReportsPage scope="manager" />,
+                            },
+                            {
+                                path: "notifications",
+                                element: <DashboardNotificationsPage />,
                             },
                             {
                                 path: "profile",
@@ -409,6 +424,14 @@ export const router = createBrowserRouter([
                             {
                                 path: "activity-logs",
                                 element: <ActivityLogPage />,
+                            },
+                            {
+                                path: "email-logs",
+                                element: <EmailLogPage />,
+                            },
+                            {
+                                path: "notifications",
+                                element: <DashboardNotificationsPage />,
                             },
                             {
                                 path: "profile",

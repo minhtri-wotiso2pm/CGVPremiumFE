@@ -13,6 +13,19 @@ import { useLogout } from "@/features/auth/hooks/useLogoutMutation";
 import { buildLoginRedirectState } from "@/features/auth/utils/authRedirect";
 import { SPLASH_TOTAL_MS } from "@/components/common/SplashScreen/SplashScreen";
 import { useIntroEntrance } from "@/components/common/SplashScreen/useIntroEntrance";
+import {
+    useNotifications,
+    useUnreadCount,
+    useMarkNotificationRead,
+} from "@/features/notifications/hooks/useNotifications";
+import type { NotificationItem } from "@/features/notifications/types/notification.types";
+import {
+    fmtRelativeTime,
+    NOTIFICATION_TYPE_COLOR_DARK,
+    resolveCustomerNotificationUrl,
+} from "@/features/notifications/utils/notification.utils";
+import NotificationTypeIcon from "@/features/notifications/components/NotificationTypeIcon";
+import { NOTIFICATION_DROPDOWN_PREVIEW_COUNT } from "@/features/notifications/constants/notification.constants";
 import "./PageHeaderPublic.css";
 
 /** Guest clicked a nav item that requires auth (e.g. My Tickets) — send
@@ -98,45 +111,6 @@ const NAV_CONFIG: Record<string, NavItem[]> = {
 };
 
 /* ─────────────────────────────────────────────────────────────
-   FAKE NOTIFICATION DATA (replace with API later)
-───────────────────────────────────────────────────────────── */
-interface Notification {
-    id: number;
-    title: string;
-    body: string;
-    time: string;
-    unread: boolean;
-    icon: string;
-}
-
-const FAKE_NOTIFICATIONS: Notification[] = [
-    {
-        id: 1,
-        title: "Booking Confirmed",
-        body: "Your seats for Dune: Part Two have been booked.",
-        time: "2 min ago",
-        unread: true,
-        icon: "🎬",
-    },
-    {
-        id: 2,
-        title: "VIP Reward Earned",
-        body: "You earned 120 loyalty points from your last visit.",
-        time: "1 hour ago",
-        unread: true,
-        icon: "⭐",
-    },
-    {
-        id: 3,
-        title: "Weekend Offer",
-        body: "20% off all premium seats this Saturday & Sunday.",
-        time: "3 hours ago",
-        unread: true,
-        icon: "🎁",
-    },
-];
-
-/* ─────────────────────────────────────────────────────────────
    AVATAR COMPONENT
 ───────────────────────────────────────────────────────────── */
 interface AvatarProps {
@@ -188,24 +162,17 @@ const Avatar: FC<AvatarProps> = ({ src, name, size }) => {
    NOTIFICATION DROPDOWN
 ───────────────────────────────────────────────────────────── */
 interface NotifDropdownProps {
-    notifications: Notification[];
+    notifications: NotificationItem[];
+    unreadCount: number;
+    isLoading: boolean;
     onClose: () => void;
+    onItemClick: (n: NotificationItem) => void;
+    onViewAll: () => void;
 }
 
-const NotifDropdown: FC<NotifDropdownProps> = ({ notifications, onClose }) => {
-    const unreadCount = notifications.filter((n) => n.unread).length;
-    const ref = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const handler = (e: MouseEvent) => {
-            if (ref.current && !ref.current.contains(e.target as Node)) onClose();
-        };
-        document.addEventListener("mousedown", handler);
-        return () => document.removeEventListener("mousedown", handler);
-    }, [onClose]);
-
+const NotifDropdown: FC<NotifDropdownProps> = ({ notifications, unreadCount, isLoading, onItemClick, onViewAll }) => {
     return (
-        <div ref={ref} style={{
+        <div style={{
             position: "absolute", top: "calc(100% + 10px)", right: 0,
             width: 340, background: H.surface,
             border: `1px solid ${H.border}`,
@@ -233,61 +200,82 @@ const NotifDropdown: FC<NotifDropdownProps> = ({ notifications, onClose }) => {
             </div>
 
             {/* Items */}
-            {notifications.map((n) => (
-                <div key={n.id} style={{
-                    padding: "12px 16px",
-                    borderBottom: `1px solid ${H.border}`,
-                    background: n.unread ? H.crimsonSubtle : "transparent",
-                    cursor: "pointer",
-                    transition: "background 0.15s",
-                    display: "flex", gap: 12, alignItems: "flex-start",
-                }}
-                    onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLDivElement).style.background =
-                            n.unread ? "rgba(232,0,28,0.12)" : H.surfaceHover;
-                    }}
-                    onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLDivElement).style.background =
-                            n.unread ? H.crimsonSubtle : "transparent";
-                    }}
-                >
-                    <span style={{ fontSize: 22, flexShrink: 0, lineHeight: 1.2 }}>{n.icon}</span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                        <p style={{
-                            fontSize: 12.5, fontWeight: 600,
-                            color: H.textPrimary, margin: "0 0 3px",
-                            letterSpacing: "0.01em",
-                        }}>
-                            {n.title}
-                        </p>
-                        <p style={{
-                            fontSize: 11.5, color: H.textSecondary,
-                            margin: "0 0 4px", lineHeight: 1.5,
-                            overflow: "hidden", textOverflow: "ellipsis",
-                            whiteSpace: "nowrap",
-                        }}>
-                            {n.body}
-                        </p>
-                        <span style={{ fontSize: 10.5, color: H.textMuted }}>
-                            {n.time}
-                        </span>
-                    </div>
-                    {n.unread && (
-                        <div style={{
-                            width: 7, height: 7, borderRadius: "50%",
-                            background: H.crimson, flexShrink: 0, marginTop: 4,
-                        }} />
-                    )}
+            {isLoading ? (
+                <div style={{ padding: "28px 16px", textAlign: "center", fontSize: 12, color: H.textMuted }}>
+                    Loading…
                 </div>
-            ))}
+            ) : notifications.length === 0 ? (
+                <div style={{ padding: "28px 16px", textAlign: "center", fontSize: 12.5, color: H.textMuted }}>
+                    You're all caught up — no notifications yet.
+                </div>
+            ) : (
+                notifications.map((n) => (
+                    <div key={n.notificationId} style={{
+                        padding: "12px 16px",
+                        borderBottom: `1px solid ${H.border}`,
+                        background: !n.isRead ? H.crimsonSubtle : "transparent",
+                        cursor: "pointer",
+                        transition: "background 0.15s",
+                        display: "flex", gap: 12, alignItems: "flex-start",
+                    }}
+                        onClick={() => onItemClick(n)}
+                        onMouseEnter={(e) => {
+                            (e.currentTarget as HTMLDivElement).style.background =
+                                !n.isRead ? "rgba(232,0,28,0.12)" : H.surfaceHover;
+                        }}
+                        onMouseLeave={(e) => {
+                            (e.currentTarget as HTMLDivElement).style.background =
+                                !n.isRead ? H.crimsonSubtle : "transparent";
+                        }}
+                    >
+                        <span style={{
+                            width: 34, height: 34, borderRadius: 10, flexShrink: 0,
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            background: NOTIFICATION_TYPE_COLOR_DARK[n.type].bg,
+                            color: NOTIFICATION_TYPE_COLOR_DARK[n.type].color,
+                        }}>
+                            <NotificationTypeIcon type={n.type} size={17} />
+                        </span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <p style={{
+                                fontSize: 12.5, fontWeight: 600,
+                                color: H.textPrimary, margin: "0 0 3px",
+                                letterSpacing: "0.01em",
+                            }}>
+                                {n.title}
+                            </p>
+                            <p style={{
+                                fontSize: 11.5, color: H.textSecondary,
+                                margin: "0 0 4px", lineHeight: 1.5,
+                                overflow: "hidden", textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                            }}>
+                                {n.message}
+                            </p>
+                            <span style={{ fontSize: 10.5, color: H.textMuted }}>
+                                {fmtRelativeTime(n.createdAt)}
+                            </span>
+                        </div>
+                        {!n.isRead && (
+                            <div style={{
+                                width: 7, height: 7, borderRadius: "50%",
+                                background: H.crimson, flexShrink: 0, marginTop: 4,
+                            }} />
+                        )}
+                    </div>
+                ))
+            )}
 
             {/* Footer */}
             <div style={{ padding: "10px 16px", textAlign: "center" }}>
-                <button style={{
-                    background: "none", border: "none", cursor: "pointer",
-                    fontSize: 12, color: H.crimson, fontFamily: "inherit",
-                    fontWeight: 600, letterSpacing: "0.04em",
-                }}>
+                <button
+                    onClick={onViewAll}
+                    style={{
+                        background: "none", border: "none", cursor: "pointer",
+                        fontSize: 12, color: H.crimson, fontFamily: "inherit",
+                        fontWeight: 600, letterSpacing: "0.04em",
+                    }}
+                >
                     View all notifications
                 </button>
             </div>
@@ -308,15 +296,6 @@ interface UserDropdownProps {
 
 const UserDropdown: FC<UserDropdownProps> = ({ name, email, avatar, onClose, onLogout }) => {
     const navigate = useNavigate();
-    const ref = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        const handler = (e: MouseEvent) => {
-            if (ref.current && !ref.current.contains(e.target as Node)) onClose();
-        };
-        document.addEventListener("mousedown", handler);
-        return () => document.removeEventListener("mousedown", handler);
-    }, [onClose]);
 
     const menuItems = [
         { label: "Profile", icon: "", path: "/customer/profile" },
@@ -325,7 +304,7 @@ const UserDropdown: FC<UserDropdownProps> = ({ name, email, avatar, onClose, onL
     ];
 
     return (
-        <div ref={ref} style={{
+        <div style={{
             position: "absolute", top: "calc(100% + 10px)", right: 0,
             width: 240, background: H.surface,
             border: `1px solid ${H.border}`,
@@ -649,6 +628,48 @@ const PageHeader: FC = () => {
     const role = user ? user.role.toUpperCase() : "GUEST";
     const navItems = NAV_CONFIG[role] ?? NAV_CONFIG["GUEST"];
 
+    /* Notifications — only fetched for logged-in users (guests never see the bell) */
+    const { data: unreadData } = useUnreadCount(!!user);
+    const { data: notifData, isLoading: notifLoading } = useNotifications(
+        { page: 1, pageSize: NOTIFICATION_DROPDOWN_PREVIEW_COUNT },
+        !!user,
+    );
+    const { mutate: markRead } = useMarkNotificationRead();
+    const unreadCount = unreadData?.count ?? 0;
+    const notifItems = notifData?.items ?? [];
+
+    const handleNotifItemClick = (n: NotificationItem) => {
+        if (!n.isRead) markRead(n.notificationId);
+        setNotifDropOpen(false);
+        const url = resolveCustomerNotificationUrl(n);
+        if (url) navigate(url);
+    };
+    const handleViewAllNotifications = () => {
+        setNotifDropOpen(false);
+        navigate("/customer/profile/notifications");
+    };
+
+    /* Outside-click closes whichever dropdown is open. The ref wraps BOTH
+     * the trigger button and its panel as siblings, so re-clicking an
+     * already-open trigger registers as "inside" and doesn't fight with
+     * the button's own onClick toggle (see notifWrapRef/userWrapRef below). */
+    const notifWrapRef = useRef<HTMLDivElement>(null);
+    const userWrapRef = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        if (!notifDropOpen && !userDropOpen) return;
+        const handler = (e: MouseEvent) => {
+            const target = e.target as Node;
+            if (notifDropOpen && notifWrapRef.current && !notifWrapRef.current.contains(target)) {
+                setNotifDropOpen(false);
+            }
+            if (userDropOpen && userWrapRef.current && !userWrapRef.current.contains(target)) {
+                setUserDropOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handler);
+        return () => document.removeEventListener("mousedown", handler);
+    }, [notifDropOpen, userDropOpen]);
+
     /* Scroll listener — shrink header */
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 20);
@@ -771,10 +792,10 @@ const PageHeader: FC = () => {
                         {user ? (
                             <>
                                 {/* Notification bell */}
-                                <div style={{ position: "relative" }}>
+                                <div ref={notifWrapRef} style={{ position: "relative" }}>
                                     <button
                                         className="cgv-icon-btn"
-                                        aria-label={`Notifications — ${FAKE_NOTIFICATIONS.filter(n => n.unread).length} unread`}
+                                        aria-label={`Notifications — ${unreadCount} unread`}
                                         aria-haspopup="true"
                                         aria-expanded={notifDropOpen}
                                         onClick={() => {
@@ -789,23 +810,29 @@ const PageHeader: FC = () => {
                                             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                                             <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                                         </svg>
-                                        <span style={{
-                                            position: "absolute", top: 4, right: 4,
-                                            width: 8, height: 8, borderRadius: "50%",
-                                            background: H.crimson,
-                                            border: "1.5px solid #0a0202",
-                                        }} aria-hidden="true" />
+                                        {unreadCount > 0 && (
+                                            <span style={{
+                                                position: "absolute", top: 4, right: 4,
+                                                width: 8, height: 8, borderRadius: "50%",
+                                                background: H.crimson,
+                                                border: "1.5px solid #0a0202",
+                                            }} aria-hidden="true" />
+                                        )}
                                     </button>
                                     {notifDropOpen && (
                                         <NotifDropdown
-                                            notifications={FAKE_NOTIFICATIONS}
+                                            notifications={notifItems}
+                                            unreadCount={unreadCount}
+                                            isLoading={notifLoading}
                                             onClose={() => setNotifDropOpen(false)}
+                                            onItemClick={handleNotifItemClick}
+                                            onViewAll={handleViewAllNotifications}
                                         />
                                     )}
                                 </div>
 
                                 {/* Avatar + user dropdown */}
-                                <div style={{ position: "relative", marginLeft: 4 }}>
+                                <div ref={userWrapRef} style={{ position: "relative", marginLeft: 4 }}>
                                     <button
                                         onClick={() => {
                                             setUserDropOpen((v) => !v);

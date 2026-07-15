@@ -1,0 +1,327 @@
+/* ─── Page ─── */
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    font-family: 'Inter', sans-serif;
+    animation: fadeIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Header ─── */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #f0e8e8;
+    margin: 0 0 6px;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: -0.01em;
+}
+
+.subtitle {
+    font-size: 13.5px;
+    color: #a08888;
+    margin: 0;
+}
+
+.headerActions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.actionBtn {
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: #c8b0b0 !important;
+    border-radius: 8px !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+}
+
+/* ─── Toolbar ─── */
+.toolbar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.filterSelect {
+    min-width: 150px;
+}
+
+.filterSelect :global(.ant-select-selector) {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    color: #f0e8e8 !important;
+}
+
+.filterSelect :global(.ant-select-selection-item),
+.filterSelect :global(.ant-select-selection-placeholder) {
+    color: #f0e8e8 !important;
+}
+
+.filterSelect :global(.ant-select-arrow) {
+    color: #7a5555 !important;
+}
+
+/* Select's OPEN dropdown renders via a portal to document.body, so it
+   escapes this module's scoping — popupClassName attaches this class
+   directly to the popup root instead, which works regardless of portal
+   location. */
+.selectPopup {
+    background: #1a0a0a !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6) !important;
+}
+
+.selectPopup :global(.ant-select-item) {
+    color: #c8b0b0 !important;
+}
+
+.selectPopup :global(.ant-select-item-option-active):not(:global(.ant-select-item-option-disabled)) {
+    background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.selectPopup :global(.ant-select-item-option-selected):not(:global(.ant-select-item-option-disabled)) {
+    background: rgba(232, 0, 28, 0.14) !important;
+    color: #f0e8e8 !important;
+    font-weight: 600;
+}
+
+.selectPopup :global(.ant-select-item-empty) {
+    color: #6b5252 !important;
+}
+
+.clearBtn {
+    color: #a08888 !important;
+}
+
+.clearBtn:hover {
+    color: #f0a8a8 !important;
+}
+
+/* ─── List ─── */
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.card {
+    display: flex;
+    gap: 14px;
+    background: rgba(14, 3, 3, 0.97);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.cardUnread {
+    background: rgba(232, 0, 28, 0.05);
+    border-color: rgba(232, 0, 28, 0.18);
+}
+
+.card:hover {
+    border-color: rgba(232, 0, 28, 0.32);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.card:focus-visible {
+    outline: 2px solid rgba(232, 0, 28, 0.6);
+    outline-offset: 2px;
+}
+
+.cardIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cardBody {
+    flex: 1;
+    min-width: 0;
+}
+
+.cardTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.cardTitle {
+    font-size: 14px;
+    font-weight: 700;
+    color: #f0e8e8;
+    margin: 0;
+}
+
+.cardMessage {
+    font-size: 12.5px;
+    color: #a08888;
+    margin: 4px 0 0;
+    line-height: 1.5;
+}
+
+.cardMeta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.cardTime {
+    font-size: 11px;
+    color: #6b5252;
+}
+
+.typeChip {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 100px;
+}
+
+.cardTopRight {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.unreadDot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #E8001C;
+    flex-shrink: 0;
+}
+
+.deleteBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6b5252;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: color 0.15s ease, background 0.15s ease;
+}
+
+.deleteBtn:hover {
+    color: #f0a8a8;
+    background: rgba(232, 0, 28, 0.1);
+}
+
+/* ─── Skeleton ─── */
+.skeletonCard {
+    display: flex;
+    gap: 14px;
+    background: rgba(14, 3, 3, 0.97);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    padding: 14px 16px;
+}
+
+.skeletonBlock {
+    border-radius: 6px;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.04) 25%,
+        rgba(255, 255, 255, 0.09) 37%,
+        rgba(255, 255, 255, 0.04) 63%
+    );
+    background-size: 400% 100%;
+    animation: skeletonShimmer 1.6s ease infinite;
+}
+
+@keyframes skeletonShimmer {
+    0%   { background-position: 100% 50%; }
+    100% { background-position: 0 50%; }
+}
+
+/* ─── Empty / error states ─── */
+.stateBox {
+    text-align: center;
+    padding: 64px 24px;
+    color: #a08888;
+}
+
+.stateTitle {
+    margin: 0 0 6px;
+    font-size: 16px;
+    color: #f0e8e8;
+    font-weight: 700;
+}
+
+.stateText {
+    margin: 0 0 18px;
+    font-size: 14px;
+}
+
+/* ─── Pagination ─── */
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 4px;
+}
+
+.pagination :global(.ant-pagination-item) {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.pagination :global(.ant-pagination-item a) {
+    color: #c8b0b0;
+}
+
+.pagination :global(.ant-pagination-item-active) {
+    background: rgba(232, 0, 28, 0.12);
+    border-color: #E8001C;
+}
+
+.pagination :global(.ant-pagination-item-active a) {
+    color: #f0e8e8;
+}
+
+.pagination :global(.ant-pagination-prev .ant-pagination-item-link),
+.pagination :global(.ant-pagination-next .ant-pagination-item-link) {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #c8b0b0;
+}
+
+.pagination :global(.ant-pagination-disabled .ant-pagination-item-link) {
+    color: #5a4040;
+}
+
+@media (max-width: 560px) {
+    .cardTop {
+        flex-direction: column;
+    }
+}

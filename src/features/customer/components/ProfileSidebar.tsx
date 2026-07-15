@@ -4,7 +4,7 @@ import { Popconfirm, Drawer, Button } from "antd";
 import {
     UserOutlined, TagOutlined, StarOutlined,
     WalletOutlined, SettingOutlined, LogoutOutlined,
-    MenuOutlined,
+    MenuOutlined, BellOutlined,
 } from "@ant-design/icons";
 import { useAppSelector } from "@/store/hooks";
 import { useLogout } from "@/features/auth/hooks/useLogoutMutation";
@@ -19,6 +19,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
     ticket: <TagOutlined />,
     star: <StarOutlined />,
     wallet: <WalletOutlined />,
+    bell: <BellOutlined />,
     settings: <SettingOutlined />,
 };
 

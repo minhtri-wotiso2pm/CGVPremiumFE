@@ -71,6 +71,12 @@ const ActivityIcon = () => (
         <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
     </svg>
 );
+const EmailIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="4" width="20" height="16" rx="2" />
+        <path d="M2 6l10 7 10-7" />
+    </svg>
+);
 
 const ADMIN_MENU: MenuGroup[] = [
     {
@@ -136,6 +142,12 @@ const ADMIN_MENU: MenuGroup[] = [
                 label: "Activity Log",
                 icon: <ActivityIcon />,
                 path: "/admin/activity-logs",
+            },
+            {
+                key: "email-logs",
+                label: "Email Logs",
+                icon: <EmailIcon />,
+                path: "/admin/email-logs",
             },
         ],
     },

@@ -3,6 +3,7 @@ export const SIDEBAR_NAV_ITEMS = [
     { key: "tickets", label: "My Tickets", path: "/customer/profile/tickets", icon: "ticket" },
     { key: "membership", label: "Membership", path: "/customer/profile/membership", icon: "star" },
     { key: "wallet", label: "EGift Wallet", path: "/customer/profile/wallet", icon: "wallet" },
+    { key: "notifications", label: "Notifications", path: "/customer/profile/notifications", icon: "bell" },
     { key: "settings", label: "Settings", path: "/customer/profile/settings", icon: "settings" },
 ] as const;
 
@@ -11,6 +12,7 @@ export const PROFILE_BREADCRUMB_MAP: Record<string, string> = {
     "/customer/profile/tickets": "My Tickets",
     "/customer/profile/membership": "Membership",
     "/customer/profile/wallet": "EGift Wallet",
+    "/customer/profile/notifications": "Notifications",
     "/customer/profile/settings": "Settings",
 };
 

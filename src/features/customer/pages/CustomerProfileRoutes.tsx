@@ -25,6 +25,8 @@ export { default as MembershipPage } from "./MembershipPage";
 
 export { default as WalletPage } from "./WalletPage";
 
+export { default as NotificationsPage } from "./NotificationsPage";
+
 export const SettingsPage: FC = () => (
     <ProfilePlaceholder
         icon="⚙️"

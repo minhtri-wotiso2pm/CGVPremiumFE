@@ -11,15 +11,6 @@ interface Props {
     onToggleCollapse: () => void;
 }
 
-const CollapseIcon = ({ collapsed }: { collapsed: boolean }) => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-        {collapsed
-            ? <polyline points="9 18 15 12 9 6" />
-            : <polyline points="15 18 9 12 15 6" />
-        }
-    </svg>
-);
-
 const LogoutIcon = () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
@@ -28,9 +19,18 @@ const LogoutIcon = () => (
     </svg>
 );
 
-/* Exact same logo as PageHeaderPublic */
-const SidebarLogo = ({ collapsed }: { collapsed: boolean }) => (
-    <div className="dash-sidebar__logo">
+/* Exact same logo as PageHeaderPublic — the whole row doubles as the
+ * sidebar's only collapse toggle, click anywhere on it. */
+const SidebarLogo = ({ collapsed, onToggleCollapse }: { collapsed: boolean; onToggleCollapse: () => void }) => (
+    <div
+        className="dash-sidebar__logo"
+        onClick={onToggleCollapse}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onToggleCollapse(); } }}
+        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+    >
         {collapsed ? (
             <span style={{
                 display: "flex",
@@ -85,7 +85,7 @@ const DashboardSidebar: FC<Props> = ({ menuGroups, collapsed, mobileOpen, onClos
 
     return (
         <aside className={sidebarClass}>
-            <SidebarLogo collapsed={collapsed} />
+            <SidebarLogo collapsed={collapsed} onToggleCollapse={onToggleCollapse} />
 
             {/* Navigation */}
             <nav className="dash-sidebar__nav" aria-label="Dashboard navigation">
@@ -125,9 +125,8 @@ const DashboardSidebar: FC<Props> = ({ menuGroups, collapsed, mobileOpen, onClos
                 ))}
             </nav>
 
-            {/* Bottom actions */}
+            {/* Bottom actions — Sign Out always stays last */}
             <div className="dash-sidebar__bottom">
-                {/* Logout */}
                 <button
                     className="dash-sidebar__logout"
                     onClick={() => logout()}
@@ -139,18 +138,6 @@ const DashboardSidebar: FC<Props> = ({ menuGroups, collapsed, mobileOpen, onClos
                     </span>
                     {!collapsed && (
                         <span className="dash-sidebar__item-label">Sign Out</span>
-                    )}
-                </button>
-
-                {/* Collapse toggle */}
-                <button
-                    className="dash-sidebar__collapse"
-                    onClick={onToggleCollapse}
-                    aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-                >
-                    <CollapseIcon collapsed={collapsed} />
-                    {!collapsed && (
-                        <span style={{ fontSize: 12, fontFamily: "inherit" }}>Collapse</span>
                     )}
                 </button>
             </div>

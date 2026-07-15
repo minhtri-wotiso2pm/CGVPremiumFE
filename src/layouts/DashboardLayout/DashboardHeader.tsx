@@ -1,8 +1,16 @@
-import { type FC, useCallback } from "react";
+import { type FC, useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dropdown, type MenuProps } from "antd";
 import { useAppSelector } from "@/store/hooks";
 import { useLogout } from "@/features/auth/hooks/useLogoutMutation";
+import {
+    useNotifications,
+    useUnreadCount,
+    useMarkNotificationRead,
+} from "@/features/notifications/hooks/useNotifications";
+import type { NotificationItem } from "@/features/notifications/types/notification.types";
+import { NOTIFICATION_DROPDOWN_PREVIEW_COUNT } from "@/features/notifications/constants/notification.constants";
+import DashboardNotifDropdown from "./DashboardNotifDropdown";
 
 interface Props {
     onMenuToggle: () => void;
@@ -57,6 +65,51 @@ const DashboardHeader: FC<Props> = ({ onMenuToggle }) => {
         }
     })();
 
+    const notificationsPath = (() => {
+        switch (user?.role?.toUpperCase()) {
+            case "MANAGER": return "/manager/notifications";
+            case "STAFF":   return "/staff/notifications";
+            default:        return "/admin/notifications";
+        }
+    })();
+
+    /* Notifications */
+    const [notifOpen, setNotifOpen] = useState(false);
+    const { data: unreadData } = useUnreadCount();
+    const { data: notifData, isLoading: notifLoading } = useNotifications({
+        page: 1,
+        pageSize: NOTIFICATION_DROPDOWN_PREVIEW_COUNT,
+    });
+    const { mutate: markRead } = useMarkNotificationRead();
+    const unreadCount = unreadData?.count ?? 0;
+    const notifItems = notifData?.items ?? [];
+
+    const handleNotifItemClick = (n: NotificationItem) => {
+        if (!n.isRead) markRead(n.notificationId);
+        setNotifOpen(false);
+        if (n.actionUrl) navigate(n.actionUrl);
+    };
+    const handleViewAllNotifications = () => {
+        setNotifOpen(false);
+        navigate(notificationsPath);
+    };
+
+    /* Outside-click closes the bell dropdown. The ref wraps BOTH the bell
+     * trigger button and its panel as siblings, so re-clicking the
+     * already-open trigger registers as "inside" and doesn't fight with
+     * the button's own onClick toggle. */
+    const notifWrapRef = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        if (!notifOpen) return;
+        const handler = (e: MouseEvent) => {
+            if (notifWrapRef.current && !notifWrapRef.current.contains(e.target as Node)) {
+                setNotifOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handler);
+        return () => document.removeEventListener("mousedown", handler);
+    }, [notifOpen]);
+
     const dropdownItems: MenuProps["items"] = [
         {
             key: "profile",
@@ -89,9 +142,34 @@ const DashboardHeader: FC<Props> = ({ onMenuToggle }) => {
 
             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 {/* Notification bell */}
-                <button className="dash-icon-btn" aria-label="Notifications">
-                    <BellIcon />
-                </button>
+                <div ref={notifWrapRef} style={{ position: "relative" }}>
+                    <button
+                        className="dash-icon-btn"
+                        aria-label={`Notifications — ${unreadCount} unread`}
+                        aria-haspopup="true"
+                        aria-expanded={notifOpen}
+                        onClick={() => setNotifOpen((v) => !v)}
+                    >
+                        <BellIcon />
+                        {unreadCount > 0 && (
+                            <span style={{
+                                position: "absolute", top: 6, right: 6,
+                                width: 8, height: 8, borderRadius: "50%",
+                                background: "var(--dash-crimson)",
+                                border: "1.5px solid var(--dash-surface)",
+                            }} aria-hidden="true" />
+                        )}
+                    </button>
+                    {notifOpen && (
+                        <DashboardNotifDropdown
+                            notifications={notifItems}
+                            unreadCount={unreadCount}
+                            isLoading={notifLoading}
+                            onItemClick={handleNotifItemClick}
+                            onViewAll={handleViewAllNotifications}
+                        />
+                    )}
+                </div>
 
                 {/* User dropdown — tên/role bên trái, avatar bên phải */}
                 <Dropdown
