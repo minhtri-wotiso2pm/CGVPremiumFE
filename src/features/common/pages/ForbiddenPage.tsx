@@ -1,5 +1,5 @@
 /**
- * ForbiddenPage.tsx — CGVPremium 403
+ * ForbiddenPage.tsx — CVPremium 403
  *
  * Route: <Route path="/403" element={<ForbiddenPage />} />
  * Also dispatch to this route from auth guards on role mismatch.
@@ -114,7 +114,7 @@ const ForbiddenPage: FC = () => {
                         WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
                         backgroundClip: "text",
                     }}>
-                        CGVPREMIUM
+                        CVPREMIUM
                     </span>
                     <span style={{
                         width: 5, height: 5, borderRadius: "50%",
@@ -151,7 +151,7 @@ const ForbiddenPage: FC = () => {
 
             {/* Footer */}
             <p className="ep-footer">
-                © 2026 CGVPremium Entertainment Systems · All Rights Reserved
+                © 2026 CVPremium Entertainment Systems · All Rights Reserved
             </p>
         </main>
     );

@@ -17,7 +17,7 @@ const TESTIMONIALS = [
     {
         quote: "Reclining seats and Dolby Atmos completely changed how I feel about going to the cinema.",
         name: "Lan P.",
-        role: "CGV Premium Member since 2021",
+        role: "CV Premium Member since 2021",
     },
     {
         quote: "Booking is effortless and the picture quality is unreal. Every screening feels like an event.",

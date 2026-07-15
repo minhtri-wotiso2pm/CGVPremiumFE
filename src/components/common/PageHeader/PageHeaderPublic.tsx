@@ -467,7 +467,7 @@ const MobileDrawer: FC<DrawerProps> = ({
                             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
                             backgroundClip: "text",
                         }}>
-                            CGVPREMIUM
+                            CVPREMIUM
                         </span>
                         <span style={{ width: 5, height: 5, borderRadius: "50%", background: H.crimson }} />
                     </div>
@@ -748,7 +748,7 @@ const PageHeader: FC = () => {
             >
                 <div className="cgv-fh__inner">
                     {/* ── LEFT: Logo ── */}
-                    <Link to={logoHref} className="cgv-fh__logo" aria-label="CGV Premium — home">
+                    <Link to={logoHref} className="cgv-fh__logo" aria-label="CV Premium — home">
                         <span className="cgv-fh__logo-text">CVPREMIUM</span>
                         <span className="cgv-fh__logo-dot" aria-hidden="true" />
                     </Link>

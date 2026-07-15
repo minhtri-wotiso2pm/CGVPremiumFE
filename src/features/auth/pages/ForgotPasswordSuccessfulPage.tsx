@@ -1,7 +1,7 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 /* ─────────────────────────────────────────────────────────────
-   DESIGN TOKENS — CGVPremium Design System
+   DESIGN TOKENS — CVPremium Design System
 ───────────────────────────────────────────────────────────── */
 const T = {
     crimson: "#E8001C",
@@ -125,7 +125,7 @@ export default function ForgotPasswordSuccessPage() {
                             background: "linear-gradient(135deg,#ff1a1a 0%,#cc0000 50%,#990000 100%)",
                             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
                         }}>
-                            CGVPREMIUM
+                            CVPREMIUM
                         </h1>
                         <span style={{ width: 6, height: 6, borderRadius: "50%", background: T.crimson, marginLeft: 2, marginBottom: 18, flexShrink: 0 }} />
                     </div>
@@ -249,7 +249,7 @@ export default function ForgotPasswordSuccessPage() {
                     fontSize: 9.5, color: "#5a4040", letterSpacing: "0.14em",
                     textAlign: "center", textTransform: "uppercase",
                 }}>
-                    © 2026 CGVPremium Entertainment Systems · All Rights Reserved
+                    © 2026 CVPremium Entertainment Systems · All Rights Reserved
                 </p>
             </div>
         </>

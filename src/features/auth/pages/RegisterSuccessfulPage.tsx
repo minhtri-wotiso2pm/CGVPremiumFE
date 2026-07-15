@@ -1,7 +1,7 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 /* ─────────────────────────────────────────────────────────────
-   DESIGN TOKENS — CGVPremium Design System
+   DESIGN TOKENS — CVPremium Design System
 ───────────────────────────────────────────────────────────── */
 const T = {
     crimson: "#E8001C",
@@ -125,7 +125,7 @@ export default function RegisterSuccessfulPage() {
                             background: "linear-gradient(135deg,#ff1a1a 0%,#cc0000 50%,#990000 100%)",
                             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
                         }}>
-                            CGVPREMIUM
+                            CVPREMIUM
                         </h1>
                         <span style={{ width: 6, height: 6, borderRadius: "50%", background: T.crimson, marginLeft: 2, marginBottom: 18, flexShrink: 0 }} />
                     </div>
@@ -198,7 +198,7 @@ export default function RegisterSuccessfulPage() {
                         lineHeight: 1.7, letterSpacing: "0.02em",
                         marginBottom: 36,
                     }}>
-                        You can now sign in and enjoy CGVPremium
+                        You can now sign in and enjoy CVPremium
                     </p>
 
                     <div style={{ width: 32, height: 1, background: "rgba(232,0,28,0.3)", margin: "0 auto 32px" }} />
@@ -250,7 +250,7 @@ export default function RegisterSuccessfulPage() {
                     fontSize: 9.5, color: "#5a4040", letterSpacing: "0.14em",
                     textAlign: "center", textTransform: "uppercase",
                 }}>
-                    © 2026 CGVPremium Entertainment Systems · All Rights Reserved
+                    © 2026 CVPremium Entertainment Systems · All Rights Reserved
                 </p>
             </div>
         </>

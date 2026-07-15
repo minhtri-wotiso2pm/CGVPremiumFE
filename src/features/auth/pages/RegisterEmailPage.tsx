@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { verifyEmail } from "@/services/api/auth.service";
 
 /* ─────────────────────────────────────────────────────────────
-   DESIGN TOKENS — CGVPremium Design System
+   DESIGN TOKENS — CVPremium Design System
 ───────────────────────────────────────────────────────────── */
 const T = {
     crimson: "#E8001C",
@@ -412,7 +412,7 @@ export default function VerifyEmailPage() {
                 <div
                     className="cgv-card"
                     role="main"
-                    aria-label="Xác thực email CGVPremium"
+                    aria-label="Xác thực email CVPremium"
                     style={{
                         position: "relative", zIndex: 10,
                         background: T.surface,
@@ -439,7 +439,7 @@ export default function VerifyEmailPage() {
                             WebkitTextFillColor: "transparent",
                             backgroundClip: "text",
                         }}>
-                            CGVPREMIUM
+                            CVPREMIUM
                         </h1>
                         <span style={{
                             width: 6, height: 6, borderRadius: "50%",
@@ -595,7 +595,7 @@ export default function VerifyEmailPage() {
                     fontSize: 9.5, color: "#5a4040", letterSpacing: "0.14em",
                     textAlign: "center", textTransform: "uppercase",
                 }}>
-                    © 2026 CGVPremium Entertainment Systems · All Rights Reserved
+                    © 2026 CVPremium Entertainment Systems · All Rights Reserved
                 </p>
             </div>
         </>

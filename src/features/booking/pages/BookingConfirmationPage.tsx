@@ -128,7 +128,7 @@ const BookingConfirmationPage: FC = () => {
                     <div className="cgv-confirm-icon" aria-hidden="true">✓</div>
                     <p className="cgv-confirm-title">Đặt vé thành công!</p>
                     <p className="cgv-confirm-subtitle">
-                        Cảm ơn bạn đã mua vé tại CGV Premium
+                        Cảm ơn bạn đã mua vé tại CV Premium
                     </p>
 
                     {/* Booking code */}

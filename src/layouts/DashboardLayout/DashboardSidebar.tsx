@@ -59,7 +59,7 @@ const SidebarLogo = ({ collapsed, onToggleCollapse }: { collapsed: boolean; onTo
                     lineHeight: 1,
                     whiteSpace: "nowrap",
                 }}>
-                    CGVPREMIUM
+                    CVPREMIUM
                 </span>
                 <span style={{
                     width: 5, height: 5,

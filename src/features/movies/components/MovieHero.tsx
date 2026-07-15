@@ -197,7 +197,7 @@ const MovieHero: FC<Props> = ({ featuredMovies, totalMovies, onMovieClick, onBoo
                 />
             ) : (
                 <div className="cgv-hoverlay">
-                    <p className="cgv-hoverlay__eyebrow">CGV Premium</p>
+                    <p className="cgv-hoverlay__eyebrow">CV Premium</p>
                     <h1 className="cgv-hoverlay__title">Now Showing</h1>
                     <p className="cgv-hoverlay__desc">Discover the latest blockbuster movies and book your seats instantly.</p>
                 </div>

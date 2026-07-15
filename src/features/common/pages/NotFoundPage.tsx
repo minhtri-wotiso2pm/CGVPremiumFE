@@ -1,5 +1,5 @@
 /**
- * NotFoundPage.tsx — CGVPremium 404
+ * NotFoundPage.tsx — CVPremium 404
  *
  * Route: <Route path="*" element={<NotFoundPage />} />
  *
@@ -104,7 +104,7 @@ const NotFoundPage: FC = () => {
                         WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
                         backgroundClip: "text",
                     }}>
-                        CGVPREMIUM
+                        CVPREMIUM
                     </span>
                     <span style={{
                         width: 5, height: 5, borderRadius: "50%",
@@ -141,7 +141,7 @@ const NotFoundPage: FC = () => {
 
             {/* Footer */}
             <p className="ep-footer">
-                © 2026 CGVPremium Entertainment Systems · All Rights Reserved
+                © 2026 CVPremium Entertainment Systems · All Rights Reserved
             </p>
         </main>
     );

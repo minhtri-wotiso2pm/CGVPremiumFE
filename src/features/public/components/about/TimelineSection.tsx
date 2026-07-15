@@ -3,11 +3,11 @@ import { motion, useScroll } from "framer-motion";
 import { revealUp, staggerContainer, viewportOnce } from "./motionVariants";
 
 const MILESTONES = [
-    { year: "2011", title: "The First Screen", desc: "CGV Premium opens its flagship cinema, built around a single idea: picture and sound quality shouldn't be a premium tier — they should be the standard." },
+    { year: "2011", title: "The First Screen", desc: "CV Premium opens its flagship cinema, built around a single idea: picture and sound quality shouldn't be a premium tier — they should be the standard." },
     { year: "2015", title: "Nationwide Expansion", desc: "New locations open across the country's major cities, each one built to the same spec as the flagship rather than a scaled-down version of it." },
     { year: "2019", title: "IMAX & Dolby Atmos", desc: "Large-format screens and object-based surround sound roll out chain-wide, turning every premium hall into a genuine destination screening." },
     { year: "2023", title: "Premium Redefined", desc: "Reclining seating, app-based booking and a rebuilt loyalty program bring the in-cinema and online experience onto the same standard." },
-    { year: "2026", title: "CGV Premium Today", desc: "Now operating across dozens of cinemas nationwide, still measuring every new room against the one that started it all." },
+    { year: "2026", title: "CV Premium Today", desc: "Now operating across dozens of cinemas nationwide, still measuring every new room against the one that started it all." },
 ];
 
 /** Alternating milestone timeline with a vertical line that fills in as

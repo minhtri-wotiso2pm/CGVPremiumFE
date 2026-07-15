@@ -8,7 +8,7 @@ import { getDashboardByRole } from "../utils/getDashboardByRole";
 import { getSafeRedirect, type LoginRedirectState } from "../utils/authRedirect";
 import axios from "axios";
 /* ─────────────────────────────────────────────────────────────
-DESIGN TOKENS — CGVPremium Design System
+DESIGN TOKENS — CVPremium Design System
 ───────────────────────────────────────────────────────────── */
 const T = {
     // Colors
@@ -375,7 +375,7 @@ export default function LoginPage() {
                 <div
                     className="cgv-card"
                     role="main"
-                    aria-label="Đăng nhập CGVPremium"
+                    aria-label="Đăng nhập CVPremium"
                     style={{
                         position: "relative", zIndex: 10,
                         background: T.surface,
@@ -395,7 +395,7 @@ export default function LoginPage() {
                             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
                             backgroundClip: "text", margin: 0,
                         }}>
-                            CGVPREMIUM
+                            CVPREMIUM
                         </h1>
                         <span style={{
                             width: 6, height: 6, borderRadius: "50%", background: T.crimson,
@@ -551,7 +551,7 @@ export default function LoginPage() {
 
                     {/* Register */}
                     <p style={{ textAlign: "center", marginTop: 28, fontSize: 12.5, color: T.textFaint }}>
-                        New to the CGVPremium? {" "}
+                        New to the CVPremium? {" "}
                         <a
                             href="/register"
                             onClick={(e) => { e.preventDefault(); navigate("/register"); }}
@@ -575,7 +575,7 @@ export default function LoginPage() {
                     fontSize: 9.5, color: "#5a4040", letterSpacing: "0.14em",
                     textAlign: "center", textTransform: "uppercase",
                 }}>
-                    © 2026 CGVPremium Entertainment Systems · All Rights Reserved
+                    © 2026 CVPremium Entertainment Systems · All Rights Reserved
                 </p>
             </div>
         </>

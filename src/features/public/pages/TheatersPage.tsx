@@ -94,9 +94,9 @@ const TheatersPage: FC = () => {
     return (
         <div className="thtr-page">
             <div className="thtr-head">
-                <span className="thtr-head__eyebrow">CGV Premium</span>
+                <span className="thtr-head__eyebrow">CV Premium</span>
                 <h1 className="thtr-head__title">Select Your Cinema</h1>
-                <p className="thtr-head__sub">Find a CGV Premium cinema near you.</p>
+                <p className="thtr-head__sub">Find a CV Premium cinema near you.</p>
             </div>
 
             <div className="thtr-toolbar">

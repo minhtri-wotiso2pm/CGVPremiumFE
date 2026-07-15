@@ -4,10 +4,10 @@ import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { bandValue, revealUp, staggerContainer, viewportOnce } from "./motionVariants";
 
 const STORY_PARAGRAPHS = [
-    "CGV Premium began with a simple belief: a great film deserves a great room to live in. Not just a screen and a row of seats, but a space built entirely around the moment the lights go down.",
+    "CV Premium began with a simple belief: a great film deserves a great room to live in. Not just a screen and a row of seats, but a space built entirely around the moment the lights go down.",
     "What started as a single flagship cinema grew into a nationwide chain, one city at a time — each new location built on the same obsession with picture quality, sound, and comfort that defined the first.",
     "We don't think of ourselves as a chain of theaters. We think of ourselves as the last mile of every story a filmmaker tells — the room where their work finally becomes an experience.",
-    "Today, CGV Premium is where audiences come not just to watch a movie, but to feel one.",
+    "Today, CV Premium is where audiences come not just to watch a movie, but to feel one.",
 ];
 
 // Fixed 4-paragraph bands — each crossfades in, holds, then fades for the

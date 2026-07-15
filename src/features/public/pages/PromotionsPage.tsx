@@ -190,7 +190,7 @@ const PromotionsPage: FC = () => {
     return (
         <div className="promo-page">
             <div className="promo-head">
-                <span className="promo-head__eyebrow">CGV Premium</span>
+                <span className="promo-head__eyebrow">CV Premium</span>
                 <h1 className="promo-head__title">Promotions &amp; Offers</h1>
                 <p className="promo-head__sub">Exclusive deals to make every visit more rewarding.</p>
             </div>

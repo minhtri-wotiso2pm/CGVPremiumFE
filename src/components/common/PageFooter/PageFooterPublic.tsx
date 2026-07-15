@@ -170,7 +170,7 @@ const Newsletter: FC = () => {
                     fontSize: 12.5, color: "#22c55e",
                     display: "flex", alignItems: "center", gap: 8,
                 }}>
-                    <span>✓</span> You're subscribed. Welcome to CGVPremium!
+                    <span>✓</span> You're subscribed. Welcome to CVPremium!
                 </div>
             ) : (
                 <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -288,7 +288,7 @@ const PageFooter: FC = () => (
                                 WebkitTextFillColor: "transparent",
                                 backgroundClip: "text",
                             }}>
-                                CGVPREMIUM
+                                CVPREMIUM
                             </span>
                             <span style={{
                                 width: 5, height: 5, borderRadius: "50%",
@@ -347,7 +347,7 @@ const PageFooter: FC = () => (
                     gap: 12, paddingBottom: 28,
                 }}>
                     <p style={{ fontSize: 11.5, color: F.textMuted, letterSpacing: "0.06em", margin: 0 }}>
-                        © 2026 CGVPremium Entertainment Systems. All Rights Reserved.
+                        © 2026 CVPremium Entertainment Systems. All Rights Reserved.
                     </p>
                     <div style={{ display: "flex", gap: 20 }}>
                         {[

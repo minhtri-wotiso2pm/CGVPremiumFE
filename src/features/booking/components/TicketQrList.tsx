@@ -17,7 +17,7 @@ const seatLabel = (seat?: SeatLike) =>
 const QR_LOGO = "data:image/svg+xml," + encodeURIComponent(
     `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60">
         <rect width="60" height="60" rx="14" fill="#fff"/>
-        <text x="30" y="38" font-family="Arial, sans-serif" font-weight="800" font-size="18" fill="#E8001C" text-anchor="middle">CGV</text>
+        <text x="30" y="38" font-family="Arial, sans-serif" font-weight="800" font-size="18" fill="#E8001C" text-anchor="middle">CV</text>
     </svg>`,
 );
 
@@ -140,7 +140,7 @@ const TicketCard: FC<TicketCardProps> = ({ ticket, label, cinemaName, roomName, 
 
                 <div className="tkt-card__info">
                     {dateTime && <InfoRow icon={<CalendarIcon />}>{dateTime}</InfoRow>}
-                    <InfoRow icon={<FilmIcon />}>CGV</InfoRow>
+                    <InfoRow icon={<FilmIcon />}>CV</InfoRow>
                     <InfoRow icon={<PinIcon />}>{cinemaName}</InfoRow>
                     <InfoRow icon={<TagIcon />}>{bookingCode}</InfoRow>
                     {label && <InfoRow icon={<SeatIcon />}>Seat: {label}</InfoRow>}

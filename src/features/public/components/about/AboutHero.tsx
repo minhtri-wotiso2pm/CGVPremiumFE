@@ -125,7 +125,7 @@ const AboutHero: FC = () => {
                         animate={{ backgroundPosition: "-60% 0%" }}
                         transition={{ duration: 1.7, ease: EASE_SMOOTH, delay: 0.6 }}
                     >
-                        CGVPREMIUM
+                        CVPREMIUM
                     </motion.span>
                     <span className="abt-hero__logo-dot" aria-hidden="true" />
                 </motion.div>
