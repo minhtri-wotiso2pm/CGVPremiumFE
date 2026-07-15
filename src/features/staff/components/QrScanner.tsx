@@ -17,9 +17,19 @@ const stopIfRunning = (scanner: Html5Qrcode) => {
     }
 };
 
+// How long the same decoded code is ignored for after it's reported — the
+// camera keeps decoding the same physical ticket several times a second
+// while it's held in view, so without this the same scan would fire
+// repeatedly until the ticket is moved away.
+const RESCAN_COOLDOWN_MS = 3000;
+
 const QrScanner: FC<Props> = ({ active, onScan, onError }) => {
     const onScanRef = useRef(onScan);
-    onScanRef.current = onScan;
+    const lastScanRef = useRef<{ text: string; time: number } | null>(null);
+
+    useEffect(() => {
+        onScanRef.current = onScan;
+    });
 
     useEffect(() => {
         if (!active) return;
@@ -31,7 +41,15 @@ const QrScanner: FC<Props> = ({ active, onScan, onError }) => {
             .start(
                 { facingMode: "environment" },
                 { fps: 10, qrbox: { width: 250, height: 250 } },
-                (decodedText) => onScanRef.current(decodedText),
+                (decodedText) => {
+                    const last = lastScanRef.current;
+                    const now = Date.now();
+                    if (last && last.text === decodedText && now - last.time < RESCAN_COOLDOWN_MS) {
+                        return;
+                    }
+                    lastScanRef.current = { text: decodedText, time: now };
+                    onScanRef.current(decodedText);
+                },
                 undefined
             )
             .then(() => {
@@ -40,7 +58,7 @@ const QrScanner: FC<Props> = ({ active, onScan, onError }) => {
             })
             .catch((err) => {
                 if (!cancelled) {
-                    onError?.(err?.message ?? String(err) ?? "Could not start camera.");
+                    onError?.(err?.message ?? String(err ?? "Could not start camera."));
                 }
             });
 

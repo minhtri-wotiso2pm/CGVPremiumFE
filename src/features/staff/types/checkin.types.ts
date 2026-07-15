@@ -62,6 +62,13 @@ export interface CheckInActionResponse {
     checkedInAt: string;
 }
 
+export interface CheckInHistorySeat {
+    seatCode: string;
+    seatType: string;
+    ticketPrice: number;
+    checkedInAt: string;
+}
+
 export interface CheckInHistoryRecord {
     bookingId: number;
     bookingCode: string;
@@ -74,6 +81,7 @@ export interface CheckInHistoryRecord {
     staffName: string;
     seatCount: number;
     totalAmount: number;
+    checkedInSeats: CheckInHistorySeat[];
 }
 
 export interface CheckInHistoryQuery {

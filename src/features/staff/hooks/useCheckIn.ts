@@ -17,6 +17,25 @@ export const getCheckInErrorMessage = (error: unknown, fallback: string): string
     return fallback;
 };
 
+export interface CheckInErrorInfo {
+    message: string;
+    /** "network": request never reached the server (offline/timeout/CORS) —
+     *  distinct from "business": the server responded but rejected the
+     *  ticket (invalid/expired/already used, etc.). Staff need to react to
+     *  these differently, so the UI styles them differently. */
+    kind: "network" | "business";
+}
+
+export const getCheckInErrorInfo = (error: unknown, fallback: string): CheckInErrorInfo => {
+    if (axios.isAxiosError(error)) {
+        if (!error.response) {
+            return { message: "Could not reach the server. Check your connection and try again.", kind: "network" };
+        }
+        return { message: error.response.data?.message ?? fallback, kind: "business" };
+    }
+    return { message: fallback, kind: "business" };
+};
+
 export function useCheckInLookup() {
     return useMutation({
         mutationFn: (qrCode: string) => lookupCheckInApi(qrCode),

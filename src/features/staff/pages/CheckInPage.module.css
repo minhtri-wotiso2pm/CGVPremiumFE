@@ -1,0 +1,10 @@
+/* Pins the scan/lookup/result area to the top of the scrollable content
+   area so the primary "scan -> verify -> confirm" action never requires
+   scrolling, even with a long check-in history below it. */
+.stickyTop {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--dash-bg);
+    padding-bottom: 4px;
+}

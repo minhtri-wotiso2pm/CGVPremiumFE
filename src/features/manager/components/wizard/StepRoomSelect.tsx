@@ -1,6 +1,7 @@
-import { type FC } from "react";
+import { type FC, useMemo } from "react";
 import { Spin } from "antd";
 import { useRooms } from "../../hooks/useRooms";
+import { useRoomTypes } from "../../hooks/useRoomTypes";
 
 const RoomIcon = () => (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -17,6 +18,11 @@ interface Props {
 
 const StepRoomSelect: FC<Props> = ({ cinemaId, roomId, onSelect }) => {
     const { data: allRooms = [], isLoading } = useRooms();
+    const { data: roomTypes = [] } = useRoomTypes();
+    const roomTypeById = useMemo(
+        () => new Map(roomTypes.map((t) => [t.roomTypeId, t])),
+        [roomTypes],
+    );
     const rooms = allRooms.filter((r) => r.cinemaId === cinemaId && r.status === "ACTIVE");
 
     if (isLoading) {
@@ -40,7 +46,7 @@ const StepRoomSelect: FC<Props> = ({ cinemaId, roomId, onSelect }) => {
                             <span className="stt-room-card__icon"><RoomIcon /></span>
                             <div className="stt-room-card__info">
                                 <span className="stt-room-card__name">{r.name}</span>
-                                <span className="stt-room-card__meta">{r.roomTypeId} · {r.capacity} seats</span>
+                                <span className="stt-room-card__meta">{roomTypeById.get(r.roomTypeId)?.typeName ?? "—"} · {r.capacity} seats</span>
                             </div>
                         </button>
                     ))}
