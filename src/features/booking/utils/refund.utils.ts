@@ -9,3 +9,8 @@ export const canRequestRefund = (status: string, startTime: string): boolean => 
     if (Number.isNaN(showtimeMs)) return false;
     return showtimeMs - Date.now() > REFUND_CUTOFF_MS;
 };
+
+/** Whether the customer's membership-tier refund quota still has room —
+ *  `null` means the quota hasn't loaded yet (don't block on it). */
+export const hasRefundQuotaLeft = (refundsRemaining: number | null): boolean =>
+    refundsRemaining == null || refundsRemaining > 0;

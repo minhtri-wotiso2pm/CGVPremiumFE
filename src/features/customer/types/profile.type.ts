@@ -14,6 +14,10 @@ export interface ProfileResponse {
     status: string;
     avatarURL: string | null;
     totalPoints: number;
+    /** Refund quota for the customer's current membership tier. */
+    total_refunds: number;
+    /** How many of that quota the customer has already used. */
+    used_refunds: number;
     createdAt: string;
     cinema?: ProfileCinema | null;
 }

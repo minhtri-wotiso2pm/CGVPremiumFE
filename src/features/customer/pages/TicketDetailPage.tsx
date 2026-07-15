@@ -4,7 +4,8 @@ import { Spin } from "antd";
 import { useMyBookings } from "@/features/booking/hooks/useMyBookings";
 import TicketQrList from "@/features/booking/components/TicketQrList";
 import RefundModal, { type RefundBookingInfo } from "@/features/booking/components/RefundModal";
-import { canRequestRefund } from "@/features/booking/utils/refund.utils";
+import { canRequestRefund, hasRefundQuotaLeft } from "@/features/booking/utils/refund.utils";
+import { useProfile } from "@/features/customer/hooks/useProfile";
 import "./ticketDetail.css";
 
 const BackIcon = () => (
@@ -41,6 +42,7 @@ const TicketDetailPage: FC = () => {
     const { bookingId } = useParams<{ bookingId: string }>();
     const navigate = useNavigate();
     const { data: bookings = [], isLoading, isError } = useMyBookings();
+    const { data: profile } = useProfile();
     const booking = bookings.find((b) => String(b.bookingID) === bookingId);
     const [refundTarget, setRefundTarget] = useState<RefundBookingInfo | null>(null);
 
@@ -64,7 +66,11 @@ const TicketDetailPage: FC = () => {
     }
 
     const st = statusStyle(booking.status);
-    const refundEligible = canRequestRefund(booking.status, booking.startTime);
+    const refundsRemaining = profile ? profile.total_refunds - profile.used_refunds : null;
+    const quotaOk = hasRefundQuotaLeft(refundsRemaining);
+    const timeAndStatusOk = canRequestRefund(booking.status, booking.startTime);
+    const refundEligible = timeAndStatusOk && quotaOk;
+    const quotaExhausted = timeAndStatusOk && !quotaOk;
 
     return (
         <div className="tktd-page">
@@ -92,6 +98,17 @@ const TicketDetailPage: FC = () => {
                     >
                         Request Refund
                     </button>
+                )}
+                {quotaExhausted && (
+                    <span
+                        title="You've used all your refund credits for this membership tier."
+                        style={{
+                            marginLeft: 10, border: "1px solid rgba(232,0,28,0.25)", background: "rgba(232,0,28,0.06)",
+                            color: "#e8a0a0", borderRadius: 8, padding: "6px 14px", fontSize: 12.5, fontWeight: 600,
+                        }}
+                    >
+                        Refund limit reached
+                    </span>
                 )}
             </div>
 

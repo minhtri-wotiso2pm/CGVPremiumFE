@@ -5,7 +5,7 @@ import type { ProfileResponse } from "../types/profile.type";
 import {
     buildInitialsAvatar,
     formatMemberSince,
-    mapRole,
+    // mapRole,
     mapStatusColor,
     capitalize,
     formatTierName,
@@ -109,10 +109,10 @@ const ProfileCard: FC<Props> = ({ profile, loading, onEdit, onAvatar, onChangePa
                     <span className={styles.infoLabel}>Phone</span>
                     <span className={styles.infoValue}>{profile.phone || "—"}</span>
                 </div>
-                <div className={styles.infoItem}>
+                {/* <div className={styles.infoItem}>
                     <span className={styles.infoLabel}>Role</span>
                     <span className={styles.infoValue}>{mapRole(profile.role)}</span>
-                </div>
+                </div> */}
                 <div className={styles.infoItem}>
                     <span className={styles.infoLabel}>Member Since</span>
                     <span className={styles.infoValue}>{formatMemberSince(profile.createdAt)}</span>
@@ -137,6 +137,12 @@ const ProfileCard: FC<Props> = ({ profile, loading, onEdit, onAvatar, onChangePa
                     ) : (
                         <span className={styles.infoValue}>—</span>
                     )}
+                </div>
+                <div className={styles.infoItem}>
+                    <span className={styles.infoLabel}>Refunds Remaining</span>
+                    <span className={styles.infoValue}>
+                        {Math.max(0, profile.total_refunds - profile.used_refunds)} / {profile.total_refunds}
+                    </span>
                 </div>
             </div>
 

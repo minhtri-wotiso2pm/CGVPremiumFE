@@ -2,6 +2,7 @@ import type { FC } from "react";
 import { Skeleton } from "antd";
 import type { MembershipInfo, MembershipTier, PointsHistoryEntry } from "../types/membership.types";
 import { useMembershipInfo, useMembershipTiers, usePointsHistory } from "../hooks/useMembership";
+import { useProfile } from "../hooks/useProfile";
 import { formatTierName, getTierColor } from "../utils/profile.mapper";
 import styles from "./MembershipPage.module.css";
 
@@ -138,7 +139,9 @@ const fmtTime = (iso: string) =>
 /* ─────────────────────────────────────────
    HeroCard
 ───────────────────────────────────────── */
-const HeroCard: FC<{ info: MembershipInfo }> = ({ info }) => {
+const HeroCard: FC<{ info: MembershipInfo; refundsRemaining: number | null; totalRefunds: number | null }> = ({
+    info, refundsRemaining, totalRefunds,
+}) => {
     const cfg = getTierCfg(info.currentTier);
     const { Icon } = cfg;
     const isMax = !info.nextTier;
@@ -158,17 +161,19 @@ const HeroCard: FC<{ info: MembershipInfo }> = ({ info }) => {
             <div className={styles.heroGlow} style={{ background: cfg.color }} />
 
             <div className={styles.heroBody}>
-                <div className={styles.heroTop}>
-                    {/* Tier identity */}
-                    <div className={styles.tierBadge}>
-                        <div
-                            className={styles.tierIconWrap}
-                            style={{ background: cfg.bg, borderColor: `${cfg.color}44`, color: cfg.color }}
-                        >
-                            <Icon size={26} />
-                        </div>
-                        <div className={styles.tierMeta}>
-                            <span className={styles.tierEyebrow}>Membership Tier</span>
+                {/* Identity row — icon, tier name, discount chip: a single
+                    compact inline cluster, never competing for space with
+                    the stat row below it. */}
+                <div className={styles.identityRow}>
+                    <div
+                        className={styles.tierIconWrap}
+                        style={{ background: cfg.bg, borderColor: `${cfg.color}44`, color: cfg.color }}
+                    >
+                        <Icon size={26} />
+                    </div>
+                    <div className={styles.tierMeta}>
+                        <span className={styles.tierEyebrow}>Membership Tier</span>
+                        <div className={styles.tierNameRow}>
                             <span className={styles.tierName} style={{ color: cfg.color }}>
                                 {formatTierName(info.currentTier)}
                             </span>
@@ -182,29 +187,39 @@ const HeroCard: FC<{ info: MembershipInfo }> = ({ info }) => {
                             </span>
                         </div>
                     </div>
+                </div>
 
-                    {/* Stats */}
-                    <div className={styles.statsGrid}>
+                {/* Stats — a full-width row so every card divides the same
+                    total width evenly, instead of a floating box leaving
+                    dead space beside it. */}
+                <div className={styles.statsGrid}>
+                    <div className={styles.statCell}>
+                        <span className={styles.statValue} style={{ color: cfg.color }}>
+                            {fmtPoints(info.totalPoints)}
+                        </span>
+                        <span className={styles.statLabel}>Total Points</span>
+                    </div>
+                    <div className={styles.statCell}>
+                        <span className={styles.statValue}>{fmtCurrency(info.totalSpent)}</span>
+                        <span className={styles.statLabel}>Total Spent</span>
+                    </div>
+                    <div className={styles.statCell}>
+                        <span
+                            className={styles.statValue}
+                            style={{ color: info.discountPercent > 0 ? "#4ADE80" : "#f0e8e8" }}
+                        >
+                            {info.discountPercent}%
+                        </span>
+                        <span className={styles.statLabel}>Discount</span>
+                    </div>
+                    {refundsRemaining != null && totalRefunds != null && (
                         <div className={styles.statCell}>
                             <span className={styles.statValue} style={{ color: cfg.color }}>
-                                {fmtPoints(info.totalPoints)}
+                                {refundsRemaining} / {totalRefunds}
                             </span>
-                            <span className={styles.statLabel}>Total Points</span>
+                            <span className={styles.statLabel}>Refunds Remaining</span>
                         </div>
-                        <div className={styles.statCell}>
-                            <span className={styles.statValue}>{fmtCurrency(info.totalSpent)}</span>
-                            <span className={styles.statLabel}>Total Spent</span>
-                        </div>
-                        <div className={styles.statCell}>
-                            <span
-                                className={styles.statValue}
-                                style={{ color: info.discountPercent > 0 ? "#4ADE80" : "#f0e8e8" }}
-                            >
-                                {info.discountPercent}%
-                            </span>
-                            <span className={styles.statLabel}>Discount</span>
-                        </div>
-                    </div>
+                    )}
                 </div>
 
                 {/* Progress */}
@@ -341,6 +356,10 @@ const TierRoadmap: FC<{ info: MembershipInfo; tiers: MembershipTier[] }> = ({ in
                             >
                                 {tier.discountRate === 0 ? "—" : `-${tier.discountRate * 100}%`}
                             </span>
+
+                            <span className={styles.tierStepPoints}>
+                                {tier.total_refunds} refund{tier.total_refunds !== 1 ? "s" : ""}
+                            </span>
                         </div>
                     );
                 })}
@@ -428,6 +447,7 @@ const MembershipPage: FC = () => {
     const { data: info, isLoading: infoLoading, isError } = useMembershipInfo();
     const { data: tiers = [], isLoading: tiersLoading } = useMembershipTiers();
     const { data: history = [] } = usePointsHistory();
+    const { data: profile } = useProfile();
 
     if (infoLoading || tiersLoading) return <MembershipSkeleton />;
 
@@ -441,9 +461,12 @@ const MembershipPage: FC = () => {
         );
     }
 
+    const refundsRemaining = profile ? Math.max(0, profile.total_refunds - profile.used_refunds) : null;
+    const totalRefunds = profile ? profile.total_refunds : null;
+
     return (
         <div className={styles.page}>
-            <HeroCard info={info} />
+            <HeroCard info={info} refundsRemaining={refundsRemaining} totalRefunds={totalRefunds} />
             {tiers.length > 0 && <TierRoadmap info={info} tiers={tiers} />}
             <PointsHistory items={history} />
         </div>

@@ -14,7 +14,21 @@ import { useNavigate } from "react-router-dom";
 import ErrorHero from "@/features/common/components/ErrorHero";
 import ErrorIllustration from "@/features/common/components/ErrorIllustration";
 import ErrorActions, { type ActionButton } from "@/features/common/components/ErrorActions";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { ROLES } from "@/constants/roles";
+import { ROUTES } from "@/constants/routes";
 import "@/features/common/error-pages.css";
+
+/** Role → home route, so "Go Home" from a 403 lands each role on their own
+ *  dashboard instead of the guest-only "/" (which staff/manager/admin
+ *  can't meaningfully use). Falls back to the guest home for logged-out
+ *  visitors or any unrecognized role. */
+const ROLE_HOME_ROUTE: Record<string, string> = {
+    [ROLES.CUSTOMER]: ROUTES.CUSTOMER.DASHBOARD,
+    [ROLES.STAFF]: ROUTES.STAFF.DASHBOARD,
+    [ROLES.MANAGER]: ROUTES.MANAGER.DASHBOARD,
+    [ROLES.ADMIN]: ROUTES.ADMIN.DASHBOARD,
+};
 
 /* ── Seat silhouette row ── */
 const SeatRow: FC = () => (
@@ -52,13 +66,15 @@ const ArrowBackIcon: FC = () => (
 ───────────────────────────────────────────────────────────── */
 const ForbiddenPage: FC = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const homeRoute = user ? (ROLE_HOME_ROUTE[user.role] ?? ROUTES.HOME) : ROUTES.HOME;
 
     const actions: ActionButton[] = [
         {
             label: "Go Home",
             variant: "primary-amber",
             icon: <HomeIcon />,
-            onClick: () => navigate("/"),
+            onClick: () => navigate(homeRoute),
             ariaLabel: "Return to home page",
         },
         {

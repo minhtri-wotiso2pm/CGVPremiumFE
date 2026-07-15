@@ -5,6 +5,7 @@ import { CINEMA_STATUS_OPTIONS } from "../constants/cinema.constants";
 import { cinemaNameRules, addressRules, statusRules, latitudeRules, longitudeRules } from "../schemas/cinema.schema";
 import { useCreateCinema } from "../hooks/useCreateCinema";
 import { useUpdateCinema } from "../hooks/useUpdateCinema";
+import CinemaLocationPicker from "./CinemaLocationPicker";
 
 interface Props {
     mode: "create" | "edit";
@@ -28,6 +29,8 @@ const CinemaModal: FC<Props> = ({ mode, cinema, open, onClose }) => {
 
     const isLoading = creating || updating;
     const isEdit = mode === "edit";
+    const watchedLatitude = Form.useWatch("latitude", form);
+    const watchedLongitude = Form.useWatch("longitude", form);
 
     useEffect(() => {
         if (open) {
@@ -79,7 +82,7 @@ const CinemaModal: FC<Props> = ({ mode, cinema, open, onClose }) => {
             cancelText="Cancel"
             confirmLoading={isLoading}
             maskClosable={!isLoading}
-            width={480}
+            width={560}
             destroyOnHidden
         >
             <Form
@@ -141,6 +144,14 @@ const CinemaModal: FC<Props> = ({ mode, cinema, open, onClose }) => {
                         />
                     </Form.Item>
                 </div>
+
+                <Form.Item label="Pick Location on Map">
+                    <CinemaLocationPicker
+                        latitude={typeof watchedLatitude === "number" ? watchedLatitude : null}
+                        longitude={typeof watchedLongitude === "number" ? watchedLongitude : null}
+                        onChange={(lat, lng) => form.setFieldsValue({ latitude: lat, longitude: lng })}
+                    />
+                </Form.Item>
 
                 <Form.Item
                     label="Status"

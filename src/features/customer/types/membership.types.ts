@@ -12,6 +12,8 @@ export interface MembershipTier {
     tierName: string;
     minPoints: number;
     discountRate: number;
+    /** Refund quota granted to members at this tier. */
+    total_refunds: number;
 }
 
 export interface PointsHistoryEntry {
