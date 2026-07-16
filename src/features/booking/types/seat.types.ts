@@ -23,6 +23,7 @@ export interface SeatMapResponse {
 
 export interface SeatNavState {
     bookingId?: number;
+    showtimeId?: number;
     movieId?: number;
     movieTitle?: string;
     moviePoster?: string;

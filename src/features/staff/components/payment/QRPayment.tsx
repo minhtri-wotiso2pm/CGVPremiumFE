@@ -1,5 +1,4 @@
-import { type FC } from "react";
-import { QrCode, ExternalLink } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface Props {
     show: boolean;
@@ -8,86 +7,139 @@ interface Props {
     checkoutUrl?: string;
 }
 
-const QRPayment: FC<Props> = ({
+const QRPayment = ({
     show,
     qrCode,
     total,
     checkoutUrl,
-}) => {
+}: Props) => {
+
+    const [timeLeft, setTimeLeft] = useState(300);
+
+    useEffect(() => {
+
+        if (!show) return;
+
+        
+
+        const timer = setInterval(() => {
+
+            setTimeLeft((prev) => {
+
+                if (prev <= 1) {
+
+                    clearInterval(timer);
+
+                    return 0;
+
+                }
+
+                return prev - 1;
+
+            });
+
+        }, 1000);
+
+        return () => clearInterval(timer);
+
+    }, [show, qrCode]);
+
+    const minutes = Math.floor(timeLeft / 60);
+
+    const seconds = timeLeft % 60;
 
     if (!show) return null;
 
     return (
 
-        <section className="invoice-card">
+        <div className="payment-qr-card">
 
-            <div className="qr-header">
+            <h2 className="payment-qr-title">
+                Quét mã để thanh toán
+            </h2>
 
-                <div className="qr-icon">
+            <p className="payment-qr-subtitle">
+                Sử dụng App ngân hàng hoặc Ví điện tử
+            </p>
 
-                    <QrCode size={34}/>
+            <div className="payment-qr-image">
 
-                </div>
-
-                <h2>Quét mã để thanh toán</h2>
-
-                <p>
-
-                    Sử dụng ứng dụng ngân hàng hoặc ví điện tử.
-
-                </p>
-
-            </div>
-
-            <div className="qr-box">
-
-                {qrCode && (
+                {qrCode ? (
 
                     <img
                         src={qrCode}
                         alt="QR Payment"
                     />
 
+                ) : (
+
+                    <div className="payment-qr-placeholder">
+
+                        Đang tạo QR...
+
+                    </div>
+
                 )}
 
             </div>
 
-            <div className="qr-price">
+            <div className="payment-price">
 
-                <small>Số tiền cần thanh toán</small>
-
-                <h1>
-
-                    {total.toLocaleString()} ₫
-
-                </h1>
+                {total.toLocaleString()} đ
 
             </div>
+
+            <div className="payment-countdown">
+
+                ⏰
+
+                {" "}
+
+                {String(minutes).padStart(2, "0")}:
+
+                {String(seconds).padStart(2, "0")}
+
+            </div>
+
+            {timeLeft > 0 ? (
+
+                <div className="payment-status">
+
+                    ⏳ Đang chờ thanh toán...
+
+                </div>
+
+            ) : (
+
+                <div className="payment-status expired">
+
+                    ❌ QR đã hết hạn
+
+                </div>
+
+            )}
 
             {checkoutUrl && (
 
                 <a
+
                     href={checkoutUrl}
+
                     target="_blank"
+
                     rel="noreferrer"
-                    className="checkout-button"
+
+                    className="payment-open-btn"
+
                 >
 
-                    <ExternalLink size={18}/>
-
-                    Mở trang thanh toán
+                    Mở PayOS
 
                 </a>
 
             )}
 
-            <button className="paid-button">
-
-                Tôi đã thanh toán
-
-            </button>
-
-        </section>
+        </div>
 
     );
 

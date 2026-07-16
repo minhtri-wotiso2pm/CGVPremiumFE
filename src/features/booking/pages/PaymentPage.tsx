@@ -244,6 +244,7 @@ const PaymentPage: FC = () => {
         setIsWaiting(true);
         try {
             const booking = await doCreateBooking({
+               
                 customerId: null,
                 showtimeId,
                 seatIds: seatIds ?? [],
@@ -253,6 +254,7 @@ const PaymentPage: FC = () => {
 })),
                 voucherCode: appliedVoucher,
             });
+        
             bookingRef.current = booking;
             // Seats are now booked, not just held — stop tracking this
             // hold so a later browser Back to Seat Selection can't

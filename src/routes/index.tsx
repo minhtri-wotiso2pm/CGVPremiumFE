@@ -11,7 +11,7 @@ import CustomerLayout from "@/layouts/CustomerLayout/CustomerLayout";
 import StaffLayout from "@/layouts/StaffLayout/StaffLayout";
 import ManagerLayout from "@/layouts/ManagerLayout/ManagerLayout";
 import AdminLayout from "@/layouts/AdminLayout/AdminLayout";
-
+import PaymentSuccessPage from "@/features/staff/pages/PaymentSuccessPage";
 import LoginPage from "@/features/auth/pages/LoginPage";
 import RegisterPage from "@/features/auth/pages/RegisterPage";
 import RegisterSuccessPage from "@/features/auth/pages/RegisterSuccessfulPage";
@@ -64,6 +64,9 @@ import NotFoundPage from "@/features/common/pages/NotFoundPage";
 import BookingSuccessPage from "@/features/customer/pages/BookingSuccessPage";
 
 import { ROLES } from "@/constants/roles";
+import QrCheckInPage from "@/features/staff/pages/QRCheckInPage";
+import CheckInSuccessPage from "@/features/staff/pages/CheckInSuccessPage";
+
 
 export const router = createBrowserRouter([
     // =====================
@@ -224,7 +227,7 @@ export const router = createBrowserRouter([
                                     totalAmount: 0
                                 }} onBackToHome={function (): void {
                                     throw new Error("Function not implemented.");
-                                } } />,
+                                }} />,
                             },
                             {
                                 path: "theaters",
@@ -304,6 +307,18 @@ export const router = createBrowserRouter([
                                 path: "counter-payment",
                                 element: <CounterPaymentPage />,
                             },
+                            {
+                                path: "payment-success",
+                                element: <PaymentSuccessPage />,
+                            },
+                            {
+                                path: "qr-checkin",
+                                element: <QrCheckInPage />,
+                            },
+                            {
+    path: "checkin-success",
+    element: <CheckInSuccessPage />,
+}
                         ],
                     },
                 ],

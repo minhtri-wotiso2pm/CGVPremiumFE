@@ -167,7 +167,7 @@ const SeatSelectionPage: FC = () => {
                     const paymentState = {
                         ...navState, // giữ toàn bộ dữ liệu cũ
 
-                        bookingId: navState.bookingId, // truyền lại bookingId
+                       // truyền lại bookingId
 
                         showtimeId,
                         seatIds,

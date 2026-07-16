@@ -85,12 +85,10 @@ export interface BookingResponse {
     fnbItems: BookingFnbItem[];
     voucherApplied: BookingVoucherApplied | null;
 }
-
 export interface PaymentInitiateRequest {
     bookingId: number;
-    paymentMethod: "payos" | "wallet";
+    paymentMethod: "cash" | "payos" | "wallet";
 }
-
 export interface PaymentInitiateResponse {
     success: boolean;
     paymentId: number;

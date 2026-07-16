@@ -1,6 +1,6 @@
 import { type FC, useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import type { FnbItem, FnbNavState, PaymentNavState, Product } from "../types/fnb.types";
+import type { FnbItem, FnbNavState,  Product } from "../types/fnb.types";
 import { useFnbProducts } from "../hooks/useFnbProducts";
 import { setActiveSeatHold } from "../utils/activeSeatHold";
 import { formatPrice, getSeatLabel } from "../utils/seat.utils";
@@ -192,20 +192,22 @@ const seatTotal = selectedSeats.reduce(
 // =========================
 // Build payment state
 // =========================
+console.log("holdIds:", navState.holdIds);
+console.log("holdExpiresAt:", navState.holdExpiresAt);
 const buildPaymentState = (items: FnbItem[]) => ({
-    bookingId: navState.bookingId,   
+    ...navState,
 
-    movieTitle,
-    moviePoster,
-    cinemaName,
-    roomName,
-    startTime,
+    showtimeId,
+    seatIds,
+
     selectedSeats,
     fnbItems: items,
+
     seatTotal,
     fnbTotal,
+    holdIds: navState.holdIds,
+    holdExpiresAt: navState.holdExpiresAt,
 });
-
 // =========================
 // Continue
 // =========================

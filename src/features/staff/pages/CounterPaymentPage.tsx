@@ -1,8 +1,9 @@
 import { useState, useEffect, type FC } from "react";
-import { useLocation } from "react-router-dom";
-
+import { useLocation, useNavigate } from "react-router-dom";
+import { useCreateBooking } from "@/features/booking/hooks/useCreateBooking";
 import axiosInstance from "@/services/axios/axiosInstance";
-import { createPayOS } from "@/services/api/payment.service";
+import { useInitiatePayment } from "@/features/booking/hooks/useInitiatePayment";
+
 import { X, User } from "lucide-react";
 import type { SeatNavState } from "@/features/booking/types/seat.types";
 
@@ -10,9 +11,10 @@ import "../../booking/components/payment.css";
 import MovieInfoCard from "../components/MovieInfoCard";
 import PaymentMethodCard from "../components/payment/PaymentMethodCard";
 import InvoiceCard from "../components/payment/InvoiceCard";
-import QRPayment from "../components/payment/QRPayment";
+
 import MemberCard from "../components/payment/MemberCard";
 import VoucherCard from "../components/payment/VoucherCard";
+import { createPayOS } from "@/services/api/payment.service";
 
 interface Voucher {
     code: string;
@@ -42,56 +44,109 @@ const CounterPaymentPage: FC = () => {
     const { state } = useLocation(); console.log(state);
     const navState = (state ?? {}) as SeatNavState & { fnbItems?: FnBItem[] };
 console.log(state);
-console.log(navState);
+
 console.log(navState.bookingId);
-    const {
-        bookingId,
-        movieTitle,
-        moviePoster,
-        cinemaName,
-        roomName,
-        startTime,
-        selectedSeats = [],
-        fnbItems = [],
-        seatTotal = 0,
-        fnbTotal = 0,
-    } = navState;
+const { mutateAsync: doCreateBooking } = useCreateBooking();
+const { mutateAsync: doInitiatePayment } = useInitiatePayment();
+
+const navigate = useNavigate();
+ const {
+    showtimeId,
+    seatIds,
+
+    movieTitle,
+    moviePoster,
+    cinemaName,
+    roomName,
+    startTime,
+
+    selectedSeats = [],
+    fnbItems = [],
+
+    seatTotal = 0,
+    fnbTotal = 0,
+} = navState;
 
     const [method, setMethod] = useState<PaymentMethod>("cash");
     const [isAgreed, setIsAgreed] = useState<boolean>(false);
 
-    const [showQR, setShowQR] = useState(false);
-    interface PaymentResponse {
-        checkoutUrl: string;
-        qrCode: string;
+   
+const handlePay = async () => {
+
+    if (!showtimeId || !seatIds?.length) {
+        alert("Không tìm thấy thông tin đặt vé.");
+        return;
     }
 
-    const [payment, setPayment] = useState<PaymentResponse | null>(null);
-    const handlePay = async () => {
-        console.log("Click payment");
-        console.log("bookingId:", bookingId);
-        console.log("method:", method);
+    try {
 
-        if (!bookingId) {
-            alert("Booking không tồn tại");
+        const booking = await doCreateBooking({
+
+            customerId: null,
+
+            showtimeId,
+
+            seatIds,
+
+            fnbItems: fnbItems.map(item => ({
+                itemId: Number(item.productId),
+                quantity: item.quantity ?? 1,
+            })),
+
+            voucherCode: appliedVoucher || null,
+
+        });
+
+        // ======================
+        // CASH
+        // ======================
+
+        if (method === "cash") {
+
+            await doInitiatePayment({
+    bookingId: booking.bookingID,
+    paymentMethod: "cash",
+});
+
+           navigate("/staff/payment-success", {
+    state: {
+          booking,
+        paymentMethod: method,
+        paymentId: null,
+    },
+});
             return;
         }
 
-        try {
-            const res = await createPayOS(
-                bookingId,
-                method.toUpperCase()
-            );
+        // ======================
+        // PAYOS
+        // ======================
 
-            console.log(res);
+       const payment = await doInitiatePayment({
+    bookingId: booking.bookingID,
+    paymentMethod: "payos",
+});
 
-            setPayment(res.data);
-            setShowQR(true);
+const payos = await createPayOS(
+    booking.bookingID,
+    "PAYOS",
+);
 
-        } catch (err) {
-            console.error(err);
-        }
-    };
+// Lưu để khi PayOS redirect về còn biết kiểm tra payment nào
+sessionStorage.setItem("paymentId", String(payment.paymentId));
+sessionStorage.setItem("booking", JSON.stringify(booking));
+
+window.location.assign(payos.data.checkoutUrl);
+
+    } catch (err) {
+
+        console.error(err);
+
+        alert("Thanh toán thất bại.");
+
+    }
+
+};
 
     // ==========================================
     // STATE THÀNH VIÊN & VOUCHER LINK API
@@ -150,6 +205,7 @@ console.log(navState.bookingId);
             fetchUserVouchers();
         }
     }, [member]);
+    
 
     const checkAndApplyVoucher = async (code: string) => {
         if (appliedVoucher === code) {
@@ -337,31 +393,18 @@ console.log(navState.bookingId);
 
             <div className="payment-sticky">
 
-                {!showQR ? (
-
-                    <InvoiceCard
-                        seatCount={selectedSeats.length}
-                        fnbCount={totalFnBQuantity}
-                        seatTotal={seatTotal}
-                        fnbTotal={fnbTotal}
-                        discountAmount={discountAmount}
-                        appliedVoucher={appliedVoucher}
-                        finalTotal={finalTotal}
-                        isAgreed={isAgreed}
-                        setIsAgreed={setIsAgreed}
-                        onPay={handlePay}
-                    />
-
-                ) : (
-
-                    <QRPayment
-                        show
-                        qrCode={payment?.qrCode}
-                        checkoutUrl={payment?.checkoutUrl}
-                        total={finalTotal}
-                    />
-
-                )}
+                <InvoiceCard
+    seatCount={selectedSeats.length}
+    fnbCount={totalFnBQuantity}
+    seatTotal={seatTotal}
+    fnbTotal={fnbTotal}
+    discountAmount={discountAmount}
+    appliedVoucher={appliedVoucher}
+    finalTotal={finalTotal}
+    isAgreed={isAgreed}
+    setIsAgreed={setIsAgreed}
+    onPay={handlePay}
+/>
 
             </div>
 
