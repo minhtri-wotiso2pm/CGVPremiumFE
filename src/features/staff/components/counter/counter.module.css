@@ -1,0 +1,1143 @@
+/* Counter Sales POS — light "Enterprise White" dashboard theme (--dash-* tokens).
+   Optimized for speed: big targets, order rail always visible, minimal chrome. */
+
+/* ── Page layout ── */
+.layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 20px;
+    align-items: start;
+}
+
+.main {
+    min-width: 0;
+}
+
+.rail {
+    position: sticky;
+    top: 20px;
+}
+
+@media (max-width: 1080px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+    .rail {
+        position: static;
+    }
+}
+
+/* ── Stepper ── */
+.stepper {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.stepBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--dash-text-3);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: not-allowed;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+}
+
+.stepBtnAccessible {
+    cursor: pointer;
+    color: var(--dash-text-2);
+}
+
+.stepBtnAccessible:hover {
+    background: var(--dash-surface-hover);
+    color: var(--dash-text-1);
+}
+
+.stepBtnActive {
+    background: var(--dash-crimson-subtle);
+    border-color: var(--dash-crimson-border);
+    color: var(--dash-crimson-dim);
+    cursor: default;
+}
+
+.stepIndex {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 12px;
+    font-weight: 700;
+    background: var(--dash-border);
+    color: var(--dash-text-2);
+    flex-shrink: 0;
+}
+
+.stepBtnActive .stepIndex {
+    background: var(--dash-crimson);
+    color: #fff;
+}
+
+.stepDone .stepIndex {
+    background: #1a8a4a;
+    color: #fff;
+}
+
+.stepSep {
+    width: 16px;
+    height: 1px;
+    background: var(--dash-border-strong);
+    flex-shrink: 0;
+}
+
+/* ── Mode select (step 0) ── */
+.modeWrap {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    max-width: 720px;
+    margin: 24px auto;
+}
+
+@media (max-width: 640px) {
+    .modeWrap {
+        grid-template-columns: 1fr;
+    }
+}
+
+.modeCard {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 28px;
+    border-radius: var(--dash-radius-lg);
+    border: 1px solid var(--dash-border);
+    background: var(--dash-surface);
+    box-shadow: var(--dash-shadow-sm);
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.modeCard:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--dash-shadow);
+    border-color: var(--dash-crimson-border);
+}
+
+.modeIcon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    background: var(--dash-crimson-subtle);
+    color: var(--dash-crimson-dim);
+}
+
+.modeTitle {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--dash-text-1);
+    margin: 0;
+}
+
+.modeDesc {
+    font-size: 13.5px;
+    color: var(--dash-text-2);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ── Order Rail ── */
+.railCard {
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.railTitle {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--dash-text-1);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.railMode {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--dash-crimson-dim);
+    background: var(--dash-crimson-subtle);
+    padding: 3px 8px;
+    border-radius: 6px;
+}
+
+.railMovie {
+    display: flex;
+    gap: 12px;
+}
+
+.railPoster {
+    width: 46px;
+    height: 66px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--dash-surface-hover);
+}
+
+.railPosterPh {
+    display: grid;
+    place-items: center;
+    color: var(--dash-text-3);
+    font-size: 20px;
+}
+
+.railMovieTitle {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--dash-text-1);
+    line-height: 1.3;
+}
+
+.railMeta {
+    font-size: 12px;
+    color: var(--dash-text-2);
+    margin-top: 3px;
+    line-height: 1.4;
+}
+
+.railSection {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--dash-text-3);
+    margin: 0;
+}
+
+.railChips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.railChip {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 6px;
+    background: var(--dash-surface-hover);
+    color: var(--dash-text-1);
+    border: 1px solid var(--dash-border);
+}
+
+.railLine {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 10px;
+    font-size: 13px;
+}
+
+.railLineName {
+    color: var(--dash-text-2);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.railLineVal {
+    color: var(--dash-text-1);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+}
+
+.railDivider {
+    height: 1px;
+    background: var(--dash-border);
+    margin: 2px 0;
+}
+
+.railTotal {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.railTotalLabel {
+    font-size: 13px;
+    color: var(--dash-text-2);
+    font-weight: 600;
+}
+
+.railTotalVal {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--dash-text-1);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+}
+
+.railEmpty {
+    font-size: 13px;
+    color: var(--dash-text-3);
+    text-align: center;
+    padding: 20px 0;
+}
+
+.railActions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 2px;
+}
+
+/* ── Step body shell ── */
+.stepBody {
+    min-height: 320px;
+}
+
+.stepHeadRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.stepHeadTitle {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--dash-text-1);
+    margin: 0;
+}
+
+.stepHeadSub {
+    font-size: 13px;
+    color: var(--dash-text-2);
+    margin: 2px 0 0;
+}
+
+/* ── F&B grid ── */
+.fnbGroup {
+    margin-bottom: 22px;
+}
+
+.fnbGroupTitle {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--dash-text-3);
+    margin: 0 0 10px;
+}
+
+.fnbGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+}
+
+.fnbCard {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--dash-radius);
+    border: 1px solid var(--dash-border);
+    background: var(--dash-surface);
+    overflow: hidden;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.fnbCardActive {
+    border-color: var(--dash-crimson-border);
+    box-shadow: 0 0 0 1px var(--dash-crimson-border);
+}
+
+.fnbThumb {
+    height: 96px;
+    background: var(--dash-surface-hover);
+    object-fit: cover;
+    width: 100%;
+}
+
+.fnbThumbPh {
+    display: grid;
+    place-items: center;
+    color: var(--dash-text-3);
+}
+
+.fnbInfo {
+    padding: 10px 12px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+.fnbName {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--dash-text-1);
+    line-height: 1.3;
+}
+
+.fnbPrice {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--dash-crimson-dim);
+    font-variant-numeric: tabular-nums;
+}
+
+.fnbCardFoot {
+    margin-top: auto;
+}
+
+.qtyRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.qtyBtn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--dash-border-strong);
+    background: var(--dash-surface);
+    color: var(--dash-text-1);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.qtyBtn:hover:not(:disabled) {
+    background: var(--dash-surface-hover);
+    border-color: var(--dash-crimson-border);
+}
+
+.qtyBtn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.qtyVal {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--dash-text-1);
+    min-width: 20px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.addBtn {
+    width: 100%;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid var(--dash-crimson-border);
+    background: var(--dash-crimson-subtle);
+    color: var(--dash-crimson-dim);
+    font-weight: 600;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: background 0.15s ease;
+}
+
+.addBtn:hover {
+    background: rgba(232, 0, 28, 0.14);
+}
+
+/* ── Customer step ── */
+.custChoices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+@media (max-width: 560px) {
+    .custChoices { grid-template-columns: 1fr; }
+}
+
+.custChoice {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-radius: var(--dash-radius);
+    border: 1px solid var(--dash-border);
+    background: var(--dash-surface);
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    transition: border-color 0.16s ease, background 0.16s ease;
+}
+
+.custChoice:hover {
+    border-color: var(--dash-crimson-border);
+}
+
+.custChoiceActive {
+    border-color: var(--dash-crimson);
+    background: var(--dash-crimson-subtle);
+}
+
+.custChoiceIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    background: var(--dash-surface-hover);
+    color: var(--dash-text-2);
+    flex-shrink: 0;
+}
+
+.custChoiceActive .custChoiceIcon {
+    background: var(--dash-crimson);
+    color: #fff;
+}
+
+.custChoiceTitle {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--dash-text-1);
+}
+
+.custChoiceDesc {
+    font-size: 12.5px;
+    color: var(--dash-text-2);
+    margin-top: 1px;
+}
+
+.lookupBar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+/* Member card */
+.memberCard {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    padding: 16px;
+    border-radius: var(--dash-radius);
+    border: 1px solid rgba(26, 138, 74, 0.28);
+    background: rgba(26, 138, 74, 0.06);
+}
+
+.memberAvatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--dash-surface-hover);
+    display: grid;
+    place-items: center;
+    color: var(--dash-crimson-dim);
+    font-weight: 700;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.memberName {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--dash-text-1);
+}
+
+.memberMeta {
+    font-size: 13px;
+    color: var(--dash-text-2);
+    margin-top: 2px;
+}
+
+.memberStats {
+    display: flex;
+    gap: 18px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.memberStat {
+    text-align: right;
+}
+
+.memberStatLabel {
+    font-size: 11px;
+    color: var(--dash-text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.memberStatVal {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--dash-text-1);
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 560px) {
+    .memberStats { margin-left: 0; width: 100%; justify-content: space-between; }
+    .memberCard { flex-wrap: wrap; }
+}
+
+.voucherSlot {
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: var(--dash-radius);
+    border: 1px dashed var(--dash-border-strong);
+    background: var(--dash-surface-hover);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--dash-text-3);
+    font-size: 13px;
+}
+
+/* Voucher picker */
+.voucherSection {
+    margin-top: 18px;
+}
+
+.voucherHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.voucherList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.voucherRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: var(--dash-radius);
+    border: 1px solid var(--dash-border);
+    background: var(--dash-surface);
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    width: 100%;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.voucherRow:hover {
+    border-color: var(--dash-crimson-border);
+}
+
+.voucherRowActive {
+    border-color: var(--dash-crimson);
+    background: var(--dash-crimson-subtle);
+}
+
+.voucherThumb {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: var(--dash-surface-hover);
+    flex-shrink: 0;
+}
+
+.voucherDiscount {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--dash-crimson-dim);
+}
+
+.voucherCode {
+    font-size: 12.5px;
+    color: var(--dash-text-2);
+    font-family: 'SF Mono', ui-monospace, 'Menlo', 'Consolas', monospace;
+    letter-spacing: 0.03em;
+}
+
+.voucherDesc {
+    font-size: 12px;
+    color: var(--dash-text-3);
+    margin-top: 2px;
+}
+
+.voucherCheck {
+    margin-left: auto;
+    color: var(--dash-crimson);
+    flex-shrink: 0;
+    display: inline-flex;
+}
+
+/* ── Payment step ── */
+.payMethods {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 560px) {
+    .payMethods { grid-template-columns: 1fr; }
+}
+
+.payMethod {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 16px;
+    border-radius: var(--dash-radius);
+    border: 1px solid var(--dash-border);
+    background: var(--dash-surface);
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    transition: border-color 0.16s ease, background 0.16s ease;
+}
+
+.payMethod:hover:not(:disabled) {
+    border-color: var(--dash-crimson-border);
+}
+
+.payMethodActive {
+    border-color: var(--dash-crimson);
+    background: var(--dash-crimson-subtle);
+}
+
+.payMethod:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.payMethodIcon {
+    color: var(--dash-text-2);
+}
+
+.payMethodActive .payMethodIcon {
+    color: var(--dash-crimson-dim);
+}
+
+.payMethodTitle {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--dash-text-1);
+}
+
+.payMethodSub {
+    font-size: 12px;
+    color: var(--dash-text-2);
+}
+
+/* Cash tender */
+.tenderPanel {
+    padding: 18px;
+    border-radius: var(--dash-radius);
+    border: 1px solid var(--dash-border);
+    background: var(--dash-surface-hover);
+    margin-bottom: 20px;
+}
+
+.tenderChips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0;
+}
+
+.tenderChip {
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--dash-border-strong);
+    background: var(--dash-surface);
+    color: var(--dash-text-1);
+    font-weight: 600;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.tenderChip:hover {
+    border-color: var(--dash-crimson-border);
+    background: var(--dash-crimson-subtle);
+    color: var(--dash-crimson-dim);
+}
+
+.changeRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--dash-border-strong);
+}
+
+.changeLabel {
+    font-size: 14px;
+    color: var(--dash-text-2);
+    font-weight: 600;
+}
+
+.changeVal {
+    font-size: 26px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: #147a40;
+}
+
+.changeShort {
+    color: var(--dash-crimson-dim);
+    font-size: 15px;
+    font-weight: 700;
+}
+
+/* PayOS QR */
+.qrWrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 20px;
+    text-align: center;
+}
+
+.qrImg {
+    width: 220px;
+    height: 220px;
+    border-radius: 12px;
+    border: 1px solid var(--dash-border);
+    background: #fff;
+    padding: 8px;
+}
+
+/* ── Receipt ── */
+.receipt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 36px 24px;
+}
+
+.receiptCheck {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: rgba(26, 138, 74, 0.12);
+    color: #1a8a4a;
+    margin-bottom: 16px;
+    animation: popIn 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes popIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+.receiptTitle {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--dash-text-1);
+    margin: 0 0 4px;
+}
+
+.receiptSub {
+    font-size: 14px;
+    color: var(--dash-text-2);
+    margin: 0 0 20px;
+}
+
+.receiptCode {
+    font-family: 'SF Mono', ui-monospace, 'Menlo', 'Consolas', monospace;
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--dash-text-1);
+    padding: 12px 20px;
+    border-radius: 12px;
+    background: var(--dash-surface-hover);
+    border: 1px solid var(--dash-border);
+    margin-bottom: 8px;
+}
+
+.receiptRow {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 340px;
+    font-size: 14px;
+    padding: 6px 0;
+    color: var(--dash-text-2);
+}
+
+.receiptRowVal {
+    font-weight: 600;
+    color: var(--dash-text-1);
+}
+
+.receiptFnbNote {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 16px 0;
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: #b45309;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.receiptActions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* Receipt detail panel */
+.receiptDetails {
+    width: 100%;
+    max-width: 420px;
+    margin-top: 18px;
+    border: 1px solid var(--dash-border);
+    border-radius: var(--dash-radius);
+    background: var(--dash-surface-hover);
+    padding: 16px 18px;
+    text-align: left;
+}
+
+.receiptMovieTitle {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--dash-text-1);
+    margin: 0;
+}
+
+.receiptMeta {
+    font-size: 12.5px;
+    color: var(--dash-text-2);
+    margin: 3px 0 0;
+}
+
+.receiptSeats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.receiptSectionLabel {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--dash-text-3);
+    margin: 14px 0 8px;
+}
+
+.receiptDetailDivider {
+    height: 1px;
+    background: var(--dash-border);
+    margin: 14px 0;
+}
+
+/* ── Showtime picker ── */
+.dateStrip {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    margin-bottom: 20px;
+}
+
+.dateChip {
+    flex-shrink: 0;
+    min-width: 62px;
+    padding: 10px 12px;
+    border-radius: var(--dash-radius);
+    border: 1px solid var(--dash-border);
+    background: var(--dash-surface);
+    cursor: pointer;
+    text-align: center;
+    font-family: inherit;
+    transition: all 0.15s ease;
+}
+
+.dateChip:hover {
+    border-color: var(--dash-crimson-border);
+}
+
+.dateChipActive {
+    background: var(--dash-crimson);
+    border-color: var(--dash-crimson);
+}
+
+.dateChipDow {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--dash-text-3);
+}
+
+.dateChipDay {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--dash-text-1);
+    line-height: 1.2;
+}
+
+.dateChipActive .dateChipDow,
+.dateChipActive .dateChipDay {
+    color: #fff;
+}
+
+.stMovie {
+    display: flex;
+    gap: 14px;
+    padding: 16px 0;
+    border-top: 1px solid var(--dash-border);
+}
+
+.stMovie:first-of-type {
+    border-top: none;
+}
+
+.stPoster {
+    width: 54px;
+    height: 78px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: var(--dash-surface-hover);
+    flex-shrink: 0;
+}
+
+.stMovieTitle {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--dash-text-1);
+    margin: 0 0 8px;
+}
+
+.stTimes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.stTime {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--dash-border-strong);
+    background: var(--dash-surface);
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--dash-text-1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    transition: all 0.15s ease;
+}
+
+.stTime:hover:not(:disabled) {
+    border-color: var(--dash-crimson);
+    background: var(--dash-crimson-subtle);
+    color: var(--dash-crimson-dim);
+}
+
+.stTime:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.stTimeRoom {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--dash-text-3);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+/* ── Seat map dark canvas (theater view inside the light shell) ── */
+.seatCanvas {
+    background: radial-gradient(circle at 50% 0%, #241018 0%, #140a0f 55%, #0d0709 100%);
+    border-radius: var(--dash-radius-lg);
+    padding: 24px 16px 28px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.seatLegendRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.seatLegendItem {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.seatSwatch {
+    width: 16px;
+    height: 16px;
+    border-radius: 5px 5px 3px 3px;
+    border: 1.5px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.seatSwatchSelected {
+    background: var(--dash-crimson);
+    border-color: var(--dash-crimson);
+}
+
+.seatSwatchTaken {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.06);
+    opacity: 0.4;
+}

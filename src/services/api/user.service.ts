@@ -4,6 +4,7 @@ import type { ProfileResponse, UpdateProfilePayload } from "@/features/customer/
 import type {
     UserProfileResponse,
 } from "@/features/customer/types/customer.type";
+import type { LookupKey, UserLookupResponse } from "@/features/staff/types/lookup.types";
 
 export const getUserProfileApi =
     async (): Promise<UserProfileResponse> => {
@@ -52,5 +53,24 @@ export interface ChangePasswordPayload {
 
 export const changeOwnPassword = async (payload: ChangePasswordPayload): Promise<{ success: boolean; message: string }> => {
     const { data } = await axiosInstance.put<{ success: boolean; message: string }>("/user/password", payload);
+    return data;
+};
+
+/**
+ * GET /api/users/lookup — staff-only member lookup at the counter.
+ * Exactly one of email / phone / barcode is sent, chosen by `key`.
+ */
+export const lookupUserApi = async (
+    key: LookupKey,
+    value: string,
+): Promise<UserLookupResponse> => {
+    const { data } = await axiosInstance.get<UserLookupResponse>("/users/lookup", {
+        params: { [key]: value },
+    });
+    // Guarantee `vouchers` is always an array so callers never guard for it
+    // (older backends may omit the field entirely).
+    if (data.user && !Array.isArray(data.user.vouchers)) {
+        data.user.vouchers = [];
+    }
     return data;
 };

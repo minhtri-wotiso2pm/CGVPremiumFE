@@ -5,6 +5,10 @@ export interface Ticket {
     status: string; // "valid" | "used" | ...
     checkedInAt: string | null;
     checkedInByID: number | null;
+    /** Seat this ticket admits — returned by GET /tickets/booking/{id}. */
+    seatID?: number;
+    seatRow?: string;
+    seatCol?: number;
 }
 
 export interface TicketsResponse {

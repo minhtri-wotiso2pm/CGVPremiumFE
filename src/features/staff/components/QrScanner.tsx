@@ -5,6 +5,9 @@ interface Props {
     active: boolean;
     onScan: (text: string) => void;
     onError?: (message: string) => void;
+    /** Scan window size. Default is a square (good for QR). Pass a wide, short
+     *  box (e.g. 300×110) for horizontal 1D barcodes like membership cards. */
+    qrbox?: { width: number; height: number };
 }
 
 const ELEMENT_ID = "staff-checkin-qr-reader";
@@ -23,9 +26,14 @@ const stopIfRunning = (scanner: Html5Qrcode) => {
 // repeatedly until the ticket is moved away.
 const RESCAN_COOLDOWN_MS = 3000;
 
-const QrScanner: FC<Props> = ({ active, onScan, onError }) => {
+const QrScanner: FC<Props> = ({ active, onScan, onError, qrbox }) => {
     const onScanRef = useRef(onScan);
     const lastScanRef = useRef<{ text: string; time: number } | null>(null);
+
+    // Primitives (not the object) so a fresh `qrbox` prop each render doesn't
+    // needlessly restart the camera.
+    const boxW = qrbox?.width ?? 250;
+    const boxH = qrbox?.height ?? 250;
 
     useEffect(() => {
         onScanRef.current = onScan;
@@ -40,7 +48,7 @@ const QrScanner: FC<Props> = ({ active, onScan, onError }) => {
         scanner
             .start(
                 { facingMode: "environment" },
-                { fps: 10, qrbox: { width: 250, height: 250 } },
+                { fps: 10, qrbox: { width: boxW, height: boxH } },
                 (decodedText) => {
                     const last = lastScanRef.current;
                     const now = Date.now();
@@ -66,7 +74,7 @@ const QrScanner: FC<Props> = ({ active, onScan, onError }) => {
             cancelled = true;
             stopIfRunning(scanner);
         };
-    }, [active, onError]);
+    }, [active, onError, boxW, boxH]);
 
     if (!active) return null;
 

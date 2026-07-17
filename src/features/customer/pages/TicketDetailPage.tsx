@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Spin } from "antd";
 import { useMyBookings } from "@/features/booking/hooks/useMyBookings";
 import TicketQrList from "@/features/booking/components/TicketQrList";
+import BookingBarcode from "@/features/booking/components/BookingBarcode";
+import type { PrintableBooking } from "@/features/booking/utils/printBooking";
 import RefundModal, { type RefundBookingInfo } from "@/features/booking/components/RefundModal";
 import { canRequestRefund, hasRefundQuotaLeft } from "@/features/booking/utils/refund.utils";
 import { useProfile } from "@/features/customer/hooks/useProfile";
@@ -66,6 +68,18 @@ const TicketDetailPage: FC = () => {
     }
 
     const st = statusStyle(booking.status);
+    const printable: PrintableBooking = {
+        bookingCode: booking.bookingCode,
+        movieTitle: booking.movie.title,
+        startTime: booking.startTime,
+        cinemaName: booking.cinemaName,
+        roomName: booking.roomName,
+        seats: booking.seats.map((s) => ({ label: `${s.seatRow}${s.seatCol}`, price: s.ticketPrice })),
+        fnbItems: booking.fnbItems.map((f) => ({ name: f.itemName, quantity: f.quantity, subTotal: f.subTotal })),
+        subTotal: booking.subTotal,
+        discountAmount: booking.discountAmount,
+        finalAmount: booking.finalAmount,
+    };
     const refundsRemaining = profile ? profile.total_refunds - profile.used_refunds : null;
     const quotaOk = hasRefundQuotaLeft(refundsRemaining);
     const timeAndStatusOk = canRequestRefund(booking.status, booking.startTime);
@@ -132,9 +146,13 @@ const TicketDetailPage: FC = () => {
                     <div className="tktd-summary">
                         <h3 className="tktd-summary__title">Booking Summary</h3>
 
-                        <div className="tktd-summary__row tktd-summary__row--muted">
-                            <span>Booking Code</span>
-                            <span>{booking.bookingCode}</span>
+                        <div style={{ margin: "0 0 14px" }}>
+                            <BookingBarcode
+                                code={booking.bookingCode}
+                                printable={printable}
+                                variant="dark"
+                                note="Scan at the F&B counter to pick up your order"
+                            />
                         </div>
                         <div className="tktd-summary__row tktd-summary__row--muted">
                             <span>Booking Date</span>

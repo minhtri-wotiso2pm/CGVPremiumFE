@@ -43,6 +43,23 @@
     gap: 16px;
 }
 
+/* Light variant — header/button on a light surface (staff counter). The
+   ticket cards themselves are already white, so only the chrome changes. */
+.tkt--light .tkt-head__title {
+    color: var(--dash-text-1, #1a1a1a);
+}
+
+.tkt--light .tkt-print-btn {
+    border-color: var(--dash-border-strong, rgba(0, 0, 0, 0.14));
+    background: var(--dash-surface, #fff);
+    color: var(--dash-text-1, #1a1a1a);
+}
+
+.tkt--light .tkt-print-btn:hover {
+    background: var(--dash-surface-hover, #f5f5f5);
+    border-color: var(--dash-crimson-border, rgba(232, 0, 28, 0.3));
+}
+
 .tkt-card {
     background: #fff;
     border-radius: 14px;

@@ -11,6 +11,13 @@ type SeatLike = BookingSeat | MyBookingSeat;
 const seatLabel = (seat?: SeatLike) =>
     seat ? `${seat.seatRow}${String(seat.seatCol).padStart(2, "0")}` : "";
 
+/** Prefer the seat the ticket itself reports (new API), fall back to the
+ *  booking's seat list by index (older responses without per-ticket seats). */
+const labelForTicket = (t: Ticket, fallback?: SeatLike) =>
+    t.seatRow != null && t.seatCol != null
+        ? `${t.seatRow}${String(t.seatCol).padStart(2, "0")}`
+        : seatLabel(fallback);
+
 // Self-contained inline logo (no external asset) embedded in the QR's
 // center — a white rounded badge with the brand wordmark, kept small
 // enough (with errorLevel="Q") that the code still scans reliably.
@@ -164,9 +171,11 @@ interface Props {
     roomName: string;
     startTime: string;
     bookingCode: string;
+    /** Render header/print-button for a light background (e.g. staff counter). */
+    light?: boolean;
 }
 
-const TicketQrList: FC<Props> = ({ bookingId, seats = [], cinemaName, roomName, startTime, bookingCode }) => {
+const TicketQrList: FC<Props> = ({ bookingId, seats = [], cinemaName, roomName, startTime, bookingCode, light = false }) => {
     const listRef = useRef<HTMLDivElement>(null);
     const { data: tickets = [], isLoading } = useTickets(bookingId);
 
@@ -176,7 +185,7 @@ const TicketQrList: FC<Props> = ({ bookingId, seats = [], cinemaName, roomName, 
 
         const cards = Array.from(canvases).map((cv, i) => ({
             dataUrl: (cv as HTMLCanvasElement).toDataURL("image/png"),
-            label: seatLabel(seats[i]),
+            label: labelForTicket(tickets[i], seats[i]),
             status: tickets[i]?.status ?? "",
         }));
 
@@ -223,7 +232,7 @@ const TicketQrList: FC<Props> = ({ bookingId, seats = [], cinemaName, roomName, 
     }
 
     return (
-        <div>
+        <div className={light ? "tkt--light" : undefined}>
             <div className="tkt-head">
                 <p className="tkt-head__title">Your E-Tickets</p>
                 <button className="tkt-print-btn" onClick={handlePrintAll}>
@@ -236,7 +245,7 @@ const TicketQrList: FC<Props> = ({ bookingId, seats = [], cinemaName, roomName, 
                     <TicketCard
                         key={t.ticketID}
                         ticket={t}
-                        label={seatLabel(seats[i])}
+                        label={labelForTicket(t, seats[i])}
                         cinemaName={cinemaName}
                         roomName={roomName}
                         startTime={startTime}

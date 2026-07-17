@@ -13,5 +13,8 @@ export const getTicketsByBookingApi = async (bookingId: number): Promise<Ticket[
         status: String(t.status ?? "valid"),
         checkedInAt: (t.checkedInAt ?? null) as string | null,
         checkedInByID: (t.checkedInByID ?? null) as number | null,
+        seatID: t.seatID != null ? Number(t.seatID) : undefined,
+        seatRow: t.seatRow != null ? String(t.seatRow) : undefined,
+        seatCol: t.seatCol != null ? Number(t.seatCol) : undefined,
     }));
 };

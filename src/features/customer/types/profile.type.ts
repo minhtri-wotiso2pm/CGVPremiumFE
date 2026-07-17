@@ -19,6 +19,8 @@ export interface ProfileResponse {
     /** How many of that quota the customer has already used. */
     used_refunds: number;
     createdAt: string;
+    /** Unique membership barcode (e.g. "CV000008") — scannable at the counter. */
+    barcode?: string | null;
     cinema?: ProfileCinema | null;
 }
 export interface UpdateProfilePayload {

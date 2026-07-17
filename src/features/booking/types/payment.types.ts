@@ -2,7 +2,8 @@ export type VoucherApplyStatus = "idle" | "applying" | "applied" | "error";
 
 export interface PricingRequest {
     customerId: number | null;
-    showtimeId: number;
+    /** null for F&B-only bookings (e.g. staff counter F&B orders). */
+    showtimeId: number | null;
     seatIds: number[];
     fnbItems: { itemId: number; quantity: number }[];
     voucherCode: string | null;
@@ -45,7 +46,9 @@ export interface PricingResponse {
 
 export interface CreateBookingRequest {
     customerId: number | null;
-    showtimeId: number;
+    /** null for F&B-only bookings — server accepts showtimeId=null + empty seatIds
+     *  as long as fnbItems is non-empty. */
+    showtimeId: number | null;
     seatIds: number[];
     fnbItems: { itemId: number; quantity: number }[];
     voucherCode: string | null;
@@ -90,7 +93,8 @@ export interface BookingResponse {
 
 export interface PaymentInitiateRequest {
     bookingId: number;
-    paymentMethod: "payos" | "wallet";
+    /** "cash" is counter-only (staff). Guests cannot use "wallet". */
+    paymentMethod: "payos" | "wallet" | "cash";
 }
 
 export interface PaymentInitiateResponse {

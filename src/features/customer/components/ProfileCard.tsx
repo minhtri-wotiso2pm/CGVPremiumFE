@@ -12,6 +12,7 @@ import {
     getTierColor,
 } from "../utils/profile.mapper";
 import { useMembershipInfo } from "../hooks/useMembership";
+import Barcode from "@/components/ui/Barcode";
 import styles from "./ProfileCard.module.css";
 
 interface Props {
@@ -157,6 +158,18 @@ const ProfileCard: FC<Props> = ({ profile, loading, onEdit, onAvatar, onChangePa
                 </div>
                 <span className={styles.points}>{profile.totalPoints.toLocaleString()}</span>
             </div>
+
+            {/* ── Membership barcode ── */}
+            {profile.barcode && (
+                <div className={styles.barcodeSection}>
+                    <p className={styles.barcodeLabel}>Membership Card</p>
+                    <div className={styles.barcodePanel}>
+                        <Barcode value={profile.barcode} height={62} />
+                        <span className={styles.barcodeCode}>{profile.barcode}</span>
+                    </div>
+                    <p className={styles.barcodeHint}>Show this at the counter to look up your account and earn points</p>
+                </div>
+            )}
         </div>
     );
 };

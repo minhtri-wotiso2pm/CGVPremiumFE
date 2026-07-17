@@ -350,6 +350,56 @@
     text-shadow: 0 0 22px rgba(245, 158, 11, 0.35);
 }
 
+/* ── Membership barcode ── */
+.barcodeSection {
+    margin: 0 20px 28px;
+}
+
+.barcodeLabel {
+    font-family: 'Inter', sans-serif;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #b09090;
+    margin: 0 0 10px;
+}
+
+.barcodePanel {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 16px 20px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.28);
+}
+
+.barcodeCode {
+    font-family: 'SF Mono', ui-monospace, 'Menlo', 'Consolas', monospace;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.28em;
+    color: #111111;
+    padding-left: 0.28em;
+}
+
+.barcodeHint {
+    font-family: 'Inter', sans-serif;
+    font-size: 11.5px;
+    color: #8a6a6a;
+    margin: 10px 0 0;
+    text-align: center;
+    line-height: 1.4;
+}
+
+@media (max-width: 640px) {
+    .barcodeSection {
+        margin: 0 16px 24px;
+    }
+}
+
 /* ─── Responsive ─── */
 @media (max-width: 720px) {
     .hero {

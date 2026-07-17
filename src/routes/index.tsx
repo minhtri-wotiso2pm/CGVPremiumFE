@@ -38,6 +38,8 @@ import {
 
 import StaffDashboard from "@/features/staff/pages/StaffDashboard";
 import CheckInPage from "@/features/staff/pages/CheckInPage";
+import CounterBookingPage from "@/features/staff/pages/CounterBookingPage";
+import FnbPickupPage from "@/features/staff/pages/FnbPickupPage";
 import ManagerDashboard from "@/features/manager/pages/ManagerDashboard";
 import CinemaManagementPage from "@/features/manager/pages/CinemaManagementPage";
 import MovieManagementPage from "@/features/manager/pages/MovieManagementPage";
@@ -302,8 +304,16 @@ export const router = createBrowserRouter([
                                 element: <StaffDashboard />,
                             },
                             {
+                                path: "counter",
+                                element: <CounterBookingPage />,
+                            },
+                            {
                                 path: "checkin",
                                 element: <CheckInPage />,
+                            },
+                            {
+                                path: "fnb-pickup",
+                                element: <FnbPickupPage />,
                             },
                             {
                                 path: "notifications",
