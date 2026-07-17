@@ -1,3 +1,5 @@
+export type VoucherApplyStatus = "idle" | "applying" | "applied" | "error";
+
 export interface PricingRequest {
     customerId: number | null;
     showtimeId: number;

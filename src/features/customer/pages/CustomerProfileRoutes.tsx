@@ -23,6 +23,8 @@ export { default as TicketsPage } from "./MyTicketsPage";
 
 export { default as MembershipPage } from "./MembershipPage";
 
+export { default as VouchersPage } from "./VouchersPage";
+
 export { default as WalletPage } from "./WalletPage";
 
 export { default as NotificationsPage } from "./NotificationsPage";

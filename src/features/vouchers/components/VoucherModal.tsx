@@ -1,7 +1,8 @@
 import { type FC, useEffect, useRef, useState } from "react";
-import { Modal, Form, Input, Select, InputNumber, Switch, DatePicker, Row, Col } from "antd";
+import { Modal, Form, Input, Select, InputNumber, Switch, DatePicker, Row, Col, Spin, Button } from "antd";
+import { CloseOutlined } from "@ant-design/icons";
 import dayjs, { type Dayjs } from "dayjs";
-import type { Voucher, VoucherFormData } from "../types/voucher.types";
+import type { Voucher, VoucherFormData, VoucherRule } from "../types/voucher.types";
 import {
     DISCOUNT_TYPE_OPTIONS,
     VOUCHER_CATEGORY_OPTIONS,
@@ -14,9 +15,12 @@ import {
     validityRules,
     descriptionRules,
 } from "../schemas/voucher.schema";
-import { useCreateVoucher, useUpdateVoucher } from "../hooks/useVouchers";
+import { useCreateVoucher, useUpdateVoucher, useVoucherRuleTypes, useUploadVoucherImage } from "../hooks/useVouchers";
+import VoucherRulesEditor from "./VoucherRulesEditor";
 
 const { RangePicker } = DatePicker;
+
+const MAX_IMAGE_MB = 5;
 
 interface Props {
     mode: "create" | "edit";
@@ -35,6 +39,9 @@ interface FormValues {
     validity: [Dayjs, Dayjs];
     description: string;
     isActive: boolean;
+    isRedeemable: boolean;
+    requiredPoints?: number;
+    exchangeLimit?: number;
 }
 
 const toVnStart = (d: Dayjs) => `${d.format("YYYY-MM-DD")}T00:00:00+07:00`;
@@ -48,20 +55,32 @@ const VoucherModal: FC<Props> = ({ mode, voucher, open, onClose }) => {
     const { mutate: update, isPending: updating } = useUpdateVoucher();
     const isLoading = creating || updating;
 
-    const [imageFile, setImageFile] = useState<File | null>(null);
+    const { data: ruleMetadata = [], isLoading: ruleMetadataLoading } = useVoucherRuleTypes();
+    const uploadImage = useUploadVoucherImage();
+
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [imageUrl, setImageUrl] = useState<string | null>(null);
+    const [imagePublicId, setImagePublicId] = useState<string | null>(null);
+    const [imageError, setImageError] = useState<string | null>(null);
+    const [pendingFile, setPendingFile] = useState<File | null>(null);
+    const [rules, setRules] = useState<VoucherRule[]>([]);
     const fileRef = useRef<HTMLInputElement>(null);
 
     const discountType = Form.useWatch("discountType", form);
+    const isRedeemable = Form.useWatch("isRedeemable", form);
 
-    // Reset image state when the modal opens or the target voucher changes —
+    // Reset image/rules state when the modal opens or the target voucher changes —
     // adjust-during-render (not an effect) so we don't cascade renders.
     const openKey = open ? `${voucher?.voucherId ?? "new"}` : "closed";
     const [syncedKey, setSyncedKey] = useState("closed");
     if (openKey !== syncedKey) {
         setSyncedKey(openKey);
-        setImageFile(null);
+        setPendingFile(null);
+        setImageError(null);
         setImagePreview(open && isEdit ? (voucher?.imageUrl ?? null) : null);
+        setImageUrl(open && isEdit ? (voucher?.imageUrl ?? null) : null);
+        setImagePublicId(open && isEdit ? (voucher?.imagePublicId ?? null) : null);
+        setRules(open && isEdit ? (voucher?.rules ?? []) : []);
     }
 
     // Form values live in the AntD form store (not React state) — safe in an effect.
@@ -78,6 +97,9 @@ const VoucherModal: FC<Props> = ({ mode, voucher, open, onClose }) => {
                     validity: [dayjs(voucher.validFrom.slice(0, 10)), dayjs(voucher.validUntil.slice(0, 10))],
                     description: voucher.description,
                     isActive: voucher.isActive,
+                    isRedeemable: voucher.isRedeemable,
+                    requiredPoints: voucher.requiredPoints ?? undefined,
+                    exchangeLimit: voucher.exchangeLimit ?? undefined,
                 });
             } else {
                 form.resetFields();
@@ -88,16 +110,52 @@ const VoucherModal: FC<Props> = ({ mode, voucher, open, onClose }) => {
                     minOrderValue: 0,
                     maxUses: 100,
                     isActive: true,
+                    isRedeemable: false,
                 });
             }
         }
     }, [open, isEdit, voucher, form]);
 
+    const startUpload = (file: File) => {
+        setPendingFile(file);
+        setImageError(null);
+        setImagePreview(URL.createObjectURL(file));
+        uploadImage.mutate(file, {
+            onSuccess: (result) => {
+                setImageUrl(result.imageUrl);
+                setImagePublicId(result.imagePublicId);
+            },
+            onError: () => setImageError("Upload failed."),
+        });
+    };
+
     const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
+        e.target.value = ""; // allow re-selecting the same file after a remove/retry
         if (!file) return;
-        setImageFile(file);
-        setImagePreview(URL.createObjectURL(file));
+        if (!file.type.startsWith("image/")) {
+            setImageError("Please select an image file.");
+            return;
+        }
+        if (file.size > MAX_IMAGE_MB * 1024 * 1024) {
+            setImageError(`Image must be smaller than ${MAX_IMAGE_MB}MB.`);
+            return;
+        }
+        startUpload(file);
+    };
+
+    const retryUpload = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (pendingFile) startUpload(pendingFile);
+    };
+
+    const removeImage = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setImagePreview(null);
+        setImageUrl(null);
+        setImagePublicId(null);
+        setImageError(null);
+        setPendingFile(null);
     };
 
     const handleSubmit = async () => {
@@ -113,7 +171,12 @@ const VoucherModal: FC<Props> = ({ mode, voucher, open, onClose }) => {
             validUntil: toVnEnd(values.validity[1]),
             description: values.description ?? "",
             isActive: values.isActive,
-            image: imageFile,
+            imageUrl,
+            imagePublicId,
+            rules,
+            isRedeemable: values.isRedeemable ?? false,
+            requiredPoints: values.isRedeemable ? values.requiredPoints : null,
+            exchangeLimit: values.isRedeemable ? values.exchangeLimit : null,
         };
         if (isEdit && voucher) {
             update({ voucherId: voucher.voucherId, data }, { onSuccess: onClose });
@@ -133,6 +196,7 @@ const VoucherModal: FC<Props> = ({ mode, voucher, open, onClose }) => {
             okText={isEdit ? "Save Changes" : "Create Promotion"}
             cancelText="Cancel"
             confirmLoading={isLoading}
+            okButtonProps={{ disabled: uploadImage.isPending }}
             maskClosable={!isLoading}
             width={560}
             destroyOnHidden
@@ -196,6 +260,44 @@ const VoucherModal: FC<Props> = ({ mode, voucher, open, onClose }) => {
                     </Col>
                 </Row>
 
+                <Form.Item
+                    label="Loyalty Voucher"
+                    name="isRedeemable"
+                    valuePropName="checked"
+                    tooltip="On: customers must redeem this with points before they can use it. Off: available to everyone directly."
+                >
+                    <Switch />
+                </Form.Item>
+
+                {isRedeemable && (
+                    <Row gutter={12}>
+                        <Col span={12}>
+                            <Form.Item
+                                label="Required Points"
+                                name="requiredPoints"
+                                rules={[
+                                    { required: true, message: "Required" },
+                                    { type: "number", min: 1, message: "At least 1" },
+                                ]}
+                            >
+                                <InputNumber min={1} style={{ width: "100%" }} />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                label="Exchange Limit (per user)"
+                                name="exchangeLimit"
+                                rules={[
+                                    { required: true, message: "Required" },
+                                    { type: "number", min: 1, message: "At least 1" },
+                                ]}
+                            >
+                                <InputNumber min={1} style={{ width: "100%" }} />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                )}
+
                 <Form.Item label="Validity Period" name="validity" rules={validityRules}>
                     <RangePicker format="DD/MM/YYYY" style={{ width: "100%" }} />
                 </Form.Item>
@@ -204,27 +306,71 @@ const VoucherModal: FC<Props> = ({ mode, voucher, open, onClose }) => {
                     <Input.TextArea placeholder="Short description shown to customers" maxLength={250} showCount rows={2} style={{ resize: "none" }} />
                 </Form.Item>
 
+                {/* Rules — fully driven by GET /vouchers/rule-types, nothing hardcoded here. */}
+                <Form.Item
+                    label="Rules"
+                    tooltip="Restrict where and how this voucher applies. Leave empty to apply to every booking."
+                >
+                    <VoucherRulesEditor
+                        value={rules}
+                        onChange={setRules}
+                        metadata={ruleMetadata}
+                        metadataLoading={ruleMetadataLoading}
+                        disabled={isLoading}
+                    />
+                </Form.Item>
+
                 {/* Image */}
                 <Form.Item label="Banner Image">
                     <input ref={fileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handleFile} />
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                         <div
-                            onClick={() => fileRef.current?.click()}
+                            onClick={() => { if (!uploadImage.isPending) fileRef.current?.click(); }}
                             style={{
-                                width: 120, height: 68, borderRadius: 8, cursor: "pointer",
-                                border: "1px dashed var(--dash-border)", overflow: "hidden",
+                                position: "relative",
+                                width: 120, height: 68, borderRadius: 8,
+                                cursor: uploadImage.isPending ? "default" : "pointer",
+                                border: `1px dashed ${imageError ? "#ff4d4f" : "var(--dash-border)"}`, overflow: "hidden",
                                 display: "flex", alignItems: "center", justifyContent: "center",
                                 background: "var(--dash-bg)", flexShrink: 0,
                             }}
                         >
                             {imagePreview ? (
-                                <img src={imagePreview} alt="preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                <img
+                                    src={imagePreview}
+                                    alt="preview"
+                                    style={{ width: "100%", height: "100%", objectFit: "cover", opacity: uploadImage.isPending ? 0.4 : 1 }}
+                                />
                             ) : (
                                 <span style={{ fontSize: 12, color: "var(--dash-text-3)" }}>Upload</span>
                             )}
+                            {uploadImage.isPending && (
+                                <Spin size="small" style={{ position: "absolute" }} />
+                            )}
+                            {imagePreview && !uploadImage.isPending && (
+                                <Button
+                                    type="text"
+                                    size="small"
+                                    icon={<CloseOutlined style={{ fontSize: 11 }} />}
+                                    onClick={removeImage}
+                                    style={{
+                                        position: "absolute", top: 2, right: 2, width: 20, height: 20, minWidth: 20,
+                                        padding: 0, background: "rgba(0,0,0,0.45)", color: "#fff", border: "none",
+                                    }}
+                                />
+                            )}
                         </div>
-                        <div style={{ fontSize: 12, color: "var(--dash-text-2)" }}>
-                            Optional. Click the box to {imagePreview ? "replace" : "select"} an image.
+                        <div style={{ fontSize: 12, color: imageError ? "#ff4d4f" : "var(--dash-text-2)" }}>
+                            {uploadImage.isPending
+                                ? "Uploading…"
+                                : imageError
+                                    ? (
+                                        <>
+                                            {imageError}{" "}
+                                            {pendingFile && <a onClick={retryUpload}>Retry</a>}
+                                        </>
+                                    )
+                                    : `Optional. Click the box to ${imagePreview ? "replace" : "select"} an image.`}
                         </div>
                     </div>
                 </Form.Item>

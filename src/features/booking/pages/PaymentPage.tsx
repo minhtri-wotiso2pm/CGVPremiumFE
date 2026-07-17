@@ -1,11 +1,13 @@
 import { type FC, useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 import { useAppSelector } from "@/store/hooks";
 import type { PaymentNavState } from "../types/fnb.types";
 import type {
     BookingResponse,
     PaymentInitiateResponse,
     PricingResponse,
+    VoucherApplyStatus,
 } from "../types/payment.types";
 import { useCalculatePricing } from "../hooks/useCalculatePricing";
 import { useCreateBooking } from "../hooks/useCreateBooking";
@@ -15,6 +17,7 @@ import { getPaymentStatusApi } from "@/services/api/payment.service";
 import { formatPrice, getSeatLabel } from "../utils/seat.utils";
 import { clearActiveSeatHold } from "../utils/activeSeatHold";
 import type { BookingConfirmationNavState } from "../types/payment.types";
+import VoucherPickerModal from "../components/VoucherPickerModal";
 import "../components/payment.css";
 
 /* ── Helpers ──────────────────────────────── */
@@ -96,7 +99,10 @@ const PaymentPage: FC = () => {
 
     /* ── Voucher ──────────────────────────── */
     const [voucherInput, setVoucherInput] = useState("");
-    const [appliedVoucher, setAppliedVoucher] = useState<string | null>(null);
+    const [appliedCode, setAppliedCode] = useState<string | null>(null);
+    const [voucherStatus, setVoucherStatus] = useState<VoucherApplyStatus>("idle");
+    const [voucherError, setVoucherError] = useState<string | null>(null);
+    const [pickerOpen, setPickerOpen] = useState(false);
 
     /* ── Pricing ──────────────────────────── */
     const [pricing, setPricing] = useState<PricingResponse | null>(null);
@@ -119,8 +125,11 @@ const PaymentPage: FC = () => {
     const { data: walletData } = useWallet();
 
     /* ── Calculate pricing ────────────────── */
-    const fetchPricing = useCallback(
-        async (voucherCode: string | null) => {
+    // Full-card path: real loads (mount, remove-voucher) where a failure
+    // genuinely means "we have no pricing to show" — owns the skeleton and
+    // the big card-level error.
+    const fetchBasePricing = useCallback(
+        async () => {
             if (!showtimeId) return;
             setIsPricingLoading(true);
             setPricingError(null);
@@ -130,7 +139,7 @@ const PaymentPage: FC = () => {
                     showtimeId,
                     seatIds: seatIds ?? [],
                     fnbItems: fnbItems ?? [],
-                    voucherCode,
+                    voucherCode: null,
                 });
                 setPricing(result);
             } catch {
@@ -143,23 +152,58 @@ const PaymentPage: FC = () => {
     );
 
     useEffect(() => {
-        fetchPricing(null);
+        fetchBasePricing();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    // Narrow path: applying/re-applying a voucher. A bad code only ever shows
+    // an inline error next to the input — it never touches the already-shown
+    // price breakdown, and `appliedCode` (the value sent to createBooking)
+    // only ever gets set here, on confirmed success — never optimistically.
+    const applyVoucherCode = useCallback(
+        async (code: string) => {
+            if (!showtimeId) return;
+            setVoucherStatus("applying");
+            setVoucherError(null);
+            try {
+                const result = await calcPricing({
+                    customerId,
+                    showtimeId,
+                    seatIds: seatIds ?? [],
+                    fnbItems: fnbItems ?? [],
+                    voucherCode: code,
+                });
+                setPricing(result);
+                setAppliedCode(code);
+                setVoucherStatus("applied");
+            } catch (err: unknown) {
+                const msg = axios.isAxiosError(err) ? err.response?.data?.message : undefined;
+                setVoucherError(msg ?? "This voucher code isn't valid for this order.");
+                setVoucherStatus("error");
+            }
+        },
+        [calcPricing, showtimeId, seatIds, fnbItems, customerId],
+    );
 
     /* ── Voucher handlers ─────────────────── */
     const handleApplyVoucher = useCallback(() => {
         const code = voucherInput.trim().toUpperCase();
         if (!code) return;
-        setAppliedVoucher(code);
-        fetchPricing(code);
-    }, [voucherInput, fetchPricing]);
+        applyVoucherCode(code);
+    }, [voucherInput, applyVoucherCode]);
+
+    const handlePickVoucher = useCallback((code: string) => {
+        setVoucherInput(code);
+        applyVoucherCode(code);
+    }, [applyVoucherCode]);
 
     const handleRemoveVoucher = useCallback(() => {
-        setAppliedVoucher(null);
+        setAppliedCode(null);
         setVoucherInput("");
-        fetchPricing(null);
-    }, [fetchPricing]);
+        setVoucherStatus("idle");
+        setVoucherError(null);
+        fetchBasePricing();
+    }, [fetchBasePricing]);
 
     /* ── Polling ──────────────────────────── */
     const stopPolling = useCallback(() => {
@@ -240,7 +284,7 @@ const PaymentPage: FC = () => {
                 showtimeId,
                 seatIds: seatIds ?? [],
                 fnbItems: fnbItems ?? [],
-                voucherCode: appliedVoucher,
+                voucherCode: appliedCode,
             });
             bookingRef.current = booking;
             // Seats are now booked, not just held — stop tracking this
@@ -271,7 +315,7 @@ const PaymentPage: FC = () => {
         }
     }, [
         pricing, isExpired, doCreateBooking, doInitiatePayment, customerId,
-        showtimeId, seatIds, fnbItems, appliedVoucher, effectivePaymentMethod, startPolling,
+        showtimeId, seatIds, fnbItems, appliedCode, effectivePaymentMethod, startPolling,
     ]);
 
     const seatCount = (seatIds ?? []).length;
@@ -485,10 +529,10 @@ const PaymentPage: FC = () => {
                         {/* Voucher */}
                         <div className="cgv-pay-card">
                             <p className="cgv-pay-card__title">Promo Code</p>
-                            {appliedVoucher ? (
+                            {voucherStatus === "applied" && appliedCode ? (
                                 <div className="cgv-pay-voucher-applied">
                                     <span className="cgv-pay-voucher-applied__code">
-                                        🏷 {appliedVoucher}
+                                        🏷 {appliedCode}
                                     </span>
                                     <button
                                         className="cgv-pay-voucher-remove"
@@ -499,26 +543,47 @@ const PaymentPage: FC = () => {
                                     </button>
                                 </div>
                             ) : (
-                                <div className="cgv-pay-voucher-row">
-                                    <input
-                                        className="cgv-pay-voucher-input"
-                                        type="text"
-                                        placeholder="Enter promo code"
-                                        value={voucherInput}
-                                        onChange={(e) => setVoucherInput(e.target.value)}
-                                        onKeyDown={(e) => {
-                                            if (e.key === "Enter") handleApplyVoucher();
-                                        }}
-                                        disabled={isWaiting}
-                                    />
-                                    <button
-                                        className="cgv-pay-voucher-btn"
-                                        onClick={handleApplyVoucher}
-                                        disabled={!voucherInput.trim() || isWaiting}
-                                    >
-                                        Apply
-                                    </button>
-                                </div>
+                                <>
+                                    <div className="cgv-pay-voucher-row">
+                                        <input
+                                            className="cgv-pay-voucher-input"
+                                            type="text"
+                                            placeholder="Enter promo code"
+                                            value={voucherInput}
+                                            onChange={(e) => {
+                                                setVoucherInput(e.target.value);
+                                                if (voucherStatus === "error") {
+                                                    setVoucherStatus("idle");
+                                                    setVoucherError(null);
+                                                }
+                                            }}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") handleApplyVoucher();
+                                            }}
+                                            disabled={isWaiting || voucherStatus === "applying"}
+                                        />
+                                        <button
+                                            className="cgv-pay-voucher-btn"
+                                            onClick={handleApplyVoucher}
+                                            disabled={!voucherInput.trim() || isWaiting || voucherStatus === "applying"}
+                                        >
+                                            {voucherStatus === "applying" ? "Checking…" : "Apply"}
+                                        </button>
+                                    </div>
+                                    {voucherStatus === "error" && voucherError && (
+                                        <p className="cgv-pay-voucher-error">{voucherError}</p>
+                                    )}
+                                    {customerId != null && (
+                                        <button
+                                            type="button"
+                                            className="cgv-pay-voucher-picker-link"
+                                            onClick={() => setPickerOpen(true)}
+                                            disabled={isWaiting || voucherStatus === "applying"}
+                                        >
+                                            Choose from My Vouchers ›
+                                        </button>
+                                    )}
+                                </>
                             )}
                         </div>
 
@@ -674,6 +739,12 @@ const PaymentPage: FC = () => {
                     </button>
                 )}
             </div>
+
+            <VoucherPickerModal
+                open={pickerOpen}
+                onClose={() => setPickerOpen(false)}
+                onSelect={handlePickVoucher}
+            />
         </div>
     );
 };

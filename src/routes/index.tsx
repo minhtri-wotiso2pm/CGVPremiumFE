@@ -30,6 +30,7 @@ import {
     CustomerProfileLayout,
     TicketsPage,
     MembershipPage,
+    VouchersPage,
     WalletPage,
     NotificationsPage,
     SettingsPage,
@@ -260,6 +261,10 @@ export const router = createBrowserRouter([
                                     {
                                         path: "membership",
                                         element: <MembershipPage />,
+                                    },
+                                    {
+                                        path: "vouchers",
+                                        element: <VouchersPage />,
                                     },
                                     {
                                         path: "wallet",

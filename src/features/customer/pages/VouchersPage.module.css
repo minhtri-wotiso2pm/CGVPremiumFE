@@ -1,0 +1,66 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    font-family: 'Inter', sans-serif;
+    animation: fadeIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #f0e8e8;
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+.subtitle {
+    font-size: 13.5px;
+    color: #a08888;
+    margin: 0;
+}
+
+.tabs :global(.ant-tabs-nav) { margin-bottom: 16px; }
+.tabs :global(.ant-tabs-nav::before) { border-bottom: 1px solid rgba(255, 255, 255, 0.07); }
+.tabs :global(.ant-tabs-tab) { color: #a08888 !important; font-weight: 600; }
+.tabs :global(.ant-tabs-tab:hover) { color: #f0a8a8 !important; }
+.tabs :global(.ant-tabs-tab-active .ant-tabs-tab-btn) { color: #f0e8e8 !important; }
+.tabs :global(.ant-tabs-ink-bar) { background: #E8001C; }
+
+.stateBox {
+    text-align: center;
+    padding: 64px 24px;
+    color: #a08888;
+}
+
+.stateTitle {
+    margin: 0 0 6px;
+    font-size: 16px;
+    color: #f0e8e8;
+    font-weight: 700;
+}
+
+.stateText {
+    margin: 0 0 12px;
+    font-size: 14px;
+}
+
+.retryBtn {
+    border: 1px solid rgba(232, 0, 28, 0.4) !important;
+    background: rgba(232, 0, 28, 0.08) !important;
+    color: #f0a8a8 !important;
+    border-radius: 8px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+}

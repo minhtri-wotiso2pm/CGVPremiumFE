@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { Skeleton } from "antd";
+import { Link } from "react-router-dom";
 import type { MembershipInfo, MembershipTier, PointsHistoryEntry } from "../types/membership.types";
 import { useMembershipInfo, useMembershipTiers, usePointsHistory } from "../hooks/useMembership";
 import { useProfile } from "../hooks/useProfile";
@@ -267,6 +268,21 @@ const HeroCard: FC<{ info: MembershipInfo; refundsRemaining: number | null; tota
 };
 
 /* ─────────────────────────────────────────
+   VoucherTeaser
+───────────────────────────────────────── */
+const VoucherTeaser: FC<{ totalPoints: number }> = ({ totalPoints }) => (
+    <Link to="/customer/profile/vouchers" className={styles.voucherTeaser}>
+        <span className={styles.voucherTeaserIcon}><RedeemIcon /></span>
+        <span className={styles.voucherTeaserText}>
+            {totalPoints > 0
+                ? `You have ${fmtPoints(totalPoints)} points — see what you can redeem`
+                : "Earn points with every booking to unlock vouchers"}
+        </span>
+        <span className={styles.voucherTeaserArrow}>›</span>
+    </Link>
+);
+
+/* ─────────────────────────────────────────
    TierRoadmap
 ───────────────────────────────────────── */
 const TierRoadmap: FC<{ info: MembershipInfo; tiers: MembershipTier[] }> = ({ info, tiers }) => {
@@ -467,6 +483,7 @@ const MembershipPage: FC = () => {
     return (
         <div className={styles.page}>
             <HeroCard info={info} refundsRemaining={refundsRemaining} totalRefunds={totalRefunds} />
+            <VoucherTeaser totalPoints={info.totalPoints} />
             {tiers.length > 0 && <TierRoadmap info={info} tiers={tiers} />}
             <PointsHistory items={history} />
         </div>
