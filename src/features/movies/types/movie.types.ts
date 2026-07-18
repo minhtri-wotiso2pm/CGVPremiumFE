@@ -19,8 +19,12 @@ export interface Movie {
 }
 
 export interface MovieDetail extends Movie {
+    /** Legacy display strings (kept for backward compatibility). */
     director: string;
     cast: string;
+    /** Normalized person references (preferred; see getMovieByIdApi). */
+    directors: { id: number; name: string; photoUrl?: string | null }[];
+    actors: { id: number; name: string; photoUrl?: string | null }[];
     synopsis: string;
     showingFromDate: string;
     showingToDate: string;

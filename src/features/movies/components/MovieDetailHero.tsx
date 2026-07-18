@@ -1,5 +1,7 @@
 import type { FC } from "react";
+import { Link } from "react-router-dom";
 import type { MovieDetail } from "../types/movie.types";
+import type { PersonRef } from "@/features/persons/types/person.types";
 import MovieStatusBadge, { AgeBadge } from "./MovieStatusBadge";
 import { formatDuration, formatShowingDate } from "../utils/movie.utils";
 import { useMovieNavigation } from "../hooks/useMovieNavigation";
@@ -12,12 +14,28 @@ interface Props {
     movie: MovieDetail;
     onWatchTrailer: () => void;
     onBook?: (id: number) => void;
+    /** Path prefix for person links ("" for public, "/customer" for customer). */
+    personBase?: string;
 }
 
-const MovieDetailHero: FC<Props> = ({ movie, onWatchTrailer, onBook }) => {
+/** Render a list of people as clickable profile links, comma-separated. */
+const PeopleLinks: FC<{ people: PersonRef[]; base: string }> = ({ people, base }) => (
+    <>
+        {people.map((p, i) => (
+            <span key={p.id}>
+                {i > 0 && ", "}
+                <Link to={`${base}/persons/${p.id}`} className="cgv-detail-hero__person-link">{p.name}</Link>
+            </span>
+        ))}
+    </>
+);
+
+const MovieDetailHero: FC<Props> = ({ movie, onWatchTrailer, onBook, personBase = "" }) => {
     const { goBooking } = useMovieNavigation();
     const handleBook = onBook ?? goBooking;
     const poster = movie.posterUrl || FALLBACK;
+    const hasDirectors = (movie.directors?.length ?? 0) > 0;
+    const hasActors = (movie.actors?.length ?? 0) > 0;
 
     return (
         <section className="cgv-detail-hero" aria-label="Movie details">
@@ -71,16 +89,24 @@ const MovieDetailHero: FC<Props> = ({ movie, onWatchTrailer, onBook }) => {
 
                     {/* Meta grid */}
                     <dl className="cgv-detail-hero__meta">
-                        {movie.director && (
+                        {(hasDirectors || movie.director) && (
                             <>
-                                <dt>Director</dt>
-                                <dd>{movie.director}</dd>
+                                <dt>{movie.directors?.length === 1 ? "Director" : "Directors"}</dt>
+                                <dd>
+                                    {hasDirectors
+                                        ? <PeopleLinks people={movie.directors} base={personBase} />
+                                        : movie.director}
+                                </dd>
                             </>
                         )}
-                        {movie.cast && (
+                        {(hasActors || movie.cast) && (
                             <>
                                 <dt>Cast</dt>
-                                <dd>{movie.cast}</dd>
+                                <dd>
+                                    {hasActors
+                                        ? <PeopleLinks people={movie.actors} base={personBase} />
+                                        : movie.cast}
+                                </dd>
                             </>
                         )}
                         <dt>Showing</dt>

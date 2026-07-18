@@ -25,6 +25,7 @@ import ResetPasswordSuccessPage from "@/features/auth/pages/ResetPasswordPageSuc
 import CustomerDashboard from "@/features/customer/pages/CustomerDashboard";
 import MovieDetailPage from "@/features/movies/pages/MovieDetailPage";
 import CustomerProfilePage from "@/features/customer/pages/ProfilePage";
+import PersonDetailPage from "@/features/persons/pages/PersonDetailPage";
 import TicketDetailPage from "@/features/customer/pages/TicketDetailPage";
 import {
     CustomerProfileLayout,
@@ -43,6 +44,7 @@ import FnbPickupPage from "@/features/staff/pages/FnbPickupPage";
 import ManagerDashboard from "@/features/manager/pages/ManagerDashboard";
 import CinemaManagementPage from "@/features/manager/pages/CinemaManagementPage";
 import MovieManagementPage from "@/features/manager/pages/MovieManagementPage";
+import PersonManagementPage from "@/features/persons/pages/PersonManagementPage";
 import FnbManagementPage from "@/features/manager/pages/FnbManagementPage";
 import RoomManagementPage from "@/features/manager/pages/RoomManagementPage";
 import SeatManagementPage from "@/features/manager/pages/SeatManagementPage";
@@ -94,6 +96,10 @@ export const router = createBrowserRouter([
                     {
                         path: "movies/:movieId",
                         element: <MovieDetailPage />,
+                    },
+                    {
+                        path: "persons/:personId",
+                        element: <PersonDetailPage />,
                     },
                     {
                         path: "theaters",
@@ -202,6 +208,10 @@ export const router = createBrowserRouter([
                             {
                                 path: "movies/:movieId",
                                 element: <MovieDetailPage />,
+                            },
+                            {
+                                path: "persons/:personId",
+                                element: <PersonDetailPage />,
                             },
                             {
                                 path: "movie/:movieId/showtimes",
@@ -416,6 +426,10 @@ export const router = createBrowserRouter([
                             {
                                 path: "movies",
                                 element: <MovieManagementPage />,
+                            },
+                            {
+                                path: "persons",
+                                element: <PersonManagementPage />,
                             },
                             {
                                 path: "products",

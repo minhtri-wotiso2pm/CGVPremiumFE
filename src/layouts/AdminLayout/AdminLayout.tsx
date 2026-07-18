@@ -31,6 +31,13 @@ const MovieIcon = () => (
         <line x1="17" y1="7" x2="22" y2="7" />
     </svg>
 );
+const PersonsIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M19 3l1.09 2.26L22.5 5.6l-1.75 1.7.41 2.4L19 8.56 16.84 9.7l.41-2.4L15.5 5.6l2.41-.34z" />
+    </svg>
+);
 const FnbIcon = () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
@@ -105,6 +112,12 @@ const ADMIN_MENU: MenuGroup[] = [
                 label: "Movie Management",
                 icon: <MovieIcon />,
                 path: "/admin/movies",
+            },
+            {
+                key: "persons",
+                label: "Cast & Crew",
+                icon: <PersonsIcon />,
+                path: "/admin/persons",
             },
             {
                 key: "products",

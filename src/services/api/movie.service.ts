@@ -1,4 +1,5 @@
 import axiosInstance from "@/services/axios/axiosInstance";
+import { normalizePersonRefs } from "@/services/api/person.service";
 import type { GetMoviesResponse, Movie } from "@/features/public/types/movie.type";
 import type { MovieDetail } from "@/features/movies/types/movie.types";
 
@@ -81,6 +82,8 @@ export const getMoviesByGenreApi = async (params: GetMoviesByGenreParams): Promi
  */
 export const getMovieByIdApi = async (movieId: number): Promise<MovieDetail> => {
     const { data } = await axiosInstance.get(`/movie/${movieId}`);
+    const directors = normalizePersonRefs(data.directors ?? data.directorIds);
+    const actors = normalizePersonRefs(data.actors ?? data.actorIds);
     return {
         movieId: Number(data.movieId),
         title: String(data.title ?? ""),
@@ -92,8 +95,11 @@ export const getMovieByIdApi = async (movieId: number): Promise<MovieDetail> => 
         ticketsSold: Number(data.ticketsSold ?? 0),
         isTopSelling: Boolean(data.isTopSelling),
         salesRank: data.salesRank == null ? null : Number(data.salesRank),
-        director: String(data.director ?? ""),
-        cast: String(data.cast ?? ""),
+        directors,
+        actors,
+        // Fall back to legacy strings, else derive a readable list from persons.
+        director: String(data.director ?? "") || directors.map((d) => d.name).join(", "),
+        cast: String(data.cast ?? "") || actors.map((a) => a.name).join(", "),
         synopsis: String(data.synopsis ?? data.description ?? ""),
         showingFromDate: String(data.showingFromDate ?? ""),
         showingToDate: String(data.showingToDate ?? ""),

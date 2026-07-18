@@ -1,3 +1,5 @@
+import type { PersonRef } from "@/features/persons/types/person.types";
+
 export type MovieMgmtStatus = "now_showing" | "coming_soon" | "ended";
 
 export const MOVIE_STATUS_LABELS: Record<string, string> = {
@@ -53,8 +55,9 @@ export interface MovieMgmtDetail {
     title: string;
     genres: string[];
     ageRating: string;
-    director: string;
-    cast: string;
+    /** Normalized person references (see getMovieDetailApi). */
+    directors: PersonRef[];
+    actors: PersonRef[];
     synopsis: string;
     durationMinutes: number;
     status: string;
@@ -70,8 +73,8 @@ export interface CreateMoviePayload {
     title: string;
     genres: string[];
     ageRating: string;
-    director: string;
-    cast: string;
+    directorIds: number[];
+    actorIds: number[];
     synopsis: string;
     durationMinutes: number;
     showingFromDate: string;

@@ -7,11 +7,12 @@ import { AGE_RATING_OPTIONS, MOVIE_STATUS_OPTIONS } from "../types/movie-mgmt.ty
 import { useManagerMovieDetail } from "../hooks/useMovieDetail";
 import { useCreateMovie, useUpdateMovie, useUploadMoviePoster } from "../hooks/useMovieMutations";
 import { useGenreList } from "../hooks/useGenreList";
+import PersonSelect from "@/features/persons/components/PersonSelect";
 
 interface FormValues {
     title: string;
-    director: string;
-    cast?: string;
+    directorIds: number[];
+    actorIds: number[];
     synopsis?: string;
     durationMinutes: number;
     ageRating: string;
@@ -80,8 +81,8 @@ const MovieFormModal: FC<Props> = ({ mode, movieId, open, onClose }) => {
         if (detail) {
             form.setFieldsValue({
                 title: detail.title,
-                director: detail.director,
-                cast: detail.cast,
+                directorIds: detail.directors?.map((d) => d.id) ?? [],
+                actorIds: detail.actors?.map((a) => a.id) ?? [],
                 synopsis: detail.synopsis,
                 durationMinutes: detail.durationMinutes,
                 ageRating: detail.ageRating,
@@ -127,8 +128,8 @@ const MovieFormModal: FC<Props> = ({ mode, movieId, open, onClose }) => {
             title: values.title.trim(),
             genres: values.genres ?? [],
             ageRating: values.ageRating,
-            director: values.director.trim(),
-            cast: values.cast?.trim() ?? "",
+            directorIds: values.directorIds ?? [],
+            actorIds: values.actorIds ?? [],
             synopsis: values.synopsis?.trim() ?? "",
             durationMinutes: values.durationMinutes,
             showingFromDate: values.showingFromDate.format("YYYY-MM-DD"),
@@ -211,23 +212,6 @@ const MovieFormModal: FC<Props> = ({ mode, movieId, open, onClose }) => {
                     </Form.Item>
 
                     <Row gutter={16}>
-                        <Col span={12}>
-                            <Form.Item
-                                label="Director"
-                                name="director"
-                                rules={[{ required: true, message: "Please enter the director's name" }]}
-                            >
-                                <Input placeholder="Director's name" maxLength={100} />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item label="Main Cast" name="cast">
-                                <Input placeholder="Main cast (comma-separated)" maxLength={200} />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-
-                    <Row gutter={16}>
                         <Col span={8}>
                             <Form.Item
                                 label="Duration (minutes)"
@@ -258,6 +242,26 @@ const MovieFormModal: FC<Props> = ({ mode, movieId, open, onClose }) => {
                             </Col>
                         )}
                     </Row>
+
+                    <SectionLabel>Cast &amp; Crew</SectionLabel>
+
+                    <Form.Item
+                        label="Directors"
+                        name="directorIds"
+                        rules={[{ required: true, type: "array", min: 1, message: "Select at least one director" }]}
+                    >
+                        <PersonSelect
+                            seed={detail?.directors}
+                            placeholder="Search directors…"
+                        />
+                    </Form.Item>
+
+                    <Form.Item label="Actors / Cast" name="actorIds">
+                        <PersonSelect
+                            seed={detail?.actors}
+                            placeholder="Search actors…"
+                        />
+                    </Form.Item>
 
                     <SectionLabel>Content</SectionLabel>
 

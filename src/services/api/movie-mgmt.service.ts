@@ -1,4 +1,5 @@
 import axiosInstance from "@/services/axios/axiosInstance";
+import { normalizePersonRefs } from "@/services/api/person.service";
 import type {
     MovieListResponse,
     MovieMgmtDetail,
@@ -18,7 +19,15 @@ export const getMoviesPagedApi = async (): Promise<MovieListResponse> => {
 
 export const getMovieDetailApi = async (movieId: number): Promise<MovieMgmtDetail> => {
     const { data } = await axiosInstance.get(`/movie/${movieId}`);
-    return data;
+    // Directors/actors may arrive as person objects, id arrays, or (legacy) a
+    // single "director"/"cast" string — normalize to a consistent PersonRef[].
+    return {
+        ...data,
+        movieId: Number(data.movieId ?? movieId),
+        genres: Array.isArray(data.genres) ? data.genres : [],
+        directors: normalizePersonRefs(data.directors ?? data.directorIds),
+        actors: normalizePersonRefs(data.actors ?? data.actorIds),
+    } as MovieMgmtDetail;
 };
 
 export const createMovieApi = async (payload: CreateMoviePayload): Promise<MovieMgmtDetail> => {

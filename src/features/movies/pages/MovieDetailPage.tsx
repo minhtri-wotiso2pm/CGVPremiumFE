@@ -84,7 +84,7 @@ const MovieDetailPage: FC = () => {
             </nav>
 
             {/* ── Hero ── */}
-            <MovieDetailHero movie={movie} onWatchTrailer={scrollToTrailer} onBook={handleBook} />
+            <MovieDetailHero movie={movie} onWatchTrailer={scrollToTrailer} onBook={handleBook} personBase={isPublic ? "" : "/customer"} />
 
             {/* ── Body sections ── */}
             <div className="cgv-detail-body">

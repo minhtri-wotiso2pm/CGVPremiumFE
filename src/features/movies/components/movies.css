@@ -1180,6 +1180,17 @@
     line-height: 1.5;
 }
 
+.cgv-detail-hero__person-link {
+    color: var(--cgv-text-primary);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color var(--cgv-transition), border-color var(--cgv-transition);
+}
+.cgv-detail-hero__person-link:hover {
+    color: var(--cgv-crimson);
+    border-bottom-color: var(--cgv-crimson);
+}
+
 /* Buttons */
 .cgv-detail-hero__actions {
     display: flex;
