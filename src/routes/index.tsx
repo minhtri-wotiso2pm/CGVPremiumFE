@@ -37,7 +37,7 @@ import {
     SettingsPage,
 } from "@/features/customer/pages/CustomerProfileRoutes";
 
-import StaffDashboard from "@/features/staff/pages/StaffDashboard";
+// import StaffDashboard from "@/features/staff/pages/StaffDashboard";
 import CheckInPage from "@/features/staff/pages/CheckInPage";
 import CounterBookingPage from "@/features/staff/pages/CounterBookingPage";
 import FnbPickupPage from "@/features/staff/pages/FnbPickupPage";
