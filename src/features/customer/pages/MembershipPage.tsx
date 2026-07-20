@@ -1,4 +1,4 @@
-import type { FC } from "react";
+import { type FC, useEffect, useState } from "react";
 import { Skeleton } from "antd";
 import { Link } from "react-router-dom";
 import type { MembershipInfo, MembershipTier, PointsHistoryEntry } from "../types/membership.types";
@@ -276,7 +276,7 @@ const VoucherTeaser: FC<{ totalPoints: number }> = ({ totalPoints }) => (
         <span className={styles.voucherTeaserText}>
             {totalPoints > 0
                 ? `You have ${fmtPoints(totalPoints)} points — see what you can redeem`
-                : "Earn points with every booking to unlock vouchers"}
+                : "Check in for a movie to start earning points and unlock vouchers"}
         </span>
         <span className={styles.voucherTeaserArrow}>›</span>
     </Link>
@@ -415,35 +415,72 @@ const HistoryRow: FC<{ entry: PointsHistoryEntry }> = ({ entry }) => {
     );
 };
 
-const PointsHistory: FC<{ items: PointsHistoryEntry[] }> = ({ items }) => (
-    <div className={`${styles.card} ${styles.historySection}`}>
-        <div className={styles.historyHeader}>
-            <p className={styles.sectionTitle} style={{ margin: 0 }}>Points History</p>
-            {items.length > 0 && (
-                <span className={styles.historyCount}>{items.length} transaction{items.length !== 1 ? "s" : ""}</span>
+const HISTORY_PAGE_SIZE = 10;
+
+const PointsHistory: FC<{ items: PointsHistoryEntry[] }> = ({ items }) => {
+    const [page, setPage] = useState(1);
+    const totalPages = Math.max(1, Math.ceil(items.length / HISTORY_PAGE_SIZE));
+
+    // Reset to the first page whenever the underlying list changes (e.g.
+    // after a refetch), so a stale out-of-range page can't linger.
+    useEffect(() => {
+        setPage(1);
+    }, [items.length]);
+
+    const pageItems = items.slice((page - 1) * HISTORY_PAGE_SIZE, page * HISTORY_PAGE_SIZE);
+
+    return (
+        <div className={`${styles.card} ${styles.historySection}`}>
+            <div className={styles.historyHeader}>
+                <p className={styles.sectionTitle} style={{ margin: 0 }}>Points History</p>
+                {items.length > 0 && (
+                    <span className={styles.historyCount}>{items.length} transaction{items.length !== 1 ? "s" : ""}</span>
+                )}
+            </div>
+
+            {items.length === 0 ? (
+                <div className={styles.emptyHistory}>
+                    <div className={styles.emptyIconWrap}>
+                        <EmptyHistoryIcon />
+                    </div>
+                    <p className={styles.emptyTitle}>No transactions yet</p>
+                    <p className={styles.emptyText}>
+                        Your points will appear here after you check in for your first movie.
+                        Every visit earns you points toward your next tier.
+                    </p>
+                </div>
+            ) : (
+                <>
+                    <div className={styles.historyList}>
+                        {pageItems.map((entry, i) => (
+                            <HistoryRow key={(page - 1) * HISTORY_PAGE_SIZE + i} entry={entry} />
+                        ))}
+                    </div>
+
+                    {totalPages > 1 && (
+                        <div className={styles.paginationBar}>
+                            <button
+                                className={styles.pageBtn}
+                                disabled={page <= 1}
+                                onClick={() => setPage((p) => p - 1)}
+                            >
+                                Previous
+                            </button>
+                            <span className={styles.pageIndicator}>Page {page} of {totalPages}</span>
+                            <button
+                                className={styles.pageBtn}
+                                disabled={page >= totalPages}
+                                onClick={() => setPage((p) => p + 1)}
+                            >
+                                Next
+                            </button>
+                        </div>
+                    )}
+                </>
             )}
         </div>
-
-        {items.length === 0 ? (
-            <div className={styles.emptyHistory}>
-                <div className={styles.emptyIconWrap}>
-                    <EmptyHistoryIcon />
-                </div>
-                <p className={styles.emptyTitle}>No transactions yet</p>
-                <p className={styles.emptyText}>
-                    Your points will appear here after your first ticket booking.
-                    Every purchase earns you points toward your next tier.
-                </p>
-            </div>
-        ) : (
-            <div className={styles.historyList}>
-                {items.map((entry, i) => (
-                    <HistoryRow key={i} entry={entry} />
-                ))}
-            </div>
-        )}
-    </div>
-);
+    );
+};
 
 /* ─────────────────────────────────────────
    Skeleton

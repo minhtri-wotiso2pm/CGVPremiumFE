@@ -31,17 +31,29 @@ export function useCreateRoom() {
     });
 }
 
+/** Pull a human-readable message out of an axios error response, if any. */
+function errorMessage(err: unknown): string | null {
+    const data = (err as { response?: { data?: unknown } })?.response?.data;
+    if (typeof data === "string") return data;
+    if (data && typeof data === "object" && typeof (data as { message?: unknown }).message === "string") {
+        return (data as { message: string }).message;
+    }
+    return null;
+}
+
 export function useUpdateRoom() {
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: ({ roomId, payload }: { roomId: number; payload: UpdateRoomPayload }) =>
             updateRoomApi(roomId, payload),
-        onSuccess: () => {
+        onSuccess: (result) => {
             queryClient.invalidateQueries({ queryKey: ROOM_QUERY_KEY });
-            notify.success("Room updated", "Changes have been saved successfully.");
+            // Surface the backend's own message (e.g. the outcome of setting a
+            // room inactive) instead of a generic string when one is provided.
+            notify.success("Room updated", result.message ?? "Changes have been saved successfully.");
         },
-        onError: () => {
-            notify.error("Failed to update", "Could not update room. Please try again.");
+        onError: (err) => {
+            notify.error("Failed to update", errorMessage(err) ?? "Could not update room. Please try again.");
         },
     });
 }

@@ -15,15 +15,26 @@ export interface ShowtimeRoomRef {
     capacity?: number;
 }
 
+export interface ShowtimeCinemaRef {
+    cinemaId: number;
+    cinemaName: string;
+    address?: string;
+}
+
 export interface ManagerShowtime {
     showtimeId: number;
     movie: ShowtimeMovieRef;
     room: ShowtimeRoomRef;
+    /** Present on the /showtimes/range response; optional elsewhere. */
+    cinema?: ShowtimeCinemaRef;
     startTime: string;
     endTime: string;
     basePrice: number;
+    /** Always normalized to lowercase (API may return UPPERCASE). */
     status: ShowtimeStatus | string;
     isSoldOut: boolean;
+    /** false for past/inactive showtimes (from /showtimes/range). */
+    isActive?: boolean;
 }
 
 export interface ShowtimeListResponse {
@@ -42,6 +53,13 @@ export interface GetManagerShowtimesParams {
     pageSize?: number;
     sortBy?: string;
     sortDir?: string;
+}
+
+/** GET /showtimes/range — one batched call for a calendar window. */
+export interface GetShowtimeRangeParams {
+    cinemaId: number;
+    startDate: string; // YYYY-MM-DD (no leading space!)
+    endDate: string;   // YYYY-MM-DD
 }
 
 /** POST auto-derives status from startTime — do not send it on create. */

@@ -1,7 +1,8 @@
 import type { FC } from "react";
 import { Button, Tooltip } from "antd";
-import { GiftOutlined } from "@ant-design/icons";
 import type { RedeemableVoucher } from "../types/loyaltyVoucher.types";
+import { GiftIcon, StarPointsIcon, LockIcon } from "@/components/ui/BrandIcons";
+import VoucherRuleTags from "./VoucherRuleTags";
 import styles from "./VoucherCard.module.css";
 
 const fmtDiscount = (discountType: string, discountValue: number): string =>
@@ -34,7 +35,7 @@ const RedeemableVoucherCard: FC<Props> = ({ voucher, totalPoints, onRedeem }) =>
             {voucher.imageUrl ? (
                 <img src={voucher.imageUrl} alt={voucher.voucherCode} className={styles.banner} />
             ) : (
-                <div className={styles.bannerPh}><GiftOutlined /></div>
+                <div className={styles.bannerPh}><GiftIcon size={28} /></div>
             )}
 
             <div className={styles.body}>
@@ -43,20 +44,25 @@ const RedeemableVoucherCard: FC<Props> = ({ voucher, totalPoints, onRedeem }) =>
                 </span>
                 <span className={styles.code}>{voucher.voucherCode}</span>
                 {voucher.description && <p className={styles.description}>{voucher.description}</p>}
+                <VoucherRuleTags rules={voucher.voucherRules} />
                 <span className={styles.meta}>
                     Valid until {fmtDate(voucher.validUntil)}
                     {voucher.exchangeLimit > 0 ? ` · up to ${voucher.exchangeLimit} per customer` : ""}
                 </span>
 
                 <div className={styles.footer}>
-                    <span className={styles.pointsCost}>⭐ {fmtPoints(voucher.requiredPoints)} pts</span>
+                    <span className={styles.pointsCost}>
+                        <StarPointsIcon size={14} /> {fmtPoints(voucher.requiredPoints)} pts
+                    </span>
                     {canAfford ? (
                         <Button className={styles.redeemBtn} onClick={() => onRedeem(voucher)}>
                             Redeem
                         </Button>
                     ) : (
                         <Tooltip title={`You need ${fmtPoints(gap)} more points to redeem this voucher.`}>
-                            <span className={styles.needMoreChip}>Need {fmtPoints(gap)} more</span>
+                            <span className={styles.needMoreChip}>
+                                <LockIcon size={12} /> Need {fmtPoints(gap)} more
+                            </span>
                         </Tooltip>
                     )}
                 </div>

@@ -6,6 +6,7 @@ import { loginSuccess } from "@/store/slices/authSlice";
 import { loginApi } from "@/services/api/auth.service";
 import { getDashboardByRole } from "../utils/getDashboardByRole";
 import { getSafeRedirect, type LoginRedirectState } from "../utils/authRedirect";
+import { EyeIcon, EyeOffIcon } from "@/components/ui/BrandIcons";
 import axios from "axios";
 /* ─────────────────────────────────────────────────────────────
 DESIGN TOKENS — CVPremium Design System
@@ -500,7 +501,7 @@ export default function LoginPage() {
                                     lineHeight: 1,
                                 }}
                             >
-                                {showPw ? "👁" : "👁"}
+                                {showPw ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
                             </button>
                         }
                     // belowInput={<StrengthBar score={pwScore} />}

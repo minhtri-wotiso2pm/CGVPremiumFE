@@ -1,6 +1,7 @@
 import axiosInstance from "@/services/axios/axiosInstance";
 import { normalizePersonRefs } from "@/services/api/person.service";
 import type {
+    MovieListItem,
     MovieListResponse,
     MovieMgmtDetail,
     CreateMoviePayload,
@@ -9,12 +10,29 @@ import type {
 } from "@/features/manager/types/movie-mgmt.types";
 
 /* ── Movies ── */
+/** BE returns movie status UPPERCASE (NOW_SHOWING/COMING_SOON/ENDED) and
+ *  paginates with totalCount/pageIndex. Normalize to the lowercase status
+ *  convention + the MovieListResponse shape the whole app assumes. */
+const normalizeMovieListItem = (m: Record<string, unknown>): MovieListItem => ({
+    ...(m as unknown as MovieListItem),
+    movieId: Number(m.movieId ?? 0),
+    title: String(m.title ?? ""),
+    status: String(m.status ?? "").toLowerCase(),
+});
+
 export const getMoviesPagedApi = async (): Promise<MovieListResponse> => {
     const { data } = await axiosInstance.get("/movie", {
         params: { page: 1, pageSize: 200, sortBy: "title", sortDir: "asc" },
     });
-    if (Array.isArray(data)) return { items: data, page: 1, pageSize: data.length, totalItems: data.length, totalPages: 1 };
-    return data as MovieListResponse;
+    const rawItems: Record<string, unknown>[] = Array.isArray(data) ? data : (data?.items ?? []);
+    const items = rawItems.map(normalizeMovieListItem);
+    return {
+        items,
+        page: Number(data?.page ?? data?.pageIndex ?? 1),
+        pageSize: Number(data?.pageSize ?? items.length),
+        totalItems: Number(data?.totalItems ?? data?.totalCount ?? items.length),
+        totalPages: Number(data?.totalPages ?? 1),
+    };
 };
 
 export const getMovieDetailApi = async (movieId: number): Promise<MovieMgmtDetail> => {

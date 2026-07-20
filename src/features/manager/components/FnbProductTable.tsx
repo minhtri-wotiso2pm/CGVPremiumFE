@@ -2,6 +2,7 @@ import { type FC } from "react";
 import { Table, Tooltip } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import type { FnbProduct, FnbModalType } from "../types/fnb-mgmt.types";
+import { FnbBagIcon } from "@/components/ui/BrandIcons";
 import {
     FNB_STATUS_LABELS, FNB_TYPE_LABELS,
 } from "../types/fnb-mgmt.types";
@@ -36,9 +37,9 @@ const ImageCell: FC<{ url?: string | null; name: string }> = ({ url, name }) => 
             width: 40, height: 40, borderRadius: 6,
             background: "var(--dash-border)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 18,
+            color: "var(--dash-text-3)",
         }}>
-            🍿
+            <FnbBagIcon size={20} />
         </div>
     )
 );

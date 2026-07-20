@@ -5,7 +5,11 @@ import type {
     CheckInHistoryResponse,
     CheckInLookupResponse,
 } from "@/features/staff/types/checkin.types";
-import type { FnbPickupResponse } from "@/features/staff/types/fnbPickup.types";
+import type {
+    FnbPickupHistoryQuery,
+    FnbPickupHistoryResponse,
+    FnbPickupResponse,
+} from "@/features/staff/types/fnbPickup.types";
 
 export const lookupCheckInApi = async (qrCode: string): Promise<CheckInLookupResponse> => {
     const { data } = await axiosInstance.post("/checkins/lookup", { qrCode });
@@ -30,5 +34,25 @@ export const getCheckInHistoryApi = async (
  */
 export const confirmFnbPickupApi = async (bookingCode: string): Promise<FnbPickupResponse> => {
     const { data } = await axiosInstance.post<FnbPickupResponse>("/checkins/fnb-pickup", { bookingCode });
+    return data;
+};
+
+/**
+ * GET /api/checkins/fnb-pickup-history — past F&B pickups for a staff member at a cinema.
+ * Query params are PascalCase to match the backend contract.
+ */
+export const getFnbPickupHistoryApi = async (
+    query: FnbPickupHistoryQuery
+): Promise<FnbPickupHistoryResponse> => {
+    const { data } = await axiosInstance.get<FnbPickupHistoryResponse>("/checkins/fnb-pickup-history", {
+        params: {
+            StaffId: query.staffId,
+            CinemaId: query.cinemaId,
+            From: query.from,
+            To: query.to,
+            Page: query.page,
+            PageSize: query.pageSize,
+        },
+    });
     return data;
 };

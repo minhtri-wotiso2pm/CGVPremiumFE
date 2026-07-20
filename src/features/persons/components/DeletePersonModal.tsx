@@ -2,6 +2,7 @@ import { type FC, useEffect, useState } from "react";
 import { Modal, Button } from "antd";
 import { useDeletePerson } from "../hooks/usePersonMutations";
 import type { PersonListItem } from "../types/person.types";
+import { FilmClapperIcon } from "@/components/ui/BrandIcons";
 
 interface Props {
     person: PersonListItem | null;
@@ -70,8 +71,9 @@ const DeletePersonModal: FC<Props> = ({ person, open, onClose }) => {
                         borderRadius: 8, maxHeight: 200, overflowY: "auto",
                     }}>
                         {blockedMovies!.map((m) => (
-                            <li key={m} style={{ padding: "3px 0", fontSize: 13, color: "var(--dash-text-1)" }}>
-                                🎬 {m}
+                            <li key={m} style={{ display: "flex", alignItems: "center", gap: 8, padding: "3px 0", fontSize: 13, color: "var(--dash-text-1)" }}>
+                                <span style={{ color: "#E8001C", flexShrink: 0 }}><FilmClapperIcon size={15} /></span>
+                                {m}
                             </li>
                         ))}
                     </ul>

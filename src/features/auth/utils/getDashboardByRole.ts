@@ -8,7 +8,7 @@ export const getDashboardByRole = (
             return "/admin/dashboard";
 
         case ROLES.MANAGER:
-            return "/manager/dashboard";
+            return "/manager/reports";
 
         case ROLES.STAFF:
             return "/staff/dashboard";

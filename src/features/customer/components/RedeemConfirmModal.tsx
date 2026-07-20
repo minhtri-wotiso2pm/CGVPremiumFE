@@ -1,8 +1,9 @@
 import type { FC } from "react";
 import { Modal, Button } from "antd";
 import axios from "axios";
-import type { RedeemableVoucher } from "../types/loyaltyVoucher.types";
+import type { RedeemableVoucherLike } from "../types/loyaltyVoucher.types";
 import { useRedeemVoucher } from "../hooks/useLoyaltyVouchers";
+import { ChevronRightIcon } from "@/components/ui/BrandIcons";
 import styles from "./RedeemConfirmModal.module.css";
 
 const fmtDiscount = (discountType: string, discountValue: number): string =>
@@ -13,7 +14,7 @@ const fmtDiscount = (discountType: string, discountValue: number): string =>
 const fmtPoints = (n: number) => n.toLocaleString("en-US");
 
 interface Props {
-    voucher: RedeemableVoucher | null;
+    voucher: RedeemableVoucherLike | null;
     totalPoints: number;
     onClose: () => void;
     onRedeemed: () => void;
@@ -75,7 +76,7 @@ const RedeemConfirmModal: FC<Props> = ({ voucher, totalPoints, onClose, onRedeem
                         <span className={styles.balanceLabel}>Current Points</span>
                         <span className={styles.balanceValue}>{fmtPoints(totalPoints)}</span>
                     </div>
-                    <span className={styles.arrow}>→</span>
+                    <span className={styles.arrow}><ChevronRightIcon size={16} /></span>
                     <div className={styles.balanceCell}>
                         <span className={styles.balanceLabel}>After Redeem</span>
                         <span

@@ -26,9 +26,11 @@
     "react-easy-crop": "^6.0.2",
     "react-hook-form": "^7.80.0",
     "react-leaflet": "^5.0.0",
+    "react-markdown": "^10.1.0",
     "react-redux": "^9.3.0",
     "react-router-dom": "^7.17.0",
     "recharts": "^3.9.2",
+    "remark-gfm": "^4.0.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {

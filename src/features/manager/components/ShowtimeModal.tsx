@@ -3,8 +3,10 @@ import { Modal, Form, Select, DatePicker, InputNumber } from "antd";
 import dayjs, { type Dayjs } from "dayjs";
 import { useMovieList } from "../hooks/useMovieList";
 import { useRooms } from "../hooks/useRooms";
+import { useRoomTypes } from "../hooks/useRoomTypes";
 import { useCreateShowtime, useUpdateShowtime } from "../hooks/useManagerShowtimes";
 import { SHOWTIME_STATUS_OPTIONS } from "../constants/showtime-mgmt.constants";
+import { MOVIE_STATUS_META, SCHEDULABLE_MOVIE_STATUSES } from "../types/movie-mgmt.types";
 import type {
     ManagerShowtime,
     CreateShowtimePayload,
@@ -15,12 +17,34 @@ import type {
 const toVnIso = (d: Dayjs) => `${d.format("YYYY-MM-DDTHH:mm:ss")}+07:00`;
 const fromVnIso = (s: string) => dayjs(s.slice(0, 19));
 
+const PRICE_PRESETS = [45000, 70000, 90000, 120000];
+
+const MovieStatusPill: FC<{ status?: string }> = ({ status }) => {
+    const meta = MOVIE_STATUS_META[status ?? ""] ?? null;
+    if (!meta) return null;
+    return (
+        <span
+            style={{
+                display: "inline-flex", alignItems: "center", gap: 5,
+                fontSize: 10.5, fontWeight: 700, padding: "2px 8px",
+                borderRadius: 100, background: meta.bg, color: meta.color,
+                whiteSpace: "nowrap", flexShrink: 0,
+            }}
+        >
+            <span style={{ width: 5, height: 5, borderRadius: "50%", background: meta.color }} />
+            {meta.label}
+        </span>
+    );
+};
+
 interface Props {
     mode: "create" | "edit";
     showtime?: ManagerShowtime | null;
     cinemaId: number;
     open: boolean;
     onClose: () => void;
+    /** Fired with the freshly-created showtime so the table can highlight it. */
+    onCreated?: (created: ManagerShowtime) => void;
 }
 
 interface FormValues {
@@ -31,33 +55,64 @@ interface FormValues {
     status?: string;
 }
 
-const ShowtimeModal: FC<Props> = ({ mode, showtime, cinemaId, open, onClose }) => {
+const ShowtimeModal: FC<Props> = ({ mode, showtime, cinemaId, open, onClose, onCreated }) => {
     const [form] = Form.useForm<FormValues>();
     const isEdit = mode === "edit";
 
     const { data: movieData } = useMovieList();
     const { data: allRooms = [] } = useRooms();
+    const { data: roomTypes = [] } = useRoomTypes();
     const { mutate: create, isPending: creating } = useCreateShowtime();
     const { mutate: update, isPending: updating } = useUpdateShowtime();
     const isLoading = creating || updating;
 
-    const movieOptions = useMemo(
-        () => (movieData?.items ?? []).map((m) => ({ value: m.movieId, label: m.title, posterUrl: m.posterUrl })),
-        [movieData],
-    );
-
     const selectedMovieId = Form.useWatch("movieId", form);
+    const selectedStartTime = Form.useWatch("startTime", form);
+
+    /** Create only offers schedulable movies (now showing / coming soon).
+     *  Edit keeps every movie so an existing showtime on an ended movie is
+     *  never silently unset when reopened. */
+    const movieOptions = useMemo(() => {
+        const all = movieData?.items ?? [];
+        const source = isEdit
+            ? all
+            : all.filter((m) => SCHEDULABLE_MOVIE_STATUSES.includes(m.status));
+        return source.map((m) => ({
+            value: m.movieId,
+            label: m.title,
+            posterUrl: m.posterUrl,
+            status: m.status,
+        }));
+    }, [movieData, isEdit]);
+
     const selectedMovie = useMemo(
         () => (movieData?.items ?? []).find((m) => m.movieId === selectedMovieId) ?? null,
         [movieData, selectedMovieId],
     );
 
+    const roomTypeName = useMemo(() => {
+        const map = new Map<number, string>();
+        roomTypes.forEach((rt) => map.set(rt.roomTypeId, rt.typeName));
+        return map;
+    }, [roomTypes]);
+
     const roomOptions = useMemo(
         () => allRooms
             .filter((r) => r.cinemaId === cinemaId && r.status === "ACTIVE")
-            .map((r) => ({ value: r.roomId, label: `${r.name} · ${r.roomTypeId}` })),
-        [allRooms, cinemaId],
+            .map((r) => {
+                const typeName = roomTypeName.get(r.roomTypeId);
+                const base = typeName ? `${r.name} · ${typeName}` : r.name;
+                return { value: r.roomId, label: `${base} · ${r.capacity} seats` };
+            }),
+        [allRooms, cinemaId, roomTypeName],
     );
+
+    /** Estimated end time = start + movie duration (preview only; the server
+     *  is the source of truth). */
+    const estimatedEnd = useMemo(() => {
+        if (!selectedStartTime || !selectedMovie?.durationMinutes) return null;
+        return selectedStartTime.add(selectedMovie.durationMinutes, "minute");
+    }, [selectedStartTime, selectedMovie]);
 
     useEffect(() => {
         if (open) {
@@ -94,7 +149,12 @@ const ShowtimeModal: FC<Props> = ({ mode, showtime, cinemaId, open, onClose }) =
                 startTime: toVnIso(values.startTime),
                 basePrice: values.basePrice,
             };
-            create(payload, { onSuccess: onClose });
+            create(payload, {
+                onSuccess: (created) => {
+                    onCreated?.(created);
+                    onClose();
+                },
+            });
         }
     };
 
@@ -118,6 +178,9 @@ const ShowtimeModal: FC<Props> = ({ mode, showtime, cinemaId, open, onClose }) =
                         options={movieOptions}
                         showSearch
                         optionFilterProp="label"
+                        notFoundContent={
+                            isEdit ? "No movies" : "No now-showing or coming-soon movies"
+                        }
                         optionRender={(option) => (
                             <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                                 {option.data.posterUrl ? (
@@ -129,7 +192,10 @@ const ShowtimeModal: FC<Props> = ({ mode, showtime, cinemaId, open, onClose }) =
                                 ) : (
                                     <div style={{ width: 24, height: 36, borderRadius: 3, background: "rgba(0,0,0,0.08)", flexShrink: 0 }} />
                                 )}
-                                <span>{option.data.label}</span>
+                                <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                    {option.data.label}
+                                </span>
+                                <MovieStatusPill status={option.data.status} />
                             </div>
                         )}
                     />
@@ -158,8 +224,11 @@ const ShowtimeModal: FC<Props> = ({ mode, showtime, cinemaId, open, onClose }) =
                         ) : (
                             <div style={{ width: 52, height: 78, borderRadius: 4, flexShrink: 0, background: "rgba(0,0,0,0.08)" }} />
                         )}
-                        <div style={{ display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }}>
-                            <span style={{ fontSize: 14, fontWeight: 700 }}>{selectedMovie.title}</span>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 0 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                                <span style={{ fontSize: 14, fontWeight: 700 }}>{selectedMovie.title}</span>
+                                <MovieStatusPill status={selectedMovie.status} />
+                            </div>
                             <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "rgba(0,0,0,0.55)" }}>
                                 {selectedMovie.ageRating && <span>{selectedMovie.ageRating}</span>}
                                 {selectedMovie.durationMinutes ? <span>{selectedMovie.durationMinutes} min</span> : null}
@@ -201,6 +270,17 @@ const ShowtimeModal: FC<Props> = ({ mode, showtime, cinemaId, open, onClose }) =
                     name="startTime"
                     rules={[{ required: true, message: "Please select a start time" }]}
                     tooltip="Interpreted as Vietnam time (UTC+7)."
+                    extra={
+                        estimatedEnd ? (
+                            <span style={{ fontSize: 12, color: "var(--dash-text-2, rgba(0,0,0,0.55))" }}>
+                                Estimated end ~ <strong>{estimatedEnd.format("HH:mm")}</strong> ({selectedMovie?.durationMinutes} min)
+                            </span>
+                        ) : selectedStartTime && selectedMovie && !selectedMovie.durationMinutes ? (
+                            <span style={{ fontSize: 12, color: "#C2620A" }}>
+                                This movie has no duration set — end time can't be estimated.
+                            </span>
+                        ) : null
+                    }
                 >
                     <DatePicker
                         showTime={{ format: "HH:mm" }}
@@ -219,6 +299,23 @@ const ShowtimeModal: FC<Props> = ({ mode, showtime, cinemaId, open, onClose }) =
                         parser={(v) => Number((v ?? "").replace(/,/g, "")) as 0}
                     />
                 </Form.Item>
+                <div style={{ display: "flex", gap: 6, marginTop: -16, marginBottom: 20, flexWrap: "wrap" }}>
+                    {PRICE_PRESETS.map((p) => (
+                        <button
+                            key={p}
+                            type="button"
+                            onClick={() => form.setFieldValue("basePrice", p)}
+                            style={{
+                                fontSize: 11.5, fontWeight: 600, padding: "3px 10px",
+                                borderRadius: 100, cursor: "pointer",
+                                border: "1px solid rgba(0,0,0,0.1)",
+                                background: "rgba(0,0,0,0.02)", color: "rgba(0,0,0,0.65)",
+                            }}
+                        >
+                            {p.toLocaleString("vi-VN")} ₫
+                        </button>
+                    ))}
+                </div>
 
                 {isEdit && (
                     <Form.Item label="Status" name="status" rules={[{ required: true, message: "Please select a status" }]}>

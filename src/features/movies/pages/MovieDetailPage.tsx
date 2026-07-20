@@ -9,6 +9,7 @@ import MovieDetailTrailer from "../components/MovieDetailTrailer";
 import MovieDetailSkeleton from "../components/MovieDetailSkeleton";
 import MovieCard from "../components/MovieCard";
 import { useMovieNavigation } from "../hooks/useMovieNavigation";
+import ReviewSection from "@/features/reviews/components/ReviewSection";
 import "../components/movies.css";
 
 const MovieDetailPage: FC = () => {
@@ -104,6 +105,9 @@ const MovieDetailPage: FC = () => {
                         <MovieDetailTrailer trailerUrl={movie.trailerUrl} title={movie.title} />
                     </section>
                 )}
+
+                {/* Ratings & Reviews */}
+                <ReviewSection movieId={id} />
 
                 {/* Related movies */}
                 {related.length > 0 && (

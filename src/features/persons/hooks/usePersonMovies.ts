@@ -1,15 +1,19 @@
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { getPersonMoviesApi } from "@/services/api/person.service";
 
+const FILMOGRAPHY_PAGE_SIZE = 12;
+
 /**
- * A person's filmography. Currently a stub (BE hasn't shipped movies-by-person
- * yet), so it's disabled by default and the profile page renders a placeholder.
- * When the endpoint lands: implement getPersonMoviesApi and pass enabled = true.
+ * A person's filmography (GET /api/persons/{id}/movies), paged for "Load more".
+ * Flatten `data.pages` into a single list in the component.
  */
-export function usePersonMovies(id: number | null, enabled = false) {
-    return useQuery({
-        queryKey: ["person-movies", id],
-        queryFn: () => getPersonMoviesApi(id as number),
-        enabled: enabled && id != null,
+export function usePersonMovies(id: number | null, pageSize = FILMOGRAPHY_PAGE_SIZE) {
+    return useInfiniteQuery({
+        queryKey: ["person-movies", id, pageSize],
+        queryFn: ({ pageParam }) => getPersonMoviesApi(id as number, pageParam, pageSize),
+        initialPageParam: 1,
+        getNextPageParam: (last) =>
+            last.page * last.pageSize < last.totalMovies ? last.page + 1 : undefined,
+        enabled: id != null,
     });
 }

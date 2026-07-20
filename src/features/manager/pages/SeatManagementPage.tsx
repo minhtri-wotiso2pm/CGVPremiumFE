@@ -15,6 +15,7 @@ import {
     MAX_SEAT_COLUMNS,
 } from "../constants/room.constants";
 import type { ConfigSeat, SeatConfigStatus, SeatSelector } from "../types/room.types";
+import { notify } from "@/utils/notify";
 import "../components/room-layout.css";
 
 const SEAT_COLORS = ["#3b82f6", "#a855f7", "#f59e0b", "#ec4899", "#14b8a6", "#ef4444", "#22c55e", "#6366f1"];
@@ -121,6 +122,40 @@ const SeatManagementPage: FC = () => {
         return parts.join(", ");
     }, [selected, selectedRows, selectedCols]);
 
+    /* ── Couple-seat rule ── Couple seats (capacity ≥ 2) are sold as pairs,
+       matched two-by-two by column within a row (1+2, 3+4, …). A row with an
+       odd number of couple seats leaves one half unpaired, so we block the
+       operation and tell the manager which row(s) are the problem. ── */
+    const seatTypeCapacity = useMemo(() => {
+        const map = new Map<number, number>();
+        seatTypes.forEach((st) => map.set(st.seatTypeId, st.capacity ?? 1));
+        return map;
+    }, [seatTypes]);
+    const isCoupleType = (seatTypeId?: number) => (seatTypeId ? (seatTypeCapacity.get(seatTypeId) ?? 1) >= 2 : false);
+    const isSeatAffected = (seat: ConfigSeat) =>
+        selected.has(seat.seatId) || selectedRows.has(seat.rowLabel) || selectedCols.has(seat.seatNumber);
+
+    /** Rows that would end up with an odd count of couple seats after assigning
+     *  `targetSeatTypeId` to the current selection. Empty when the target isn't
+     *  a couple type or every affected row stays even. */
+    const findOddCoupleRows = (targetSeatTypeId?: number): string[] => {
+        if (!isCoupleType(targetSeatTypeId)) return [];
+        const perRow = new Map<string, number>();
+        for (const s of seats) {
+            if (s.isGap) continue;
+            const willBeCouple = isSeatAffected(s) ? true : isCoupleType(s.seatTypeId);
+            if (willBeCouple) perRow.set(s.rowLabel, (perRow.get(s.rowLabel) ?? 0) + 1);
+        }
+        return [...perRow.entries()].filter(([, n]) => n % 2 === 1).map(([r]) => r).sort();
+    };
+    const warnOddCouple = (rows: string[]) => {
+        notify.warning(
+            "Couple seats must be paired",
+            `Row${rows.length > 1 ? "s" : ""} ${rows.join(", ")} would have an odd number of couple seats. ` +
+            "Couple seats are sold two-by-two, so each row must contain an even number — adjust the selection or add/remove a seat, then try again.",
+        );
+    };
+
     /* ── Generate form ── */
     const [genRows, setGenRows] = useState(1);
     const [genColumn, setGenColumn] = useState(10);
@@ -132,6 +167,13 @@ const SeatManagementPage: FC = () => {
 
     const handleGenerate = () => {
         if (!canGenerate || !genSeatTypeIdResolved) return;
+        if (isCoupleType(genSeatTypeIdResolved) && genColumn % 2 === 1) {
+            notify.warning(
+                "Couple seats must be paired",
+                `Couple seats are sold two-by-two, so the number of columns must be even. You entered ${genColumn} — use an even number.`,
+            );
+            return;
+        }
         generateSeats({
             rows: genRows,
             column: genColumn,
@@ -147,6 +189,8 @@ const SeatManagementPage: FC = () => {
 
     const applyBulkSeatType = () => {
         if (!bulkSeatTypeId) return;
+        const oddRows = findOddCoupleRows(bulkSeatTypeId);
+        if (oddRows.length) { warnOddCouple(oddRows); return; }
         bulkUpdate({ selectors, update: { seatTypeId: bulkSeatTypeId } }, { onSuccess: clearSelection });
     };
     const applyBulkStatus = () => {
@@ -160,6 +204,10 @@ const SeatManagementPage: FC = () => {
         // as a gap has no such requirement. Reuse the "Change Seat Type" /
         // "Change Status" selects above for this.
         if (!isGap && (!bulkSeatTypeId || !bulkStatus)) return;
+        if (!isGap) {
+            const oddRows = findOddCoupleRows(bulkSeatTypeId);
+            if (oddRows.length) { warnOddCouple(oddRows); return; }
+        }
         bulkUpdate(
             {
                 selectors,
@@ -261,6 +309,7 @@ const SeatManagementPage: FC = () => {
                             </div>
                         ) : (
                             <div className="rle-stage">
+                              <div className="rle-plan">
                                 <div className="rle-collabels">
                                     {Array.from({ length: maxCol }, (_, c) => {
                                         const col = c + 1;
@@ -303,6 +352,7 @@ const SeatManagementPage: FC = () => {
                                                 const cls = [
                                                     "rle-cell",
                                                     seat.isGap ? "rle-cell--walkway" : "",
+                                                    !seat.isGap && isCoupleType(seat.seatTypeId) ? "rle-cell--couple" : "",
                                                     seat.status === "inactive" ? "rle-cell--inactive" : "",
                                                     isSelected ? "rle-cell--selected" : "",
                                                 ].filter(Boolean).join(" ");
@@ -323,6 +373,7 @@ const SeatManagementPage: FC = () => {
                                         </div>
                                     ))}
                                 </div>
+                              </div>
                             </div>
                         )}
 
@@ -343,6 +394,12 @@ const SeatManagementPage: FC = () => {
                                 <span className="rle-legend__item">
                                     <span className="rle-swatch" style={{ background: "#d1d5db" }} />
                                     Inactive
+                                </span>
+                            </Tooltip>
+                            <Tooltip title="Couple seats are sold in pairs (two per pair), matched by column within a row — so each row must contain an even number of couple seats.">
+                                <span className="rle-legend__item">
+                                    <span className="rle-swatch" style={{ background: "transparent", borderColor: "transparent", boxShadow: "inset 0 0 0 2px rgba(232,0,28,0.45)" }} />
+                                    Couple (paired)
                                 </span>
                             </Tooltip>
                         </div>

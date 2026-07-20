@@ -35,7 +35,7 @@
 }
 
 .promo-head__title {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
     font-size: clamp(30px, 4vw, 44px);
     font-weight: 700;
     color: #f0e8e8;
@@ -49,8 +49,80 @@
 }
 
 /* ══════════════════════════════════════════
-   FEATURED DEAL — full-width standout banner
+   HERO — single-slide carousel through the
+   newest vouchers, one at a time
 ══════════════════════════════════════════ */
+.promo-hero {
+    position: relative;
+    margin-bottom: 36px;
+}
+
+.promo-hero__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(8, 1, 1, 0.55);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.promo-hero__nav:hover {
+    background: rgba(232, 0, 28, 0.55);
+    border-color: rgba(232, 0, 28, 0.7);
+}
+
+.promo-hero__nav--prev {
+    left: 16px;
+}
+
+.promo-hero__nav--prev svg {
+    transform: rotate(180deg);
+}
+
+.promo-hero__nav--next {
+    right: 16px;
+}
+
+.promo-hero__dots {
+    position: absolute;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    z-index: 2;
+    display: flex;
+    gap: 8px;
+}
+
+.promo-hero__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.35);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.promo-hero__dot:hover {
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.promo-hero__dot--active {
+    background: #E8001C;
+    transform: scale(1.3);
+}
+
 .promo-featured {
     position: relative;
     min-height: 420px;
@@ -60,7 +132,6 @@
     background-position: center;
     background-color: #2a0808;
     border: 3px solid rgba(232, 0, 28, 0.7);
-    margin-bottom: 36px;
     display: flex;
     align-items: flex-end;
 }
@@ -78,7 +149,7 @@
 .promo-featured__content {
     position: relative;
     z-index: 1;
-    padding: 28px 32px 30px;
+    padding: 28px 32px 46px;
     width: 100%;
     max-width: 560px;
 }
@@ -98,7 +169,7 @@
 }
 
 .promo-featured__discount {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
     font-size: clamp(38px, 5vw, 54px);
     font-weight: 700;
     color: #fff;
@@ -260,6 +331,30 @@
     gap: 20px;
 }
 
+.promo-load-more {
+    display: flex;
+    justify-content: center;
+    margin-top: 28px;
+}
+
+.promo-load-more__btn {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
+    color: #f0e8e8;
+    border-radius: 100px;
+    padding: 10px 26px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.promo-load-more__btn:hover {
+    background: rgba(232, 0, 28, 0.1);
+    border-color: rgba(232, 0, 28, 0.4);
+    transform: translateY(-1px);
+}
+
 .promo-card {
     display: flex;
     flex-direction: row;
@@ -325,7 +420,7 @@
     position: absolute;
     left: 16px;
     bottom: 12px;
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
     font-size: 30px;
     font-weight: 700;
     color: #fff;
@@ -366,6 +461,81 @@
 .promo-card__meta-expiring {
     color: #ff8a8a;
     font-weight: 700;
+}
+
+/* ── Rule condition chips ── */
+.promo-card__rules {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.promo-card__rule-chip {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: #c8b0b0;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 100px;
+    padding: 3px 10px;
+    white-space: nowrap;
+}
+
+/* ── Redeem-with-points CTA (loyalty vouchers) ── */
+.promo-card__redeem-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 6px;
+}
+
+.promo-card__redeem-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    align-self: flex-start;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    border-radius: 100px;
+    padding: 4px 11px;
+}
+
+.promo-card__redeem-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, #E8001C, #b50016);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.18s, box-shadow 0.2s;
+}
+
+.promo-card__redeem-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(232, 0, 28, 0.35);
+}
+
+.promo-card__redeem-btn--login {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.promo-card__redeem-btn--login:hover {
+    box-shadow: none;
+    background: rgba(255, 255, 255, 0.09);
 }
 
 .promo-card__progress {
@@ -414,6 +584,10 @@
 }
 
 .promo-card__copy {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
     border: none;
     border-radius: 8px;
     padding: 0 16px;

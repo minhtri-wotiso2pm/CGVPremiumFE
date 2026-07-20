@@ -1,14 +1,6 @@
 import DashboardLayout, { type MenuGroup } from "@/layouts/DashboardLayout/DashboardLayout";
 
 /* ── Icons ── */
-const DashboardIcon = () => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="3" width="7" height="9" />
-        <rect x="14" y="3" width="7" height="5" />
-        <rect x="14" y="12" width="7" height="9" />
-        <rect x="3" y="16" width="7" height="5" />
-    </svg>
-);
 const RoomIcon = () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
@@ -53,10 +45,10 @@ const MANAGER_MENU: MenuGroup[] = [
         title: "Overview",
         items: [
             {
-                key: "dashboard",
-                label: "Dashboard",
-                icon: <DashboardIcon />,
-                path: "/manager/dashboard",
+                key: "reports",
+                label: "Report",
+                icon: <ReportsIcon />,
+                path: "/manager/reports",
             },
         ],
     },
@@ -93,18 +85,6 @@ const MANAGER_MENU: MenuGroup[] = [
                 label: "Showtime Calendar",
                 icon: <CalendarIcon />,
                 path: "/manager/showtime-calendar",
-            },
-        ],
-    },
-    {
-        groupKey: "analytics",
-        title: "Analytics",
-        items: [
-            {
-                key: "reports",
-                label: "Reports",
-                icon: <ReportsIcon />,
-                path: "/manager/reports",
             },
         ],
     },

@@ -9,6 +9,7 @@ import type {
     PersonPhotoUploadResult,
     PersonRef,
     PersonFilmographyItem,
+    PersonMoviesResponse,
 } from "@/features/persons/types/person.types";
 
 /* ── Normalizers (defensive against id/personId naming) ── */
@@ -123,13 +124,33 @@ export const deletePersonApi = async (id: number): Promise<void> => {
     await axiosInstance.delete(`/persons/${id}`);
 };
 
-/* ── Filmography (movies featuring this person) ──
-   TODO(BE): the backend will add a person filter to the movie list endpoint
-   (e.g. GET /api/movie?personId={id}). Until then this returns an empty list
-   and the profile page shows a "coming soon" placeholder. Swap the body for the
-   real request and enable `usePersonMovies` once the param ships. */
-export const getPersonMoviesApi = async (_personId: number): Promise<PersonFilmographyItem[]> => {
-    return [];
+/* ── Filmography — GET /api/persons/{id}/movies?page=&pageSize= (Anonymous) ── */
+const normalizeFilmographyItem = (m: Record<string, unknown>): PersonFilmographyItem => ({
+    movieId: Number(m.movieId ?? 0),
+    title: String(m.title ?? ""),
+    posterUrl: (m.posterUrl ?? null) as string | null,
+    releaseDate: (m.releaseDate ?? null) as string | null,
+    duration: Number(m.duration ?? 0),
+    ageRating: String(m.ageRating ?? "P"),
+    roles: Array.isArray(m.roles) ? (m.roles as unknown[]).map(String) : [],
+});
+
+export const getPersonMoviesApi = async (
+    personId: number,
+    page = 1,
+    pageSize = 12,
+): Promise<PersonMoviesResponse> => {
+    const { data } = await axiosInstance.get(`/persons/${personId}/movies`, {
+        params: { page, pageSize },
+    });
+    return {
+        personId: Number(data?.personId ?? personId),
+        personName: String(data?.personName ?? ""),
+        totalMovies: Number(data?.totalMovies ?? 0),
+        page: Number(data?.page ?? page),
+        pageSize: Number(data?.pageSize ?? pageSize),
+        items: Array.isArray(data?.items) ? data.items.map(normalizeFilmographyItem) : [],
+    };
 };
 
 /* ── POST /api/uploads/person-photo (Admin, multipart) ── */

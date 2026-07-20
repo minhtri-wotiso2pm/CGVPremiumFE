@@ -70,6 +70,17 @@ const LoyaltyTierIcon = () => (
         <path d="M12 2l2.9 6.26L21 9.27l-4.5 4.39L17.8 21 12 17.77 6.2 21l1.3-7.34L3 9.27l6.1-1.01z" />
     </svg>
 );
+const ReviewIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+        <path d="M12 8.5l1.15 2.33 2.6.38-1.88 1.83.44 2.56L12 14.42l-2.31 1.21.44-2.56-1.88-1.83 2.6-.38L12 8.5z" strokeWidth="1.3" />
+    </svg>
+);
+const ReviewSettingsIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="miter">
+        <path d="M12 2L14.35 8.76L21.51 8.91L15.8 13.24L17.88 20.09L12 16L6.12 20.09L8.2 13.24L2.49 8.91L9.65 8.76Z" />
+    </svg>
+);
 const ReportsIcon = () => (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <line x1="18" y1="20" x2="18" y2="10" />
@@ -148,6 +159,18 @@ const ADMIN_MENU: MenuGroup[] = [
                 label: "Loyalty Tiers",
                 icon: <LoyaltyTierIcon />,
                 path: "/admin/loyalty-tiers",
+            },
+            {
+                key: "reviews",
+                label: "Review Moderation",
+                icon: <ReviewIcon />,
+                path: "/admin/reviews",
+            },
+            {
+                key: "review-settings",
+                label: "Review Rewards",
+                icon: <ReviewSettingsIcon />,
+                path: "/admin/review-settings",
             },
         ],
     },

@@ -58,10 +58,17 @@ const GenerateShowtimeWizardInner: FC<InnerProps> = ({ cinemaId, initialShowtime
 
                 <div className="stt-wizard__body">
                     {step === 1 && (
-                        <StepMovieSelect movieId={state.movieId} onSelect={(movieId) => patch({ movieId })} />
+                        <StepMovieSelect
+                            movieId={state.movieId}
+                            onSelect={(movieId) => { patch({ movieId }); goNext(); }}
+                        />
                     )}
                     {step === 2 && (
-                        <StepRoomSelect cinemaId={cinemaId} roomId={state.roomId} onSelect={(roomId) => patch({ roomId })} />
+                        <StepRoomSelect
+                            cinemaId={cinemaId}
+                            roomId={state.roomId}
+                            onSelect={(roomId) => { patch({ roomId }); goNext(); }}
+                        />
                     )}
                     {step === 3 && (
                         <StepTypeAndLocalPreview
@@ -89,7 +96,9 @@ const GenerateShowtimeWizardInner: FC<InnerProps> = ({ cinemaId, initialShowtime
                     <button className="stt-btn stt-btn--ghost" onClick={step === 1 ? onClose : goBack}>
                         {step === 1 ? "Cancel" : "Back"}
                     </button>
-                    {step < 5 && (
+                    {step === 1 || step === 2 ? (
+                        <span className="stt-wizard__hint">Click an option to continue</span>
+                    ) : step < 5 ? (
                         <button
                             className="stt-btn stt-btn--primary"
                             onClick={goNext}
@@ -97,7 +106,7 @@ const GenerateShowtimeWizardInner: FC<InnerProps> = ({ cinemaId, initialShowtime
                         >
                             Next
                         </button>
-                    )}
+                    ) : null}
                 </div>
             </div>
         </div>,

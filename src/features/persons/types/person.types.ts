@@ -71,13 +71,25 @@ export interface PersonDeleteConflict {
     movies: string[];
 }
 
-/** One movie in a person's filmography (shape TBD by BE — kept minimal). */
+/** One movie in a person's filmography (GET /api/persons/{id}/movies). */
 export interface PersonFilmographyItem {
     movieId: number;
     title: string;
     posterUrl?: string | null;
-    status?: string;
-    role?: string; // e.g. "Director" | "Actor"
+    releaseDate?: string | null;
+    duration?: number; // minutes
+    ageRating?: string;
+    roles: string[]; // e.g. ["Director"], ["Actor"], ["Director", "Actor"]
+}
+
+/** Paginated filmography response. */
+export interface PersonMoviesResponse {
+    personId: number;
+    personName: string;
+    totalMovies: number;
+    page: number;
+    pageSize: number;
+    items: PersonFilmographyItem[];
 }
 
 export type PersonModalType = "create" | "edit" | "delete";

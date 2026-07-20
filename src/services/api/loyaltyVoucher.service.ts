@@ -3,7 +3,16 @@ import type {
     RedeemableVoucher,
     MyVoucher,
     RedeemVoucherResult,
+    VoucherRuleDisplay,
 } from "@/features/customer/types/loyaltyVoucher.types";
+
+const normalizeVoucherRules = (raw: unknown): VoucherRuleDisplay[] => {
+    if (!Array.isArray(raw)) return [];
+    return raw.map((r: Record<string, unknown>) => ({
+        ruleType: String(r.ruleType ?? ""),
+        displayText: String(r.displayText ?? ""),
+    }));
+};
 
 const normalizeRedeemable = (v: Record<string, unknown>): RedeemableVoucher => ({
     voucherId: Number(v.voucherId ?? 0),
@@ -16,6 +25,7 @@ const normalizeRedeemable = (v: Record<string, unknown>): RedeemableVoucher => (
     validUntil: String(v.validUntil ?? ""),
     imageUrl: (v.imageUrl ?? null) as string | null,
     description: String(v.description ?? ""),
+    voucherRules: normalizeVoucherRules(v.voucherRules),
 });
 
 export const getRedeemableVouchersApi = async (): Promise<RedeemableVoucher[]> => {
@@ -25,15 +35,14 @@ export const getRedeemableVouchersApi = async (): Promise<RedeemableVoucher[]> =
 };
 
 const normalizeMyVoucher = (v: Record<string, unknown>): MyVoucher => ({
-    userVoucherId: Number(v.userVoucherId ?? 0),
     voucherId: Number(v.voucherId ?? 0),
     voucherCode: String(v.voucherCode ?? ""),
     discountType: String(v.discountType ?? "percent"),
     discountValue: Number(v.discountValue ?? 0),
-    status: String(v.status ?? "available"),
+    quantity: Number(v.quantity ?? 1),
+    voucherRules: normalizeVoucherRules(v.voucherRules),
     redeemedAt: String(v.redeemedAt ?? ""),
     expiredAt: (v.expiredAt ?? null) as string | null,
-    usedAt: (v.usedAt ?? null) as string | null,
     imageUrl: (v.imageUrl ?? null) as string | null,
 });
 

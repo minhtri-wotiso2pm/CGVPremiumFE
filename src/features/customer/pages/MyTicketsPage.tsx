@@ -6,7 +6,11 @@ import { useNavigate } from "react-router-dom";
 import { useMyBookings } from "@/features/booking/hooks/useMyBookings";
 import type { MyBooking } from "@/features/booking/types/ticket.types";
 import { canRequestRefund } from "@/features/booking/utils/refund.utils";
+import { isFnbOnlyBooking } from "@/features/booking/utils/booking.utils";
 import RefundModal, { type RefundBookingInfo } from "@/features/booking/components/RefundModal";
+import ReviewModal, { type ReviewTarget } from "@/features/reviews/components/ReviewModal";
+import { canWriteReview } from "@/features/reviews/utils/reviewFormat";
+import { FilmClapperIcon, FnbBagIcon, CheckCircleIcon } from "@/components/ui/BrandIcons";
 import styles from "./MyTicketsPage.module.css";
 
 const PAGE_SIZE = 10;
@@ -29,10 +33,13 @@ const fmtDateTime = (iso: string): string => {
 const statusStyle = (status: string): { bg: string; color: string; label: string } => {
     const s = status.toLowerCase();
     if (s === "paid") return { bg: "rgba(34,197,94,0.14)", color: "#4ade80", label: "Paid" };
+    if (s === "used") return { bg: "rgba(167,139,250,0.14)", color: "#a78bfa", label: "Attended" };
     if (s === "pending") return { bg: "rgba(245,158,11,0.14)", color: "#fbbf24", label: "Pending" };
     if (s === "refunded") return { bg: "rgba(96,165,250,0.14)", color: "#60a5fa", label: "Refunded" };
     return { bg: "rgba(148,163,184,0.14)", color: "#94a3b8", label: status };
 };
+
+const fmtPoints = (n: number) => n.toLocaleString("en-US");
 
 /* ── Icons ── */
 const SearchIcon: FC = () => (
@@ -48,12 +55,22 @@ const TicketIcon: FC = () => (
     </svg>
 );
 
+const StarIcon: FC<{ filled?: boolean }> = ({ filled }) => (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.6" strokeLinejoin="miter" aria-hidden="true">
+        <path d="M12 2L14.35 8.76L21.51 8.91L15.8 13.24L17.88 20.09L12 16L6.12 20.09L8.2 13.24L2.49 8.91L9.65 8.76Z" />
+    </svg>
+);
+
 /** Simplified list card: poster + the essentials only. Full ticket/QR and
  *  price breakdown now live on the dedicated detail page (one click away)
  *  instead of expanding inline here. */
-const BookingCard: FC<{ booking: MyBooking; onViewDetail: () => void; onRefund: () => void }> = ({ booking, onViewDetail, onRefund }) => {
+const BookingCard: FC<{ booking: MyBooking; onViewDetail: () => void; onRefund: () => void; onReview: () => void }> = ({ booking, onViewDetail, onRefund, onReview }) => {
     const st = statusStyle(booking.status);
     const refundEligible = canRequestRefund(booking.status, booking.startTime);
+    const fnbOnly = isFnbOnlyBooking(booking);
+    const fnbCount = booking.fnbItems.reduce((sum, i) => sum + i.quantity, 0);
+    const reviewEligible = !fnbOnly && canWriteReview(booking);
+    const reviewed = !fnbOnly && booking.hasReviewed;
 
     return (
         <div
@@ -63,32 +80,71 @@ const BookingCard: FC<{ booking: MyBooking; onViewDetail: () => void; onRefund: 
             tabIndex={0}
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onViewDetail(); }}
         >
-            {booking.movie.posterUrl ? (
+            {fnbOnly ? (
+                <div className={`${styles.posterPh} ${styles.posterFnb}`}><FnbBagIcon size={34} /></div>
+            ) : booking.movie.posterUrl ? (
                 <img src={booking.movie.posterUrl} alt={booking.movie.title} className={styles.poster} />
             ) : (
-                <div className={styles.posterPh}>🎬</div>
+                <div className={styles.posterPh}><FilmClapperIcon size={30} /></div>
             )}
 
             <div className={styles.cardBody}>
                 <div className={styles.cardTop}>
-                    <div className={styles.movieTitle}>{booking.movie.title}</div>
+                    <div className={styles.movieTitle}>{fnbOnly ? "Food & Beverage Order" : booking.movie.title}</div>
                     <span className={styles.statusBadge} style={{ background: st.bg, color: st.color }}>
                         {st.label}
                     </span>
                 </div>
 
-                {booking.startTime && (
-                    <div className={styles.meta}>{fmtDateTime(booking.startTime)}</div>
-                )}
-                {(booking.cinemaName || booking.roomName) && (
-                    <div className={styles.metaSub}>
-                        {booking.cinemaName}{booking.cinemaName && booking.roomName ? " · " : ""}{booking.roomName}
+                {fnbOnly ? (
+                    <div className={styles.meta}>
+                        {fnbCount} item{fnbCount === 1 ? "" : "s"} · Collect at the F&amp;B counter
                     </div>
+                ) : (
+                    <>
+                        {booking.startTime && (
+                            <div className={styles.meta}>{fmtDateTime(booking.startTime)}</div>
+                        )}
+                        {(booking.cinemaName || booking.roomName) && (
+                            <div className={styles.metaSub}>
+                                {booking.cinemaName}{booking.cinemaName && booking.roomName ? " · " : ""}{booking.roomName}
+                            </div>
+                        )}
+                    </>
+                )}
+
+                {booking.purchaseReward && booking.purchaseReward.points > 0 && (
+                    booking.purchaseReward.earned ? (
+                        <div className={`${styles.rewardLine} ${styles.rewardLineEarned}`}>
+                            <CheckCircleIcon size={13} /> +{fmtPoints(booking.purchaseReward.points)} pts earned
+                        </div>
+                    ) : (
+                        <div className={styles.rewardLine}>
+                            Earns +{fmtPoints(booking.purchaseReward.points)} pts after check-in
+                        </div>
+                    )
                 )}
 
                 <div className={styles.cardBottom}>
                     <span className={styles.price}>{fmtVnd(booking.finalAmount)}</span>
                     <div className={styles.actions}>
+                        {reviewed && (
+                            <span className={styles.reviewedPill}>
+                                <StarIcon filled /> Reviewed
+                            </span>
+                        )}
+                        {reviewEligible && (
+                            <Button
+                                className={styles.reviewBtn}
+                                icon={<StarIcon />}
+                                onClick={(e) => { e.stopPropagation(); onReview(); }}
+                            >
+                                Write a Review
+                                {booking.reviewReward && booking.reviewReward.points > 0
+                                    ? ` · +${fmtPoints(booking.reviewReward.points)} pts`
+                                    : ""}
+                            </Button>
+                        )}
                         {refundEligible && (
                             <Button
                                 className={styles.refundBtn}
@@ -125,27 +181,33 @@ const MyTicketsPage: FC = () => {
     const navigate = useNavigate();
     const { data: bookings = [], isLoading, isError, refetch } = useMyBookings();
     const [refundTarget, setRefundTarget] = useState<RefundBookingInfo | null>(null);
+    const [reviewTarget, setReviewTarget] = useState<ReviewTarget | null>(null);
     const [search, setSearch] = useState("");
     const [dateFilter, setDateFilter] = useState<Dayjs | null>(null);
+    const [statusFilter, setStatusFilter] = useState<"all" | "upcoming" | "past" | "toReview">("all");
     const [page, setPage] = useState(1);
-
-    // Snapshot once on mount via useState's lazy initializer — the
-    // sanctioned way to do a one-time impure computation; classifying
-    // upcoming/past doesn't need to tick live.
-    const [now] = useState(() => Date.now());
 
     const visible = useMemo(
         () => bookings.filter((b) => !HIDDEN_STATUSES.has(b.status.toLowerCase())),
         [bookings],
     );
 
+    // Upcoming = still-to-be-watched (Paid); everything else (used, no_show,
+    // refunded, pending…) counts as past.
+    const isUpcoming = (b: MyBooking) => b.status.toLowerCase() === "paid";
+
     const stats = useMemo(() => {
         return {
             total: visible.length,
-            upcoming: visible.filter((b) => new Date(b.startTime).getTime() > now).length,
-            past: visible.filter((b) => new Date(b.startTime).getTime() <= now).length,
+            upcoming: visible.filter(isUpcoming).length,
+            past: visible.filter((b) => !isUpcoming(b)).length,
         };
-    }, [visible, now]);
+    }, [visible]);
+
+    const pendingReviews = useMemo(
+        () => visible.filter((b) => !isFnbOnlyBooking(b) && canWriteReview(b)).length,
+        [visible],
+    );
 
     const filtered = useMemo(() => {
         let r = [...visible].sort(
@@ -157,21 +219,25 @@ const MyTicketsPage: FC = () => {
             const target = dateFilter.format("YYYY-MM-DD");
             r = r.filter((b) => dayjs(b.startTime).format("YYYY-MM-DD") === target);
         }
+        if (statusFilter === "upcoming") r = r.filter(isUpcoming);
+        if (statusFilter === "past") r = r.filter((b) => !isUpcoming(b));
+        if (statusFilter === "toReview") r = r.filter((b) => !isFnbOnlyBooking(b) && canWriteReview(b));
         return r;
-    }, [visible, search, dateFilter]);
+    }, [visible, search, dateFilter, statusFilter]);
 
     const paged = useMemo(
         () => filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
         [filtered, page],
     );
 
-    const hasFilters = search.trim() !== "" || dateFilter != null;
+    const hasFilters = search.trim() !== "" || dateFilter != null || statusFilter !== "all";
     const isFilterEmpty = !isLoading && !isError && visible.length > 0 && filtered.length === 0;
     const isEmpty = !isLoading && !isError && visible.length === 0;
 
     const clearFilters = () => {
         setSearch("");
         setDateFilter(null);
+        setStatusFilter("all");
         setPage(1);
     };
 
@@ -205,6 +271,25 @@ const MyTicketsPage: FC = () => {
                 )}
             </div>
 
+            {!isLoading && !isError && pendingReviews > 0 && statusFilter !== "toReview" && (
+                <div className={styles.reviewBanner}>
+                    <span className={styles.reviewBannerIcon}>
+                        <StarIcon filled />
+                    </span>
+                    <span className={styles.reviewBannerText}>
+                        You have <strong>{pendingReviews}</strong> watched movie{pendingReviews === 1 ? "" : "s"} to review.
+                        Share your thoughts and earn loyalty points.
+                    </span>
+                    <button
+                        type="button"
+                        className={styles.reviewBannerBtn}
+                        onClick={() => { setStatusFilter("toReview"); setPage(1); }}
+                    >
+                        Review now
+                    </button>
+                </div>
+            )}
+
             {!isLoading && !isError && visible.length > 0 && (
                 <div className={styles.toolbar}>
                     <Input
@@ -215,8 +300,27 @@ const MyTicketsPage: FC = () => {
                         onChange={(e) => { setSearch(e.target.value); setPage(1); }}
                         allowClear
                     />
+                    <div className={styles.statusFilterGroup}>
+                        {(["all", "upcoming", "past", "toReview"] as const).map((key) => (
+                            <button
+                                key={key}
+                                type="button"
+                                className={`${styles.statusFilterBtn} ${statusFilter === key ? styles.statusFilterBtnActive : ""}`}
+                                onClick={() => { setStatusFilter(key); setPage(1); }}
+                            >
+                                {key === "all" ? "All"
+                                    : key === "upcoming" ? "Upcoming"
+                                    : key === "past" ? "Past"
+                                    : "To Review"}
+                                {key === "toReview" && pendingReviews > 0 && (
+                                    <span className={styles.filterCount}>{pendingReviews}</span>
+                                )}
+                            </button>
+                        ))}
+                    </div>
                     <DatePicker
                         className={styles.datePicker}
+                        classNames={{ popup: { root: styles.datePickerPopup } }}
                         placeholder="Filter by showtime date"
                         value={dateFilter}
                         onChange={(v) => { setDateFilter(v); setPage(1); }}
@@ -271,6 +375,14 @@ const MyTicketsPage: FC = () => {
                                         finalAmount: b.finalAmount,
                                     })
                                 }
+                                onReview={() =>
+                                    setReviewTarget({
+                                        bookingID: b.bookingID,
+                                        movieTitle: b.movie.title,
+                                        posterUrl: b.movie.posterUrl,
+                                        subtitle: b.startTime ? fmtDateTime(b.startTime) : undefined,
+                                    })
+                                }
                             />
                         ))}
                     </div>
@@ -289,6 +401,7 @@ const MyTicketsPage: FC = () => {
             )}
 
             <RefundModal open={refundTarget != null} booking={refundTarget} onClose={() => setRefundTarget(null)} />
+            <ReviewModal open={reviewTarget != null} booking={reviewTarget} onClose={() => setReviewTarget(null)} />
         </div>
     );
 };

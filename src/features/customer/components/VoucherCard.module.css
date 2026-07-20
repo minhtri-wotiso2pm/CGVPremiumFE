@@ -82,6 +82,34 @@
     padding-top: 4px;
 }
 
+.ruleTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.ruleTag {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: #c8b0b0;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 3px 9px;
+    border-radius: 100px;
+    white-space: nowrap;
+}
+
+.quantityBadge {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #f0e8e8;
+    background: rgba(232, 0, 28, 0.12);
+    border: 1px solid rgba(232, 0, 28, 0.3);
+    padding: 2px 8px;
+    border-radius: 100px;
+    flex-shrink: 0;
+}
+
 .footer {
     display: flex;
     align-items: center;
@@ -103,6 +131,9 @@
 }
 
 .needMoreChip {
+    display: flex;
+    align-items: center;
+    gap: 4px;
     font-size: 10.5px;
     font-weight: 600;
     color: #9a7070;
@@ -120,16 +151,6 @@
     border-radius: 8px !important;
     font-size: 12.5px !important;
     font-weight: 700 !important;
-}
-
-.statusBadge {
-    flex-shrink: 0;
-    font-size: 10.5px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 3px 12px;
-    border-radius: 100px;
 }
 
 .copyBtn {

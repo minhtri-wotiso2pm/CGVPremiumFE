@@ -1,6 +1,7 @@
 import { Outlet, ScrollRestoration } from "react-router-dom";
 import PageHeader from "@/components/common/PageHeader/PageHeaderPublic";
 import PageFooter from "@/components/common/PageFooter/PageFooterPublic";
+import ChatWidget from "@/features/aiChat/components/ChatWidget";
 
 export default function CustomerLayout() {
     return (
@@ -11,6 +12,7 @@ export default function CustomerLayout() {
                 <Outlet />
             </main>
             <PageFooter />
+            <ChatWidget />
         </div>
     );
 }

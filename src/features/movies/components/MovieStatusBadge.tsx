@@ -11,6 +11,7 @@ const STATUS_MAP: Record<string, { label: string; cls: string }> = {
 };
 
 const MovieStatusBadge: FC<Props> = ({ status }) => {
+    if (!status) return null;
     const config = STATUS_MAP[status] ?? { label: status, cls: "cgv-badge--default" };
     return (
         <span className={`cgv-badge ${config.cls}`}>

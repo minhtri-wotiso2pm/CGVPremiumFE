@@ -3,6 +3,7 @@ import { Table, Tooltip } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import type { MovieListItem, MovieModalType } from "../types/movie-mgmt.types";
 import { MOVIE_STATUS_LABELS } from "../types/movie-mgmt.types";
+import { FilmClapperIcon } from "@/components/ui/BrandIcons";
 
 interface Props {
     data: MovieListItem[];
@@ -40,9 +41,9 @@ const PosterCell: FC<{ url?: string | null; title: string }> = ({ url, title }) 
             width: 36, height: 50, borderRadius: 4,
             background: "var(--dash-border)",
             display: "flex", alignItems: "center", justifyContent: "center",
-            fontSize: 16,
+            color: "var(--dash-text-3)",
         }}>
-            🎬
+            <FilmClapperIcon size={18} />
         </div>
     )
 );

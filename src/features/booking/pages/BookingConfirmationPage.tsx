@@ -5,6 +5,7 @@ import type { BookingConfirmationNavState, BookingResponse } from "../types/paym
 import { formatPrice } from "../utils/seat.utils";
 import { useMyBookings } from "../hooks/useMyBookings";
 import TicketQrList from "../components/TicketQrList";
+import { FilmClapperIcon } from "@/components/ui/BrandIcons";
 import "../components/payment.css";
 
 /* ── Helpers ──────────────────────────────── */
@@ -158,7 +159,7 @@ const BookingConfirmationPage: FC = () => {
                                     className="cgv-confirm-poster"
                                 />
                             ) : (
-                                <div className="cgv-confirm-poster-ph">🎬</div>
+                                <div className="cgv-confirm-poster-ph"><FilmClapperIcon size={26} /></div>
                             )}
                             <div className="cgv-confirm-movie-info">
                                 <p className="cgv-confirm-movie-title">{booking.movieTitle}</p>
@@ -246,6 +247,9 @@ const BookingConfirmationPage: FC = () => {
                                 </span>
                             </div>
                         </div>
+                        <p style={{ margin: "10px 0 0", fontSize: 11.5, color: "rgba(240,232,232,0.45)" }}>
+                            Điểm thưởng sẽ được cộng sau khi bạn check-in tại rạp.
+                        </p>
                     </div>
 
                     {/* Booking date */}

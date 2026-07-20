@@ -13,7 +13,10 @@ import { SHOWTIME_STATUS_FILTER_OPTIONS } from "../constants/showtime-mgmt.const
 import CalendarDayView from "../components/calendar/CalendarDayView";
 import CalendarWeekView from "../components/calendar/CalendarWeekView";
 import CalendarMonthView from "../components/calendar/CalendarMonthView";
+import CalendarTimeGrid from "../components/calendar/CalendarTimeGrid";
 import ShowtimeDetailModal from "../components/calendar/ShowtimeDetailModal";
+import ShowtimeModal from "../components/ShowtimeModal";
+import DeleteShowtimeModal from "../components/DeleteShowtimeModal";
 import "./showtimeType.css";
 import "./showtimeCalendar.css";
 
@@ -39,6 +42,8 @@ const ShowtimeCalendarPage: FC = () => {
     const [filterRoom, setFilterRoom] = useState<number | null>(null);
     const [filterStatus, setFilterStatus] = useState("");
     const [selected, setSelected] = useState<ManagerShowtime | null>(null);
+    const [editTarget, setEditTarget] = useState<ManagerShowtime | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<ManagerShowtime | null>(null);
     const [moreDay, setMoreDay] = useState<{ date: Dayjs; items: ManagerShowtime[] } | null>(null);
 
     const range = useMemo<[Dayjs, Dayjs]>(() => {
@@ -111,7 +116,7 @@ const ShowtimeCalendarPage: FC = () => {
                                 ]}
                             />
                             <Select
-                                value={filterStatus || "all"}
+                                value={filterStatus || "All"}
                                 onChange={(v) => setFilterStatus(v === "all" ? "" : v)}
                                 style={{ width: 150 }}
                                 options={[...SHOWTIME_STATUS_FILTER_OPTIONS]}
@@ -143,6 +148,11 @@ const ShowtimeCalendarPage: FC = () => {
                             </Tooltip>
                         </div>
                         <span className="cal-nav__label">{rangeLabel}</span>
+                        <div className="cal-legend">
+                            <span className="cal-legend__item"><span className="cal-legend__dot cal-legend__dot--scheduled" />Scheduled</span>
+                            <span className="cal-legend__item"><span className="cal-legend__dot cal-legend__dot--completed" />Completed</span>
+                            <span className="cal-legend__item"><span className="cal-legend__dot cal-legend__dot--cancelled" />Cancelled</span>
+                        </div>
                     </div>
 
                     {isError ? (
@@ -155,9 +165,9 @@ const ShowtimeCalendarPage: FC = () => {
                     ) : (
                         <div className={`dash-card cal-surface${isLoading ? " cal-surface--loading" : ""}`}>
                             {viewMode === "day" && (
-                                <CalendarDayView
-                                    date={anchor}
-                                    items={groupedByDate.get(anchor.format("YYYY-MM-DD")) ?? []}
+                                <CalendarTimeGrid
+                                    days={[anchor]}
+                                    groupedByDate={groupedByDate}
                                     onSelect={setSelected}
                                 />
                             )}
@@ -181,7 +191,29 @@ const ShowtimeCalendarPage: FC = () => {
                 </>
             )}
 
-            <ShowtimeDetailModal showtime={selected} onClose={() => setSelected(null)} />
+            <ShowtimeDetailModal
+                showtime={selected}
+                onClose={() => setSelected(null)}
+                onEdit={(s) => { setSelected(null); setEditTarget(s); }}
+                onDelete={(s) => { setSelected(null); setDeleteTarget(s); }}
+            />
+
+            {cinemaId && (
+                <>
+                    <ShowtimeModal
+                        mode="edit"
+                        showtime={editTarget}
+                        cinemaId={cinemaId}
+                        open={editTarget != null}
+                        onClose={() => setEditTarget(null)}
+                    />
+                    <DeleteShowtimeModal
+                        showtime={deleteTarget}
+                        open={deleteTarget != null}
+                        onClose={() => setDeleteTarget(null)}
+                    />
+                </>
+            )}
 
             {moreDay && createPortal(
                 <div className="stt-modal-overlay" onClick={() => setMoreDay(null)}>

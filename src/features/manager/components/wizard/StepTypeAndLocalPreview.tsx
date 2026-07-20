@@ -5,6 +5,8 @@ import { useShowtimeTypes } from "../../hooks/useShowtimeTypes";
 import { CLEANING_DURATION_MIN } from "../../constants/showtimeType.constants";
 import { computeLocalPreview } from "../../utils/showtimeType.utils";
 
+const PRICE_PRESETS = [45000, 70000, 90000, 120000];
+
 interface Props {
     cinemaId: number;
     movieId: number | null;
@@ -65,6 +67,18 @@ const StepTypeAndLocalPreview: FC<Props> = ({
                     formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                     parser={(v) => Number((v ?? "").replace(/,/g, "")) as 0}
                 />
+                <div className="stt-price-presets">
+                    {PRICE_PRESETS.map((p) => (
+                        <button
+                            type="button"
+                            key={p}
+                            className={`stt-price-preset${basePrice === p ? " stt-price-preset--active" : ""}`}
+                            onClick={() => onBasePriceChange(p)}
+                        >
+                            {p.toLocaleString("vi-VN")} ₫
+                        </button>
+                    ))}
+                </div>
             </div>
 
             {selectedType && movie && (

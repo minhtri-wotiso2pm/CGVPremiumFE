@@ -1,7 +1,6 @@
 import { type FC, useState } from "react";
 import { Button, Select, Table, Empty } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { useNavigate } from "react-router-dom";
 import {
     useNotifications,
     useMarkNotificationRead,
@@ -31,7 +30,6 @@ const TrashIcon = () => (
  *  /staff/notifications); the API is user-scoped via JWT, so no role
  *  branching is needed here. */
 const DashboardNotificationsPage: FC = () => {
-    const navigate = useNavigate();
     const [isReadFilter, setIsReadFilter] = useState("");
     const [typeFilter, setTypeFilter] = useState("");
     const [page, setPage] = useState(1);
@@ -53,9 +51,10 @@ const DashboardNotificationsPage: FC = () => {
     const total = data?.totalItems ?? items.length;
     const hasFilters = isReadFilter !== "" || typeFilter !== "";
 
+    /* Clicking a row only marks it read — dashboard notifications are
+     * informational and intentionally don't navigate anywhere. */
     const handleOpen = (n: NotificationItem) => {
         if (!n.isRead) markRead(n.notificationId);
-        if (n.actionUrl) navigate(n.actionUrl);
     };
 
     const clearFilters = () => {

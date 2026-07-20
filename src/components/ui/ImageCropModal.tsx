@@ -4,6 +4,7 @@ import { UploadOutlined } from "@ant-design/icons";
 import Cropper from "react-easy-crop";
 import type { Area, Point } from "react-easy-crop";
 import { getCroppedBlob } from "@/utils/cropImage";
+import { ImageIcon } from "@/components/ui/BrandIcons";
 import { notify } from "@/utils/notify";
 
 const ACCEPT = ["image/jpeg", "image/png", "image/webp"];
@@ -123,7 +124,7 @@ const ImageCropModal: FC<Props> = ({
                         gap: 10, height: 200, border: "1px dashed var(--dash-border, #d9d9d9)", borderRadius: 10,
                         color: "var(--dash-text-3, #999)", fontSize: 13,
                     }}>
-                        <span style={{ fontSize: 32 }}>🖼️</span>
+                        <ImageIcon size={34} />
                         Choose an image to crop.
                     </div>
                 )}

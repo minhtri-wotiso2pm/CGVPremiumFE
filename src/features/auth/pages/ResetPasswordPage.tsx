@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 import { resetPassword } from "@/services/api/auth.service";
+import { EyeIcon, EyeOffIcon } from "@/components/ui/BrandIcons";
 
 /* ─────────────────────────────────────────────────────────────
    DESIGN TOKENS — CVPremium Design System
@@ -289,7 +290,7 @@ function InvalidTokenCard({ onBack }: { onBack: () => void }) {
             </div>
 
             <h2 style={{
-                fontFamily: "'Playfair Display', Georgia, serif",
+                fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif",
                 fontSize: 20, fontWeight: 700, letterSpacing: "0.04em",
                 color: T.textPrimary, margin: "0 0 12px",
             }}>
@@ -520,7 +521,7 @@ export default function ResetPasswordPage() {
                                     onClick={() => setShowPassword((v) => !v)}
                                     style={toggleBtnStyle}
                                 >
-                                    {showPassword ? "👁" : "👁"}
+                                    {showPassword ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
                                 </button>
                             }
                             belowInput={<StrengthBar score={pwScore} />}
@@ -549,7 +550,7 @@ export default function ResetPasswordPage() {
                                     onClick={() => setShowConfirmPassword((v) => !v)}
                                     style={toggleBtnStyle}
                                 >
-                                    {showConfirmPassword ? "👁" : "👁"}
+                                    {showConfirmPassword ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
                                 </button>
                             }
                         />

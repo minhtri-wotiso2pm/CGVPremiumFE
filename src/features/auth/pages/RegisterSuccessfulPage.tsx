@@ -155,7 +155,7 @@ export default function RegisterSuccessfulPage() {
 
                     {/* Heading */}
                     <h2 style={{
-                        fontFamily: "'Playfair Display', Georgia, serif",
+                        fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif",
                         fontSize: 20, fontWeight: 700, letterSpacing: "0.04em",
                         color: T.textPrimary, margin: "0 0 12px",
                     }}>

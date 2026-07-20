@@ -12,6 +12,7 @@ import type {
 import { useCalculatePricing } from "../hooks/useCalculatePricing";
 import { useCreateBooking } from "../hooks/useCreateBooking";
 import { useInitiatePayment } from "../hooks/useInitiatePayment";
+import { FilmClapperIcon } from "@/components/ui/BrandIcons";
 import { useWallet } from "../hooks/useWallet";
 import { getPaymentStatusApi } from "@/services/api/payment.service";
 import { formatPrice, getSeatLabel } from "../utils/seat.utils";
@@ -387,7 +388,7 @@ const PaymentPage: FC = () => {
                                         className="cgv-pay-review__poster"
                                     />
                                 ) : (
-                                    <div className="cgv-pay-review__poster-ph">🎬</div>
+                                    <div className="cgv-pay-review__poster-ph"><FilmClapperIcon size={24} /></div>
                                 )}
                                 <div className="cgv-pay-review__movie-info">
                                     <p className="cgv-pay-review__movie-title">

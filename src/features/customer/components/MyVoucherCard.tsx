@@ -1,8 +1,9 @@
 import type { FC } from "react";
 import { Button } from "antd";
-import { GiftOutlined } from "@ant-design/icons";
 import type { MyVoucher } from "../types/loyaltyVoucher.types";
 import { notify } from "@/utils/notify";
+import { GiftIcon, CopyIcon } from "@/components/ui/BrandIcons";
+import VoucherRuleTags from "./VoucherRuleTags";
 import styles from "./VoucherCard.module.css";
 
 const fmtDiscount = (discountType: string, discountValue: number): string =>
@@ -19,22 +20,14 @@ const fmtDate = (iso: string | null): string => {
     }
 };
 
-const statusStyle = (status: string): { bg: string; color: string; label: string } => {
-    const s = status.toLowerCase();
-    if (s === "available") return { bg: "rgba(34,197,94,0.14)", color: "#4ade80", label: "Available" };
-    if (s === "used") return { bg: "rgba(148,163,184,0.14)", color: "#94a3b8", label: "Used" };
-    if (s === "expired") return { bg: "rgba(248,113,113,0.14)", color: "#f87171", label: "Expired" };
-    return { bg: "rgba(148,163,184,0.14)", color: "#94a3b8", label: status };
-};
-
 interface Props {
     voucher: MyVoucher;
 }
 
+/** Everything the wallet API returns is, by construction, still usable —
+ *  Used/Expired copies are omitted server-side, so there's no status to
+ *  branch on here anymore, only how many usable copies are held. */
 const MyVoucherCard: FC<Props> = ({ voucher }) => {
-    const st = statusStyle(voucher.status);
-    const isAvailable = voucher.status.toLowerCase() === "available";
-
     const copyCode = () => {
         navigator.clipboard
             .writeText(voucher.voucherCode)
@@ -42,11 +35,11 @@ const MyVoucherCard: FC<Props> = ({ voucher }) => {
     };
 
     return (
-        <div className={`${styles.card} ${!isAvailable ? styles.cardDim : ""}`}>
+        <div className={styles.card}>
             {voucher.imageUrl ? (
                 <img src={voucher.imageUrl} alt={voucher.voucherCode} className={styles.banner} />
             ) : (
-                <div className={styles.bannerPh}><GiftOutlined /></div>
+                <div className={styles.bannerPh}><GiftIcon size={28} /></div>
             )}
 
             <div className={styles.body}>
@@ -54,24 +47,21 @@ const MyVoucherCard: FC<Props> = ({ voucher }) => {
                     <span className={styles.discountHeadline}>
                         {fmtDiscount(voucher.discountType, voucher.discountValue)}
                     </span>
-                    <span className={styles.statusBadge} style={{ background: st.bg, color: st.color }}>
-                        {st.label}
-                    </span>
+                    {voucher.quantity > 1 && (
+                        <span className={styles.quantityBadge}>×{voucher.quantity}</span>
+                    )}
                 </div>
                 <span className={styles.code}>{voucher.voucherCode}</span>
-                <span className={styles.meta}>
-                    {isAvailable && voucher.expiredAt
-                        ? `Expires ${fmtDate(voucher.expiredAt)}`
-                        : voucher.usedAt
-                            ? `Used ${fmtDate(voucher.usedAt)}`
-                            : `Redeemed ${fmtDate(voucher.redeemedAt)}`}
-                </span>
-
-                {isAvailable && (
-                    <div className={styles.footer}>
-                        <Button className={styles.copyBtn} onClick={copyCode}>Copy Code</Button>
-                    </div>
+                <VoucherRuleTags rules={voucher.voucherRules} />
+                {voucher.expiredAt && (
+                    <span className={styles.meta}>Expires {fmtDate(voucher.expiredAt)}</span>
                 )}
+
+                <div className={styles.footer}>
+                    <Button className={styles.copyBtn} onClick={copyCode} icon={<CopyIcon size={14} />}>
+                        Copy Code
+                    </Button>
+                </div>
             </div>
         </div>
     );

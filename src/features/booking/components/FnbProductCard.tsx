@@ -1,13 +1,14 @@
 import type { FC } from "react";
 import type { Product } from "../types/fnb.types";
 import { formatPrice } from "../utils/seat.utils";
+import { FnbBagIcon, BurgerIcon, MealIcon, DrinkCupIcon, JuiceBoxIcon } from "@/components/ui/BrandIcons";
 
-const TYPE_EMOJI: Record<string, string> = {
-    combo: "🍿",
-    snack: "🍔",
-    food:  "🌮",
-    drink: "🥤",
-    beverage: "🧃",
+const TYPE_ICON: Record<string, FC<{ size?: number }>> = {
+    combo: FnbBagIcon,
+    snack: BurgerIcon,
+    food: MealIcon,
+    drink: DrinkCupIcon,
+    beverage: JuiceBoxIcon,
 };
 
 const TYPE_LABEL: Record<string, string> = {
@@ -27,7 +28,7 @@ interface Props {
 
 const FnbProductCard: FC<Props> = ({ product, quantity, onAdd, onRemove }) => {
     const type  = (product.itemType ?? "").toLowerCase();
-    const emoji = TYPE_EMOJI[type] ?? "🎬";
+    const TypeIcon = TYPE_ICON[type] ?? FnbBagIcon;
     const label = TYPE_LABEL[type] ?? product.itemType;
     const isSelected = quantity > 0;
     const maxReached = product.stockQuantity > 0 && quantity >= product.stockQuantity;
@@ -43,7 +44,7 @@ const FnbProductCard: FC<Props> = ({ product, quantity, onAdd, onRemove }) => {
                 />
             ) : (
                 <div className="cgv-fnb-card__placeholder" aria-hidden="true">
-                    {emoji}
+                    <TypeIcon size={40} />
                 </div>
             )}
 

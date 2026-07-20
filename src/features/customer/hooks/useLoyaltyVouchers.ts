@@ -10,19 +10,25 @@ import { notify } from "@/utils/notify";
 export const CUSTOMER_VOUCHERS_REDEEMABLE_KEY = ["customer", "vouchers", "redeemable"] as const;
 export const CUSTOMER_MY_VOUCHERS_KEY = ["customer", "vouchers", "my-vouchers"] as const;
 
-export function useRedeemableVouchers() {
+/** `enabled` defaults to true for the usual always-logged-in call sites —
+ *  pass `false` when the consumer might mount for a guest (e.g. the checkout
+ *  voucher picker, reachable during guest checkout) so no authenticated
+ *  request fires and 401s into the global "session expired" handling. */
+export function useRedeemableVouchers(enabled = true) {
     return useQuery({
         queryKey: CUSTOMER_VOUCHERS_REDEEMABLE_KEY,
         queryFn: getRedeemableVouchersApi,
         staleTime: 60_000,
+        enabled,
     });
 }
 
-export function useMyVouchers() {
+export function useMyVouchers(enabled = true) {
     return useQuery({
         queryKey: CUSTOMER_MY_VOUCHERS_KEY,
         queryFn: getMyVouchersApi,
         staleTime: 30_000,
+        enabled,
     });
 }
 

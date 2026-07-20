@@ -173,6 +173,50 @@
     gap: 20px;
 }
 
+/* ── Filmography loading + Load more ── */
+.pdp-filmo-loading {
+    display: flex;
+    justify-content: center;
+    padding: 48px 0;
+}
+.pdp-spinner {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 3px solid var(--cgv-border);
+    border-top-color: var(--cgv-crimson);
+    animation: pdp-spin 0.7s linear infinite;
+}
+@keyframes pdp-spin {
+    to { transform: rotate(360deg); }
+}
+
+.pdp-loadmore-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 28px;
+}
+.pdp-loadmore {
+    font-family: var(--cgv-font-body);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--cgv-text-primary);
+    background: var(--cgv-surface);
+    border: 1px solid var(--cgv-border);
+    border-radius: 999px;
+    padding: 11px 28px;
+    cursor: pointer;
+    transition: border-color var(--cgv-transition), background var(--cgv-transition), color var(--cgv-transition);
+}
+.pdp-loadmore:hover:not(:disabled) {
+    border-color: var(--cgv-border-hover);
+    color: var(--cgv-crimson);
+}
+.pdp-loadmore:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
 @media (max-width: 720px) {
     .pdp-hero__content { flex-direction: column; align-items: center; text-align: center; gap: 24px; }
     .pdp-meta { justify-content: center; }

@@ -8,6 +8,7 @@ import { useManagerMovieDetail } from "../hooks/useMovieDetail";
 import { useCreateMovie, useUpdateMovie, useUploadMoviePoster } from "../hooks/useMovieMutations";
 import { useGenreList } from "../hooks/useGenreList";
 import PersonSelect from "@/features/persons/components/PersonSelect";
+import { FilmClapperIcon, UploadImageIcon } from "@/components/ui/BrandIcons";
 
 interface FormValues {
     title: string;
@@ -341,7 +342,7 @@ const MovieFormModal: FC<Props> = ({ mode, movieId, open, onClose }) => {
                                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                                 />
                             ) : (
-                                <span style={{ fontSize: 28 }}>🎬</span>
+                                <span style={{ color: "var(--dash-text-3)" }}><FilmClapperIcon size={30} /></span>
                             )}
                         </div>
 
@@ -372,7 +373,7 @@ const MovieFormModal: FC<Props> = ({ mode, movieId, open, onClose }) => {
                                     gap: 6,
                                 }}
                             >
-                                📂 {posterPreview ? "Change Poster" : "Select Image"}
+                                <UploadImageIcon size={15} /> {posterPreview ? "Change Poster" : "Select Image"}
                             </button>
                             {posterFile && (
                                 <p style={{ margin: "6px 0 0", fontSize: 11, color: "var(--dash-text-3)" }}>

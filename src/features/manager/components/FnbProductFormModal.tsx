@@ -8,6 +8,7 @@ import {
     useUpdateFnbProduct,
     useUploadFnbProductImage,
 } from "../hooks/useFnbProductMutations";
+import { FnbBagIcon, UploadImageIcon } from "@/components/ui/BrandIcons";
 
 interface FormValues {
     itemName: string;
@@ -234,7 +235,7 @@ const FnbProductFormModal: FC<Props> = ({ mode, product, open, onClose }) => {
                             background: "var(--dash-border)",
                             display: "flex", alignItems: "center", justifyContent: "center",
                             border: "1px solid var(--dash-border)",
-                            fontSize: 28,
+                            color: "var(--dash-text-3)",
                         }}>
                             {imagePreview ? (
                                 <img
@@ -242,7 +243,7 @@ const FnbProductFormModal: FC<Props> = ({ mode, product, open, onClose }) => {
                                     alt="preview"
                                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                                 />
-                            ) : "🍿"}
+                            ) : <FnbBagIcon size={30} />}
                         </div>
 
                         <div style={{ flex: 1 }}>
@@ -276,7 +277,7 @@ const FnbProductFormModal: FC<Props> = ({ mode, product, open, onClose }) => {
                                     gap: 6,
                                 }}
                             >
-                                📂 {imagePreview ? "Change Image" : "Select Image"}
+                                <UploadImageIcon size={15} /> {imagePreview ? "Change Image" : "Select Image"}
                             </button>
                             {imageFile && (
                                 <button

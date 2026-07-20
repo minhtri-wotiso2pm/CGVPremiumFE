@@ -60,7 +60,7 @@
 }
 
 .abt-section-title {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
     font-size: clamp(28px, 4vw, 44px);
     font-weight: 700;
     color: #f5ecec;
@@ -375,7 +375,7 @@
 }
 
 .abt-stats__num {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
     font-size: clamp(36px, 5vw, 56px);
     font-weight: 700;
     background-image: linear-gradient(135deg, #ff1a1a, #cc0000);
@@ -447,7 +447,7 @@
 }
 
 .abt-exp__title {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
     font-size: 20px;
     font-weight: 700;
     color: #f5ecec;
@@ -511,7 +511,7 @@
 }
 
 .abt-exp-pin__index {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
     font-size: 14px;
     font-weight: 700;
     letter-spacing: 0.2em;
@@ -527,7 +527,7 @@
 }
 
 .abt-exp-pin__title {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
     font-size: clamp(26px, 3.4vw, 36px);
     font-weight: 700;
     color: #f5ecec;
@@ -618,7 +618,7 @@
 
 .abt-timeline__year {
     display: inline-block;
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
     font-size: 15px;
     font-weight: 700;
     color: #ff5a5a;
@@ -756,7 +756,7 @@
 }
 
 .abt-cta__title {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
     font-size: clamp(30px, 4.5vw, 46px);
     font-weight: 700;
     color: #f5ecec;

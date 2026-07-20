@@ -104,7 +104,7 @@
 
 .cgv-st-movie-title {
     margin: 0;
-    font-family: var(--cgv-font-display, 'Playfair Display', Georgia, serif);
+    font-family: var(--cgv-font-display, 'Inter', 'Helvetica Neue', Arial, sans-serif);
     font-size: 16px;
     font-weight: 700;
     color: var(--cgv-text-primary, #f0e8e8);
@@ -420,7 +420,7 @@
 }
 
 .cgv-st-cinema-group__name {
-    font-family: var(--cgv-font-body, 'Playfair Display', Georgia, serif);
+    font-family: var(--cgv-font-body, 'Inter', 'Helvetica Neue', Arial, sans-serif);
     font-size: 16px;
     font-weight: 700;
     color: var(--cgv-text-primary, #f0e8e8);

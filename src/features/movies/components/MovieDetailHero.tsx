@@ -5,6 +5,9 @@ import type { PersonRef } from "@/features/persons/types/person.types";
 import MovieStatusBadge, { AgeBadge } from "./MovieStatusBadge";
 import { formatDuration, formatShowingDate } from "../utils/movie.utils";
 import { useMovieNavigation } from "../hooks/useMovieNavigation";
+import { useMovieRatingSummary } from "@/features/reviews/hooks/useMovieReviews";
+import StarRating from "@/features/reviews/components/StarRating";
+import "@/features/reviews/components/reviews.css";
 import "./movies.css";
 
 const FALLBACK =
@@ -33,6 +36,7 @@ const PeopleLinks: FC<{ people: PersonRef[]; base: string }> = ({ people, base }
 const MovieDetailHero: FC<Props> = ({ movie, onWatchTrailer, onBook, personBase = "" }) => {
     const { goBooking } = useMovieNavigation();
     const handleBook = onBook ?? goBooking;
+    const { data: rating } = useMovieRatingSummary(movie.movieId);
     const poster = movie.posterUrl || FALLBACK;
     const hasDirectors = (movie.directors?.length ?? 0) > 0;
     const hasActors = (movie.actors?.length ?? 0) > 0;
@@ -85,6 +89,15 @@ const MovieDetailHero: FC<Props> = ({ movie, onWatchTrailer, onBook, personBase 
                             </svg>
                             {formatDuration(movie.durationMinutes)}
                         </span>
+                        {rating?.averageRating != null && (
+                            <span className="rv-hero-badge">
+                                <StarRating value={rating.averageRating} size={14} />
+                                <span className="rv-hero-badge__num">{rating.averageRating.toFixed(1)}</span>
+                                <span className="rv-hero-badge__count">
+                                    ({rating.totalReviews})
+                                </span>
+                            </span>
+                        )}
                     </div>
 
                     {/* Meta grid */}

@@ -53,6 +53,40 @@ const SystemIcon: FC<IconProps> = ({ size = 18 }) => (
     </svg>
 );
 
+const AnalyticsIcon: FC<IconProps> = ({ size = 18 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 4v15a1 1 0 0 0 1 1h15" />
+        <rect x="7.5" y="12" width="2.6" height="4.5" rx="0.5" />
+        <rect x="12.7" y="8.5" width="2.6" height="8" rx="0.5" />
+        <rect x="17.9" y="5.5" width="2.6" height="11" rx="0.5" />
+    </svg>
+);
+
+const ReportIcon: FC<IconProps> = ({ size = 18 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 3h8l4 4v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />
+        <path d="M14 3v4h4" />
+        <line x1="8.5" y1="12" x2="15.5" y2="12" />
+        <line x1="8.5" y1="15.5" x2="15.5" y2="15.5" />
+    </svg>
+);
+
+const MovieIcon: FC<IconProps> = ({ size = 18 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <line x1="7.5" y1="4" x2="7.5" y2="20" />
+        <line x1="16.5" y1="4" x2="16.5" y2="20" />
+        <line x1="3" y1="12" x2="21" y2="12" />
+    </svg>
+);
+
+const ShowtimeIcon: FC<IconProps> = ({ size = 18 }) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="9" />
+        <polyline points="12 7 12 12 15.5 14" />
+    </svg>
+);
+
 const ICON_MAP: Record<NotificationType, FC<IconProps>> = {
     booking: BookingIcon,
     payment: PaymentIcon,
@@ -60,6 +94,10 @@ const ICON_MAP: Record<NotificationType, FC<IconProps>> = {
     promotion: PromotionIcon,
     account: AccountIcon,
     system: SystemIcon,
+    analytics: AnalyticsIcon,
+    report: ReportIcon,
+    movie: MovieIcon,
+    showtime: ShowtimeIcon,
 };
 
 interface Props {

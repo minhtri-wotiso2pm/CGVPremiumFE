@@ -84,10 +84,13 @@ const DashboardHeader: FC<Props> = ({ onMenuToggle }) => {
     const unreadCount = unreadData?.count ?? 0;
     const notifItems = notifData?.items ?? [];
 
+    /* Dashboard notifications (Admin/Manager/Staff) are informational only —
+     * clicking just marks the item read and closes the dropdown, it does NOT
+     * navigate anywhere (the BE actionUrls don't map to real dashboard routes,
+     * and jumping away on click was unwanted UX). */
     const handleNotifItemClick = (n: NotificationItem) => {
         if (!n.isRead) markRead(n.notificationId);
         setNotifOpen(false);
-        if (n.actionUrl) navigate(n.actionUrl);
     };
     const handleViewAllNotifications = () => {
         setNotifOpen(false);

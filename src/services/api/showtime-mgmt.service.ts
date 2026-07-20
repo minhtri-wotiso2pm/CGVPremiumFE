@@ -3,6 +3,7 @@ import type {
     ManagerShowtime,
     ShowtimeListResponse,
     GetManagerShowtimesParams,
+    GetShowtimeRangeParams,
     CreateShowtimePayload,
     UpdateShowtimePayload,
 } from "@/features/manager/types/showtime-mgmt.types";
@@ -10,6 +11,7 @@ import type {
 const normalizeShowtime = (s: Record<string, unknown>): ManagerShowtime => {
     const movie = (s.movie ?? {}) as Record<string, unknown>;
     const room = (s.room ?? {}) as Record<string, unknown>;
+    const cinema = (s.cinema ?? null) as Record<string, unknown> | null;
     return {
         showtimeId: Number(s.showtimeId ?? s.showtimeID ?? 0),
         movie: {
@@ -25,11 +27,21 @@ const normalizeShowtime = (s: Record<string, unknown>): ManagerShowtime => {
             roomType: String(room.roomType ?? ""),
             capacity: room.capacity != null ? Number(room.capacity) : undefined,
         },
+        cinema: cinema
+            ? {
+                  cinemaId: Number(cinema.cinemaId ?? cinema.cinemaID ?? 0),
+                  cinemaName: String(cinema.cinemaName ?? ""),
+                  address: cinema.address != null ? String(cinema.address) : undefined,
+              }
+            : undefined,
         startTime: String(s.startTime ?? ""),
         endTime: String(s.endTime ?? ""),
         basePrice: Number(s.basePrice ?? 0),
-        status: String(s.status ?? "scheduled"),
+        // API may return UPPERCASE (SCHEDULED/COMPLETED) — normalize so the
+        // lowercase badge/color maps across the app match consistently.
+        status: String(s.status ?? "scheduled").toLowerCase(),
         isSoldOut: Boolean(s.isSoldOut),
+        isActive: s.isActive != null ? Boolean(s.isActive) : undefined,
     };
 };
 
@@ -47,6 +59,17 @@ export const getManagerShowtimesApi = async (
         totalItems: Number(data?.totalItems ?? rawItems.length),
         totalPages: Number(data?.totalPages ?? 1),
     };
+};
+
+/** One batched request for a calendar window (replaces N per-day calls). */
+export const getShowtimesRangeApi = async (
+    params: GetShowtimeRangeParams,
+): Promise<ManagerShowtime[]> => {
+    const { data } = await axiosInstance.get("/showtimes/range", { params });
+    const rawItems: Record<string, unknown>[] = Array.isArray(data)
+        ? data
+        : (data?.items ?? []);
+    return rawItems.map(normalizeShowtime);
 };
 
 export const createShowtimeApi = async (payload: CreateShowtimePayload): Promise<ManagerShowtime> => {

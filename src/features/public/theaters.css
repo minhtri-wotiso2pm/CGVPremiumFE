@@ -40,7 +40,7 @@
 }
 
 .thtr-head__title {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
     font-size: clamp(30px, 4vw, 44px);
     font-weight: 700;
     color: #f0e8e8;

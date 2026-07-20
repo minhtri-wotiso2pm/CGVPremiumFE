@@ -78,7 +78,7 @@
 
 .cgv-seats-info-title {
     margin: 0;
-    font-family: var(--cgv-font-display, "Playfair Display", serif);
+    font-family: var(--cgv-font-display, 'Inter', 'Helvetica Neue', Arial, sans-serif);
     font-size: 17px;
     font-weight: 700;
     color: var(--cgv-text-primary, #f0e8e8);

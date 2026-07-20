@@ -43,6 +43,20 @@ export interface MyBookingMovie {
     durationMinutes: number;
 }
 
+/** Whether this booking's loyalty points have posted yet — only true once
+ *  Booking.Status becomes "Used" (i.e. after check-in, not just payment). */
+export interface PurchaseReward {
+    earned: boolean;
+    points: number;
+}
+
+/** Whether this booking can be reviewed yet, and whether it already was. */
+export interface ReviewReward {
+    eligible: boolean;
+    earned: boolean;
+    points: number;
+}
+
 export interface MyBooking {
     bookingID: number;
     bookingCode: string;
@@ -62,4 +76,10 @@ export interface MyBooking {
     seats: MyBookingSeat[];
     fnbItems: MyBookingFnbItem[];
     voucherApplied: MyBookingVoucher | null;
+    /** Whether this booking has already been reviewed by the customer. */
+    hasReviewed: boolean;
+    /** The review id if already reviewed, else null. */
+    reviewId: number | null;
+    purchaseReward: PurchaseReward | null;
+    reviewReward: ReviewReward | null;
 }

@@ -1,11 +1,13 @@
-import { type FC, useMemo, useState } from "react";
+import { type FC, useEffect, useMemo, useRef, useState } from "react";
 import { Button, DatePicker, Select, Table, Tag, Tooltip } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import dayjs, { type Dayjs } from "dayjs";
 import { useAppSelector } from "@/store/hooks";
 import { useProfile } from "@/features/customer/hooks/useProfile";
 import { useManagerShowtimes } from "../hooks/useManagerShowtimes";
+import { useMovieList } from "../hooks/useMovieList";
 import type { ManagerShowtime, ShowtimeModalType } from "../types/showtime-mgmt.types";
+import { MOVIE_STATUS_META } from "../types/movie-mgmt.types";
 import {
     SHOWTIME_PAGE_SIZE,
     SHOWTIME_STATUS_FILTER_OPTIONS,
@@ -73,6 +75,31 @@ const fmtDate = (iso: string) => (iso ? dayjs(iso.slice(0, 19)).format("DD/MM/YY
 const fmtTime = (iso: string) => (iso ? dayjs(iso.slice(0, 19)).format("HH:mm") : "");
 const fmtVnd = (n: number) => `${n.toLocaleString("vi-VN")} ₫`;
 
+const MovieStatusDot: FC<{ status?: string }> = ({ status }) => {
+    const meta = MOVIE_STATUS_META[status ?? ""] ?? null;
+    if (!meta) return null;
+    return (
+        <span
+            title={meta.label}
+            style={{
+                display: "inline-flex", alignItems: "center", gap: 4,
+                fontSize: 10.5, fontWeight: 700, padding: "1px 7px",
+                borderRadius: 100, background: meta.bg, color: meta.color, whiteSpace: "nowrap",
+            }}
+        >
+            <span style={{ width: 5, height: 5, borderRadius: "50%", background: meta.color }} />
+            {meta.label}
+        </span>
+    );
+};
+
+const CalendarEmptyIcon = () => (
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" />
+        <line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+);
+
 const ShowtimeManagementPage: FC = () => {
     useProfile();
     const user = useAppSelector((s) => s.auth.user);
@@ -84,6 +111,8 @@ const ShowtimeManagementPage: FC = () => {
     const [modalType, setModalType] = useState<ShowtimeModalType | null>(null);
     const [selected, setSelected] = useState<ManagerShowtime | null>(null);
     const [wizardOpen, setWizardOpen] = useState(false);
+    const [justCreatedId, setJustCreatedId] = useState<number | null>(null);
+    const highlightTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const params = useMemo(
         () => ({
@@ -92,16 +121,42 @@ const ShowtimeManagementPage: FC = () => {
             status: status || undefined,
             page,
             pageSize: SHOWTIME_PAGE_SIZE,
-            sortBy: "startTime",
-            sortDir: "asc",
+            // Newest-created first (higher showtimeId ≈ more recent). If the
+            // backend ignores this sort field we still re-sort the page below.
+            sortBy: "id",
+            sortDir: "desc",
         }),
         [cinemaId, date, status, page],
     );
 
     const { data, isLoading, isError, refetch, isFetching } = useManagerShowtimes(params, cinemaId != null);
 
-    const items = data?.items ?? [];
+    // Client-side guarantee: newest showtimeId on top even if the server
+    // returns the page in another order.
+    const items = useMemo(
+        () => [...(data?.items ?? [])].sort((a, b) => b.showtimeId - a.showtimeId),
+        [data],
+    );
     const total = data?.totalItems ?? items.length;
+
+    // Movie status lookup (the showtime payload doesn't carry it).
+    const { data: movieData } = useMovieList();
+    const movieStatusMap = useMemo(() => {
+        const map = new Map<number, string>();
+        (movieData?.items ?? []).forEach((m) => map.set(m.movieId, m.status));
+        return map;
+    }, [movieData]);
+
+    const handleCreated = (created: ManagerShowtime) => {
+        setJustCreatedId(created.showtimeId);
+        setDate(null);
+        setStatus("");
+        setPage(1);
+        if (highlightTimer.current) clearTimeout(highlightTimer.current);
+        highlightTimer.current = setTimeout(() => setJustCreatedId(null), 3000);
+    };
+
+    useEffect(() => () => { if (highlightTimer.current) clearTimeout(highlightTimer.current); }, []);
 
     // Dedicated unfiltered/unpaginated fetch so the summary pills reflect
     // all of this cinema's showtimes, not just the current date/status filter page.
@@ -145,8 +200,11 @@ const ShowtimeManagementPage: FC = () => {
                     ) : (
                         <div style={{ width: 32, height: 46, borderRadius: 4, flexShrink: 0, background: "var(--dash-border)" }} />
                     )}
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                        <span style={{ fontWeight: 600, fontSize: 13, color: "var(--dash-text-1)" }}>{r.movie.title}</span>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 3, minWidth: 0 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                            <span style={{ fontWeight: 600, fontSize: 13, color: "var(--dash-text-1)" }}>{r.movie.title}</span>
+                            <MovieStatusDot status={movieStatusMap.get(r.movie.movieId)} />
+                        </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
                             {r.movie.ageRating && (
                                 <span style={{ fontSize: 11, color: "var(--dash-text-3)" }}>{r.movie.ageRating}</span>
@@ -310,6 +368,25 @@ const ShowtimeManagementPage: FC = () => {
                                 rowKey="showtimeId"
                                 loading={isLoading || isFetching}
                                 onChange={(p) => setPage(p.current ?? 1)}
+                                rowClassName={(r) => (r.showtimeId === justCreatedId ? "stt-row-highlight" : "")}
+                                locale={{
+                                    emptyText: (
+                                        <div style={{ padding: "40px 16px", textAlign: "center", color: "var(--dash-text-3)" }}>
+                                            <div style={{ color: "var(--dash-text-3)", marginBottom: 10, display: "flex", justifyContent: "center" }}>
+                                                <CalendarEmptyIcon />
+                                            </div>
+                                            <p style={{ margin: "0 0 4px", fontSize: 14, fontWeight: 600, color: "var(--dash-text-1)" }}>
+                                                No showtimes yet
+                                            </p>
+                                            <p style={{ margin: "0 0 14px", fontSize: 13 }}>
+                                                {date || status ? "Try clearing the filters." : "Add a showtime or generate a batch from a type."}
+                                            </p>
+                                            <Button type="primary" icon={<PlusIcon />} onClick={() => openModal("create")} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                                                Add Showtime
+                                            </Button>
+                                        </div>
+                                    ),
+                                }}
                                 pagination={{
                                     current: page,
                                     pageSize: SHOWTIME_PAGE_SIZE,
@@ -334,6 +411,7 @@ const ShowtimeManagementPage: FC = () => {
                         cinemaId={cinemaId}
                         open={modalType === "create" || modalType === "edit"}
                         onClose={closeModal}
+                        onCreated={handleCreated}
                     />
                     <DeleteShowtimeModal showtime={selected} open={modalType === "delete"} onClose={closeModal} />
                     <GenerateShowtimeWizard

@@ -3,9 +3,11 @@ export const ROUTES = {
     LOGIN: "/login",
     REGISTER: "/register",
     FORBIDDEN: "/403",
+    CHAT: "/chat",
 
     CUSTOMER: {
         DASHBOARD: "/customer/dashboard",
+        CHAT: "/customer/chat",
     },
 
     STAFF: {
@@ -13,7 +15,7 @@ export const ROUTES = {
     },
 
     MANAGER: {
-        DASHBOARD: "/manager/dashboard",
+        DASHBOARD: "/manager/reports",
     },
 
     ADMIN: {

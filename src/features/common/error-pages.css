@@ -25,7 +25,7 @@
     --ep-radius-sm: 6px;
     --ep-radius-md: 10px;
     --ep-radius-card: 16px;
-    --ep-font-display: 'Playfair Display', Georgia, serif;
+    --ep-font-display: 'Inter', 'Helvetica Neue', Arial, sans-serif;
     --ep-font-body: 'Inter', 'Helvetica Neue', Arial, sans-serif;
     --ep-transition: 0.26s cubic-bezier(0.22, 1, 0.36, 1);
 }

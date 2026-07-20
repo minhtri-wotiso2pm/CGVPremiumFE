@@ -37,6 +37,10 @@ export const NOTIFICATION_TYPE_LABEL: Record<NotificationType, string> = {
     promotion: "Promotion",
     account: "Account",
     system: "System",
+    analytics: "Analytics",
+    report: "Report",
+    movie: "Movie",
+    showtime: "Showtime",
 };
 
 /** Dashboard (light theme) icon-chip colors per type — same visual
@@ -49,6 +53,10 @@ export const NOTIFICATION_TYPE_COLOR: Record<NotificationType, { bg: string; col
     promotion: { bg: "rgba(234,179,8,0.12)",  color: "#ca8a04" },
     account:   { bg: "rgba(148,163,184,0.14)", color: "#64748b" },
     system:    { bg: "rgba(148,163,184,0.14)", color: "#64748b" },
+    analytics: { bg: "rgba(139,92,246,0.12)", color: "#7c3aed" },
+    report:    { bg: "rgba(20,184,166,0.12)", color: "#0d9488" },
+    movie:     { bg: "rgba(236,72,153,0.12)", color: "#db2777" },
+    showtime:  { bg: "rgba(249,115,22,0.12)", color: "#ea580c" },
 };
 
 /** Customer (dark theme) icon-chip colors per type — brighter/more
@@ -60,6 +68,10 @@ export const NOTIFICATION_TYPE_COLOR_DARK: Record<NotificationType, { bg: string
     promotion: { bg: "rgba(234,179,8,0.14)",  color: "#fbbf24" },
     account:   { bg: "rgba(148,163,184,0.14)", color: "#94a3b8" },
     system:    { bg: "rgba(148,163,184,0.14)", color: "#94a3b8" },
+    analytics: { bg: "rgba(139,92,246,0.16)", color: "#c4b5fd" },
+    report:    { bg: "rgba(20,184,166,0.16)", color: "#5eead4" },
+    movie:     { bg: "rgba(236,72,153,0.16)", color: "#f9a8d4" },
+    showtime:  { bg: "rgba(249,115,22,0.16)", color: "#fdba74" },
 };
 
 /** Where clicking a customer-facing notification should navigate.

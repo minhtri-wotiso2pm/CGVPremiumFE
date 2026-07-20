@@ -209,7 +209,9 @@ const NotifDropdown: FC<NotifDropdownProps> = ({ notifications, unreadCount, isL
                     You're all caught up — no notifications yet.
                 </div>
             ) : (
-                notifications.map((n) => (
+                notifications.map((n) => {
+                    const chip = NOTIFICATION_TYPE_COLOR_DARK[n.type] ?? NOTIFICATION_TYPE_COLOR_DARK.system;
+                    return (
                     <div key={n.notificationId} style={{
                         padding: "12px 16px",
                         borderBottom: `1px solid ${H.border}`,
@@ -231,8 +233,8 @@ const NotifDropdown: FC<NotifDropdownProps> = ({ notifications, unreadCount, isL
                         <span style={{
                             width: 34, height: 34, borderRadius: 10, flexShrink: 0,
                             display: "flex", alignItems: "center", justifyContent: "center",
-                            background: NOTIFICATION_TYPE_COLOR_DARK[n.type].bg,
-                            color: NOTIFICATION_TYPE_COLOR_DARK[n.type].color,
+                            background: chip.bg,
+                            color: chip.color,
                         }}>
                             <NotificationTypeIcon type={n.type} size={17} />
                         </span>
@@ -263,7 +265,8 @@ const NotifDropdown: FC<NotifDropdownProps> = ({ notifications, unreadCount, isL
                             }} />
                         )}
                     </div>
-                ))
+                    );
+                })
             )}
 
             {/* Footer */}

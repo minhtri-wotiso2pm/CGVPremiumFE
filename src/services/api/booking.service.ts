@@ -5,7 +5,7 @@ import type {
     CreateBookingRequest,
     BookingResponse,
 } from "@/features/booking/types/payment.types";
-import type { MyBooking } from "@/features/booking/types/ticket.types";
+import type { MyBooking, PurchaseReward, ReviewReward } from "@/features/booking/types/ticket.types";
 import type { BookingLookupResponse } from "@/features/staff/types/fnbPickup.types";
 
 export const calculatePricingApi = async (payload: PricingRequest): Promise<PricingResponse> => {
@@ -29,6 +29,18 @@ export const lookupBookingApi = async (bookingCode: string): Promise<BookingLook
     return data;
 };
 
+const normalizePurchaseReward = (raw: unknown): PurchaseReward | null => {
+    if (raw == null || typeof raw !== "object") return null;
+    const r = raw as Record<string, unknown>;
+    return { earned: Boolean(r.earned), points: Number(r.points ?? 0) };
+};
+
+const normalizeReviewReward = (raw: unknown): ReviewReward | null => {
+    if (raw == null || typeof raw !== "object") return null;
+    const r = raw as Record<string, unknown>;
+    return { eligible: Boolean(r.eligible), earned: Boolean(r.earned), points: Number(r.points ?? 0) };
+};
+
 export const getMyBookingsApi = async (): Promise<MyBooking[]> => {
     const { data } = await axiosInstance.get("/bookings/my");
     const list: Record<string, unknown>[] = Array.isArray(data) ? data : (data?.items ?? []);
@@ -42,6 +54,10 @@ export const getMyBookingsApi = async (): Promise<MyBooking[]> => {
                 ageRating: String(rawMovie.ageRating ?? ""),
                 durationMinutes: Number(rawMovie.durationMinutes ?? 0),
             },
+            hasReviewed: Boolean(b.hasReviewed),
+            reviewId: b.reviewId == null ? null : Number(b.reviewId),
+            purchaseReward: normalizePurchaseReward(b.purchaseReward),
+            reviewReward: normalizeReviewReward(b.reviewReward),
         };
     });
 };

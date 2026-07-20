@@ -1,4 +1,19 @@
-export type NotificationType = "system" | "promotion" | "refund" | "payment" | "booking" | "account";
+/** Mirrors the backend CK_Notification_Type check constraint — all 10
+ *  values it can emit. Customer-facing events use booking/payment/refund/
+ *  promotion/account/system; Manager/Admin/Staff dashboard events add
+ *  analytics/report/movie/showtime. Every value below must have a matching
+ *  entry in the color/label/icon maps (the Record<> types enforce this). */
+export type NotificationType =
+    | "system"
+    | "promotion"
+    | "refund"
+    | "payment"
+    | "booking"
+    | "account"
+    | "analytics"
+    | "report"
+    | "movie"
+    | "showtime";
 
 /** One row from GET /api/notifications. */
 export interface NotificationItem {

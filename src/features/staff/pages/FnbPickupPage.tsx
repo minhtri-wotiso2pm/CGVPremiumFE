@@ -1,15 +1,26 @@
 import { useRef, useState } from "react";
-import { Alert, Button, Input, Skeleton } from "antd";
+import { Alert, Button, Collapse, Input, Skeleton, Table } from "antd";
 import type { InputRef } from "antd";
+import type { ColumnsType } from "antd/es/table";
+import dayjs from "dayjs";
+import { useAppSelector } from "@/store/hooks";
 import QrScanner from "../components/QrScanner";
-import { useBookingLookup, useConfirmFnbPickup } from "../hooks/useFnbPickup";
+import { useBookingLookup, useConfirmFnbPickup, useFnbPickupHistory } from "../hooks/useFnbPickup";
 import { getCheckInErrorInfo } from "../hooks/useCheckIn";
-import type { BookingLookupResult } from "../types/fnbPickup.types";
+import type {
+    BookingLookupResult,
+    FnbPickupHistoryItem,
+    FnbPickupHistoryRecord,
+} from "../types/fnbPickup.types";
 import styles from "./FnbPickupPage.module.css";
 
 const { Search } = Input;
 
 const fmtVnd = (n: number) => `${n.toLocaleString("vi-VN")} ₫`;
+const fmtDateTime = (iso: string | null | undefined) =>
+    iso ? dayjs(iso).format("DD/MM/YYYY HH:mm") : "—";
+
+const HISTORY_PAGE_SIZE = 10;
 
 const initials = (name: string) =>
     name
@@ -46,6 +57,7 @@ const SuccessCheckIcon = () => (
 const isPaid = (status: string) => /paid|completed|success/i.test(status);
 
 export default function FnbPickupPage() {
+    const user = useAppSelector((state) => state.auth.user);
     const searchRef = useRef<InputRef>(null);
 
     const [codeInput, setCodeInput] = useState("");
@@ -54,9 +66,19 @@ export default function FnbPickupPage() {
     const [actionError, setActionError] = useState<{ message: string; kind: "network" | "business" } | null>(null);
     const [result, setResult] = useState<BookingLookupResult | null>(null);
     const [justConfirmed, setJustConfirmed] = useState(false);
+    const [page, setPage] = useState(1);
 
     const lookupMutation = useBookingLookup();
     const confirmMutation = useConfirmFnbPickup();
+
+    const staffId = user?.userID ?? 0;
+    const cinemaId = user?.cinema?.cinemaId ?? 0;
+    const historyQuery = useFnbPickupHistory({
+        staffId,
+        cinemaId,
+        page,
+        pageSize: HISTORY_PAGE_SIZE,
+    });
 
     const resetForNext = () => {
         setCodeInput("");
@@ -116,6 +138,49 @@ export default function FnbPickupPage() {
     const allPickedUp = result ? result.fnbItems.every((i) => i.pickedUp) : false;
     const notPaid = result ? !isPaid(result.paymentStatus) : false;
 
+    const itemDetailColumns: ColumnsType<FnbPickupHistoryItem> = [
+        {
+            title: "Item",
+            dataIndex: "itemName",
+            key: "itemName",
+            render: (v: string) => <span style={{ fontWeight: 600, color: "var(--dash-text-1)" }}>{v}</span>,
+        },
+        { title: "Qty", dataIndex: "quantity", key: "quantity", width: 70 },
+        { title: "Unit price", dataIndex: "unitPrice", key: "unitPrice", render: fmtVnd },
+        { title: "Subtotal", dataIndex: "subTotal", key: "subTotal", render: fmtVnd },
+    ];
+
+    const historyColumns: ColumnsType<FnbPickupHistoryRecord> = [
+        {
+            title: "Booking",
+            dataIndex: "bookingCode",
+            key: "bookingCode",
+            render: (v: string) => <span style={{ fontWeight: 600, color: "var(--dash-text-1)" }}>{v}</span>,
+        },
+        { title: "Customer", dataIndex: "customerName", key: "customerName" },
+        { title: "Cinema", dataIndex: "cinemaName", key: "cinemaName", responsive: ["lg"] },
+        {
+            title: "Picked up at",
+            dataIndex: "pickedUpAt",
+            key: "pickedUpAt",
+            render: fmtDateTime,
+        },
+        { title: "Staff", dataIndex: "staffName", key: "staffName", responsive: ["md"] },
+        {
+            title: "Items",
+            key: "itemCount",
+            width: 80,
+            render: (_, r) => r.items.reduce((sum, i) => sum + i.quantity, 0),
+        },
+        {
+            title: "Total",
+            dataIndex: "totalAmount",
+            key: "totalAmount",
+            render: fmtVnd,
+            responsive: ["md"],
+        },
+    ];
+
     return (
         <div className="dash-fade-in">
             <div className="dash-page-header">
@@ -156,9 +221,10 @@ export default function FnbPickupPage() {
                             active={scanning}
                             onScan={handleScan}
                             onError={(m) => setLookupError({ message: m, kind: "business" })}
+                            qrbox={{ width: 300, height: 110 }}
                         />
                         <p className={styles.scannerHint}>
-                            Point the camera at the booking code on the customer's receipt or app.
+                            Line up the horizontal booking <strong>barcode</strong> on the customer's receipt or app inside the frame.
                         </p>
                     </div>
                 )}
@@ -204,7 +270,15 @@ export default function FnbPickupPage() {
 
                     <div className={styles.resultHead}>
                         <div className={styles.customer}>
-                            <div className={styles.avatar}>{initials(result.customerName)}</div>
+                            {result.customerAvatarURL ? (
+                                <img
+                                    className={styles.avatarImg}
+                                    src={result.customerAvatarURL}
+                                    alt={result.customerName || "Customer"}
+                                />
+                            ) : (
+                                <div className={styles.avatar}>{initials(result.customerName)}</div>
+                            )}
                             <div>
                                 <div className={styles.customerName}>{result.customerName || "Guest"}</div>
                                 <div className={styles.customerMeta}>
@@ -239,6 +313,13 @@ export default function FnbPickupPage() {
                                 key={item.itemId}
                                 className={`${styles.item} ${item.pickedUp ? styles.itemPicked : ""}`}
                             >
+                                {item.imageURL ? (
+                                    <img className={styles.itemThumb} src={item.imageURL} alt="" />
+                                ) : (
+                                    <span className={styles.itemThumbFallback} aria-hidden="true">
+                                        <BagLargeIcon />
+                                    </span>
+                                )}
                                 <span className={styles.qtyPill}>×{item.quantity}</span>
                                 <span className={`${styles.itemName} ${item.pickedUp ? styles.itemNamePicked : ""}`}>
                                     {item.itemName}
@@ -286,6 +367,47 @@ export default function FnbPickupPage() {
                     </div>
                 </div>
             )}
+
+            <Collapse
+                defaultActiveKey={[]}
+                items={[
+                    {
+                        key: "history",
+                        label: (
+                            <span style={{ fontSize: 15, fontWeight: 600, color: "var(--dash-text-1)" }}>
+                                Pickup history
+                            </span>
+                        ),
+                        children: (
+                            <Table
+                                rowKey="bookingId"
+                                columns={historyColumns}
+                                dataSource={historyQuery.data?.data.records ?? []}
+                                loading={historyQuery.isLoading}
+                                expandable={{
+                                    expandedRowRender: (record) => (
+                                        <Table
+                                            rowKey="itemId"
+                                            columns={itemDetailColumns}
+                                            dataSource={record.items}
+                                            pagination={false}
+                                            size="small"
+                                        />
+                                    ),
+                                    rowExpandable: (record) => record.items.length > 0,
+                                }}
+                                pagination={{
+                                    current: page,
+                                    pageSize: HISTORY_PAGE_SIZE,
+                                    total: historyQuery.data?.data.totalCount ?? 0,
+                                    onChange: setPage,
+                                    showSizeChanger: false,
+                                }}
+                            />
+                        ),
+                    },
+                ]}
+            />
         </div>
     );
 }

@@ -1,4 +1,4 @@
-.title { color: #f0e8e8; font-size: 16px; font-weight: 700; font-family: 'Playfair Display', serif; }
+.title { color: #f0e8e8; font-size: 16px; font-weight: 700; font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; }
 
 .body { display: flex; flex-direction: column; gap: 16px; padding-top: 8px; }
 
@@ -26,7 +26,7 @@
 .balanceCell { display: flex; flex-direction: column; align-items: center; gap: 4px; }
 .balanceLabel { font-size: 11px; color: #6b4a4a; text-transform: uppercase; letter-spacing: 0.06em; }
 .balanceValue { font-size: 18px; font-weight: 700; color: #f0e8e8; font-variant-numeric: tabular-nums; }
-.arrow { color: #5a4040; font-size: 18px; }
+.arrow { display: flex; align-items: center; color: #5a4040; }
 
 .errorBanner {
     padding: 10px 14px;

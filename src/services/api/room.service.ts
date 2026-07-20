@@ -39,9 +39,17 @@ export const createRoomApi = async (payload: CreateRoomPayload): Promise<Room> =
     return normalizeRoom(data);
 };
 
-export const updateRoomApi = async (roomId: number, payload: UpdateRoomPayload): Promise<Room> => {
+export interface UpdateRoomResult {
+    room: Room;
+    /** Message from the backend response, surfaced to the user as-is (e.g. the
+     *  reason a room could/couldn't be set inactive). Null when absent. */
+    message: string | null;
+}
+
+export const updateRoomApi = async (roomId: number, payload: UpdateRoomPayload): Promise<UpdateRoomResult> => {
     const { data } = await axiosInstance.put(`/rooms/${roomId}`, payload);
-    return normalizeRoom(data);
+    const message = typeof data?.message === "string" ? data.message : null;
+    return { room: normalizeRoom(data?.room ?? data), message };
 };
 
 export const deleteRoomApi = async (roomId: number): Promise<void> => {

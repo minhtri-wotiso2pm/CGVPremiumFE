@@ -88,7 +88,7 @@ const RefundModal: FC<Props> = ({ open, booking, onClose }) => {
 
                     <div className={styles.warning}>
                         The full amount will be refunded to your wallet. This action cannot be undone, and refunds are
-                        only accepted more than 30 minutes before the showtime starts.
+                        only accepted more than 30 minutes before the showtime starts and before you've checked in.
                     </div>
 
                     <div className={styles.footer}>

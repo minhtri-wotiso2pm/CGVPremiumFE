@@ -5,6 +5,7 @@ import { useFnbProducts } from "../hooks/useFnbProducts";
 import { setActiveSeatHold } from "../utils/activeSeatHold";
 import { formatPrice, getSeatLabel } from "../utils/seat.utils";
 import FnbProductCard from "../components/FnbProductCard";
+import { FilmClapperIcon } from "@/components/ui/BrandIcons";
 import "../components/fnb.css";
 
 /* ── Helpers ──────────────────────────────── */
@@ -321,7 +322,7 @@ const FnbPage: FC = () => {
                                         className="cgv-fnb-summary__poster"
                                     />
                                 ) : (
-                                    <div className="cgv-fnb-summary__poster-ph">🎬</div>
+                                    <div className="cgv-fnb-summary__poster-ph"><FilmClapperIcon size={22} /></div>
                                 )}
                                 <div className="cgv-fnb-summary__movie-info">
                                     <p className="cgv-fnb-summary__movie-title">

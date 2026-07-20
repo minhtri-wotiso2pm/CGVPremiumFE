@@ -31,7 +31,9 @@ const DashboardNotifDropdown: FC<Props> = ({ notifications, unreadCount, isLoadi
             ) : notifications.length === 0 ? (
                 <div className="dash-notif-dropdown__empty">You're all caught up — no notifications yet.</div>
             ) : (
-                notifications.map((n) => (
+                notifications.map((n) => {
+                    const chip = NOTIFICATION_TYPE_COLOR[n.type] ?? NOTIFICATION_TYPE_COLOR.system;
+                    return (
                     <div
                         key={n.notificationId}
                         className={`dash-notif-dropdown__item${!n.isRead ? " dash-notif-dropdown__item--unread" : ""}`}
@@ -42,8 +44,8 @@ const DashboardNotifDropdown: FC<Props> = ({ notifications, unreadCount, isLoadi
                         <span
                             className="dash-notif-dropdown__icon"
                             style={{
-                                background: NOTIFICATION_TYPE_COLOR[n.type].bg,
-                                color: NOTIFICATION_TYPE_COLOR[n.type].color,
+                                background: chip.bg,
+                                color: chip.color,
                             }}
                         >
                             <NotificationTypeIcon type={n.type} size={17} />
@@ -55,7 +57,8 @@ const DashboardNotifDropdown: FC<Props> = ({ notifications, unreadCount, isLoadi
                         </div>
                         {!n.isRead && <span className="dash-notif-dropdown__dot" />}
                     </div>
-                ))
+                    );
+                })
             )}
 
             <div className="dash-notif-dropdown__footer">

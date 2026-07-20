@@ -2,6 +2,7 @@ import { type FC, useEffect, useState } from "react";
 import { Modal, Form, Input, Select, DatePicker, Row, Col, Spin, Button } from "antd";
 import dayjs from "dayjs";
 import ImageCropModal from "@/components/ui/ImageCropModal";
+import { PersonPhotoIcon } from "@/components/ui/BrandIcons";
 import { usePersonDetail } from "../hooks/usePersonDetail";
 import { useCreatePerson, useUpdatePerson, useUploadPersonPhoto } from "../hooks/usePersonMutations";
 import { GENDER_OPTIONS } from "../constants/person.constants";
@@ -177,7 +178,7 @@ const PersonFormModal: FC<Props> = ({ mode, personId, open, onClose, onCreated, 
                                     {photoPreview ? (
                                         <img src={photoPreview} alt="Person" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                                     ) : (
-                                        <span style={{ fontSize: 34 }}>👤</span>
+                                        <span style={{ color: "var(--dash-text-3)" }}><PersonPhotoIcon size={40} /></span>
                                     )}
                                 </div>
                                 <Button size="small" onClick={() => setCropOpen(true)}>

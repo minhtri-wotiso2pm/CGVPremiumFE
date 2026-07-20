@@ -41,7 +41,6 @@ import StaffDashboard from "@/features/staff/pages/StaffDashboard";
 import CheckInPage from "@/features/staff/pages/CheckInPage";
 import CounterBookingPage from "@/features/staff/pages/CounterBookingPage";
 import FnbPickupPage from "@/features/staff/pages/FnbPickupPage";
-import ManagerDashboard from "@/features/manager/pages/ManagerDashboard";
 import CinemaManagementPage from "@/features/manager/pages/CinemaManagementPage";
 import MovieManagementPage from "@/features/manager/pages/MovieManagementPage";
 import PersonManagementPage from "@/features/persons/pages/PersonManagementPage";
@@ -61,6 +60,8 @@ import LoyaltyTierManagementPage from "@/features/admin/pages/LoyaltyTierManagem
 import AdminProfilePage from "@/features/admin/pages/AdminProfilePage";
 import ActivityLogPage from "@/features/admin/pages/ActivityLogPage";
 import EmailLogPage from "@/features/admin/pages/EmailLogPage";
+import ReviewModerationPage from "@/features/reviews/pages/ReviewModerationPage";
+import ReviewSettingsPage from "@/features/reviews/pages/ReviewSettingsPage";
 import DashboardNotificationsPage from "@/features/notifications/pages/DashboardNotificationsPage";
 
 import WelcomePage from "@/features/public/pages/WelcomePage";
@@ -75,6 +76,7 @@ import PromotionsPage from "@/features/public/pages/PromotionsPage";
 import AboutUsPage from "@/features/public/pages/AboutUsPage";
 import ForbiddenPage from "@/features/common/pages/ForbiddenPage";
 import NotFoundPage from "@/features/common/pages/NotFoundPage";
+import ChatPage from "@/features/aiChat/pages/ChatPage";
 
 import { ROLES } from "@/constants/roles";
 
@@ -112,6 +114,10 @@ export const router = createBrowserRouter([
                     {
                         path: "about",
                         element: <AboutUsPage />,
+                    },
+                    {
+                        path: "chat",
+                        element: <ChatPage />,
                     },
                 ],
             },
@@ -252,6 +258,10 @@ export const router = createBrowserRouter([
                                 element: <AboutUsPage />,
                             },
                             {
+                                path: "chat",
+                                element: <ChatPage />,
+                            },
+                            {
                                 // Sibling of "profile" (not nested inside CustomerProfileLayout) so
                                 // the ticket detail view renders full-screen, without the profile
                                 // sidebar — a focused "your ticket" screen rather than a settings page.
@@ -352,11 +362,11 @@ export const router = createBrowserRouter([
                         children: [
                             {
                                 index: true,
-                                element: <Navigate to="/manager/dashboard" replace />,
+                                element: <Navigate to="/manager/reports" replace />,
                             },
                             {
                                 path: "dashboard",
-                                element: <ManagerDashboard />,
+                                element: <Navigate to="/manager/reports" replace />,
                             },
                             {
                                 path: "rooms",
@@ -450,6 +460,14 @@ export const router = createBrowserRouter([
                             {
                                 path: "loyalty-tiers",
                                 element: <LoyaltyTierManagementPage />,
+                            },
+                            {
+                                path: "reviews",
+                                element: <ReviewModerationPage />,
+                            },
+                            {
+                                path: "review-settings",
+                                element: <ReviewSettingsPage />,
                             },
                             {
                                 path: "reports",

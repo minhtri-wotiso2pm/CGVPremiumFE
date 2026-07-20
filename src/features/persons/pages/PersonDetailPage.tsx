@@ -2,8 +2,27 @@ import { type FC } from "react";
 import { useParams, useLocation, useNavigate, Link } from "react-router-dom";
 import { usePersonDetail } from "../hooks/usePersonDetail";
 import { usePersonMovies } from "../hooks/usePersonMovies";
+import type { PersonFilmographyItem } from "../types/person.types";
+import { TheatreMaskIcon, FilmReelIcon } from "@/components/ui/BrandIcons";
+import MovieCard from "@/features/movies/components/MovieCard";
+import type { Movie } from "@/features/movies/types/movie.types";
 import "@/features/movies/components/movies.css";
 import "./persons-public.css";
+
+/** Map a filmography item onto the shape MovieCard expects. The person's role
+ *  on the film (Director/Actor) is surfaced through the status-badge slot. */
+const toMovieCardModel = (it: PersonFilmographyItem): Movie => ({
+    movieId: it.movieId,
+    title: it.title,
+    genres: [],
+    ageRating: it.ageRating ?? "P",
+    posterUrl: it.posterUrl ?? "",
+    durationMinutes: it.duration ?? 0,
+    status: it.roles?.join(" · ") ?? "",
+    ticketsSold: 0,
+    isTopSelling: false,
+    salesRank: null,
+});
 
 /* ── Small helpers ── */
 function initials(name: string): string {
@@ -58,7 +77,17 @@ const PersonDetailPage: FC = () => {
     const homeLink = isPublic ? "/" : "/customer";
 
     const { data: person, isLoading, isError } = usePersonDetail(Number.isFinite(id) ? id : null);
-    const { data: filmography = [] } = usePersonMovies(id); // stub: disabled until BE ships the endpoint
+    const {
+        data: filmoData,
+        isLoading: filmoLoading,
+        hasNextPage,
+        fetchNextPage,
+        isFetchingNextPage,
+    } = usePersonMovies(Number.isFinite(id) ? id : null);
+
+    const films = filmoData?.pages.flatMap((p) => p.items) ?? [];
+    const totalFilms = filmoData?.pages[0]?.totalMovies ?? 0;
+    const movieBase = isPublic ? "" : "/customer";
 
     /* ── Loading ── */
     if (isLoading) {
@@ -83,7 +112,7 @@ const PersonDetailPage: FC = () => {
         return (
             <div className="pdp-root" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <div className="cgv-state-card">
-                    <div className="cgv-state-card__icon-ring"><span className="cgv-state-card__icon">🎭</span></div>
+                    <div className="cgv-state-card__icon-ring"><span className="cgv-state-card__icon"><TheatreMaskIcon size={30} /></span></div>
                     <h2 className="cgv-state-card__title">Person not found</h2>
                     <p className="cgv-state-card__body">We couldn't load this profile. It may have been removed or the link is invalid.</p>
                     <button className="cgv-state-card__btn cgv-state-card__btn--primary" onClick={() => navigate(homeLink)}>
@@ -155,24 +184,43 @@ const PersonDetailPage: FC = () => {
             <div className="pdp-body">
                 <section className="pdp-section" aria-labelledby="filmography-heading">
                     <div className="pdp-section__heading">
-                        <h2 className="pdp-section__title" id="filmography-heading">Filmography</h2>
+                        <h2 className="pdp-section__title" id="filmography-heading">
+                            Filmography{totalFilms > 0 ? ` · ${totalFilms}` : ""}
+                        </h2>
                         <div className="pdp-section__rule" aria-hidden="true" />
                     </div>
 
-                    {filmography.length > 0 ? (
-                        <div className="pdp-grid">
-                            {/* Rendered once the movies-by-person endpoint is available. */}
-                            {filmography.map((m) => (
-                                <Link key={m.movieId} to={`${isPublic ? "" : "/customer"}/movies/${m.movieId}`} style={{ color: "var(--cgv-text-primary)" }}>
-                                    {m.title}
-                                </Link>
-                            ))}
-                        </div>
+                    {filmoLoading ? (
+                        <div className="pdp-filmo-loading"><span className="pdp-spinner" aria-label="Loading" /></div>
+                    ) : films.length > 0 ? (
+                        <>
+                            <div className="cgv-movie-grid">
+                                {films.map((it) => (
+                                    <MovieCard
+                                        key={it.movieId}
+                                        movie={toMovieCardModel(it)}
+                                        onClick={(mid) => navigate(`${movieBase}/movies/${mid}`)}
+                                        showBook={false}
+                                    />
+                                ))}
+                            </div>
+                            {hasNextPage && (
+                                <div className="pdp-loadmore-wrap">
+                                    <button
+                                        className="pdp-loadmore"
+                                        onClick={() => fetchNextPage()}
+                                        disabled={isFetchingNextPage}
+                                    >
+                                        {isFetchingNextPage ? "Loading…" : `Load more (${totalFilms - films.length} left)`}
+                                    </button>
+                                </div>
+                            )}
+                        </>
                     ) : (
                         <div className="pdp-placeholder">
-                            <span className="pdp-placeholder__icon">🎬</span>
-                            <p className="pdp-placeholder__title">Filmography coming soon</p>
-                            <p className="pdp-placeholder__sub">The list of movies featuring {person.name} is being updated.</p>
+                            <span className="pdp-placeholder__icon"><FilmReelIcon size={40} /></span>
+                            <p className="pdp-placeholder__title">No movies yet</p>
+                            <p className="pdp-placeholder__sub">{person.name} isn't linked to any movies at the moment.</p>
                         </div>
                     )}
                 </section>
