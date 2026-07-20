@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { RouterProvider } from "react-router-dom";
 import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from "@vercel/speed-insights/react"
+
 
 import { router } from "@/routes";
 import SplashScreen from "@/components/common/SplashScreen/SplashScreen";
@@ -20,6 +22,7 @@ function App() {
             )}
             <RouterProvider router={router} />
             <Analytics />
+            <SpeedInsights />
         </>
     );
 }
