@@ -321,7 +321,7 @@ export const router = createBrowserRouter([
                         children: [
                             {
                                 path: "dashboard",
-                                element: <StaffDashboard />,
+                                element: <CounterBookingPage />,
                             },
                             {
                                 path: "counter",

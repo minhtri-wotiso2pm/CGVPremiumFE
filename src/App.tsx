@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { RouterProvider } from "react-router-dom";
+import { Analytics } from '@vercel/analytics/react';
 
 import { router } from "@/routes";
 import SplashScreen from "@/components/common/SplashScreen/SplashScreen";
@@ -18,6 +19,7 @@ function App() {
                 <SplashScreen onComplete={() => setSplashDone(true)} />
             )}
             <RouterProvider router={router} />
+            <Analytics />
         </>
     );
 }
