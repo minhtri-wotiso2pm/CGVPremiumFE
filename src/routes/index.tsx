@@ -64,46 +64,53 @@ import NotFoundPage from "@/features/common/pages/NotFoundPage";
 import BookingSuccessPage from "@/features/customer/pages/BookingSuccessPage";
 
 import { ROLES } from "@/constants/roles";
-import QrCheckInPage from "@/features/staff/pages/QRCheckInPage";
+
 import CheckInSuccessPage from "@/features/staff/pages/CheckInSuccessPage";
+import QrCheckInPage from "@/features/staff/pages/QrCheckInPage";
 
-
+import HelpCenterPage from "@/features/customer/pages/support/components/HelpCenter";
+import CustomerServicePage from "@/features/customer/pages/support/components/CustomerService";
+import RefundPolicyPage from "@/features/customer/pages/support/components/RefundPolicy";
+import SupportPage from "@/features/customer/pages/support/SupportPage";
 export const router = createBrowserRouter([
-    // =====================
-    // WELCOME (guest + customer only — Admin/Manager/Staff → /403)
-    // =====================
-    {
-        element: <CustomerOrGuestRoute />,
-        children: [
-            {
-                path: "/",
-                element: <WelcomeLayout />,
-                children: [
-                    {
-                        index: true,
-                        element: <WelcomePage />,
-                    },
-                    {
-                        path: "movies/:movieId",
-                        element: <MovieDetailPage />,
-                    },
-                    {
-                        path: "theaters",
-                        element: <TheatersPage />,
-                    },
-                    {
-                        path: "promotions",
-                        element: <PromotionsPage />,
-                    },
-                    {
-                        path: "about",
-                        element: <AboutUsPage />,
-                    },
-                ],
-            },
-        ],
-    },
-
+   // =====================
+// WELCOME (guest + customer only)
+// =====================
+{
+    element: <CustomerOrGuestRoute />,
+    children: [
+        {
+            path: "/",
+            element: <WelcomeLayout />,
+            children: [
+                {
+                    index: true,
+                    element: <WelcomePage />,
+                },
+                {
+                    path: "movies/:movieId",
+                    element: <MovieDetailPage />,
+                },
+                {
+                    path: "theaters",
+                    element: <TheatersPage />,
+                },
+                {
+                    path: "promotions",
+                    element: <PromotionsPage />,
+                },
+                {
+                    path: "about",
+                    element: <AboutUsPage />,
+                },
+{
+    path: "support",
+    element: <SupportPage />
+}
+            ],
+        },
+    ],
+},
     // =====================
     // PUBLIC (auth pages — gỡ bỏ path "/" bị trùng, dùng route không path làm cha)
     // =====================
@@ -270,6 +277,18 @@ export const router = createBrowserRouter([
                                         path: "settings",
                                         element: <SettingsPage />,
                                     },
+                                    {
+                                        path: "help-center",
+                                        element: <HelpCenterPage />,
+                                    },
+                                    {
+                                        path: "customer-service",
+                                        element: <CustomerServicePage />,
+                                    },
+                                    {
+                                        path: "refund-policy",
+                                        element: <RefundPolicyPage />,
+                                    },
                                 ],
                             },
                         ],
@@ -316,9 +335,9 @@ export const router = createBrowserRouter([
                                 element: <QrCheckInPage />,
                             },
                             {
-    path: "checkin-success",
-    element: <CheckInSuccessPage />,
-}
+                                path: "checkin-success",
+                                element: <CheckInSuccessPage />,
+                            }
                         ],
                     },
                 ],

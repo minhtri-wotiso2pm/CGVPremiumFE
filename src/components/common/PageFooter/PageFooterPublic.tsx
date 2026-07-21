@@ -1,5 +1,5 @@
 import { useState, type FC, type FormEvent, type JSX } from "react";
-
+import { Link } from "react-router-dom";
 /* ─────────────────────────────────────────────────────────────
    DESIGN TOKENS
 ───────────────────────────────────────────────────────────── */
@@ -39,13 +39,20 @@ const CINEMA_SERVICES: FooterLink[] = [
     { label: "Events", href: "/customer/events" },
 ];
 
-const SUPPORT_LINKS: FooterLink[] = [
-    { label: "Help Center", href: "/help" },
-    { label: "FAQ", href: "/faq" },
-    { label: "Customer Service", href: "/support" },
-    { label: "Refund Policy", href: "/refund" },
+const SUPPORT_LINKS = [
+    {
+        label: "Help Center",
+        href: "/support#help",
+    },
+    {
+        label: "Customer Service",
+        href: "/support#service",
+    },
+    {
+        label: "Refund Policy",
+        href: "/support#refund",
+    },
 ];
-
 interface SocialLink { label: string; href: string; icon: JSX.Element }
 
 const SOCIAL_LINKS: SocialLink[] = [
@@ -106,29 +113,51 @@ interface LinkColumnProps {
 
 const LinkColumn: FC<LinkColumnProps> = ({ heading, links }) => (
     <div>
-        <h3 style={{
-            fontSize: 11, fontWeight: 700, letterSpacing: "0.22em",
-            textTransform: "uppercase", color: F.crimson,
-            marginBottom: 20, marginTop: 0,
-        }}>
+        <h3
+            style={{
+                fontSize: 11,
+                fontWeight: 700,
+                letterSpacing: "0.22em",
+                textTransform: "uppercase",
+                color: F.crimson,
+                marginBottom: 20,
+                marginTop: 0,
+            }}
+        >
             {heading}
         </h3>
-        <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10 }}>
+
+        <ul
+            style={{
+                listStyle: "none",
+                padding: 0,
+                margin: 0,
+                display: "flex",
+                flexDirection: "column",
+                gap: 10,
+            }}
+        >
             {links.map((link) => (
                 <li key={link.label}>
-                    <a
-                        href={link.href}
+                    <Link
+                        to={link.href}
                         style={{
-                            color: F.textSecondary, textDecoration: "none",
-                            fontSize: 13, letterSpacing: "0.01em",
-                            transition: "color 0.15s",
+                            color: F.textSecondary,
+                            textDecoration: "none",
+                            fontSize: 13,
+                            letterSpacing: "0.01em",
+                            transition: "color .2s",
                             display: "inline-block",
                         }}
-                        onMouseEnter={(e) => { (e.currentTarget).style.color = F.textPrimary; }}
-                        onMouseLeave={(e) => { (e.currentTarget).style.color = F.textSecondary; }}
+                        onMouseEnter={(e) =>
+                            (e.currentTarget.style.color = F.textPrimary)
+                        }
+                        onMouseLeave={(e) =>
+                            (e.currentTarget.style.color = F.textSecondary)
+                        }
                     >
                         {link.label}
-                    </a>
+                    </Link>
                 </li>
             ))}
         </ul>
