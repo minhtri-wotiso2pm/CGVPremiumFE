@@ -268,18 +268,116 @@
 
 .cgv-movie-section__heading {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 12px;
     margin-bottom: 28px;
 }
 
 .cgv-movie-section__title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     font-family: var(--cgv-font-display);
     font-size: 22px;
     font-weight: 700;
     color: var(--cgv-text-primary);
     margin: 0;
     letter-spacing: 0.01em;
+}
+
+/* ── Animated fire icon — layered, eased motion for a polished feel ── */
+.cgv-fire-icon {
+    width: 39px;
+    height: 39px;
+    flex-shrink: 0;
+    overflow: visible;
+    animation:
+        cgv-fire-flicker 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite,
+        cgv-fire-glow-bloom 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+.cgv-fire-icon__glow {
+    transform-origin: 12px 14px;
+    animation: cgv-fire-glow-pulse 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+.cgv-fire-icon__body {
+    transform-origin: 12px 22px;
+    animation: cgv-fire-body-sway 2.1s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+.cgv-fire-icon__core {
+    transform-origin: 12px 20px;
+    animation: cgv-fire-core-sway 1.7s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+.cgv-fire-icon__shine {
+    transform-origin: 10.2px 9.8px;
+    opacity: 0;
+    animation: cgv-fire-shine 3.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+.cgv-fire-icon__spark {
+    animation: cgv-fire-spark-float 2s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+}
+
+.cgv-fire-icon__spark--1 {
+    --spark-drift: -2.5px;
+    animation-delay: 0s;
+}
+
+.cgv-fire-icon__spark--2 {
+    --spark-drift: 3px;
+    animation-delay: 0.6s;
+}
+
+.cgv-fire-icon__spark--3 {
+    --spark-drift: 1.5px;
+    animation-delay: 1.2s;
+}
+
+@keyframes cgv-fire-flicker {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    20% { transform: scale(1.06, 0.93) rotate(-2.5deg); }
+    45% { transform: scale(0.95, 1.07) rotate(1.8deg); }
+    70% { transform: scale(1.04, 0.96) rotate(-1deg); }
+    88% { transform: scale(0.98, 1.02) rotate(0.5deg); }
+}
+
+@keyframes cgv-fire-glow-bloom {
+    0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 109, 0, 0.3)); }
+    50% { filter: drop-shadow(0 0 8px rgba(255, 140, 0, 0.7)); }
+}
+
+@keyframes cgv-fire-glow-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.18); }
+}
+
+@keyframes cgv-fire-body-sway {
+    0%, 100% { transform: scaleX(1) skewX(0deg); }
+    25% { transform: scaleX(0.9) skewX(4deg); }
+    50% { transform: scaleX(1.05) skewX(-1.5deg); }
+    75% { transform: scaleX(1.1) skewX(-3.5deg); }
+}
+
+@keyframes cgv-fire-core-sway {
+    0%, 100% { transform: scaleX(1) skewX(0deg); }
+    30% { transform: scaleX(1.08) skewX(-3deg); }
+    55% { transform: scaleX(0.92) skewX(3.5deg); }
+    80% { transform: scaleX(1.03) skewX(-1deg); }
+}
+
+@keyframes cgv-fire-shine {
+    0%, 35%, 100% { opacity: 0; transform: scale(0.7); }
+    45% { opacity: 0.8; transform: scale(1.1); }
+    55% { opacity: 0.1; transform: scale(0.9); }
+}
+
+@keyframes cgv-fire-spark-float {
+    0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
+    18% { opacity: 1; transform: translate(0, -1px) scale(1.1); }
+    100% { transform: translate(var(--spark-drift, 2px), -14px) scale(0.1); opacity: 0; }
 }
 
 .cgv-movie-section__rule {

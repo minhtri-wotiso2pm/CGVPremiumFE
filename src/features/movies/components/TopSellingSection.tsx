@@ -2,6 +2,69 @@ import { type CSSProperties, type FC, useState } from "react";
 import type { Movie } from "@/features/movies/types/movie.types";
 import "./movies.css";
 
+const FireIcon: FC = () => (
+    <svg
+        className="cgv-fire-icon"
+        width="48"
+        height="48"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+    >
+        <defs>
+            <radialGradient id="fire-glow" cx="0.5" cy="0.55" r="0.55">
+                <stop offset="0" stopColor="#FF6B00" stopOpacity="0.5" />
+                <stop offset="0.6" stopColor="#FF4500" stopOpacity="0.15" />
+                <stop offset="1" stopColor="#FF4500" stopOpacity="0" />
+            </radialGradient>
+            <linearGradient id="fire-body" x1="12" y1="1" x2="12" y2="22" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stopColor="#E53935" />
+                <stop offset="0.35" stopColor="#FF6D00" />
+                <stop offset="0.7" stopColor="#FFB300" />
+                <stop offset="1" stopColor="#FFD600" />
+            </linearGradient>
+            <linearGradient id="fire-core" x1="12" y1="8" x2="12" y2="20" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stopColor="#FFF9C4" />
+                <stop offset="0.5" stopColor="#FFEE58" />
+                <stop offset="1" stopColor="#FFB300" />
+            </linearGradient>
+            <linearGradient id="fire-spark" x1="0" y1="0" x2="0" y2="1" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stopColor="#FFD600" stopOpacity="1" />
+                <stop offset="1" stopColor="#FF6D00" stopOpacity="0" />
+            </linearGradient>
+        </defs>
+        {/* outer glow — wider, brighter */}
+        <ellipse className="cgv-fire-icon__glow" cx="12" cy="14" rx="10" ry="9" fill="url(#fire-glow)" />
+        {/* main flame body */}
+        <path
+            className="cgv-fire-icon__body"
+            d="M12 1C12 1 4.5 9.5 4.5 14.5C4.5 18.5 7.8 22 12 22C16.2 22 19.5 18.5 19.5 14.5C19.5 9.5 12 1 12 1Z"
+            fill="url(#fire-body)"
+        />
+        {/* inner bright core */}
+        <path
+            className="cgv-fire-icon__core"
+            d="M12 8C12 8 8 12.5 8 15.5C8 17.99 9.79 20 12 20C14.21 20 16 17.99 16 15.5C16 12.5 12 8 12 8Z"
+            fill="url(#fire-core)"
+        />
+        {/* glossy highlight glint — occasional shimmer pass for a polished look */}
+        <ellipse
+            className="cgv-fire-icon__shine"
+            cx="10.2"
+            cy="9.8"
+            rx="1.2"
+            ry="2.6"
+            fill="#FFFFFF"
+            transform="rotate(-18 10.2 9.8)"
+        />
+        {/* spark particles — small floating embers */}
+        <circle className="cgv-fire-icon__spark cgv-fire-icon__spark--1" cx="8" cy="5" r="0.8" fill="url(#fire-spark)" />
+        <circle className="cgv-fire-icon__spark cgv-fire-icon__spark--2" cx="16" cy="4" r="0.6" fill="url(#fire-spark)" />
+        <circle className="cgv-fire-icon__spark cgv-fire-icon__spark--3" cx="10" cy="3" r="0.5" fill="url(#fire-spark)" />
+    </svg>
+);
+
 interface Props {
     /** Top sellers first (by salesRank) then Now Showing fillers — see
      *  getTopSellingCarouselMovies. Never includes Ended movies. */
@@ -68,7 +131,7 @@ const TopSellingSection: FC<Props> = ({ movies, onCardClick, onBook }) => {
     return (
         <section className="cgv-movie-section cgv-top-selling" aria-label="Top Selling Movies">
             <div className="cgv-movie-section__heading">
-                <h2 className="cgv-movie-section__title">🔥 Top Selling This Week</h2>
+                <h2 className="cgv-movie-section__title"><FireIcon /> Top Selling This Week</h2>
                 <div className="cgv-movie-section__rule" aria-hidden="true" />
             </div>
 

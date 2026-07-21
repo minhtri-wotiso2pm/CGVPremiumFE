@@ -7,7 +7,7 @@ export function useMovieNavigation() {
     return {
 
         goMovieDetail(id: number) {
-            navigate(`/customer/movies/${id}`);
+            navigate(`/movies/${id}`);
         },
 
         goShowtimes(movieId: number) {

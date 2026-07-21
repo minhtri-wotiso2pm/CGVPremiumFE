@@ -1,6 +1,7 @@
 import { type FC, useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { QRCode } from "antd";
 import { useAppSelector } from "@/store/hooks";
 import type { PaymentNavState } from "../types/fnb.types";
 import type {
@@ -34,6 +35,25 @@ function formatCountdown(ms: number): string {
     const m = Math.floor(total / 60);
     const s = total % 60;
     return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+// Same breakpoint the layout itself collapses at (payment.css:928) — below
+// it the customer is on their own phone with no second device to scan a QR
+// with, so PayOS's checkoutUrl deep-link into the banking app is the correct
+// UX, not an unscannable QR on the same screen.
+const MOBILE_LAYOUT_QUERY = "(max-width: 960px)";
+
+function useIsMobileLayout(): boolean {
+    const [isMobile, setIsMobile] = useState(
+        () => typeof window !== "undefined" && window.matchMedia(MOBILE_LAYOUT_QUERY).matches,
+    );
+    useEffect(() => {
+        const mql = window.matchMedia(MOBILE_LAYOUT_QUERY);
+        const onChange = () => setIsMobile(mql.matches);
+        mql.addEventListener("change", onChange);
+        return () => mql.removeEventListener("change", onChange);
+    }, []);
+    return isMobile;
 }
 
 function formatDateTime(iso: string): string {
@@ -113,9 +133,25 @@ const PaymentPage: FC = () => {
     /* ── Payment state ────────────────────── */
     const [isWaiting, setIsWaiting] = useState(false);
     const [paymentError, setPaymentError] = useState<string | null>(null);
+    const isMobileLayout = useIsMobileLayout();
+
+    /* ── PayOS inline QR (desktop only — see useIsMobileLayout) ── */
+    const [payosInit, setPayosInit] = useState<PaymentInitiateResponse | null>(null);
+    const [payosTimeLeft, setPayosTimeLeft] = useState(0);
+    const [paymentSucceeded, setPaymentSucceeded] = useState(false);
+
+    useEffect(() => {
+        if (!payosInit?.expiresAt) return;
+        const expiresAt = new Date(payosInit.expiresAt).getTime();
+        const id = setInterval(() => {
+            setPayosTimeLeft(Math.max(0, expiresAt - Date.now()));
+        }, 1_000);
+        return () => clearInterval(id);
+    }, [payosInit?.expiresAt]);
 
     /* ── Refs for polling ─────────────────── */
     const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const navigateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const bookingRef = useRef<BookingResponse | null>(null);
     const paymentInitRef = useRef<PaymentInitiateResponse | null>(null);
 
@@ -215,14 +251,18 @@ const PaymentPage: FC = () => {
     }, []);
 
     useEffect(() => () => stopPolling(), [stopPolling]);
+    useEffect(() => () => {
+        if (navigateTimeoutRef.current) clearTimeout(navigateTimeoutRef.current);
+    }, []);
 
     const startPolling = useCallback(
-        (paymentId: number) => {
+        (paymentId: number, isQrFlow: boolean = false) => {
             let count = 0;
             pollIntervalRef.current = setInterval(async () => {
                 count += 1;
                 if (count > 200) {
                     stopPolling();
+                    setPayosInit(null);
                     setPaymentError("Your payment session has expired. Please try again.");
                     setIsWaiting(false);
                     return;
@@ -239,12 +279,20 @@ const PaymentPage: FC = () => {
                             moviePoster,
                             roomType,
                         };
-                        navigate("/customer/booking/confirmation", {
+                        const goToConfirmation = () => navigate("/customer/booking/confirmation", {
                             state: confirmState,
                             replace: true,
                         });
+                        if (isQrFlow) {
+                            // Let the success tick animation play before leaving the QR card.
+                            setPaymentSucceeded(true);
+                            navigateTimeoutRef.current = setTimeout(goToConfirmation, 700);
+                        } else {
+                            goToConfirmation();
+                        }
                     } else if (s === "FAILED" || s === "EXPIRED" || s === "CANCELLED") {
                         stopPolling();
+                        setPayosInit(null);
                         setPaymentError(
                             "Payment failed or was cancelled. Please try again.",
                         );
@@ -278,6 +326,8 @@ const PaymentPage: FC = () => {
     const handlePay = useCallback(async () => {
         if (!pricing || isExpired) return;
         setPaymentError(null);
+        setPayosInit(null);
+        setPaymentSucceeded(false);
         setIsWaiting(true);
         try {
             const booking = await doCreateBooking({
@@ -300,10 +350,17 @@ const PaymentPage: FC = () => {
             paymentInitRef.current = paymentInit;
 
             if (effectivePaymentMethod === "payos" && paymentInit.checkoutUrl) {
-                // Full-page redirect (not a new tab) — PayOS's configured
-                // returnUrl/cancelUrl bring the browser straight back into
-                // this same tab, so there's no separate tab left polling.
-                window.location.href = paymentInit.checkoutUrl;
+                if (isMobileLayout) {
+                    // No second device to scan a QR with on the customer's own
+                    // phone — full-page redirect (not a new tab) so PayOS's
+                    // configured returnUrl/cancelUrl deep-links straight back
+                    // into this same tab/app.
+                    window.location.href = paymentInit.checkoutUrl;
+                    return;
+                }
+                // Desktop — embed the QR inline instead of leaving the page.
+                setPayosInit(paymentInit);
+                startPolling(paymentInit.paymentId, true);
                 return;
             }
 
@@ -316,7 +373,7 @@ const PaymentPage: FC = () => {
         }
     }, [
         pricing, isExpired, doCreateBooking, doInitiatePayment, customerId,
-        showtimeId, seatIds, fnbItems, appliedCode, effectivePaymentMethod, startPolling,
+        showtimeId, seatIds, fnbItems, appliedCode, effectivePaymentMethod, startPolling, isMobileLayout,
     ]);
 
     const seatCount = (seatIds ?? []).length;
@@ -663,7 +720,51 @@ const PaymentPage: FC = () => {
                         )}
 
                         {/* Waiting state */}
-                        {isWaiting && (
+                        {isWaiting && payosInit ? (
+                            <div className="cgv-pay-card">
+                                {paymentSucceeded ? (
+                                    <div className="cgv-pay-qr-card">
+                                        <div className="cgv-pay-qr-success">✓</div>
+                                        <p className="cgv-pay-waiting__title">Payment successful!</p>
+                                        <p className="cgv-pay-waiting__desc">Finishing up your booking…</p>
+                                    </div>
+                                ) : (
+                                    <div className="cgv-pay-qr-card">
+                                        <p className="cgv-pay-waiting__title">Scan to pay with PayOS</p>
+                                        <div className="cgv-pay-qr-ring">
+                                            <div className="cgv-pay-qr-img">
+                                                <QRCode
+                                                    value={payosInit.qrCode || payosInit.checkoutUrl || " "}
+                                                    size={188}
+                                                    bordered={false}
+                                                />
+                                            </div>
+                                        </div>
+                                        <span className="cgv-pay-qr-amount">
+                                            {formatPrice(pricing?.finalAmount ?? payosInit.amount)}
+                                        </span>
+                                        {payosTimeLeft > 0 && (
+                                            <span className="cgv-pay-qr-countdown">
+                                                Expires in {formatCountdown(payosTimeLeft)}
+                                            </span>
+                                        )}
+                                        <p className="cgv-pay-waiting__desc">
+                                            Open your banking app and scan this code — this page updates
+                                            automatically once payment is confirmed.
+                                        </p>
+                                        {payosInit.checkoutUrl && (
+                                            <button
+                                                type="button"
+                                                className="cgv-pay-qr-fallback"
+                                                onClick={() => window.open(payosInit.checkoutUrl, "_blank", "noopener")}
+                                            >
+                                                Or open the full payment page ›
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        ) : isWaiting && (
                             <div className="cgv-pay-card">
                                 <div className="cgv-pay-waiting">
                                     <div className="cgv-pay-waiting__spinner" />

@@ -211,10 +211,10 @@ export const router = createBrowserRouter([
                                 path: "dashboard",
                                 element: <CustomerDashboard />,
                             },
-                            {
-                                path: "movies/:movieId",
-                                element: <MovieDetailPage />,
-                            },
+                            // {
+                            //     path: "movies/:movieId",
+                            //     element: <MovieDetailPage />,
+                            // },
                             {
                                 path: "persons/:personId",
                                 element: <PersonDetailPage />,
