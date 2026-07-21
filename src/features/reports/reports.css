@@ -471,6 +471,19 @@
     background: var(--dash-border);
 }
 
+/* Right-aligned sortable headers (Showtimes/Bookings/Tickets/Revenue):
+   antd keeps the sorter icon pinned right via justify-content: space-between
+   while the title span grows to fill the remaining space (flex: 1), so the
+   header text stays flush left instead of lining up over the right-aligned
+   numbers below it. Pack title + icon together against the right edge instead. */
+.rpt-movie-table .rpt-th-right-sort .ant-table-column-sorters {
+    justify-content: flex-end;
+}
+
+.rpt-movie-table .rpt-th-right-sort .ant-table-column-title {
+    flex: initial;
+}
+
 .rpt-movie-card__stats {
     display: flex;
     flex-wrap: wrap;

@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import { Button } from "antd";
+import { useQuery } from "@tanstack/react-query";
 import { useAppSelector } from "@/store/hooks";
+import { calculatePricingApi } from "@/services/api/booking.service";
 import { useCounterBooking } from "../hooks/useCounterBooking";
 import CounterStepper from "../components/counter/CounterStepper";
 import ModeSelect from "../components/counter/ModeSelect";
@@ -29,6 +31,22 @@ export default function CounterBookingPage() {
         () => cb.fnbLines.map((l) => ({ itemId: l.itemId, quantity: l.quantity })),
         [cb.fnbLines],
     );
+
+    // Single source of truth for real (discount-applied) pricing — shared by
+    // the Order Rail (every step) and the Payment step, so they can never show
+    // different numbers. Only fires once there's actually something to price.
+    const customerId = state.customer.member?.userID ?? null;
+    const showtimeId = state.showtime?.showtimeId ?? null;
+    const hasAnything = !!state.showtime || cb.seatIds.length > 0 || fnbItems.length > 0;
+    const pricingQuery = useQuery({
+        queryKey: ["counter-pricing", customerId, showtimeId, cb.seatIds, fnbItems, state.voucherCode],
+        queryFn: () => calculatePricingApi({
+            customerId, showtimeId, seatIds: cb.seatIds, fnbItems, voucherCode: state.voucherCode,
+        }),
+        enabled: hasAnything,
+        staleTime: 30_000,
+    });
+    const pricing = pricingQuery.data ?? null;
 
     const handlePaid = (r: CounterReceipt) => {
         // Seats are now booked (not just held). finalize() drops the hold
@@ -128,12 +146,16 @@ export default function CounterBookingPage() {
             case "payment":
                 return (
                     <PaymentStep
-                        customerId={state.customer.member?.userID ?? null}
+                        customerId={customerId}
                         member={state.customer.member}
-                        showtimeId={state.showtime?.showtimeId ?? null}
+                        showtimeId={showtimeId}
                         seatIds={cb.seatIds}
                         fnbItems={fnbItems}
                         voucherCode={state.voucherCode}
+                        pricing={pricing}
+                        pricingLoading={pricingQuery.isLoading}
+                        pricingError={pricingQuery.isError}
+                        onRetryPricing={() => pricingQuery.refetch()}
                         onPaid={handlePaid}
                     />
                 );
@@ -175,6 +197,7 @@ export default function CounterBookingPage() {
                         seatsSubtotal={cb.seatsSubtotal}
                         fnbSubtotal={cb.fnbSubtotal}
                         estimatedTotal={cb.estimatedTotal}
+                        pricing={pricing}
                     >
                         {!stepOwnsCta && (
                             <Button type="primary" size="large" block disabled={!canNext} onClick={cb.goNext}>

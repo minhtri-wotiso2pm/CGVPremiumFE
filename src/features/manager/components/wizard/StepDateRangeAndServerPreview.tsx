@@ -61,6 +61,7 @@ const StepDateRangeAndServerPreview: FC<Props> = ({ state, onDateRangeChange, on
                         else onDateRangeChange(null);
                     }}
                     format="DD/MM/YYYY"
+                    disabledDate={(current) => !!current && current < dayjs().startOf("day")}
                 />
                 <button
                     className="stt-btn stt-btn--primary"

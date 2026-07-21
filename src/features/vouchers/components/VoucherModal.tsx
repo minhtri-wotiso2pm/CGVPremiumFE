@@ -299,7 +299,11 @@ const VoucherModal: FC<Props> = ({ mode, voucher, open, onClose }) => {
                 )}
 
                 <Form.Item label="Validity Period" name="validity" rules={validityRules}>
-                    <RangePicker format="DD/MM/YYYY" style={{ width: "100%" }} />
+                    <RangePicker
+                        format="DD/MM/YYYY"
+                        style={{ width: "100%" }}
+                        disabledDate={(current) => !!current && current < dayjs().startOf("day")}
+                    />
                 </Form.Item>
 
                 <Form.Item label="Description" name="description" rules={descriptionRules}>

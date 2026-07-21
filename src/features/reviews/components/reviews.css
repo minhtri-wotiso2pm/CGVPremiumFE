@@ -82,6 +82,7 @@
 }
 
 .rv-bar-fill {
+    display: block;
     height: 100%;
     border-radius: 6px;
     background: linear-gradient(90deg, #f5b301, #f5c451);
@@ -277,8 +278,13 @@
 }
 
 @keyframes rv-shimmer {
-    0% { background-position: 100% 50%; }
-    100% { background-position: 0 50%; }
+    0% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0 50%;
+    }
 }
 
 /* ── Hero rating badge ── */
@@ -312,6 +318,7 @@
         gap: 20px;
         padding: 20px;
     }
+
     .rv-summary__score {
         border-right: none;
         border-bottom: 1px solid var(--cgv-border, rgba(255, 255, 255, 0.07));
