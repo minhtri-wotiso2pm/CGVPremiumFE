@@ -17,6 +17,19 @@ import type {
 const toVnIso = (d: Dayjs) => `${d.format("YYYY-MM-DDTHH:mm:ss")}+07:00`;
 const fromVnIso = (s: string) => dayjs(s.slice(0, 19));
 
+/** Showtimes must start in the future — block past dates/times in the picker. */
+const disabledStartDate = (current: Dayjs) => !!current && current < dayjs().startOf("day");
+
+const disabledStartTime = (current: Dayjs | null) => {
+    if (!current || !current.isSame(dayjs(), "day")) return {};
+    const now = dayjs();
+    return {
+        disabledHours: () => Array.from({ length: now.hour() }, (_, i) => i),
+        disabledMinutes: (selectedHour: number) =>
+            selectedHour === now.hour() ? Array.from({ length: now.minute() + 1 }, (_, i) => i) : [],
+    };
+};
+
 const PRICE_PRESETS = [45000, 70000, 90000, 120000];
 
 const MovieStatusPill: FC<{ status?: string }> = ({ status }) => {
@@ -268,7 +281,15 @@ const ShowtimeModal: FC<Props> = ({ mode, showtime, cinemaId, open, onClose, onC
                 <Form.Item
                     label="Start Time"
                     name="startTime"
-                    rules={[{ required: true, message: "Please select a start time" }]}
+                    rules={[
+                        { required: true, message: "Please select a start time" },
+                        {
+                            validator: (_, value: Dayjs | undefined) =>
+                                !value || value.isAfter(dayjs())
+                                    ? Promise.resolve()
+                                    : Promise.reject(new Error("Start time must be in the future")),
+                        },
+                    ]}
                     tooltip="Interpreted as Vietnam time (UTC+7)."
                     extra={
                         estimatedEnd ? (
@@ -287,6 +308,8 @@ const ShowtimeModal: FC<Props> = ({ mode, showtime, cinemaId, open, onClose, onC
                         format="DD/MM/YYYY HH:mm"
                         style={{ width: "100%" }}
                         minuteStep={5}
+                        disabledDate={disabledStartDate}
+                        disabledTime={disabledStartTime}
                     />
                 </Form.Item>
 

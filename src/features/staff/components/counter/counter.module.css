@@ -845,6 +845,28 @@
     padding: 8px;
 }
 
+.qrAmount {
+    font-size: 22px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: var(--dash-text-1);
+}
+
+.qrCountdown {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--dash-crimson-dim);
+    background: var(--dash-crimson-subtle);
+    border-radius: 999px;
+    padding: 3px 12px;
+}
+
+.qrFallbackLink {
+    padding: 0;
+    height: auto;
+    font-size: 12px;
+}
+
 /* ── Receipt ── */
 .receipt {
     display: flex;

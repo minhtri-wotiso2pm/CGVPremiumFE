@@ -86,6 +86,7 @@ const MoviePerformanceTable: FC<Props> = ({ data, loading, isError, onRetry, pos
             key: "showtimeCount",
             width: 110,
             align: "right",
+            onHeaderCell: () => ({ className: "rpt-th-right-sort" }),
             render: (v: number) => <span style={{ fontSize: 13, color: "var(--dash-text-2)" }}>{formatNumber(v)}</span>,
             sorter: (a, b) => a.showtimeCount - b.showtimeCount,
             responsive: ["md"],
@@ -96,6 +97,7 @@ const MoviePerformanceTable: FC<Props> = ({ data, loading, isError, onRetry, pos
             key: "bookingCount",
             width: 100,
             align: "right",
+            onHeaderCell: () => ({ className: "rpt-th-right-sort" }),
             render: (v: number) => <span style={{ fontSize: 13, color: "var(--dash-text-2)" }}>{formatNumber(v)}</span>,
             sorter: (a, b) => a.bookingCount - b.bookingCount,
             responsive: ["md"],
@@ -106,6 +108,7 @@ const MoviePerformanceTable: FC<Props> = ({ data, loading, isError, onRetry, pos
             key: "ticketsSold",
             width: 100,
             align: "right",
+            onHeaderCell: () => ({ className: "rpt-th-right-sort" }),
             render: (v: number) => <span style={{ fontSize: 13, color: "var(--dash-text-2)" }}>{formatNumber(v)}</span>,
             sorter: (a, b) => a.ticketsSold - b.ticketsSold,
         },
@@ -131,6 +134,7 @@ const MoviePerformanceTable: FC<Props> = ({ data, loading, isError, onRetry, pos
             key: "revenue",
             width: 150,
             align: "right",
+            onHeaderCell: () => ({ className: "rpt-th-right-sort" }),
             render: (v: number) => (
                 <span style={{ fontSize: 13, fontWeight: 600, color: "var(--dash-text-1)" }}>{formatVnd(v)}</span>
             ),

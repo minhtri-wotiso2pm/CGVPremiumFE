@@ -70,6 +70,8 @@ const MovieFormModal: FC<Props> = ({ mode, movieId, open, onClose }) => {
     const isLoading = creating || updating || uploading;
     const isFormLoading = isEdit && detailLoading;
 
+    const showingFromDate = Form.useWatch("showingFromDate", form);
+
     /* ── Populate form on open ── */
     useEffect(() => {
         if (!open) return;
@@ -293,6 +295,7 @@ const MovieFormModal: FC<Props> = ({ mode, movieId, open, onClose }) => {
                                     format="DD/MM/YYYY"
                                     placeholder="Select date"
                                     style={{ width: "100%" }}
+                                    disabledDate={(current) => !!current && current < dayjs().startOf("day")}
                                 />
                             </Form.Item>
                         </Col>
@@ -306,6 +309,12 @@ const MovieFormModal: FC<Props> = ({ mode, movieId, open, onClose }) => {
                                     format="DD/MM/YYYY"
                                     placeholder="Select date"
                                     style={{ width: "100%" }}
+                                    disabledDate={(current) => {
+                                        const minDate = showingFromDate && showingFromDate > dayjs().startOf("day")
+                                            ? showingFromDate
+                                            : dayjs().startOf("day");
+                                        return !!current && current < minDate;
+                                    }}
                                 />
                             </Form.Item>
                         </Col>

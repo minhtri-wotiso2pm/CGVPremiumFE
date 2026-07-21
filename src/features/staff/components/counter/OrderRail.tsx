@@ -1,5 +1,6 @@
 import type { FC, ReactNode } from "react";
 import type { Seat } from "@/features/booking/types/seat.types";
+import type { PricingResponse } from "@/features/booking/types/payment.types";
 import { formatPrice, getSeatLabel } from "@/features/booking/utils/seat.utils";
 import type { CounterFnbLine, CounterMode, CounterShowtime } from "../../types/counter.types";
 import type { LookedUpMember } from "../../types/lookup.types";
@@ -16,7 +17,10 @@ interface Props {
     voucherCode: string | null;
     seatsSubtotal: number;
     fnbSubtotal: number;
+    /** Raw (no-discount) fallback total, shown instantly while `pricing` loads. */
     estimatedTotal: number;
+    /** Real discount-applied pricing, once the shared query resolves. */
+    pricing: PricingResponse | null;
     /** Step-specific action buttons rendered at the bottom of the rail. */
     children?: ReactNode;
 }
@@ -33,9 +37,13 @@ const fmtTime = (iso: string) => {
 
 const OrderRail: FC<Props> = ({
     mode, showtime, selectedSeats, fnbLines, member, customerResolved, voucherCode,
-    seatsSubtotal, fnbSubtotal, estimatedTotal, children,
+    seatsSubtotal, fnbSubtotal, estimatedTotal, pricing, children,
 }) => {
     const hasAnything = !!showtime || selectedSeats.length > 0 || fnbLines.length > 0;
+    // Real discount-applied total as soon as it's known; instant raw sum
+    // (seats + F&B, no discount) as a fallback while the query is in flight —
+    // avoids a loading flicker on every step of the order.
+    const displayTotal = pricing?.finalAmount ?? estimatedTotal;
 
     return (
         <div className={`dash-card ${styles.railCard}`}>
@@ -130,10 +138,28 @@ const OrderRail: FC<Props> = ({
                             <span className={styles.railLineVal}>{formatPrice(fnbSubtotal)}</span>
                         </div>
                     )}
+                    {pricing && pricing.membershipDiscount > 0 && (
+                        <div className={styles.railLine}>
+                            <span className={styles.railLineName}>Membership discount</span>
+                            <span className={styles.railLineVal} style={{ color: "#147a40" }}>
+                                −{formatPrice(pricing.membershipDiscount)}
+                            </span>
+                        </div>
+                    )}
+                    {pricing && pricing.voucherDiscount > 0 && (
+                        <div className={styles.railLine}>
+                            <span className={styles.railLineName}>
+                                Voucher{pricing.voucherDetails ? ` · ${pricing.voucherDetails.voucherCode}` : ""}
+                            </span>
+                            <span className={styles.railLineVal} style={{ color: "#147a40" }}>
+                                −{formatPrice(pricing.voucherDiscount)}
+                            </span>
+                        </div>
+                    )}
                     <div className={styles.railDivider} />
                     <div className={styles.railTotal}>
-                        <span className={styles.railTotalLabel}>Estimated</span>
-                        <span className={styles.railTotalVal}>{formatPrice(estimatedTotal)}</span>
+                        <span className={styles.railTotalLabel}>{pricing ? "Total" : "Estimated"}</span>
+                        <span className={styles.railTotalVal}>{formatPrice(displayTotal)}</span>
                     </div>
                 </>
             )}
