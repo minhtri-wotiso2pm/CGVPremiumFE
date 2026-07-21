@@ -280,6 +280,102 @@
     color: var(--cgv-text-primary);
     margin: 0;
     letter-spacing: 0.01em;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ------------------------------------------------------------------ */
+/*  FireIcon — animated flame (enhanced / flashy)                     */
+/* ------------------------------------------------------------------ */
+.cgv-fire-icon {
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 4px rgba(255, 107, 0, 0.5));
+    animation:
+        cgv-flame-flicker 1.4s ease-in-out infinite,
+        cgv-flame-glow-pulse 2s ease-in-out infinite;
+}
+
+.cgv-fire-icon__glow {
+    animation: cgv-flame-glow 1.6s ease-in-out infinite;
+}
+
+.cgv-fire-icon__body {
+    transform-origin: center bottom;
+    animation: cgv-flame-body 1.1s ease-in-out infinite;
+}
+
+.cgv-fire-icon__core {
+    transform-origin: center bottom;
+    animation: cgv-flame-core 0.9s ease-in-out infinite;
+}
+
+/* Spark particles — float upward, fade, scale */
+.cgv-fire-icon__spark {
+    opacity: 0;
+    animation: cgv-flame-spark-rise 1.8s ease-out infinite;
+}
+.cgv-fire-icon__spark--1 { animation-delay: 0s; }
+.cgv-fire-icon__spark--2 { animation-delay: 0.6s; }
+.cgv-fire-icon__spark--3 { animation-delay: 1.2s; }
+
+@keyframes cgv-flame-flicker {
+    0%, 100% { transform: scale(1) translateY(0) rotate(0deg); }
+    10%      { transform: scale(1.1) translateY(-1.2px) rotate(4deg); }
+    25%      { transform: scale(0.92) translateY(0.6px) rotate(-5deg); }
+    40%      { transform: scale(1.12) translateY(-1.8px) rotate(3deg); }
+    55%      { transform: scale(0.9) translateY(0.8px) rotate(-6deg); }
+    70%      { transform: scale(1.14) translateY(-1.4px) rotate(5deg); }
+    85%      { transform: scale(0.94) translateY(0.4px) rotate(-3deg); }
+}
+
+@keyframes cgv-flame-glow-pulse {
+    0%, 100% { filter: drop-shadow(0 0 4px rgba(255, 107, 0, 0.5)); }
+    30%      { filter: drop-shadow(0 0 12px rgba(255, 107, 0, 0.9)) drop-shadow(0 0 24px rgba(255, 69, 0, 0.4)); }
+    60%      { filter: drop-shadow(0 0 8px rgba(255, 107, 0, 0.7)) drop-shadow(0 0 20px rgba(255, 69, 0, 0.35)); }
+}
+
+@keyframes cgv-flame-glow {
+    0%, 100% { opacity: 0.45; transform: scale(1); }
+    35%      { opacity: 0.85; transform: scale(1.2); }
+    70%      { opacity: 0.6; transform: scale(1.05); }
+}
+
+@keyframes cgv-flame-body {
+    0%, 100% { opacity: 1; transform: scaleX(1) scaleY(1) skewX(0deg); }
+    20%      { opacity: 0.85; transform: scaleX(0.88) scaleY(1.06) skewX(3deg); }
+    45%      { opacity: 1; transform: scaleX(1.1) scaleY(0.94) skewX(-4deg); }
+    65%      { opacity: 0.88; transform: scaleX(0.92) scaleY(1.04) skewX(2deg); }
+    85%      { opacity: 1; transform: scaleX(1.06) scaleY(0.97) skewX(-2deg); }
+}
+
+@keyframes cgv-flame-core {
+    0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); }
+    25%      { opacity: 0.7; transform: scale(0.86) rotate(3deg); }
+    55%      { opacity: 1; transform: scale(1.12) rotate(-4deg); }
+    80%      { opacity: 0.8; transform: scale(0.94) rotate(2deg); }
+}
+
+@keyframes cgv-flame-spark-rise {
+    0%   { opacity: 0; transform: translateY(0) scale(0.5); }
+    15%  { opacity: 1; }
+    70%  { opacity: 0.6; }
+    100% { opacity: 0; transform: translateY(-6px) scale(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cgv-fire-icon,
+    .cgv-fire-icon__glow,
+    .cgv-fire-icon__body,
+    .cgv-fire-icon__core,
+    .cgv-fire-icon__spark {
+        animation: none !important;
+    }
+    .cgv-fire-icon {
+        filter: drop-shadow(0 0 4px rgba(255, 107, 0, 0.5));
+    }
 }
 
 .cgv-movie-section__rule {
