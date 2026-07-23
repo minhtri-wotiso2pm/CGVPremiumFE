@@ -1,4 +1,4 @@
-import { code39SvgString } from "@/utils/code39";
+import { code128SvgString } from "@/utils/code128";
 
 /** Normalized booking shape the printable bill needs — call sites adapt their
  *  own booking objects (MyBooking, BookingResponse) into this. */
@@ -31,12 +31,12 @@ const esc = (s: string) =>
     s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c] as string));
 
 /**
- * Opens a print window with a receipt-style bill: the booking-code Code 39
+ * Opens a print window with a receipt-style bill: the booking-code Code 128
  * barcode (scannable for F&B pickup / booking lookup) plus the order summary.
  * The per-seat ticket QR codes are printed separately (see TicketQrList).
  */
 export function printBill(b: PrintableBooking): void {
-    const barcode = code39SvgString(b.bookingCode, 68, 2);
+    const barcode = code128SvgString(b.bookingCode, 68, 2);
 
     const seatsRows = b.seats.length
         ? `<div class="sec-label">Seats</div>` +

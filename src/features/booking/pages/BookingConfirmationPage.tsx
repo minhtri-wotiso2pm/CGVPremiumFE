@@ -1,4 +1,4 @@
-import { type FC, useState } from "react";
+import { type FC, useEffect, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { Spin } from "antd";
 import type { BookingConfirmationNavState, BookingResponse } from "../types/payment.types";
@@ -6,6 +6,7 @@ import { formatPrice } from "../utils/seat.utils";
 import { useMyBookings } from "../hooks/useMyBookings";
 import TicketQrList from "../components/TicketQrList";
 import { FilmClapperIcon } from "@/components/ui/BrandIcons";
+import { funnyModeStore } from "@/features/funnyAssistant";
 import "../components/payment.css";
 
 /* ── Helpers ──────────────────────────────── */
@@ -96,6 +97,14 @@ const BookingConfirmationPage: FC = () => {
         moviePoster = foundBooking.movie?.posterUrl;
         paymentMethod = "payos";
     }
+
+    // KPI moment: a booking just succeeded → ask Kino (if the VIP companion
+    // is live) to play a one-shot celebrate beat. No-op otherwise. Fires once
+    // per confirmed booking.
+    const celebrateId = booking?.bookingID ?? null;
+    useEffect(() => {
+        if (celebrateId != null) funnyModeStore.sendIntent("celebrate");
+    }, [celebrateId]);
 
     if (!booking && isPayosPaid && isLoadingBookings) {
         return (

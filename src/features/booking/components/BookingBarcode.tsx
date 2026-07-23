@@ -21,7 +21,7 @@ interface Props {
 }
 
 /**
- * Booking-code block: a scannable horizontal Code 39 barcode of the booking
+ * Booking-code block: a scannable horizontal Code 128 barcode of the booking
  * code (for F&B pickup / booking lookup) plus an optional "Print bill" action.
  * Shared by the customer e-ticket and the staff counter receipt.
  */
@@ -65,7 +65,7 @@ const BookingBarcode: FC<Props> = ({ code, printable, variant = "dark", note, })
                     border: dark ? "none" : "1px solid var(--dash-border)",
                 }}
             >
-                <Barcode value={code} height={60} />
+                <Barcode value={code} height={60} format="code128" />
                 <span style={{ fontFamily: "'SF Mono', ui-monospace, Menlo, Consolas, monospace", fontSize: 14, fontWeight: 600, letterSpacing: "0.22em", color: "#111", paddingLeft: "0.22em" }}>
                     {code}
                 </span>

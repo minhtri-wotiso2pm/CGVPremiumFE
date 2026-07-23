@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, type FC } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
 import { useAiChat } from "../hooks/useAiChat";
+import { useFunnyMode } from "@/features/funnyAssistant/hooks/useFunnyMode";
+import MascotStage from "@/features/funnyAssistant/components/MascotStage";
 import ChatBubble from "./ChatBubble";
 import ChatPanel from "./ChatPanel";
 import "./aiChat.css";
@@ -48,11 +50,17 @@ const ChatWidgetInner: FC = () => {
 
 const ChatWidget: FC = () => {
     const location = useLocation();
+    // FunnyModeManager decision point: when a VIP on desktop has opted into
+    // Funny mode, the whole floating bubble is replaced by the living mascot.
+    // Otherwise the classic bubble renders exactly as before.
+    const funny = useFunnyMode();
 
     // Hidden on the dedicated full-page chat route — avoids a duplicate
     // floating bubble sitting on top of the same conversation, and unmounts
     // ChatWidgetInner so its useAiChat() instance doesn't go stale.
     if (CHAT_PAGE_PATHS.has(location.pathname)) return null;
+
+    if (funny.enabled) return <MascotStage />;
 
     return <ChatWidgetInner />;
 };

@@ -1,0 +1,480 @@
+/* ══════════════════════════════════════════════════════════════
+   Kino — "Living Sigil" · styles.
+
+   ROOT-CAUSE FIX: every colour is DERIVED from the app's live design
+   token `--cgv-crimson` (with a brand-hex fallback) via color-mix().
+   Kino is literally made of the brand light, so it can never look
+   "pasted on" — change the token and Kino re-tints with it. The old
+   build hard-copied the palette on purpose ("without a theme
+   dependency"); that was the reason it read as fake.
+══════════════════════════════════════════════════════════════ */
+.fa-kino {
+    /* the single source colour — consume the design system, don't copy it */
+    --k-core: var(--cgv-crimson, #e8001c);
+    --k-heart: color-mix(in oklab, var(--k-core) 52%, #ffffff);
+    --k-deep: color-mix(in oklab, var(--k-core) 64%, #000000);
+    --k-ink: color-mix(in oklab, var(--k-core) 32%, #000000); /* eyes: dark on light core */
+    --k-halo: color-mix(in srgb, var(--k-core) 40%, transparent);
+    --k-halo-soft: color-mix(in srgb, var(--k-core) 14%, transparent);
+    --k-surface: var(--cgv-surface, rgba(16, 5, 5, 0.98));
+    --k-border: var(--cgv-crimson-border, rgba(232, 0, 28, 0.25));
+    --k-text: var(--cgv-text-primary, #f0e8e8);
+    --k-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── Stage (fixed overlay, click-through except the mascot) ── */
+.fa-stage {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 930;
+}
+
+.fa-mascot {
+    position: absolute;
+    right: 30px;
+    bottom: 30px;
+    width: 84px;
+    height: 96px;
+    pointer-events: auto;
+    cursor: pointer;
+    will-change: transform, opacity;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    /* a soft cast of the brand light on the page beneath */
+    filter: drop-shadow(0 8px 26px var(--k-halo));
+}
+.fa-mascot:focus-visible {
+    outline: 2px solid var(--k-heart);
+    outline-offset: 6px;
+    border-radius: 50%;
+}
+
+/* ── The Sigil SVG ── */
+.fa-sigil {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+/* Ambient breath — compositor-only (transform + opacity). Runs on nested
+   groups so it never fights the outer motion.div's state transforms. Its
+   speed is tone-driven via --k-breath (set on the parent by data-tone). */
+.fa-sigil .k-core,
+.fa-sigil .k-halo {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: fa-breathe var(--k-breath, 4.6s) ease-in-out infinite;
+}
+.fa-sigil .k-halo {
+    animation-delay: 0.35s; /* halo trails the core → follow-through */
+}
+@keyframes fa-breathe {
+    0%, 100% { transform: scale(1); opacity: 0.92; }
+    50% { transform: scale(1.055); opacity: 1; }
+}
+
+/* Pause the breath when the tab is backgrounded (set from JS). */
+.fa-mascot[data-paused="true"] .k-core,
+.fa-mascot[data-paused="true"] .k-halo {
+    animation-play-state: paused;
+}
+
+/* ── Emotional tone (P2) — brightness + breath speed, never text ── */
+.fa-sigil .k-core { transition: filter 0.4s var(--k-ease); }
+[data-tone="attentive"] { --k-breath: 4.2s; }
+[data-tone="delighted"] { --k-breath: 3.4s; }
+[data-tone="resting"] { --k-breath: 5.8s; }
+[data-tone="attentive"] .k-core { filter: brightness(1.12) saturate(1.05); }
+[data-tone="delighted"] .k-core { filter: brightness(1.24) saturate(1.14); }
+[data-tone="resting"] .k-core { filter: brightness(1.05); }
+
+/* ── Time-of-day (P2) — a touch dimmer & softer at night ── */
+.fa-mascot[data-warm="true"] {
+    filter: drop-shadow(0 8px 26px var(--k-halo)) saturate(0.95) brightness(0.96);
+}
+
+/* ── Outfit accessory (P3) — fades in with the character ── */
+.fa-sigil .k-outfit {
+    animation: fa-outfit-in 0.42s var(--k-ease) both;
+}
+@keyframes fa-outfit-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Eyes — closed (a thin line) until the light wakes. */
+.fa-sigil .k-eyes {
+    transform-box: fill-box;
+    transform-origin: center;
+    opacity: 0;
+    transform: scaleY(0.06) translateY(2px);
+    transition: opacity 0.42s var(--k-ease), transform 0.42s var(--k-ease);
+}
+[data-awake="true"] .k-eyes {
+    opacity: 1;
+    transform: scaleY(1) translateY(0);
+}
+
+/* ── Sleeping companion perched on the chat dock ── */
+.fa-dock-sleeper {
+    position: fixed;
+    right: 150px;
+    bottom: calc(min(600px, 100vh - 120px) + 52px);
+    width: 78px;
+    height: 90px;
+    z-index: 945;
+    pointer-events: none;
+    filter: drop-shadow(0 8px 18px var(--k-halo));
+}
+
+/* ── One-shot celebration bloom (booking success / greet) ── */
+.fa-bloom {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 84px;
+    height: 84px;
+    margin: -42px 0 0 -42px;
+    border-radius: 50%;
+    pointer-events: none;
+    background: radial-gradient(circle, var(--k-heart), var(--k-halo) 46%, transparent 70%);
+    mix-blend-mode: screen;
+}
+
+/* ── Screen-reader / keyboard opener — off-screen until focused ── */
+.fa-sr-open {
+    position: fixed;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+.fa-sr-open:focus-visible {
+    left: 24px;
+    bottom: 24px;
+    width: auto;
+    height: auto;
+    z-index: 1000;
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--k-border);
+    background: var(--k-surface);
+    color: var(--k-text);
+    font: 600 13px "Inter", sans-serif;
+    cursor: pointer;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Settings — "Assistant Experience" card
+══════════════════════════════════════════════════════════════ */
+.fa-set-card {
+    background: var(--cgv-surface, rgba(16, 5, 5, 0.98));
+    border: 1px solid var(--cgv-border, rgba(255, 255, 255, 0.07));
+    border-radius: 16px;
+    padding: clamp(18px, 3vw, 28px);
+    max-width: 720px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    --k-core: var(--cgv-crimson, #e8001c);
+    --k-heart: color-mix(in oklab, var(--k-core) 52%, #ffffff);
+    --k-deep: color-mix(in oklab, var(--k-core) 64%, #000000);
+    --k-ink: color-mix(in oklab, var(--k-core) 32%, #000000);
+    --k-halo: color-mix(in srgb, var(--k-core) 40%, transparent);
+    --k-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --fa-crimson: var(--cgv-crimson, #e8001c);
+    --fa-crimson-dim: var(--cgv-crimson-dim, #b50016);
+    --fa-crimson-glow: var(--cgv-crimson-glow, rgba(232, 0, 28, 0.18));
+    --fa-crimson-border: var(--cgv-crimson-border, rgba(232, 0, 28, 0.25));
+    --fa-surface-raised: var(--cgv-surface-raised, rgba(22, 7, 7, 0.98));
+    --fa-text: var(--cgv-text-primary, #f0e8e8);
+    --fa-text-secondary: var(--cgv-text-secondary, #b09090);
+    --fa-text-muted: var(--cgv-text-muted, #6b4a4a);
+    --fa-border: var(--cgv-border, rgba(255, 255, 255, 0.06));
+    --fa-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.fa-set-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+.fa-set-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background: linear-gradient(135deg, var(--fa-crimson), var(--fa-crimson-dim));
+    box-shadow: 0 8px 24px var(--fa-crimson-glow);
+    flex-shrink: 0;
+}
+.fa-set-title {
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--fa-text);
+    margin: 0;
+}
+.fa-set-sub {
+    font-size: 13px;
+    color: var(--fa-text-secondary);
+    margin: 2px 0 0;
+    line-height: 1.5;
+}
+
+.fa-set-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+}
+@media (max-width: 620px) {
+    .fa-set-grid { grid-template-columns: 1fr; }
+}
+
+.fa-set-option {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: left;
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid var(--fa-border);
+    background: var(--fa-surface-raised);
+    color: var(--fa-text);
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.22s var(--fa-ease), background 0.22s var(--fa-ease), transform 0.22s var(--fa-ease);
+}
+.fa-set-option:hover:not(:disabled) {
+    border-color: var(--fa-crimson-border);
+    transform: translateY(-2px);
+}
+.fa-set-option:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+.fa-set-option[data-active="true"] {
+    border-color: var(--fa-crimson);
+    background: color-mix(in srgb, var(--fa-crimson) 8%, transparent);
+}
+
+.fa-set-option-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.fa-set-option-name {
+    font-size: 14.5px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.fa-set-radio {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--fa-text-muted);
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+.fa-set-option[data-active="true"] .fa-set-radio {
+    border-color: var(--fa-crimson);
+}
+.fa-set-radio span {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--fa-crimson);
+    transform: scale(0);
+    transition: transform 0.22s var(--fa-ease);
+}
+.fa-set-option[data-active="true"] .fa-set-radio span {
+    transform: scale(1);
+}
+.fa-set-option-desc {
+    font-size: 12px;
+    color: var(--fa-text-secondary);
+    line-height: 1.5;
+}
+.fa-set-pill {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(245, 158, 11, 0.14);
+    color: #f5b623;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.fa-set-preview {
+    margin-top: 18px;
+    position: relative;
+    height: 210px;
+    border-radius: 14px;
+    border: 1px solid var(--fa-border);
+    background:
+        radial-gradient(120% 90% at 50% 120%, var(--fa-crimson-glow), transparent 60%),
+        var(--fa-surface-raised);
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+}
+.fa-set-preview-label {
+    position: absolute;
+    top: 12px;
+    left: 14px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--fa-text-muted);
+}
+.fa-set-preview-hint {
+    position: absolute;
+    bottom: 12px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 11.5px;
+    color: var(--fa-text-muted);
+}
+.fa-set-preview-stage {
+    width: 120px;
+    height: 130px;
+}
+
+.fa-set-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: #e9c98a;
+}
+.fa-set-note svg { flex-shrink: 0; margin-top: 1px; }
+.fa-set-note a { color: #f5b623; font-weight: 600; text-decoration: underline; }
+
+/* ══════════════════════════════════════════════════════════════
+   Settings — sound toggle + Wardrobe (P2/P3)
+══════════════════════════════════════════════════════════════ */
+.fa-set-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 16px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid var(--fa-border);
+    background: var(--fa-surface-raised);
+}
+.fa-set-toggle-name { display: block; font-size: 14px; font-weight: 700; color: var(--fa-text); }
+.fa-set-toggle-desc { display: block; font-size: 12px; color: var(--fa-text-secondary); margin-top: 2px; line-height: 1.5; }
+.fa-set-switch {
+    flex-shrink: 0;
+    width: 46px;
+    height: 26px;
+    border-radius: 999px;
+    border: 1px solid var(--fa-border);
+    background: rgba(0, 0, 0, 0.35);
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    transition: background 0.22s var(--fa-ease), border-color 0.22s var(--fa-ease);
+}
+.fa-set-switch[data-on="true"] {
+    background: linear-gradient(135deg, var(--fa-crimson), var(--fa-crimson-dim));
+    border-color: var(--fa-crimson);
+}
+.fa-set-switch-knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    transition: transform 0.22s var(--fa-ease);
+}
+.fa-set-switch[data-on="true"] .fa-set-switch-knob { transform: translateX(20px); }
+
+.fa-ward-head { margin-top: 22px; }
+.fa-ward-title {
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: 16px; font-weight: 700; color: var(--fa-text); margin: 0;
+}
+.fa-ward-sub { font-size: 12.5px; color: var(--fa-text-secondary); margin: 3px 0 0; }
+.fa-ward-grid {
+    margin-top: 14px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(98px, 1fr));
+    gap: 10px;
+}
+.fa-ward-card {
+    position: relative;
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    padding: 12px 8px 10px;
+    border-radius: 14px;
+    border: 1px solid var(--fa-border);
+    background: var(--fa-surface-raised);
+    cursor: pointer; font-family: inherit; color: var(--fa-text);
+    transition: border-color 0.22s var(--fa-ease), background 0.22s var(--fa-ease), transform 0.22s var(--fa-ease);
+}
+.fa-ward-card:hover:not(:disabled) { transform: translateY(-2px); border-color: var(--fa-crimson-border); }
+.fa-ward-card[data-active="true"] { border-color: var(--fa-crimson); background: color-mix(in srgb, var(--fa-crimson) 8%, transparent); }
+.fa-ward-card:disabled { cursor: not-allowed; }
+.fa-ward-card:focus-visible { outline: 2px solid var(--k-heart, #ff5a6e); outline-offset: 2px; }
+.fa-ward-stage {
+    width: 64px; height: 70px;
+    display: grid; place-items: center;
+    position: relative;
+}
+.fa-ward-stage .fa-sigil { width: 64px; height: 72px; }
+.fa-ward-name { font-size: 11px; font-weight: 600; color: var(--fa-text-secondary); text-align: center; line-height: 1.25; }
+.fa-ward-card[data-active="true"] .fa-ward-name { color: var(--fa-text); }
+.fa-ward-badge {
+    position: absolute; top: 6px; right: 6px;
+    font-size: 8px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+    padding: 2px 6px; border-radius: 999px;
+    border: 1px solid var(--fa-border); color: var(--fa-text-muted); background: rgba(0, 0, 0, 0.28);
+}
+.fa-ward-badge[data-rarity="rare"] { color: #c8a2ff; border-color: rgba(200, 162, 255, 0.3); }
+.fa-ward-badge[data-rarity="seasonal"] { color: #9ecbff; border-color: rgba(158, 203, 255, 0.3); }
+.fa-ward-badge[data-rarity="event"] { color: #ff7aa2; border-color: rgba(255, 122, 162, 0.3); }
+.fa-ward-badge[data-rarity="premium"] { color: #f5b623; border-color: rgba(245, 182, 35, 0.3); }
+.fa-ward-lock {
+    position: absolute; inset: 0;
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--fa-surface) 74%, transparent);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    padding: 8px; text-align: center;
+}
+.fa-ward-lock svg { color: var(--fa-text-muted); margin-bottom: 2px; }
+.fa-ward-lock-label { font-size: 10.5px; font-weight: 600; color: var(--fa-text-secondary); line-height: 1.3; }
+.fa-ward-lock-progress { font-size: 10px; color: var(--fa-text-muted); font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) {
+    .fa-sigil .k-core,
+    .fa-sigil .k-halo { animation: none; }
+    .fa-sigil .k-eyes { transition: none; }
+    .fa-sigil .k-outfit { animation: none; }
+}
