@@ -10,7 +10,6 @@ import {
 } from "../hooks/useNotifications";
 import type { NotificationItem, NotificationType } from "../types/notification.types";
 import {
-    NOTIFICATION_TYPE_FILTER_OPTIONS,
     READ_STATUS_FILTER_OPTIONS,
     NOTIFICATION_PAGE_SIZE,
 } from "../constants/notification.constants";
@@ -31,14 +30,12 @@ const TrashIcon = () => (
  *  branching is needed here. */
 const DashboardNotificationsPage: FC = () => {
     const [isReadFilter, setIsReadFilter] = useState("");
-    const [typeFilter, setTypeFilter] = useState("");
     const [page, setPage] = useState(1);
 
     const params = {
         page,
         pageSize: NOTIFICATION_PAGE_SIZE,
         isRead: isReadFilter === "" ? undefined : isReadFilter === "read",
-        type: (typeFilter || undefined) as NotificationType | undefined,
     };
 
     const { data, isLoading, isError, refetch } = useNotifications(params);
@@ -49,7 +46,7 @@ const DashboardNotificationsPage: FC = () => {
 
     const items = data?.items ?? [];
     const total = data?.totalItems ?? items.length;
-    const hasFilters = isReadFilter !== "" || typeFilter !== "";
+    const hasFilters = isReadFilter !== "";
 
     /* Clicking a row only marks it read — dashboard notifications are
      * informational and intentionally don't navigate anywhere. */
@@ -59,7 +56,6 @@ const DashboardNotificationsPage: FC = () => {
 
     const clearFilters = () => {
         setIsReadFilter("");
-        setTypeFilter("");
         setPage(1);
     };
 
@@ -161,12 +157,6 @@ const DashboardNotificationsPage: FC = () => {
                         onChange={(v) => { setIsReadFilter(v); setPage(1); }}
                         options={READ_STATUS_FILTER_OPTIONS}
                         style={{ width: 140 }}
-                    />
-                    <Select
-                        value={typeFilter}
-                        onChange={(v) => { setTypeFilter(v); setPage(1); }}
-                        options={NOTIFICATION_TYPE_FILTER_OPTIONS}
-                        style={{ width: 160 }}
                     />
                 </div>
                 {hasFilters && (

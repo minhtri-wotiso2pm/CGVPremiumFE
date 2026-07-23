@@ -482,6 +482,7 @@
 
 .rpt-movie-table .rpt-th-right-sort .ant-table-column-title {
     flex: initial;
+    white-space: nowrap;
 }
 
 .rpt-movie-card__stats {

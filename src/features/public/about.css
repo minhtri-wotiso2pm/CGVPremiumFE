@@ -74,21 +74,71 @@
 ══════════════════════════════════════════ */
 .abt-hero {
     position: relative;
+    /* Full-bleed under the floating glass nav: cancel the clearance the shared
+       layout reserves at the top of <main> so the footage runs edge-to-edge
+       from the very top, with the pill nav floating over it. Using the header's
+       own :root variable keeps this in lock-step with the layout, no magic
+       numbers. The height subtracts the same amount so the hero still ends
+       exactly at the fold. */
+    margin-top: calc(-1 * var(--cgv-fh-clearance, 85px));
     min-height: 100vh;
+    min-height: 100svh;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    align-items: flex-end;
+    /* Copy is anchored bottom-left (rule of thirds) so it never covers the
+       vortex "eye" in the upper-centre of the footage. */
+    justify-content: flex-start;
     overflow: hidden;
+    background: #050101;
+    isolation: isolate;
 }
 
-.abt-hero__bg {
+/* Oversized media layer — overflows the section on every edge so the
+   parallax drift (see AboutHero.tsx) can translate it without ever
+   exposing a hard edge. */
+.abt-hero__media {
+    position: absolute;
+    left: -6%;
+    right: -6%;
+    top: -8%;
+    height: 118%;
+    z-index: 0;
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+.abt-hero__video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* 16:9 source: on ultra-wide boxes the cover crop trims top/bottom, so bias
+       slightly upward to keep the vortex "eye" in frame and shave the bottom
+       (watermark) edge; on exact-16:9 boxes there's no vertical crop, so the
+       scrim's corner vignette is what masks the watermark. */
+    object-position: 50% 40%;
+    display: block;
+    /* opacity is driven inline from React state (see AboutHero.tsx) — 0 until
+       the clip can paint, then fades up over this transition. */
+    transform: translateZ(0);
+    transition: opacity 1.1s ease;
+}
+
+/* Layered scrim: bottom + left darkening for copy legibility, a soft red
+   cinematic bloom near the swirl, a corner vignette that masks the source
+   watermark, and a top fade so the transparent public header stays legible —
+   all tuned to keep the footage clearly visible. */
+.abt-hero__scrim {
     position: absolute;
     inset: 0;
-    z-index: 0;
+    z-index: 1;
+    pointer-events: none;
     background:
-        radial-gradient(ellipse 60% 50% at 50% 32%, rgba(232, 0, 28, 0.14), transparent 65%),
-        radial-gradient(ellipse 70% 50% at 50% 100%, rgba(232, 0, 28, 0.08), transparent 70%),
-        linear-gradient(180deg, #050101 0%, #0a0303 55%, #050101 100%);
+        linear-gradient(to top, rgba(5, 1, 1, 0.92) 0%, rgba(5, 1, 1, 0.55) 22%, rgba(5, 1, 1, 0) 55%),
+        linear-gradient(to right, rgba(5, 1, 1, 0.8) 0%, rgba(5, 1, 1, 0.28) 34%, rgba(5, 1, 1, 0) 62%),
+        radial-gradient(ellipse 48% 42% at 52% 42%, rgba(232, 0, 28, 0.2), transparent 70%),
+        radial-gradient(ellipse 34% 30% at 100% 100%, rgba(5, 1, 1, 0.96) 20%, transparent 68%),
+        linear-gradient(to bottom, rgba(5, 1, 1, 0.6) 0%, rgba(5, 1, 1, 0) 18%);
 }
 
 .abt-hero__content {
@@ -96,119 +146,168 @@
     z-index: 2;
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    max-width: 620px;
+    padding: 0 clamp(24px, 7vw, 120px) clamp(72px, 12vh, 132px);
+    will-change: transform;
+}
+
+.abt-hero__eyebrow {
+    display: flex;
     align-items: center;
-    text-align: center;
-    padding: 0 24px;
-    perspective: 900px;
+    gap: 14px;
+    margin: 0 0 22px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: #ff5252;
 }
 
-/* Floating dust motes — tiny embers drifting in the ambient light. */
-.abt-hero__dust {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    overflow: hidden;
-    pointer-events: none;
+.abt-hero__eyebrow-rule {
+    width: 44px;
+    height: 1px;
+    background: linear-gradient(to right, #E8001C, rgba(232, 0, 28, 0));
 }
 
-.abt-hero__dust-mote {
-    position: absolute;
-    bottom: 8%;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255, 150, 140, 0.95), rgba(255, 80, 80, 0));
+.abt-hero__title {
+    margin: 0;
+    line-height: 1;
 }
 
-.abt-hero__logo-wrap {
-    position: relative;
-    z-index: 2;
-    animation: abt-glow-pulse 3.4s ease-in-out 2.3s infinite;
-    border-radius: 12px;
+.abt-hero__title-line {
+    display: inline-flex;
+    align-items: flex-start;
 }
 
-/* Logo — the brand-red gradient is clipped to the letterforms; the
-   shimmer is a background-position tween (see AboutHero.tsx) rather than
-   a separate overlay element, so it can never misalign or clip as a
-   hard-edged box the way a translated sweep layer did. */
+/* Logo — the brand-red gradient is clipped to the letterforms; the shimmer is
+   a background-position tween (see AboutHero.tsx) rather than a separate
+   overlay element, so it can never misalign as a hard-edged box. */
 .abt-hero__logo {
     display: inline-block;
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: clamp(40px, 8vw, 84px);
+    font-size: clamp(46px, 9vw, 108px);
     font-weight: 700;
-    letter-spacing: 0.06em;
-    padding: 0 6px;
+    letter-spacing: 0.04em;
+    line-height: 1;
     background-image: linear-gradient(115deg, #ff1a1a 20%, #ffe9e2 50%, #cc0000 80%);
     background-size: 280% 100%;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+    filter: drop-shadow(0 6px 30px rgba(232, 0, 28, 0.35));
 }
 
 .abt-hero__logo-dot {
     display: inline-block;
-    width: 0.14em;
-    height: 0.14em;
-    margin-left: 0.1em;
+    width: 0.13em;
+    height: 0.13em;
+    margin-left: 0.08em;
+    margin-top: 0.16em;
     border-radius: 50%;
     background: #ff1a1a;
-    vertical-align: super;
-}
-
-@keyframes abt-glow-pulse {
-
-    0%,
-    100% {
-        filter: drop-shadow(0 0 14px rgba(232, 0, 28, 0.28));
-    }
-
-    50% {
-        filter: drop-shadow(0 0 30px rgba(232, 0, 28, 0.48));
-    }
+    box-shadow: 0 0 16px rgba(232, 0, 28, 0.7);
 }
 
 .abt-hero__tagline {
-    position: relative;
-    z-index: 2;
-    margin: 22px 0 0;
-    font-size: clamp(14px, 1.6vw, 17px);
+    margin: 26px 0 0;
+    font-size: clamp(15px, 1.7vw, 19px);
     font-weight: 400;
-    letter-spacing: 0.02em;
-    color: #c8a8a8;
-    max-width: 480px;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+    color: #d8c4c4;
+    max-width: 30em;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6);
 }
 
 .abt-hero__scroll-cue {
-    position: relative;
-    z-index: 2;
-    margin-top: 56px;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 8px;
-    color: #7a5555;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    animation: abt-bob 2.4s ease-in-out infinite;
+    gap: 16px;
+    margin-top: clamp(40px, 7vh, 72px);
 }
 
-@keyframes abt-bob {
+.abt-hero__scroll-track {
+    position: relative;
+    width: 22px;
+    height: 38px;
+    border: 1.5px solid rgba(255, 255, 255, 0.35);
+    border-radius: 12px;
+    flex-shrink: 0;
+}
 
-    0%,
-    100% {
+.abt-hero__scroll-dot {
+    position: absolute;
+    left: 50%;
+    top: 7px;
+    width: 3.5px;
+    height: 8px;
+    margin-left: -1.75px;
+    border-radius: 3px;
+    background: #ff5252;
+    animation: abt-scroll-dot 2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.abt-hero__scroll-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #b89a9a;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+@keyframes abt-scroll-dot {
+
+    0% {
         transform: translateY(0);
+        opacity: 0;
     }
 
-    50% {
-        transform: translateY(8px);
+    30% {
+        opacity: 1;
+    }
+
+    60% {
+        transform: translateY(14px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(14px);
+        opacity: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .abt-hero__content {
+        max-width: 100%;
+        padding-bottom: clamp(64px, 10vh, 100px);
+    }
+
+    /* On mobile the cover crop is height-driven, so the watermark can sit at
+       the bottom edge — lean the bottom scrim darker to keep it hidden. */
+    .abt-hero__scrim {
+        background:
+            linear-gradient(to top, rgba(5, 1, 1, 0.96) 0%, rgba(5, 1, 1, 0.6) 30%, rgba(5, 1, 1, 0) 62%),
+            radial-gradient(ellipse 60% 40% at 50% 38%, rgba(232, 0, 28, 0.18), transparent 72%),
+            linear-gradient(to bottom, rgba(5, 1, 1, 0.55) 0%, rgba(5, 1, 1, 0) 16%);
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
 
-    .abt-hero__logo-wrap,
-    .abt-hero__scroll-cue {
+    .abt-hero__video {
+        transition: none;
+        opacity: 1;
+    }
+
+    .abt-hero__scroll-dot {
         animation: none;
+        opacity: 1;
     }
 }
 

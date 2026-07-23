@@ -17,7 +17,7 @@ const PAGE_SIZE = 10;
 
 /** Cancelled/expired bookings never made it to a real screening — no
  *  value in surfacing them in the customer's ticket list at all. */
-const HIDDEN_STATUSES = new Set(["cancelled", "expired"]);
+const HIDDEN_STATUSES = new Set(["cancelled", "expired", "pending"]);
 
 const fmtVnd = (n: number) => `${n.toLocaleString("vi-VN")} ₫`;
 
@@ -310,8 +310,8 @@ const MyTicketsPage: FC = () => {
                             >
                                 {key === "all" ? "All"
                                     : key === "upcoming" ? "Upcoming"
-                                    : key === "past" ? "Past"
-                                    : "To Review"}
+                                        : key === "past" ? "Past"
+                                            : "To Review"}
                                 {key === "toReview" && pendingReviews > 0 && (
                                     <span className={styles.filterCount}>{pendingReviews}</span>
                                 )}

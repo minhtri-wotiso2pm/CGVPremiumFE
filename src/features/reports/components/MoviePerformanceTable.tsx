@@ -84,7 +84,7 @@ const MoviePerformanceTable: FC<Props> = ({ data, loading, isError, onRetry, pos
             title: "Showtimes",
             dataIndex: "showtimeCount",
             key: "showtimeCount",
-            width: 110,
+            width: 124,
             align: "right",
             onHeaderCell: () => ({ className: "rpt-th-right-sort" }),
             render: (v: number) => <span style={{ fontSize: 13, color: "var(--dash-text-2)" }}>{formatNumber(v)}</span>,
@@ -95,7 +95,7 @@ const MoviePerformanceTable: FC<Props> = ({ data, loading, isError, onRetry, pos
             title: "Bookings",
             dataIndex: "bookingCount",
             key: "bookingCount",
-            width: 100,
+            width: 112,
             align: "right",
             onHeaderCell: () => ({ className: "rpt-th-right-sort" }),
             render: (v: number) => <span style={{ fontSize: 13, color: "var(--dash-text-2)" }}>{formatNumber(v)}</span>,
@@ -177,7 +177,7 @@ const MoviePerformanceTable: FC<Props> = ({ data, loading, isError, onRetry, pos
                         showTotal: (t, range) => `${range[0]}–${range[1]} of ${t} movies`,
                         style: { padding: "12px 16px", marginBottom: 0 },
                     }}
-                    scroll={{ x: 720 }}
+                    scroll={{ x: 746 }}
                     rowHoverable
                 />
             </div>
