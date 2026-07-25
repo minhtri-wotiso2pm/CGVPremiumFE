@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState, type FC } from "react";
+import { useEffect, useMemo, useRef, useState, type FC } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
 import { useAiChat } from "../hooks/useAiChat";
-import ChatBubble from "./ChatBubble";
+import FloatingMascot from "./FloatingMascot";
 import ChatPanel from "./ChatPanel";
 import "./aiChat.css";
 
@@ -32,12 +32,19 @@ const ChatWidgetInner: FC = () => {
         return () => document.removeEventListener("mousedown", handler);
     }, [isOpen]);
 
+    const lastMessageFailed = useMemo(() => {
+        const lastMsg = chat.messages[chat.messages.length - 1];
+        return lastMsg?.role === "user" && lastMsg?.failed === true;
+    }, [chat.messages]);
+
     return (
         <div ref={wrapRef}>
-            <ChatBubble
+            <FloatingMascot
                 isOpen={isOpen}
                 hasMessages={chat.messages.length > 0}
                 onToggle={() => setIsOpen((v) => !v)}
+                isSending={chat.isSending}
+                lastMessageFailed={lastMessageFailed}
             />
             <AnimatePresence>
                 {isOpen && <ChatPanel chat={chat} onClose={() => setIsOpen(false)} />}

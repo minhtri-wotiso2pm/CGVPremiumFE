@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 320" width="200" height="320">
+  <defs>
+    <clipPath id="bodyShape">
+      <path d="M34,96 Q32,88 40,86 L160,86 Q168,88 166,96 L156,272 Q154,280 146,280 L54,280 Q46,280 44,272 Z"/>
+    </clipPath>
+  </defs>
+  <path d="M34,96 Q32,88 40,86 L160,86 Q168,88 166,96 L156,272 Q154,280 146,280 L54,280 Q46,280 44,272 Z" fill="#E8001C" stroke="#000" stroke-width="3.5" stroke-linejoin="round"/>
+  <g clip-path="url(#bodyShape)">
+    <rect x="56" y="86" width="16" height="194" fill="#fff"/>
+    <rect x="84" y="86" width="16" height="194" fill="#fff"/>
+    <rect x="112" y="86" width="16" height="194" fill="#fff"/>
+    <rect x="140" y="86" width="16" height="194" fill="#fff"/>
+  </g>
+  <path d="M34,96 Q32,88 40,86 L160,86 Q168,88 166,96" fill="none" stroke="#000" stroke-width="3.5" stroke-linecap="round"/>
+</svg>

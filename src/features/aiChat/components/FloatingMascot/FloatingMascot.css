@@ -1,0 +1,87 @@
+:root {
+    --cgv-mascot-width: 75px;
+}
+
+.cgv-floating-mascot-shell {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 950;
+    touch-action: none;
+}
+
+.cgv-floating-mascot {
+    width: var(--cgv-mascot-width);
+    height: auto;
+    border: none;
+    cursor: grab;
+    padding: 0;
+    background: none;
+    display: block;
+}
+
+.cgv-floating-mascot:active {
+    cursor: grabbing;
+}
+
+.cgv-floating-mascot__svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.25));
+    pointer-events: none;
+}
+
+.cgv-floating-mascot__hint {
+    position: absolute;
+    right: calc(100% + 8px);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 949;
+    background: rgba(16, 5, 5, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: #f0e8e8;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    padding: 8px 14px;
+    border-radius: 999px;
+    white-space: nowrap;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    animation: cgv-mascot-hint-fade 4.5s ease forwards;
+    pointer-events: none;
+}
+
+@keyframes cgv-mascot-hint-fade {
+    0% { opacity: 0; }
+    12% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --cgv-mascot-width: 50px;
+    }
+}
+
+.popcorn-particle {
+    position: absolute;
+    left: 50%;
+    bottom: 30%;
+    border-radius: 50% 50% 50% 4px;
+    pointer-events: none;
+    will-change: transform, opacity;
+    box-shadow: inset -1px -1px 2px rgba(0, 0, 0, 0.15);
+    z-index: 960;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cgv-floating-mascot__svg {
+        filter: none;
+    }
+    .cgv-floating-mascot__hint {
+        animation: none;
+        opacity: 0;
+    }
+}

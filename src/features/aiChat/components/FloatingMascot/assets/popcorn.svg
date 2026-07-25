@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 320" width="200" height="320">
+  <!-- Back layer -->
+  <path d="M46,96 C42,86 48,76 58,72 C68,68 76,74 78,84 C82,80 90,68 102,70 C114,72 116,82 112,90 C118,84 128,74 140,76 C152,78 156,88 152,96 C158,92 164,90 166,96 Q160,102 154,104 Z" fill="#E8B830" stroke="#000" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Middle layer -->
+  <path d="M50,88 C46,78 54,66 66,62 C78,58 86,68 84,78 C92,70 104,60 116,64 C128,68 128,80 124,88 C132,80 142,76 150,82 Q152,94 144,98 Z" fill="#F5D742" stroke="#000" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Front layer -->
+  <path d="M58,76 C54,64 64,52 78,48 C92,44 100,54 96,66 C106,58 118,50 130,56 C142,62 140,74 134,82 Q140,88 136,96 Q128,100 120,96 Z" fill="#FFE87C" stroke="#000" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Top kernels -->
+  <path d="M68,62 C66,50 76,40 90,36 C104,32 112,42 108,54 C118,46 130,42 138,52 Q142,62 134,70 Q140,76 132,84 Q122,88 114,82 Z" fill="#FFF3B0" stroke="#000" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- Top highlight -->
+  <path d="M78,48 C76,38 86,28 100,26 C114,24 120,34 116,44 C126,36 136,36 140,46 Q142,54 134,60 Q128,66 118,62 Z" fill="#FFFDE0" stroke="#000" stroke-width="2" stroke-linejoin="round"/>
+</svg>
