@@ -30,29 +30,150 @@
     position: fixed;
     right: 24px;
     bottom: 24px;
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
+    width: 144px;
     border: none;
     cursor: pointer;
     z-index: 950;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    background: linear-gradient(135deg, var(--cgv-chat-crimson) 0%, var(--cgv-chat-crimson-dim) 100%);
-    box-shadow: 0 8px 32px rgba(232, 0, 28, 0.35), 0 2px 8px rgba(0, 0, 0, 0.4);
-    transition: transform var(--cgv-chat-transition), box-shadow var(--cgv-chat-transition);
+    background: transparent;
+    filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.35));
+    padding: 0;
+    line-height: 0;
+    cursor: grab;
 }
 
-.cgv-chat-bubble:hover {
-    transform: scale(1.08);
-    box-shadow: 0 10px 40px rgba(232, 0, 28, 0.45), 0 2px 8px rgba(0, 0, 0, 0.4);
+.cgv-chat-bubble:active {
+    cursor: grabbing;
+}
+
+.cgv-chat-bubble__body {
+    display: block;
+    line-height: 0;
 }
 
 .cgv-chat-bubble__icon {
     display: flex;
     transition: opacity 0.15s, transform 0.15s;
+}
+
+.cgv-chat-bubble__img {
+    width: 100%;
+    height: auto;
+    display: block;
+    pointer-events: none;
+}
+
+.cgv-chat-bubble__svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    pointer-events: none;
+    line-height: 0;
+}
+
+.cgv-chat-bubble__svg svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.cgv-chat-bubble__face {
+    display: block;
+    line-height: 0;
+    will-change: transform;
+    transition: none;
+}
+
+.cgv-chat-bubble__badge {
+    position: absolute;
+    z-index: 1;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #E8001C;
+    border: 2px solid #080202;
+    pointer-events: none;
+    right: -4px;
+    top: -4px;
+    animation: cgv-badge-pulse 1.5s ease-in-out infinite;
+}
+
+.cgv-chat-bubble--typing .cgv-chat-bubble__body {
+    animation: cgv-chat-thinking 1.2s ease-in-out infinite;
+}
+
+@keyframes cgv-chat-thinking {
+    0%, 100% { transform: translateY(0); }
+    25% { transform: translateY(-3px); }
+    75% { transform: translateY(-1px); }
+}
+
+.cgv-chat-bubble__thinking {
+    position: absolute;
+    bottom: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 4px;
+    padding: 4px 10px;
+    background: rgba(8, 2, 2, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    pointer-events: none;
+}
+
+.cgv-chat-bubble__thinking span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--cgv-chat-text-secondary, #b09090);
+    animation: cgv-thinking-dot 1.2s ease-in-out infinite;
+}
+
+.cgv-chat-bubble__thinking span:nth-child(2) { animation-delay: 0.15s; }
+.cgv-chat-bubble__thinking span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes cgv-thinking-dot {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-4px); opacity: 1; }
+}
+
+@keyframes cgv-badge-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.25); }
+}
+
+.cgv-chat-bubble__wrap {
+    position: relative;
+    display: block;
+    line-height: 0;
+}
+
+.cgv-chat-bubble__glow {
+    position: absolute;
+    inset: -16px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(232, 0, 28, 0.2) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* ── Particle burst ── */
+.cgv-chat-particles {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+}
+
+.cgv-chat-particle {
+    position: absolute;
+    pointer-events: none;
+    border-radius: 1px;
+    will-change: transform, opacity;
+}
+
+.cgv-chat-particle--circle {
+    border-radius: 50%;
 }
 
 .cgv-chat-bubble__pulse {
@@ -62,6 +183,7 @@
     border: 2px solid var(--cgv-chat-crimson);
     animation: cgv-chat-pulse 1.8s cubic-bezier(0.22, 1, 0.36, 1) 3;
     pointer-events: none;
+    display: none; /* hidden — now using SVG button */
 }
 
 @keyframes cgv-chat-pulse {
@@ -102,7 +224,7 @@
     bottom: 92px;
     width: 400px;
     height: 600px;
-    max-height: calc(100vh - 120px);
+    max-height: calc(100vh - 85px - 92px);
     z-index: 940;
     display: flex;
     flex-direction: column;
@@ -531,11 +653,12 @@
         height: 70vh;
         right: 4vw;
         bottom: 84px;
+        max-height: calc(100vh - 85px - 84px);
     }
 }
 
 @media (max-width: 480px) {
-    .cgv-chat-bubble { right: 16px; bottom: 16px; width: 48px; height: 48px; }
+    .cgv-chat-bubble { right: 16px; bottom: 16px; width: 108px; }
     .cgv-chat-bubble__hint { right: 16px; bottom: 74px; }
     .cgv-chat-panel {
         width: auto;
