@@ -16,12 +16,20 @@ import { getApiErrorMessage } from "@/utils/apiMessage";
 
 export function useManagerShowtimes(params: GetManagerShowtimesParams, enabled: boolean) {
     return useQuery({
+        // Every param that changes the response must be in the key — the page
+        // runs two of these side by side (the paged table and the unfiltered
+        // stats fetch) and they collided on an identical key, so the table
+        // rendered whatever the other query had cached.
         queryKey: [
             SHOWTIME_MGMT_QUERY_KEY,
+            "list",
             params.cinemaId ?? "none",
             params.date ?? "all",
             params.status ?? "all",
             params.page ?? 1,
+            params.pageSize ?? "default",
+            params.sortBy ?? "none",
+            params.sortDir ?? "none",
         ],
         queryFn: () => getManagerShowtimesApi(params),
         enabled,

@@ -1,4 +1,5 @@
 import { type FC, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Select, Pagination, Button } from "antd";
 import { useNavigate } from "react-router-dom";
 import {
@@ -17,7 +18,6 @@ import {
 import {
     fmtRelativeTime,
     NOTIFICATION_TYPE_COLOR_DARK,
-    NOTIFICATION_TYPE_LABEL,
     resolveCustomerNotificationUrl,
 } from "@/features/notifications/utils/notification.utils";
 import NotificationTypeIcon from "@/features/notifications/components/NotificationTypeIcon";
@@ -47,6 +47,7 @@ const SkeletonCard: FC = () => (
 );
 
 const NotificationCard: FC<{ item: NotificationItem; onOpen: () => void; onDelete: () => void }> = ({ item, onOpen, onDelete }) => {
+    const { t } = useTranslation("profile");
     const chip = NOTIFICATION_TYPE_COLOR_DARK[item.type];
 
     return (
@@ -68,7 +69,7 @@ const NotificationCard: FC<{ item: NotificationItem; onOpen: () => void; onDelet
                         <button
                             className={styles.deleteBtn}
                             onClick={(e) => { e.stopPropagation(); onDelete(); }}
-                            aria-label="Delete notification"
+                            aria-label={t("notifications.deleteAria")}
                         >
                             <DeleteIcon />
                         </button>
@@ -77,7 +78,7 @@ const NotificationCard: FC<{ item: NotificationItem; onOpen: () => void; onDelet
                 <p className={styles.cardMessage}>{item.message}</p>
                 <div className={styles.cardMeta}>
                     <span className={styles.typeChip} style={{ background: chip.bg, color: chip.color }}>
-                        {NOTIFICATION_TYPE_LABEL[item.type] ?? item.type}
+                        {t(`notifTypes.${item.type}`, { defaultValue: item.type })}
                     </span>
                     <span className={styles.cardTime}>{fmtRelativeTime(item.createdAt)}</span>
                 </div>
@@ -87,6 +88,7 @@ const NotificationCard: FC<{ item: NotificationItem; onOpen: () => void; onDelet
 };
 
 const NotificationsPage: FC = () => {
+    const { t } = useTranslation("profile");
     const navigate = useNavigate();
     const [isReadFilter, setIsReadFilter] = useState("");
     const [typeFilter, setTypeFilter] = useState("");
@@ -128,17 +130,17 @@ const NotificationsPage: FC = () => {
         <div className={styles.page}>
             <div className={styles.header}>
                 <div>
-                    <h1 className={styles.title}>Notifications</h1>
+                    <h1 className={styles.title}>{t("nav.notifications")}</h1>
                     <p className={styles.subtitle}>
-                        Updates about your bookings, payments, refunds, and promotions.
+                        {t("notifications.subtitle")}
                     </p>
                 </div>
                 <div className={styles.headerActions}>
                     <Button className={styles.actionBtn} loading={markingAll} onClick={() => markAllRead()}>
-                        Mark all as read
+                        {t("notifications.markAllRead")}
                     </Button>
                     <Button className={styles.actionBtn} loading={deletingRead} onClick={() => deleteRead()}>
-                        Clear read
+                        {t("notifications.clearRead")}
                     </Button>
                 </div>
             </div>
@@ -149,18 +151,18 @@ const NotificationsPage: FC = () => {
                     popupClassName={styles.selectPopup}
                     value={isReadFilter}
                     onChange={(v) => { setIsReadFilter(v); setPage(1); }}
-                    options={READ_STATUS_FILTER_OPTIONS}
+                    options={READ_STATUS_FILTER_OPTIONS.map((o) => ({ value: o.value, label: t(o.labelKey) }))}
                 />
                 <Select
                     className={styles.filterSelect}
                     popupClassName={styles.selectPopup}
                     value={typeFilter}
                     onChange={(v) => { setTypeFilter(v); setPage(1); }}
-                    options={NOTIFICATION_TYPE_FILTER_OPTIONS}
+                    options={NOTIFICATION_TYPE_FILTER_OPTIONS.map((o) => ({ value: o.value, label: t(o.labelKey) }))}
                 />
                 {hasFilters && (
                     <Button type="text" className={styles.clearBtn} onClick={clearFilters}>
-                        Clear filters
+                        {t("tickets.clearFilters")}
                     </Button>
                 )}
             </div>
@@ -171,20 +173,20 @@ const NotificationsPage: FC = () => {
                 </div>
             ) : isError ? (
                 <div className={styles.stateBox}>
-                    <p className={styles.stateText}>Failed to load your notifications.</p>
-                    <Button className={styles.actionBtn} onClick={() => refetch()}>Retry</Button>
+                    <p className={styles.stateText}>{t("notifications.loadFailed")}</p>
+                    <Button className={styles.actionBtn} onClick={() => refetch()}>{t("common:actions.tryAgain")}</Button>
                 </div>
             ) : isEmpty ? (
                 <div className={styles.stateBox}>
                     <div style={{ color: "#5a4040", marginBottom: 12 }}><BellIcon /></div>
-                    <p className={styles.stateTitle}>You're all caught up</p>
-                    <p className={styles.stateText}>New notifications about your bookings and account will show up here.</p>
+                    <p className={styles.stateTitle}>{t("notifications.emptyTitle")}</p>
+                    <p className={styles.stateText}>{t("notifications.emptyText")}</p>
                 </div>
             ) : isFilterEmpty ? (
                 <div className={styles.stateBox}>
-                    <p className={styles.stateTitle}>No results found</p>
-                    <p className={styles.stateText}>Try adjusting your filters.</p>
-                    <Button className={styles.actionBtn} onClick={clearFilters}>Clear filters</Button>
+                    <p className={styles.stateTitle}>{t("tickets.noResultsTitle")}</p>
+                    <p className={styles.stateText}>{t("notifications.noResultsText")}</p>
+                    <Button className={styles.actionBtn} onClick={clearFilters}>{t("tickets.clearFilters")}</Button>
                 </div>
             ) : (
                 <>

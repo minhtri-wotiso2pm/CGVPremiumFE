@@ -1,5 +1,7 @@
 import type { FC } from "react";
+import { useTranslation } from "react-i18next";
 import type { SeatNavState } from "../types/seat.types";
+import { formatDate, formatTime } from "@/utils/formatDate";
 
 const LocationIcon = () => (
     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -33,31 +35,6 @@ const AGE_RATING_BG: Record<string, string> = {
     C18: "#9c27b0",
 };
 
-function formatDate(iso: string): string {
-    try {
-        return new Date(iso).toLocaleDateString("vi-VN", {
-            weekday: "short",
-            day:     "2-digit",
-            month:   "2-digit",
-            year:    "numeric",
-        });
-    } catch {
-        return iso;
-    }
-}
-
-function formatTime(iso: string): string {
-    try {
-        return new Date(iso).toLocaleTimeString("vi-VN", {
-            hour:   "2-digit",
-            minute: "2-digit",
-            hour12: false,
-        });
-    } catch {
-        return "";
-    }
-}
-
 function formatDuration(minutes: number): string {
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
@@ -69,6 +46,7 @@ interface Props {
 }
 
 const SeatSelectionHeader: FC<Props> = ({ navState }) => {
+    const { t } = useTranslation("booking");
     const {
         movieTitle,
         moviePoster,
@@ -89,7 +67,7 @@ const SeatSelectionHeader: FC<Props> = ({ navState }) => {
             {moviePoster ? (
                 <img
                     src={moviePoster}
-                    alt={movieTitle ?? "Movie"}
+                    alt={movieTitle ?? t("seats.moviePosterAlt")}
                     className="cgv-seats-info-poster"
                     loading="eager"
                 />
@@ -107,7 +85,7 @@ const SeatSelectionHeader: FC<Props> = ({ navState }) => {
                         <span
                             className="cgv-seats-age-badge"
                             style={{ "--age-color": ageBg } as React.CSSProperties}
-                            aria-label={`Age rating: ${movieAgeRating}`}
+                            aria-label={t("seats.ageRatingAria", { rating: movieAgeRating })}
                         >
                             {movieAgeRating}
                         </span>
@@ -136,7 +114,7 @@ const SeatSelectionHeader: FC<Props> = ({ navState }) => {
                 </div>
 
                 {startTime && (
-                    <div className="cgv-seats-datetime" aria-label="Showtime">
+                    <div className="cgv-seats-datetime" aria-label={t("seats.showtimeAria")}>
                         <CalendarIcon />
                         {formatDate(startTime)} · {formatTime(startTime)}
                     </div>

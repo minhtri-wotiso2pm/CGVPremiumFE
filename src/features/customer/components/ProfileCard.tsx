@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useTranslation } from "react-i18next";
 import { Button, Skeleton, Badge } from "antd";
 import { EditOutlined, LockOutlined, StarFilled } from "@ant-design/icons";
 import type { ProfileResponse } from "../types/profile.type";
@@ -13,6 +14,7 @@ import {
 } from "../utils/profile.mapper";
 import { useMembershipInfo } from "../hooks/useMembership";
 import Barcode from "@/components/ui/Barcode";
+import { formatNumber } from "@/utils/formatCurrency";
 import styles from "./ProfileCard.module.css";
 
 interface Props {
@@ -24,6 +26,7 @@ interface Props {
 }
 
 const ProfileCard: FC<Props> = ({ profile, loading, onEdit, onAvatar, onChangePassword }) => {
+    const { t } = useTranslation("profile");
     const { data: membership } = useMembershipInfo();
 
     if (loading || !profile) {
@@ -51,17 +54,17 @@ const ProfileCard: FC<Props> = ({ profile, loading, onEdit, onAvatar, onChangePa
                         icon={<EditOutlined />}
                         onClick={onEdit}
                         className={styles.heroBtn}
-                        aria-label="Edit profile"
+                        aria-label={t("card.editProfile")}
                     >
-                        Edit Profile
+                        {t("card.editProfile")}
                     </Button>
                     <Button
                         icon={<LockOutlined />}
                         onClick={onChangePassword}
                         className={styles.heroBtn}
-                        aria-label="Change password"
+                        aria-label={t("card.changePassword")}
                     >
-                        Change Password
+                        {t("card.changePassword")}
                     </Button>
                 </div>
             </div>
@@ -73,7 +76,7 @@ const ProfileCard: FC<Props> = ({ profile, loading, onEdit, onAvatar, onChangePa
                     <button
                         className={styles.avatarBtn}
                         onClick={onAvatar}
-                        aria-label="Change avatar"
+                        aria-label={t("card.changeAvatar")}
                         type="button"
                     >
                         <EditOutlined style={{ fontSize: 11 }} />
@@ -92,22 +95,22 @@ const ProfileCard: FC<Props> = ({ profile, loading, onEdit, onAvatar, onChangePa
                                 boxShadow: `0 0 14px ${color}14`,
                             }}
                         >
-                            {formatTierName(membership.currentTier)} Member
+                            {t("sidebar.tierMember", { tier: formatTierName(membership.currentTier) })}
                         </span>
                     );
                 })() : (
-                    <span className={styles.memberBadge}>Member</span>
+                    <span className={styles.memberBadge}>{t("sidebar.member")}</span>
                 )}
             </div>
 
             {/* ── Info grid ── */}
             <div className={styles.infoGrid}>
                 <div className={styles.infoItem}>
-                    <span className={styles.infoLabel}>Email</span>
+                    <span className={styles.infoLabel}>{t("card.email")}</span>
                     <span className={styles.infoValue}>{profile.email}</span>
                 </div>
                 <div className={styles.infoItem}>
-                    <span className={styles.infoLabel}>Phone</span>
+                    <span className={styles.infoLabel}>{t("card.phone")}</span>
                     <span className={styles.infoValue}>{profile.phone || "—"}</span>
                 </div>
                 {/* <div className={styles.infoItem}>
@@ -115,11 +118,11 @@ const ProfileCard: FC<Props> = ({ profile, loading, onEdit, onAvatar, onChangePa
                     <span className={styles.infoValue}>{mapRole(profile.role)}</span>
                 </div> */}
                 <div className={styles.infoItem}>
-                    <span className={styles.infoLabel}>Member Since</span>
+                    <span className={styles.infoLabel}>{t("card.memberSince")}</span>
                     <span className={styles.infoValue}>{formatMemberSince(profile.createdAt)}</span>
                 </div>
                 <div className={styles.infoItem}>
-                    <span className={styles.infoLabel}>Status</span>
+                    <span className={styles.infoLabel}>{t("card.status")}</span>
                     <Badge
                         status={mapStatusColor(profile.status) as "success" | "error" | "warning" | "default"}
                         text={capitalize(profile.status)}
@@ -127,7 +130,7 @@ const ProfileCard: FC<Props> = ({ profile, loading, onEdit, onAvatar, onChangePa
                     />
                 </div>
                 <div className={styles.infoItem}>
-                    <span className={styles.infoLabel}>Membership</span>
+                    <span className={styles.infoLabel}>{t("card.membership")}</span>
                     {membership ? (
                         <span
                             className={styles.infoValue}
@@ -140,7 +143,7 @@ const ProfileCard: FC<Props> = ({ profile, loading, onEdit, onAvatar, onChangePa
                     )}
                 </div>
                 <div className={styles.infoItem}>
-                    <span className={styles.infoLabel}>Refunds Remaining (Monthly)</span>
+                    <span className={styles.infoLabel}>{t("card.refundsRemaining")}</span>
                     <span className={styles.infoValue}>
                         {Math.max(0, profile.total_refunds - profile.used_refunds)} / {profile.total_refunds}
                     </span>
@@ -152,22 +155,22 @@ const ProfileCard: FC<Props> = ({ profile, loading, onEdit, onAvatar, onChangePa
                 <div className={styles.pointsMeta}>
                     <StarFilled className={styles.pointsStar} />
                     <div>
-                        <p className={styles.pointsLabel}>Total Points</p>
-                        <p className={styles.pointsHint}>Earn more by booking tickets</p>
+                        <p className={styles.pointsLabel}>{t("card.totalPoints")}</p>
+                        <p className={styles.pointsHint}>{t("card.pointsHint")}</p>
                     </div>
                 </div>
-                <span className={styles.points}>{profile.totalPoints.toLocaleString()}</span>
+                <span className={styles.points}>{formatNumber(profile.totalPoints)}</span>
             </div>
 
             {/* ── Membership barcode ── */}
             {profile.barcode && (
                 <div className={styles.barcodeSection}>
-                    <p className={styles.barcodeLabel}>Membership Card</p>
+                    <p className={styles.barcodeLabel}>{t("card.membershipCard")}</p>
                     <div className={styles.barcodePanel}>
                         <Barcode value={profile.barcode} height={62} />
                         <span className={styles.barcodeCode}>{profile.barcode}</span>
                     </div>
-                    <p className={styles.barcodeHint}>Show this at the counter to look up your account and earn points</p>
+                    <p className={styles.barcodeHint}>{t("card.barcodeHint")}</p>
                 </div>
             )}
         </div>

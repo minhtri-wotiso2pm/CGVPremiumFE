@@ -111,6 +111,7 @@ const ShowtimeManagementPage: FC = () => {
     const [modalType, setModalType] = useState<ShowtimeModalType | null>(null);
     const [selected, setSelected] = useState<ManagerShowtime | null>(null);
     const [wizardOpen, setWizardOpen] = useState(false);
+    const [justCreated, setJustCreated] = useState<ManagerShowtime | null>(null);
     const [justCreatedId, setJustCreatedId] = useState<number | null>(null);
     const highlightTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -132,11 +133,16 @@ const ShowtimeManagementPage: FC = () => {
     const { data, isLoading, isError, refetch, isFetching } = useManagerShowtimes(params, cinemaId != null);
 
     // Client-side guarantee: newest showtimeId on top even if the server
-    // returns the page in another order.
-    const items = useMemo(
-        () => [...(data?.items ?? [])].sort((a, b) => b.showtimeId - a.showtimeId),
-        [data],
-    );
+    // returns the page in another order. A just-created showtime is pinned on
+    // top until the refetched page actually contains it — the invalidate is
+    // async, and the server may page/sort it off the first page entirely.
+    const items = useMemo(() => {
+        const rows = [...(data?.items ?? [])].sort((a, b) => b.showtimeId - a.showtimeId);
+        if (justCreated && !rows.some((r) => r.showtimeId === justCreated.showtimeId)) {
+            return [justCreated, ...rows];
+        }
+        return rows;
+    }, [data, justCreated]);
     const total = data?.totalItems ?? items.length;
 
     // Movie status lookup (the showtime payload doesn't carry it).
@@ -148,10 +154,15 @@ const ShowtimeManagementPage: FC = () => {
     }, [movieData]);
 
     const handleCreated = (created: ManagerShowtime) => {
+        setJustCreated(created);
         setJustCreatedId(created.showtimeId);
+        const wasFiltered = date !== null || status !== "" || page !== 1;
         setDate(null);
         setStatus("");
         setPage(1);
+        // Clearing filters swaps the query key and fetches on its own; if it was
+        // already clear the key is unchanged, so pull the fresh page explicitly.
+        if (!wasFiltered) refetch();
         if (highlightTimer.current) clearTimeout(highlightTimer.current);
         highlightTimer.current = setTimeout(() => setJustCreatedId(null), 3000);
     };
@@ -183,7 +194,11 @@ const ShowtimeManagementPage: FC = () => {
         setSelected(null);
     };
 
-    const resetToFirstPage = () => setPage(1);
+    // Any manual navigation drops the pinned "just created" row.
+    const resetToFirstPage = () => {
+        setPage(1);
+        setJustCreated(null);
+    };
 
     const columns: ColumnsType<ManagerShowtime> = [
         {
@@ -367,7 +382,7 @@ const ShowtimeManagementPage: FC = () => {
                                 columns={columns}
                                 rowKey="showtimeId"
                                 loading={isLoading || isFetching}
-                                onChange={(p) => setPage(p.current ?? 1)}
+                                onChange={(p) => { setPage(p.current ?? 1); setJustCreated(null); }}
                                 rowClassName={(r) => (r.showtimeId === justCreatedId ? "stt-row-highlight" : "")}
                                 locale={{
                                     emptyText: (
@@ -416,7 +431,15 @@ const ShowtimeManagementPage: FC = () => {
                     <DeleteShowtimeModal showtime={selected} open={modalType === "delete"} onClose={closeModal} />
                     <GenerateShowtimeWizard
                         open={wizardOpen}
-                        onClose={() => setWizardOpen(false)}
+                        onClose={() => {
+                            setWizardOpen(false);
+                            // Batch generation may have added rows — show page 1 unfiltered.
+                            setDate(null);
+                            setStatus("");
+                            setPage(1);
+                            setJustCreated(null);
+                            refetch();
+                        }}
                         cinemaId={cinemaId}
                     />
                 </>

@@ -14,20 +14,21 @@ export const NOTIFICATION_DROPDOWN_PREVIEW_COUNT = 5;
 
 /** Only the types a customer would meaningfully want to filter by — a
  *  notification can still arrive as payment/account/system and will
- *  still display normally, it's just not offered as a filter option. */
+ *  still display normally, it's just not offered as a filter option.
+ *  labelKey values are i18n keys resolved with t() at render. */
 export const NOTIFICATION_TYPE_OPTIONS = [
-    { value: "booking", label: "Booking" },
-    { value: "refund", label: "Refund" },
-    { value: "promotion", label: "Promotion" },
+    { value: "booking", labelKey: "profile:notifTypes.booking" },
+    { value: "refund", labelKey: "profile:notifTypes.refund" },
+    { value: "promotion", labelKey: "profile:notifTypes.promotion" },
 ] as const;
 
 export const NOTIFICATION_TYPE_FILTER_OPTIONS = [
-    { value: "", label: "All Types" },
+    { value: "", labelKey: "profile:notifications.allTypes" },
     ...NOTIFICATION_TYPE_OPTIONS,
 ];
 
 export const READ_STATUS_FILTER_OPTIONS = [
-    { value: "", label: "All" },
-    { value: "unread", label: "Unread" },
-    { value: "read", label: "Read" },
+    { value: "", labelKey: "profile:notifications.filterAll" },
+    { value: "unread", labelKey: "profile:notifications.unread" },
+    { value: "read", labelKey: "profile:notifications.read" },
 ];

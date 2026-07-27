@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, type FC } from "react";
+import { useTranslation } from "react-i18next";
 import { Modal, Upload, Button, Popconfirm } from "antd";
 import { UploadOutlined, DeleteOutlined } from "@ant-design/icons";
 import Cropper from "react-easy-crop";
@@ -36,6 +37,7 @@ interface Props {
 }
 
 const AvatarModal: FC<Props> = ({ open, profile, onClose }) => {
+    const { t } = useTranslation("profile");
     const [imageSrc, setImageSrc] = useState<string | null>(null);
     const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
@@ -61,11 +63,11 @@ const AvatarModal: FC<Props> = ({ open, profile, onClose }) => {
 
     const handleFileSelect = (file: File) => {
         if (!AVATAR_ACCEPT_TYPES.includes(file.type)) {
-            notify.error("Invalid file type.", "Only JPG, PNG or WebP files are allowed.");
+            notify.error(t("avatarModal.invalidType"), t("avatarModal.invalidTypeDesc"));
             return false;
         }
         if (file.size > AVATAR_MAX_SIZE_MB * 1024 * 1024) {
-            notify.error("File too large.", `File must be smaller than ${AVATAR_MAX_SIZE_MB} MB.`);
+            notify.error(t("avatarModal.tooLarge"), t("avatarModal.tooLargeDesc", { size: AVATAR_MAX_SIZE_MB }));
             return false;
         }
         const reader = new FileReader();
@@ -82,7 +84,7 @@ const AvatarModal: FC<Props> = ({ open, profile, onClose }) => {
             const file = new File([blob], "avatar.jpg", { type: "image/jpeg" });
             upload(file);
         } catch {
-            notify.error("Crop failed.", "Please try again.");
+            notify.error(t("avatarModal.cropFailed"), t("avatarModal.cropFailedDesc"));
         } finally {
             setCropping(false);
         }
@@ -102,7 +104,7 @@ const AvatarModal: FC<Props> = ({ open, profile, onClose }) => {
         <Modal
             open={open}
             onCancel={handleClose}
-            title={<span className={styles.title}>Change Avatar</span>}
+            title={<span className={styles.title}>{t("card.changeAvatar")}</span>}
             footer={null}
             width={420}
             destroyOnClose
@@ -130,20 +132,20 @@ const AvatarModal: FC<Props> = ({ open, profile, onClose }) => {
                     </div>
                 ) : (
                     <div className={styles.preview}>
-                        <img src={currentAvatar} alt="Current avatar" className={styles.previewImg} />
-                        <p className={styles.previewHint}>Upload a new photo to change your avatar.</p>
+                        <img src={currentAvatar} alt={t("avatarModal.currentAlt")} className={styles.previewImg} />
+                        <p className={styles.previewHint}>{t("avatarModal.uploadHint")}</p>
                     </div>
                 )}
 
                 {/* ── Zoom slider (only when image selected) ── */}
                 {imageSrc && (
                     <div className={styles.sliderRow}>
-                        <span className={styles.sliderLabel}>Zoom</span>
+                        <span className={styles.sliderLabel}>{t("avatarModal.zoom")}</span>
                         <input
                             type="range" min={1} max={3} step={0.01}
                             value={zoom} onChange={(e) => setZoom(Number(e.target.value))}
                             className={styles.slider}
-                            aria-label="Zoom"
+                            aria-label={t("avatarModal.zoom")}
                             disabled={isBusy}
                         />
                     </div>
@@ -153,7 +155,7 @@ const AvatarModal: FC<Props> = ({ open, profile, onClose }) => {
                 <div className={styles.actions}>
                     <Upload beforeUpload={handleFileSelect} showUploadList={false} accept=".jpg,.jpeg,.png,.webp" disabled={isBusy}>
                         <Button icon={<UploadOutlined />} className={styles.uploadBtn} disabled={isBusy}>
-                            {imageSrc ? "Choose Different Photo" : "Upload Photo"}
+                            {imageSrc ? t("avatarModal.chooseDifferent") : t("avatarModal.uploadPhoto")}
                         </Button>
                     </Upload>
 
@@ -165,7 +167,7 @@ const AvatarModal: FC<Props> = ({ open, profile, onClose }) => {
                             disabled={isBusy}
                             className={styles.saveBtn}
                         >
-                            Save Avatar
+                            {t("avatarModal.saveAvatar")}
                         </Button>
                     )}
                 </div>
@@ -174,25 +176,25 @@ const AvatarModal: FC<Props> = ({ open, profile, onClose }) => {
                 {!imageSrc && profile.avatarURL && (
                     <div className={styles.removeRow}>
                         <Popconfirm
-                            title={<span style={{ color: "#f0e8e8", fontWeight: 600 }}>Remove Avatar</span>}
-                            description={<span style={{ color: "#9a7070" }}>Are you sure you want to remove your avatar?</span>}
+                            title={<span style={{ color: "#f0e8e8", fontWeight: 600 }}>{t("avatarModal.removeAvatar")}</span>}
+                            description={<span style={{ color: "#9a7070" }}>{t("avatarModal.removeConfirm")}</span>}
                             onConfirm={() => remove()}
-                            okText="Remove"
-                            cancelText="Cancel"
+                            okText={t("avatarModal.remove")}
+                            cancelText={t("common:actions.cancel")}
                             okButtonProps={{ danger: true, loading: removing }}
                             cancelButtonProps={{ style: { background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.1)", color: "#9a7070" } }}
                             disabled={isBusy}
                             overlayInnerStyle={{ background: "#1a0f0f", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10 }}
                         >
                             <Button danger icon={<DeleteOutlined />} className={styles.removeBtn} loading={removing} disabled={isBusy}>
-                                Remove Avatar
+                                {t("avatarModal.removeAvatar")}
                             </Button>
                         </Popconfirm>
                     </div>
                 )}
 
                 <div className={styles.cancelRow}>
-                    <Button onClick={handleClose} className={styles.cancelBtn} disabled={isBusy}>Cancel</Button>
+                    <Button onClick={handleClose} className={styles.cancelBtn} disabled={isBusy}>{t("common:actions.cancel")}</Button>
                 </div>
             </div>
         </Modal>

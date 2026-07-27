@@ -1,5 +1,6 @@
 import { type FC, useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { QRCode } from "antd";
 import { useAppSelector } from "@/store/hooks";
@@ -17,6 +18,7 @@ import { FilmClapperIcon } from "@/components/ui/BrandIcons";
 import { useWallet } from "../hooks/useWallet";
 import { getPaymentStatusApi } from "@/services/api/payment.service";
 import { formatPrice, getSeatLabel } from "../utils/seat.utils";
+import { formatDateTime } from "@/utils/formatDate";
 import { clearActiveSeatHold } from "../utils/activeSeatHold";
 import type { BookingConfirmationNavState } from "../types/payment.types";
 import VoucherPickerModal from "../components/VoucherPickerModal";
@@ -56,25 +58,11 @@ function useIsMobileLayout(): boolean {
     return isMobile;
 }
 
-function formatDateTime(iso: string): string {
-    try {
-        return new Date(iso).toLocaleString("en-US", {
-            weekday: "short",
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        });
-    } catch {
-        return iso;
-    }
-}
-
 /* ══════════════════════════════════════════
    PaymentPage
 ══════════════════════════════════════════ */
 const PaymentPage: FC = () => {
+    const { t } = useTranslation("booking");
     const navigate = useNavigate();
     const { state } = useLocation();
     const navState = (state ?? {}) as PaymentNavState;
@@ -181,12 +169,12 @@ const PaymentPage: FC = () => {
                 });
                 setPricing(result);
             } catch {
-                setPricingError("Couldn't load pricing information. Please try again.");
+                setPricingError(t("payment.pricingError"));
             } finally {
                 setIsPricingLoading(false);
             }
         },
-        [calcPricing, showtimeId, seatIds, fnbItems, customerId],
+        [calcPricing, showtimeId, seatIds, fnbItems, customerId, t],
     );
 
     useEffect(() => {
@@ -216,11 +204,11 @@ const PaymentPage: FC = () => {
                 setVoucherStatus("applied");
             } catch (err: unknown) {
                 const msg = axios.isAxiosError(err) ? err.response?.data?.message : undefined;
-                setVoucherError(msg ?? "This voucher code isn't valid for this order.");
+                setVoucherError(msg ?? t("payment.voucherInvalid"));
                 setVoucherStatus("error");
             }
         },
-        [calcPricing, showtimeId, seatIds, fnbItems, customerId],
+        [calcPricing, showtimeId, seatIds, fnbItems, customerId, t],
     );
 
     /* ── Voucher handlers ─────────────────── */
@@ -264,7 +252,7 @@ const PaymentPage: FC = () => {
                 if (count > 200) {
                     stopPolling();
                     setPayosInit(null);
-                    setPaymentError("Your payment session has expired. Please try again.");
+                    setPaymentError(t("payment.sessionExpired"));
                     setIsWaiting(false);
                     return;
                 }
@@ -294,9 +282,7 @@ const PaymentPage: FC = () => {
                     } else if (s === "FAILED" || s === "EXPIRED" || s === "CANCELLED") {
                         stopPolling();
                         setPayosInit(null);
-                        setPaymentError(
-                            "Payment failed or was cancelled. Please try again.",
-                        );
+                        setPaymentError(t("payment.paymentFailed"));
                         setIsWaiting(false);
                     }
                 } catch {
@@ -304,7 +290,7 @@ const PaymentPage: FC = () => {
                 }
             }, 3_000);
         },
-        [stopPolling, navigate, moviePoster, roomType],
+        [stopPolling, navigate, moviePoster, roomType, t],
     );
 
     /* ── Back to F&B ───────────────────────── */
@@ -370,11 +356,11 @@ const PaymentPage: FC = () => {
             setIsWaiting(false);
             const msg = (err as { response?: { data?: { message?: string } } })
                 ?.response?.data?.message;
-            setPaymentError(msg ?? "Something went wrong. Please try again.");
+            setPaymentError(msg ?? t("common:errors.generic"));
         }
     }, [
         pricing, isExpired, doCreateBooking, doInitiatePayment, customerId,
-        showtimeId, seatIds, fnbItems, appliedCode, effectivePaymentMethod, startPolling, isMobileLayout,
+        showtimeId, seatIds, fnbItems, appliedCode, effectivePaymentMethod, startPolling, isMobileLayout, t,
     ]);
 
     const seatCount = (seatIds ?? []).length;
@@ -390,22 +376,22 @@ const PaymentPage: FC = () => {
 
                 {/* ── Step indicator ── */}
                 <div className="cgv-pay-steps">
-                    <button className="cgv-pay-back-btn" onClick={handleBack} aria-label="Back to food & beverage">
+                    <button className="cgv-pay-back-btn" onClick={handleBack} aria-label={t("payment.backToFnb")}>
                         <BackIcon />
                     </button>
                     <div className="cgv-pay-step cgv-pay-step--done">
                         <span className="cgv-pay-step__num">✓</span>
-                        Select Seats
+                        {t("fnb.stepSeats")}
                     </div>
                     <div className="cgv-pay-step__sep" />
                     <div className="cgv-pay-step cgv-pay-step--done">
                         <span className="cgv-pay-step__num">✓</span>
-                        Food &amp; Beverage
+                        {t("fnb.stepFnb")}
                     </div>
                     <div className="cgv-pay-step__sep" />
                     <div className="cgv-pay-step cgv-pay-step--active">
                         <span className="cgv-pay-step__num">3</span>
-                        Payment
+                        {t("fnb.stepPayment")}
                     </div>
                 </div>
 
@@ -417,11 +403,11 @@ const PaymentPage: FC = () => {
                         <span className="cgv-pay-timer__icon">⏱</span>
                         {isExpired ? (
                             <span style={{ color: "#ff6b6b", fontWeight: 600 }}>
-                                Your seat hold has expired — please go back and select seats again
+                                {t("fnb.holdExpired")}
                             </span>
                         ) : (
                             <>
-                                <span>Your seats are held for</span>
+                                <span>{t("fnb.holdFor")}</span>
                                 <span className="cgv-pay-timer__count">
                                     {formatCountdown(timeLeft)}
                                 </span>
@@ -470,7 +456,7 @@ const PaymentPage: FC = () => {
                             {/* Seats */}
                             {(selectedSeats ?? []).length > 0 && (
                                 <div className="cgv-pay-review__section">
-                                    <p className="cgv-pay-review__sec-label">Selected Seats</p>
+                                    <p className="cgv-pay-review__sec-label">{t("fnb.selectedSeats")}</p>
                                     <div className="cgv-pay-seat-chips">
                                         {selectedSeats.map((s) => (
                                             <span key={s.seatId} className="cgv-pay-seat-chip">
@@ -480,7 +466,7 @@ const PaymentPage: FC = () => {
                                     </div>
                                     {pricing && (
                                         <p className="cgv-pay-seat-subtotal">
-                                            {seatCount} seat{seatCount !== 1 ? "s" : ""} ·{" "}
+                                            {t("seats.seatsCount", { count: seatCount })} ·{" "}
                                             {formatPrice(pricing.seatsSubTotal)}
                                         </p>
                                     )}
@@ -489,9 +475,9 @@ const PaymentPage: FC = () => {
 
                             {/* F&B */}
                             <div className="cgv-pay-review__section">
-                                <p className="cgv-pay-review__sec-label">Food &amp; Beverage</p>
+                                <p className="cgv-pay-review__sec-label">{t("fnb.foodBeverage")}</p>
                                 {!hasFnb ? (
-                                    <p className="cgv-pay-fnb-empty">No F&amp;B</p>
+                                    <p className="cgv-pay-fnb-empty">{t("payment.noFnb")}</p>
                                 ) : fnbDetails.length > 0 ? (
                                     fnbDetails.map((item) => (
                                         <div
@@ -514,7 +500,7 @@ const PaymentPage: FC = () => {
                                             className="cgv-pay-fnb-item"
                                         >
                                             <span className="cgv-pay-fnb-name">
-                                                {item.quantity}× Item #{item.itemId}
+                                                {item.quantity}× {t("payment.itemPlaceholder", { id: item.itemId })}
                                             </span>
                                         </div>
                                     ))
@@ -528,7 +514,7 @@ const PaymentPage: FC = () => {
 
                         {/* Pricing */}
                         <div className="cgv-pay-card">
-                            <p className="cgv-pay-card__title">Price Details</p>
+                            <p className="cgv-pay-card__title">{t("payment.priceDetails")}</p>
                             {isPricingLoading ? (
                                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                                     <div className="cgv-pay-skel" style={{ width: "100%" }} />
@@ -543,14 +529,14 @@ const PaymentPage: FC = () => {
                             ) : pricing ? (
                                 <>
                                     <div className="cgv-pay-price-row">
-                                        <span>Seats ({seatCount})</span>
+                                        <span>{t("fnb.seatsCount", { count: seatCount })}</span>
                                         <span className="cgv-pay-price-row__val">
                                             {formatPrice(pricing.seatsSubTotal)}
                                         </span>
                                     </div>
                                     {pricing.fnBSubTotal > 0 && (
                                         <div className="cgv-pay-price-row">
-                                            <span>Food &amp; Beverage</span>
+                                            <span>{t("fnb.foodBeverage")}</span>
                                             <span className="cgv-pay-price-row__val">
                                                 {formatPrice(pricing.fnBSubTotal)}
                                             </span>
@@ -558,7 +544,7 @@ const PaymentPage: FC = () => {
                                     )}
                                     {pricing.membershipDiscount > 0 && (
                                         <div className="cgv-pay-price-row cgv-pay-price-row--discount">
-                                            <span>Membership discount</span>
+                                            <span>{t("payment.membershipDiscount")}</span>
                                             <span className="cgv-pay-price-row__val">
                                                 −{formatPrice(pricing.membershipDiscount)}
                                             </span>
@@ -566,7 +552,7 @@ const PaymentPage: FC = () => {
                                     )}
                                     {pricing.voucherDiscount > 0 && (
                                         <div className="cgv-pay-price-row cgv-pay-price-row--discount">
-                                            <span>Voucher</span>
+                                            <span>{t("payment.voucher")}</span>
                                             <span className="cgv-pay-price-row__val">
                                                 −{formatPrice(pricing.voucherDiscount)}
                                             </span>
@@ -575,7 +561,7 @@ const PaymentPage: FC = () => {
                                     <div className="cgv-pay-price-hr" />
                                     <div className="cgv-pay-price-total">
                                         <span className="cgv-pay-price-total__label">
-                                            Total
+                                            {t("seats.total")}
                                         </span>
                                         <span className="cgv-pay-price-total__val">
                                             {formatPrice(pricing.finalAmount)}
@@ -587,7 +573,7 @@ const PaymentPage: FC = () => {
 
                         {/* Voucher */}
                         <div className="cgv-pay-card">
-                            <p className="cgv-pay-card__title">Promo Code</p>
+                            <p className="cgv-pay-card__title">{t("payment.promoCode")}</p>
                             {voucherStatus === "applied" && appliedCode ? (
                                 <div className="cgv-pay-voucher-applied">
                                     <span className="cgv-pay-voucher-applied__code">
@@ -596,7 +582,7 @@ const PaymentPage: FC = () => {
                                     <button
                                         className="cgv-pay-voucher-remove"
                                         onClick={handleRemoveVoucher}
-                                        aria-label="Remove voucher"
+                                        aria-label={t("payment.removeVoucher")}
                                     >
                                         ×
                                     </button>
@@ -607,7 +593,7 @@ const PaymentPage: FC = () => {
                                         <input
                                             className="cgv-pay-voucher-input"
                                             type="text"
-                                            placeholder="Enter promo code"
+                                            placeholder={t("payment.promoPlaceholder")}
                                             value={voucherInput}
                                             onChange={(e) => {
                                                 setVoucherInput(e.target.value);
@@ -626,7 +612,7 @@ const PaymentPage: FC = () => {
                                             onClick={handleApplyVoucher}
                                             disabled={!voucherInput.trim() || isWaiting || voucherStatus === "applying"}
                                         >
-                                            {voucherStatus === "applying" ? "Checking…" : "Apply"}
+                                            {voucherStatus === "applying" ? t("payment.checking") : t("payment.apply")}
                                         </button>
                                     </div>
                                     {voucherStatus === "error" && voucherError && (
@@ -639,7 +625,7 @@ const PaymentPage: FC = () => {
                                             onClick={() => setPickerOpen(true)}
                                             disabled={isWaiting || voucherStatus === "applying"}
                                         >
-                                            Choose from My Vouchers ›
+                                            {t("payment.chooseFromMyVouchers")}
                                         </button>
                                     )}
                                 </>
@@ -649,14 +635,14 @@ const PaymentPage: FC = () => {
                         {/* Payment method */}
                         {!isWaiting && (
                             <div className="cgv-pay-card">
-                                <p className="cgv-pay-card__title">Payment Method</p>
+                                <p className="cgv-pay-card__title">{t("payment.paymentMethod")}</p>
                                 {isFreeOrder ? (
                                     <div className="cgv-pay-method cgv-pay-method--free">
                                         <span className="cgv-pay-method__icon">👛</span>
                                         <div className="cgv-pay-method__info">
-                                            <p className="cgv-pay-method__name">E-Wallet</p>
+                                            <p className="cgv-pay-method__name">{t("payment.eWallet")}</p>
                                             <p className="cgv-pay-method__desc">
-                                                This order is free — no charge required, confirmed via E-Wallet.
+                                                {t("payment.freeOrder")}
                                             </p>
                                         </div>
                                     </div>
@@ -681,7 +667,7 @@ const PaymentPage: FC = () => {
                                             <div className="cgv-pay-method__info">
                                                 <p className="cgv-pay-method__name">PayOS</p>
                                                 <p className="cgv-pay-method__desc">
-                                                    Pay via PayOS gateway (QR / card)
+                                                    {t("payment.payosDesc")}
                                                 </p>
                                             </div>
                                         </div>
@@ -703,15 +689,15 @@ const PaymentPage: FC = () => {
                                             </div>
                                             <span className="cgv-pay-method__icon">👛</span>
                                             <div className="cgv-pay-method__info">
-                                                <p className="cgv-pay-method__name">E-Wallet</p>
+                                                <p className="cgv-pay-method__name">{t("payment.eWallet")}</p>
                                                 <p
                                                     className={`cgv-pay-method__desc${walletInsufficient ? " cgv-pay-method__desc--warn" : ""}`}
                                                 >
                                                     {walletData
                                                         ? walletInsufficient
-                                                            ? `Insufficient balance (${formatPrice(walletBalance)})`
-                                                            : `Balance: ${formatPrice(walletBalance)}`
-                                                        : "Loading balance..."}
+                                                            ? t("payment.insufficientBalanceAmount", { amount: formatPrice(walletBalance) })
+                                                            : t("payment.balanceAmount", { amount: formatPrice(walletBalance) })
+                                                        : t("payment.loadingBalance")}
                                                 </p>
                                             </div>
                                         </div>
@@ -726,12 +712,12 @@ const PaymentPage: FC = () => {
                                 {paymentSucceeded ? (
                                     <div className="cgv-pay-qr-card">
                                         <div className="cgv-pay-qr-success">✓</div>
-                                        <p className="cgv-pay-waiting__title">Payment successful!</p>
-                                        <p className="cgv-pay-waiting__desc">Finishing up your booking…</p>
+                                        <p className="cgv-pay-waiting__title">{t("payment.successTitle")}</p>
+                                        <p className="cgv-pay-waiting__desc">{t("payment.successDesc")}</p>
                                     </div>
                                 ) : (
                                     <div className="cgv-pay-qr-card">
-                                        <p className="cgv-pay-waiting__title">Scan to pay with PayOS</p>
+                                        <p className="cgv-pay-waiting__title">{t("payment.scanToPay")}</p>
                                         <div className="cgv-pay-qr-ring">
                                             <div className="cgv-pay-qr-img">
                                                 <QRCode
@@ -746,12 +732,11 @@ const PaymentPage: FC = () => {
                                         </span>
                                         {payosTimeLeft > 0 && (
                                             <span className="cgv-pay-qr-countdown">
-                                                Expires in {formatCountdown(payosTimeLeft)}
+                                                {t("payment.expiresIn", { time: formatCountdown(payosTimeLeft) })}
                                             </span>
                                         )}
                                         <p className="cgv-pay-waiting__desc">
-                                            Open your banking app and scan this code — this page updates
-                                            automatically once payment is confirmed.
+                                            {t("payment.scanHint")}
                                         </p>
                                         {payosInit.checkoutUrl && (
                                             <button
@@ -759,7 +744,7 @@ const PaymentPage: FC = () => {
                                                 className="cgv-pay-qr-fallback"
                                                 onClick={() => window.open(payosInit.checkoutUrl, "_blank", "noopener")}
                                             >
-                                                Or open the full payment page ›
+                                                {t("payment.openFullPage")}
                                             </button>
                                         )}
                                     </div>
@@ -771,13 +756,13 @@ const PaymentPage: FC = () => {
                                     <div className="cgv-pay-waiting__spinner" />
                                     <p className="cgv-pay-waiting__title">
                                         {effectivePaymentMethod === "payos"
-                                            ? "Redirecting to PayOS"
-                                            : "Processing payment"}
+                                            ? t("payment.redirectingTitle")
+                                            : t("payment.processingTitle")}
                                     </p>
                                     <p className="cgv-pay-waiting__desc">
                                         {effectivePaymentMethod === "payos"
-                                            ? "You'll be redirected to PayOS to complete your payment."
-                                            : "Processing your e-wallet payment..."}
+                                            ? t("payment.redirectingDesc")
+                                            : t("payment.processingDesc")}
                                     </p>
                                     <div className="cgv-pay-waiting__dots">
                                         <div className="cgv-pay-waiting__dot" />
@@ -804,14 +789,14 @@ const PaymentPage: FC = () => {
                                 disabled={!canPay}
                             >
                                 {isExpired
-                                    ? "Seat hold expired"
+                                    ? t("payment.holdExpiredBtn")
                                     : walletInsufficient
-                                        ? "Insufficient wallet balance"
+                                        ? t("payment.insufficientWallet")
                                         : isPricingLoading
-                                            ? "Loading..."
+                                            ? t("common:status.loading")
                                             : pricing
-                                                ? `Pay ${formatPrice(pricing.finalAmount)}`
-                                                : "Pay"}
+                                                ? t("payment.payAmount", { amount: formatPrice(pricing.finalAmount) })
+                                                : t("payment.pay")}
                             </button>
                         )}
                     </aside>
@@ -821,7 +806,7 @@ const PaymentPage: FC = () => {
             {/* ── Mobile bottom bar ── */}
             <div className="cgv-pay-mobile-bar" aria-live="polite">
                 <div className="cgv-pay-mobile-bar__row">
-                    <span className="cgv-pay-mobile-bar__label">Total</span>
+                    <span className="cgv-pay-mobile-bar__label">{t("seats.total")}</span>
                     <span className="cgv-pay-mobile-bar__total">
                         {pricing ? formatPrice(pricing.finalAmount) : "—"}
                     </span>
@@ -833,12 +818,12 @@ const PaymentPage: FC = () => {
                         disabled={!canPay}
                     >
                         {isExpired
-                            ? "Seat hold expired"
+                            ? t("payment.holdExpiredBtn")
                             : walletInsufficient
-                                ? "Insufficient balance"
+                                ? t("payment.insufficientBalance")
                                 : isPricingLoading
-                                    ? "Loading..."
-                                    : "Pay"}
+                                    ? t("common:status.loading")
+                                    : t("payment.pay")}
                     </button>
                 )}
             </div>

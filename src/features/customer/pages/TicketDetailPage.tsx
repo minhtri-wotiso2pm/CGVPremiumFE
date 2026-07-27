@@ -1,5 +1,6 @@
 import { type FC, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Spin } from "antd";
 import { useMyBookings } from "@/features/booking/hooks/useMyBookings";
 import TicketQrList from "@/features/booking/components/TicketQrList";
@@ -12,6 +13,8 @@ import { canRequestRefund, hasRefundQuotaLeft } from "@/features/booking/utils/r
 import { isFnbOnlyBooking } from "@/features/booking/utils/booking.utils";
 import { useProfile } from "@/features/customer/hooks/useProfile";
 import { FnbBagIcon, CheckCircleIcon } from "@/components/ui/BrandIcons";
+import { formatVnd, formatNumber } from "@/utils/formatCurrency";
+import { formatDateTime } from "@/utils/formatDate";
 import "./ticketDetail.css";
 
 const ReviewStarIcon = () => (
@@ -26,33 +29,23 @@ const BackIcon = () => (
     </svg>
 );
 
-const fmtVnd = (n: number) => `${n.toLocaleString("vi-VN")} ₫`;
-const fmtPoints = (n: number) => n.toLocaleString("en-US");
-
-const fmtDateTime = (iso: string): string => {
-    try {
-        const d = new Date(iso);
-        const time = d.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", hour12: false });
-        const date = d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
-        return `${time}, ${date}`;
-    } catch { return ""; }
-};
-
-const statusStyle = (status: string): { bg: string; color: string; label: string } => {
+/* labelKey resolves in the profile namespace; null falls back to the raw status. */
+const statusStyle = (status: string): { bg: string; color: string; labelKey: string | null } => {
     const s = status.toLowerCase();
-    if (s === "paid") return { bg: "rgba(232,0,28,0.9)", color: "#fff", label: "Paid" };
-    if (s === "used") return { bg: "rgba(167,139,250,0.9)", color: "#fff", label: "Attended" };
-    if (s === "pending") return { bg: "rgba(245,158,11,0.9)", color: "#fff", label: "Pending" };
-    if (s === "cancelled") return { bg: "rgba(148,163,184,0.5)", color: "#fff", label: "Cancelled" };
-    if (s === "expired") return { bg: "rgba(148,163,184,0.5)", color: "#fff", label: "Expired" };
-    if (s === "refunded") return { bg: "rgba(96,165,250,0.85)", color: "#fff", label: "Refunded" };
-    return { bg: "rgba(148,163,184,0.5)", color: "#fff", label: status };
+    if (s === "paid") return { bg: "rgba(232,0,28,0.9)", color: "#fff", labelKey: "tickets.status.paid" };
+    if (s === "used") return { bg: "rgba(167,139,250,0.9)", color: "#fff", labelKey: "tickets.status.attended" };
+    if (s === "pending") return { bg: "rgba(245,158,11,0.9)", color: "#fff", labelKey: "tickets.status.pending" };
+    if (s === "cancelled") return { bg: "rgba(148,163,184,0.5)", color: "#fff", labelKey: "tickets.status.cancelled" };
+    if (s === "expired") return { bg: "rgba(148,163,184,0.5)", color: "#fff", labelKey: "tickets.status.expired" };
+    if (s === "refunded") return { bg: "rgba(96,165,250,0.85)", color: "#fff", labelKey: "tickets.status.refunded" };
+    return { bg: "rgba(148,163,184,0.5)", color: "#fff", labelKey: null };
 };
 
 /** Standalone, full-screen ticket detail — a dedicated route (not nested
  *  inside the profile sidebar layout) so it reads as a focused "your
  *  ticket" view rather than another settings-style sub-page. */
 const TicketDetailPage: FC = () => {
+    const { t } = useTranslation("profile");
     const { bookingId } = useParams<{ bookingId: string }>();
     const navigate = useNavigate();
     const { data: bookings = [], isLoading, isError } = useMyBookings();
@@ -72,9 +65,9 @@ const TicketDetailPage: FC = () => {
     if (isError || !booking) {
         return (
             <div className="tktd-page" style={{ textAlign: "center", padding: "80px 24px" }}>
-                <p style={{ color: "#f0e8e8", fontSize: 16, margin: "0 0 12px" }}>Couldn't find this ticket.</p>
+                <p style={{ color: "#f0e8e8", fontSize: 16, margin: "0 0 12px" }}>{t("ticketDetail.notFound")}</p>
                 <button className="tktd-back-link" onClick={() => navigate("/customer/profile/tickets")}>
-                    Back to My Tickets
+                    {t("ticketDetail.backToTickets")}
                 </button>
             </div>
         );
@@ -105,11 +98,11 @@ const TicketDetailPage: FC = () => {
     return (
         <div className="tktd-page">
             <div className="tktd-header">
-                <button className="tktd-back" onClick={() => navigate(-1)} aria-label="Go back">
+                <button className="tktd-back" onClick={() => navigate(-1)} aria-label={t("ticketDetail.goBack")}>
                     <BackIcon />
                 </button>
-                <h1 className="tktd-title">{fnbOnly ? "F&B Order" : "E-Ticket"}</h1>
-                <span className="tktd-status" style={{ background: st.bg, color: st.color }}>{st.label}</span>
+                <h1 className="tktd-title">{fnbOnly ? t("ticketDetail.fnbOrderShort") : t("ticketDetail.eTicket")}</h1>
+                <span className="tktd-status" style={{ background: st.bg, color: st.color }}>{st.labelKey ? t(st.labelKey) : booking.status}</span>
                 {refundEligible && (
                     <button
                         onClick={() =>
@@ -126,18 +119,18 @@ const TicketDetailPage: FC = () => {
                             fontWeight: 600, cursor: "pointer",
                         }}
                     >
-                        Request Refund
+                        {t("tickets.requestRefund")}
                     </button>
                 )}
                 {quotaExhausted && (
                     <span
-                        title="You've used all your refund credits for this month. Your quota resets at the start of next month."
+                        title={t("ticketDetail.refundQuotaTooltip")}
                         style={{
                             marginLeft: 10, border: "1px solid rgba(232,0,28,0.25)", background: "rgba(232,0,28,0.06)",
                             color: "#e8a0a0", borderRadius: 8, padding: "6px 14px", fontSize: 12.5, fontWeight: 600,
                         }}
                     >
-                        Refund limit reached
+                        {t("ticketDetail.refundLimitReached")}
                     </span>
                 )}
                 {reviewEligible && (
@@ -150,9 +143,9 @@ const TicketDetailPage: FC = () => {
                             fontWeight: 600, cursor: "pointer",
                         }}
                     >
-                        <ReviewStarIcon /> Write a Review
+                        <ReviewStarIcon /> {t("tickets.writeReview")}
                         {booking.reviewReward && booking.reviewReward.points > 0
-                            ? ` · +${fmtPoints(booking.reviewReward.points)} pts`
+                            ? ` · +${formatNumber(booking.reviewReward.points)} ${t("tickets.pts")}`
                             : ""}
                     </button>
                 )}
@@ -164,7 +157,7 @@ const TicketDetailPage: FC = () => {
                             color: "#4ade80", borderRadius: 8, padding: "6px 14px", fontSize: 12.5, fontWeight: 600,
                         }}
                     >
-                        <ReviewStarIcon /> Reviewed
+                        <ReviewStarIcon /> {t("tickets.reviewed")}
                     </span>
                 )}
             </div>
@@ -175,9 +168,9 @@ const TicketDetailPage: FC = () => {
                         <div className="tktd-movie">
                             <div className="tktd-fnb-badge"><FnbBagIcon size={34} /></div>
                             <div className="tktd-movie-info">
-                                <h2 className="tktd-movie-title">Food &amp; Beverage Order</h2>
+                                <h2 className="tktd-movie-title">{t("tickets.fnbOrder")}</h2>
                                 <p className="tktd-cinema">
-                                    {booking.cinemaName ? `${booking.cinemaName} · ` : ""}Collect at the F&amp;B counter
+                                    {booking.cinemaName ? `${booking.cinemaName} · ` : ""}{t("ticketDetail.collectAtCounter")}
                                 </p>
                             </div>
                         </div>
@@ -190,37 +183,37 @@ const TicketDetailPage: FC = () => {
                                 <h2 className="tktd-movie-title">{booking.movie.title}</h2>
                                 <div className="tktd-movie-meta">
                                     {booking.movie.ageRating && <span className="tktd-age-badge">{booking.movie.ageRating}</span>}
-                                    {booking.movie.durationMinutes > 0 && <span>{booking.movie.durationMinutes} min</span>}
+                                    {booking.movie.durationMinutes > 0 && <span>{t("ticketDetail.durationMin", { minutes: booking.movie.durationMinutes })}</span>}
                                 </div>
-                                <p className="tktd-showtime">{fmtDateTime(booking.startTime)}</p>
+                                <p className="tktd-showtime">{formatDateTime(booking.startTime)}</p>
                                 <p className="tktd-cinema">{booking.cinemaName} · {booking.roomName}</p>
                             </div>
                         </div>
                     )}
 
                     <div className="tktd-summary">
-                        <h3 className="tktd-summary__title">Booking Summary</h3>
+                        <h3 className="tktd-summary__title">{t("ticketDetail.bookingSummary")}</h3>
 
                         <div style={{ margin: "0 0 14px" }}>
                             <BookingBarcode
                                 code={booking.bookingCode}
                                 printable={printable}
                                 variant="dark"
-                                note="Scan at the F&B counter to pick up your order"
+                                note={t("ticketDetail.barcodeNote")}
                             />
                         </div>
                         <div className="tktd-summary__row tktd-summary__row--muted">
-                            <span>Booking Date</span>
-                            <span>{fmtDateTime(booking.bookingDate)}</span>
+                            <span>{t("ticketDetail.bookingDate")}</span>
+                            <span>{formatDateTime(booking.bookingDate)}</span>
                         </div>
 
                         {booking.seats.length > 0 && (
                             <div className="tktd-summary__group">
-                                <p className="tktd-summary__group-label">Seats</p>
+                                <p className="tktd-summary__group-label">{t("ticketDetail.seats")}</p>
                                 {booking.seats.map((s) => (
                                     <div className="tktd-summary__row" key={s.seatID}>
-                                        <span>Seat {s.seatRow}{s.seatCol}</span>
-                                        <span>{fmtVnd(s.ticketPrice)}</span>
+                                        <span>{t("ticketDetail.seat")} {s.seatRow}{s.seatCol}</span>
+                                        <span>{formatVnd(s.ticketPrice)}</span>
                                     </div>
                                 ))}
                             </div>
@@ -228,11 +221,11 @@ const TicketDetailPage: FC = () => {
 
                         {booking.fnbItems.length > 0 && (
                             <div className="tktd-summary__group">
-                                <p className="tktd-summary__group-label">Food &amp; Beverage</p>
+                                <p className="tktd-summary__group-label">{t("ticketDetail.foodBeverage")}</p>
                                 {booking.fnbItems.map((f, i) => (
                                     <div className="tktd-summary__row" key={i}>
                                         <span>{f.itemName} × {f.quantity}</span>
-                                        <span>{fmtVnd(f.subTotal)}</span>
+                                        <span>{formatVnd(f.subTotal)}</span>
                                     </div>
                                 ))}
                             </div>
@@ -240,39 +233,39 @@ const TicketDetailPage: FC = () => {
 
                         <div className="tktd-summary__group">
                             <div className="tktd-summary__row">
-                                <span>Subtotal</span>
-                                <span>{fmtVnd(booking.subTotal)}</span>
+                                <span>{t("ticketDetail.subtotal")}</span>
+                                <span>{formatVnd(booking.subTotal)}</span>
                             </div>
                             {booking.voucherApplied && (
                                 <div className="tktd-summary__row">
                                     <span>
-                                        Voucher <span className="tktd-summary__voucher-code">{booking.voucherApplied.voucherCode}</span>
+                                        {t("ticketDetail.voucher")} <span className="tktd-summary__voucher-code">{booking.voucherApplied.voucherCode}</span>
                                     </span>
-                                    <span className="tktd-summary__discount">−{fmtVnd(booking.voucherApplied.discountApplied)}</span>
+                                    <span className="tktd-summary__discount">−{formatVnd(booking.voucherApplied.discountApplied)}</span>
                                 </div>
                             )}
                             {!booking.voucherApplied && booking.discountAmount > 0 && (
                                 <div className="tktd-summary__row">
-                                    <span>Discount</span>
-                                    <span className="tktd-summary__discount">−{fmtVnd(booking.discountAmount)}</span>
+                                    <span>{t("ticketDetail.discount")}</span>
+                                    <span className="tktd-summary__discount">−{formatVnd(booking.discountAmount)}</span>
                                 </div>
                             )}
                         </div>
 
                         <div className="tktd-summary__row tktd-summary__row--total">
-                            <span>Total Paid</span>
-                            <span>{fmtVnd(booking.finalAmount)}</span>
+                            <span>{t("ticketDetail.totalPaid")}</span>
+                            <span>{formatVnd(booking.finalAmount)}</span>
                         </div>
 
                         {booking.purchaseReward && booking.purchaseReward.points > 0 && (
                             <div className="tktd-summary__row tktd-summary__row--muted">
-                                <span>Loyalty Points</span>
+                                <span>{t("ticketDetail.loyaltyPoints")}</span>
                                 {booking.purchaseReward.earned ? (
                                     <span className="tktd-summary__discount" style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                                        <CheckCircleIcon size={13} /> +{fmtPoints(booking.purchaseReward.points)} earned
+                                        <CheckCircleIcon size={13} /> {t("ticketDetail.pointsEarned", { points: formatNumber(booking.purchaseReward.points) })}
                                     </span>
                                 ) : (
-                                    <span>+{fmtPoints(booking.purchaseReward.points)} after check-in</span>
+                                    <span>{t("ticketDetail.pointsAfterCheckin", { points: formatNumber(booking.purchaseReward.points) })}</span>
                                 )}
                             </div>
                         )}
@@ -283,10 +276,9 @@ const TicketDetailPage: FC = () => {
                     {fnbOnly ? (
                         <div className="tktd-fnb-collect">
                             <div className="tktd-fnb-collect__icon"><FnbBagIcon size={40} /></div>
-                            <h3 className="tktd-fnb-collect__title">Collect your order</h3>
+                            <h3 className="tktd-fnb-collect__title">{t("ticketDetail.collectTitle")}</h3>
                             <p className="tktd-fnb-collect__body">
-                                This is a food &amp; beverage order with no seats. Show the booking barcode
-                                to the staff at the F&amp;B counter to collect your items.
+                                {t("ticketDetail.collectBody")}
                             </p>
                         </div>
                     ) : (
@@ -309,7 +301,7 @@ const TicketDetailPage: FC = () => {
                     bookingID: booking.bookingID,
                     movieTitle: booking.movie.title,
                     posterUrl: booking.movie.posterUrl,
-                    subtitle: fmtDateTime(booking.startTime),
+                    subtitle: formatDateTime(booking.startTime),
                 } : null}
                 onClose={() => setReviewOpen(false)}
             />

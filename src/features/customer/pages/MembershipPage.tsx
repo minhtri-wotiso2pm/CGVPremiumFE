@@ -1,10 +1,13 @@
 import { type FC, useEffect, useState } from "react";
+import { useTranslation, Trans } from "react-i18next";
 import { Skeleton } from "antd";
 import { Link } from "react-router-dom";
 import type { MembershipInfo, MembershipTier, PointsHistoryEntry } from "../types/membership.types";
 import { useMembershipInfo, useMembershipTiers, usePointsHistory } from "../hooks/useMembership";
 import { useProfile } from "../hooks/useProfile";
 import { formatTierName, getTierColor } from "../utils/profile.mapper";
+import { formatVnd, formatNumber } from "@/utils/formatCurrency";
+import { formatDate, formatTime } from "@/utils/formatDate";
 import styles from "./MembershipPage.module.css";
 
 /* ─────────────────────────────────────────
@@ -124,18 +127,6 @@ const getTierCfg = (name: string) => {
     };
 };
 
-const fmtPoints = (n: number) => n.toLocaleString("en-US");
-
-const fmtCurrency = (n: number) =>
-    n === 0
-        ? "0 ₫"
-        : new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(n);
-
-const fmtDate = (iso: string) =>
-    new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
-
-const fmtTime = (iso: string) =>
-    new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
 
 /* ─────────────────────────────────────────
    HeroCard
@@ -143,6 +134,7 @@ const fmtTime = (iso: string) =>
 const HeroCard: FC<{ info: MembershipInfo; refundsRemaining: number | null; totalRefunds: number | null }> = ({
     info, refundsRemaining, totalRefunds,
 }) => {
+    const { t } = useTranslation("profile");
     const cfg = getTierCfg(info.currentTier);
     const { Icon } = cfg;
     const isMax = !info.nextTier;
@@ -173,7 +165,7 @@ const HeroCard: FC<{ info: MembershipInfo; refundsRemaining: number | null; tota
                         <Icon size={26} />
                     </div>
                     <div className={styles.tierMeta}>
-                        <span className={styles.tierEyebrow}>Membership Tier</span>
+                        <span className={styles.tierEyebrow}>{t("membership.tierEyebrow")}</span>
                         <div className={styles.tierNameRow}>
                             <span className={styles.tierName} style={{ color: cfg.color }}>
                                 {formatTierName(info.currentTier)}
@@ -183,8 +175,8 @@ const HeroCard: FC<{ info: MembershipInfo; refundsRemaining: number | null; tota
                                 style={{ background: cfg.bg, border: `1px solid ${cfg.color}33`, color: cfg.color }}
                             >
                                 {info.discountPercent > 0
-                                    ? `${info.discountPercent}% discount per ticket`
-                                    : "No discount yet"}
+                                    ? t("membership.discountChip", { percent: info.discountPercent })
+                                    : t("membership.noDiscount")}
                             </span>
                         </div>
                     </div>
@@ -196,13 +188,13 @@ const HeroCard: FC<{ info: MembershipInfo; refundsRemaining: number | null; tota
                 <div className={styles.statsGrid}>
                     <div className={styles.statCell}>
                         <span className={styles.statValue} style={{ color: cfg.color }}>
-                            {fmtPoints(info.totalPoints)}
+                            {formatNumber(info.totalPoints)}
                         </span>
-                        <span className={styles.statLabel}>Total Points</span>
+                        <span className={styles.statLabel}>{t("card.totalPoints")}</span>
                     </div>
                     <div className={styles.statCell}>
-                        <span className={styles.statValue}>{fmtCurrency(info.totalSpent)}</span>
-                        <span className={styles.statLabel}>Total Spent</span>
+                        <span className={styles.statValue}>{formatVnd(info.totalSpent)}</span>
+                        <span className={styles.statLabel}>{t("membership.totalSpent")}</span>
                     </div>
                     <div className={styles.statCell}>
                         <span
@@ -211,14 +203,14 @@ const HeroCard: FC<{ info: MembershipInfo; refundsRemaining: number | null; tota
                         >
                             {info.discountPercent}%
                         </span>
-                        <span className={styles.statLabel}>Discount</span>
+                        <span className={styles.statLabel}>{t("membership.discount")}</span>
                     </div>
                     {refundsRemaining != null && totalRefunds != null && (
                         <div className={styles.statCell}>
                             <span className={styles.statValue} style={{ color: cfg.color }}>
                                 {refundsRemaining} / {totalRefunds}
                             </span>
-                            <span className={styles.statLabel}>Refunds Remaining (Monthly)</span>
+                            <span className={styles.statLabel}>{t("card.refundsRemaining")}</span>
                         </div>
                     )}
                 </div>
@@ -227,21 +219,21 @@ const HeroCard: FC<{ info: MembershipInfo; refundsRemaining: number | null; tota
                 <div className={styles.progressSection}>
                     {isMax ? (
                         <p className={styles.maxTierText}>
-                            You have reached the highest tier —{" "}
+                            {t("membership.maxTier")}{" "}
                             <strong style={{ color: cfg.color }}>MegaVIP</strong>
                         </p>
                     ) : (
                         <>
                             <div className={styles.progressHeader}>
                                 <span className={styles.progressLabel}>
-                                    Progress to{" "}
+                                    {t("membership.progressTo")}{" "}
                                     <strong className={styles.progressBold} style={{ color: nextCfg?.color }}>
                                         {formatTierName(info.nextTier!)}
                                     </strong>
                                 </span>
                                 <span className={styles.progressCount}>
-                                    {fmtPoints(info.totalPoints)}{" / "}
-                                    {fmtPoints(info.totalPoints + (info.pointsToNextTier ?? 0))} pts
+                                    {formatNumber(info.totalPoints)}{" / "}
+                                    {formatNumber(info.totalPoints + (info.pointsToNextTier ?? 0))} {t("tickets.pts")}
                                 </span>
                             </div>
                             <div className={styles.progressTrack}>
@@ -254,10 +246,12 @@ const HeroCard: FC<{ info: MembershipInfo; refundsRemaining: number | null; tota
                                 />
                             </div>
                             <p style={{ margin: "8px 0 0", fontSize: 11, color: "#5a4040" }}>
-                                <strong style={{ color: "#f0e8e8" }}>
-                                    {fmtPoints(info.pointsToNextTier ?? 0)}
-                                </strong>{" "}
-                                more points needed
+                                <Trans
+                                    t={t}
+                                    i18nKey="membership.morePointsNeeded"
+                                    values={{ points: formatNumber(info.pointsToNextTier ?? 0) }}
+                                    components={{ bold: <strong style={{ color: "#f0e8e8" }} /> }}
+                                />
                             </p>
                         </>
                     )}
@@ -270,22 +264,26 @@ const HeroCard: FC<{ info: MembershipInfo; refundsRemaining: number | null; tota
 /* ─────────────────────────────────────────
    VoucherTeaser
 ───────────────────────────────────────── */
-const VoucherTeaser: FC<{ totalPoints: number }> = ({ totalPoints }) => (
+const VoucherTeaser: FC<{ totalPoints: number }> = ({ totalPoints }) => {
+    const { t } = useTranslation("profile");
+    return (
     <Link to="/customer/profile/vouchers" className={styles.voucherTeaser}>
         <span className={styles.voucherTeaserIcon}><RedeemIcon /></span>
         <span className={styles.voucherTeaserText}>
             {totalPoints > 0
-                ? `You have ${fmtPoints(totalPoints)} points — see what you can redeem`
-                : "Check in for a movie to start earning points and unlock vouchers"}
+                ? t("membership.teaserPoints", { points: formatNumber(totalPoints) })
+                : t("membership.teaserEmpty")}
         </span>
         <span className={styles.voucherTeaserArrow}>›</span>
     </Link>
-);
+    );
+};
 
 /* ─────────────────────────────────────────
    TierRoadmap
 ───────────────────────────────────────── */
 const TierRoadmap: FC<{ info: MembershipInfo; tiers: MembershipTier[] }> = ({ info, tiers }) => {
+    const { t } = useTranslation("profile");
     const sorted = [...tiers].sort((a, b) => a.minPoints - b.minPoints);
     const currentIdx = sorted.findIndex(
         (t) => t.tierName.toLowerCase() === info.currentTier.toLowerCase()
@@ -308,7 +306,7 @@ const TierRoadmap: FC<{ info: MembershipInfo; tiers: MembershipTier[] }> = ({ in
 
     return (
         <div className={`${styles.card} ${styles.roadmapSection}`}>
-            <p className={styles.sectionTitle}>Membership Journey</p>
+            <p className={styles.sectionTitle}>{t("membership.journey")}</p>
 
             <div className={styles.roadmapWrap}>
                 <div className={styles.roadmapTrack}>
@@ -359,7 +357,7 @@ const TierRoadmap: FC<{ info: MembershipInfo; tiers: MembershipTier[] }> = ({ in
                             </span>
 
                             <span className={styles.tierStepPoints}>
-                                {tier.minPoints === 0 ? "Default" : `${fmtPoints(tier.minPoints)} pts`}
+                                {tier.minPoints === 0 ? t("membership.tierDefault") : `${formatNumber(tier.minPoints)} ${t("tickets.pts")}`}
                             </span>
 
                             <span
@@ -374,7 +372,7 @@ const TierRoadmap: FC<{ info: MembershipInfo; tiers: MembershipTier[] }> = ({ in
                             </span>
 
                             <span className={styles.tierStepPoints}>
-                                {tier.total_refunds} refund{tier.total_refunds !== 1 ? "s" : ""}/mo
+                                {t("membership.refundsPerMonth", { count: tier.total_refunds })}
                             </span>
                         </div>
                     );
@@ -388,6 +386,7 @@ const TierRoadmap: FC<{ info: MembershipInfo; tiers: MembershipTier[] }> = ({ in
    PointsHistory
 ───────────────────────────────────────── */
 const HistoryRow: FC<{ entry: PointsHistoryEntry }> = ({ entry }) => {
+    const { t } = useTranslation("profile");
     const isEarn = entry.transactionType === "earn";
     const color = isEarn ? "#4ADE80" : "#F87171";
     const sign = isEarn ? "+" : "−";
@@ -404,12 +403,12 @@ const HistoryRow: FC<{ entry: PointsHistoryEntry }> = ({ entry }) => {
             <div className={styles.historyInfo}>
                 <p className={styles.historyDesc}>{entry.description}</p>
                 <p className={styles.historyDate}>
-                    {fmtDate(entry.createdAt)} · {fmtTime(entry.createdAt)}
+                    {formatDate(entry.createdAt)} · {formatTime(entry.createdAt)}
                 </p>
             </div>
 
             <span className={styles.historyPoints} style={{ color }}>
-                {sign}{fmtPoints(Math.abs(entry.pointsDelta))} pts
+                {sign}{formatNumber(Math.abs(entry.pointsDelta))} {t("tickets.pts")}
             </span>
         </div>
     );
@@ -418,6 +417,7 @@ const HistoryRow: FC<{ entry: PointsHistoryEntry }> = ({ entry }) => {
 const HISTORY_PAGE_SIZE = 10;
 
 const PointsHistory: FC<{ items: PointsHistoryEntry[] }> = ({ items }) => {
+    const { t } = useTranslation("profile");
     const [page, setPage] = useState(1);
     const totalPages = Math.max(1, Math.ceil(items.length / HISTORY_PAGE_SIZE));
 
@@ -432,9 +432,9 @@ const PointsHistory: FC<{ items: PointsHistoryEntry[] }> = ({ items }) => {
     return (
         <div className={`${styles.card} ${styles.historySection}`}>
             <div className={styles.historyHeader}>
-                <p className={styles.sectionTitle} style={{ margin: 0 }}>Points History</p>
+                <p className={styles.sectionTitle} style={{ margin: 0 }}>{t("membership.pointsHistory")}</p>
                 {items.length > 0 && (
-                    <span className={styles.historyCount}>{items.length} transaction{items.length !== 1 ? "s" : ""}</span>
+                    <span className={styles.historyCount}>{t("membership.transactions", { count: items.length })}</span>
                 )}
             </div>
 
@@ -443,10 +443,9 @@ const PointsHistory: FC<{ items: PointsHistoryEntry[] }> = ({ items }) => {
                     <div className={styles.emptyIconWrap}>
                         <EmptyHistoryIcon />
                     </div>
-                    <p className={styles.emptyTitle}>No transactions yet</p>
+                    <p className={styles.emptyTitle}>{t("membership.emptyHistoryTitle")}</p>
                     <p className={styles.emptyText}>
-                        Your points will appear here after you check in for your first movie.
-                        Every visit earns you points toward your next tier.
+                        {t("membership.emptyHistoryText")}
                     </p>
                 </div>
             ) : (
@@ -464,15 +463,15 @@ const PointsHistory: FC<{ items: PointsHistoryEntry[] }> = ({ items }) => {
                                 disabled={page <= 1}
                                 onClick={() => setPage((p) => p - 1)}
                             >
-                                Previous
+                                {t("membership.previous")}
                             </button>
-                            <span className={styles.pageIndicator}>Page {page} of {totalPages}</span>
+                            <span className={styles.pageIndicator}>{t("membership.pageOf", { page, total: totalPages })}</span>
                             <button
                                 className={styles.pageBtn}
                                 disabled={page >= totalPages}
                                 onClick={() => setPage((p) => p + 1)}
                             >
-                                Next
+                                {t("membership.next")}
                             </button>
                         </div>
                     )}
@@ -497,6 +496,7 @@ const MembershipSkeleton: FC = () => (
    Main Page
 ───────────────────────────────────────── */
 const MembershipPage: FC = () => {
+    const { t } = useTranslation("profile");
     const { data: info, isLoading: infoLoading, isError } = useMembershipInfo();
     const { data: tiers = [], isLoading: tiersLoading } = useMembershipTiers();
     const { data: history = [] } = usePointsHistory();
@@ -508,8 +508,8 @@ const MembershipPage: FC = () => {
         return (
             <div className={`${styles.card} ${styles.errorState}`}>
                 <div style={{ color: "#5a4040" }}><ErrorIcon /></div>
-                <p className={styles.emptyTitle}>Failed to load membership</p>
-                <p className={styles.emptyText}>Please try again later.</p>
+                <p className={styles.emptyTitle}>{t("membership.loadFailedTitle")}</p>
+                <p className={styles.emptyText}>{t("membership.loadFailedText")}</p>
             </div>
         );
     }

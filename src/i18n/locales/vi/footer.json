@@ -1,0 +1,36 @@
+{
+    "tagline": "Định nghĩa lại trải nghiệm điện ảnh tại Việt Nam. Màn hình cao cấp, ghế ngồi sang trọng và dịch vụ đẳng cấp thế giới cho mọi người yêu phim.",
+    "columns": {
+        "company": "Công ty",
+        "cinemaServices": "Dịch vụ rạp phim",
+        "support": "Hỗ trợ"
+    },
+    "links": {
+        "aboutUs": "Về chúng tôi",
+        "careers": "Tuyển dụng",
+        "contact": "Liên hệ",
+        "privacyPolicy": "Chính sách bảo mật",
+        "termsOfService": "Điều khoản dịch vụ",
+        "movieBooking": "Đặt vé xem phim",
+        "vipMembership": "Thành viên VIP",
+        "promotions": "Khuyến mãi",
+        "giftCards": "Thẻ quà tặng",
+        "events": "Sự kiện",
+        "helpCenter": "Trung tâm trợ giúp",
+        "faq": "Câu hỏi thường gặp",
+        "customerService": "Chăm sóc khách hàng",
+        "refundPolicy": "Chính sách hoàn tiền",
+        "privacy": "Bảo mật",
+        "terms": "Điều khoản",
+        "cookies": "Cookie"
+    },
+    "newsletter": {
+        "title": "Cập nhật mới nhất",
+        "description": "Nhận ưu đãi độc quyền, phim mới và suất chiếu sớm VIP gửi thẳng đến hộp thư của bạn.",
+        "emailPlaceholder": "email@cua-ban.com",
+        "emailAria": "Email nhận bản tin",
+        "subscribe": "Đăng ký",
+        "subscribed": "Bạn đã đăng ký thành công. Chào mừng đến với CVPremium!"
+    },
+    "copyright": "© 2026 CVPremium Entertainment Systems. Bảo lưu mọi quyền."
+}

@@ -15,6 +15,12 @@ interface Props {
 // Doc doesn't name a delimiter for multiselect rule values — comma is the common default.
 const MULTISELECT_DELIMITER = ",";
 
+// Rule types the server offers but we don't expose in the voucher editor.
+// PaymentMethod isn't enforced anywhere in our checkout flow, so hide it from
+// the "Add a rule" picker. Kept in metadata so any legacy rule of this type
+// still renders/edits instead of hanging on a spinner.
+const HIDDEN_RULE_TYPES = new Set(["PaymentMethod"]);
+
 const RuleValueControl: FC<{
     meta: VoucherRuleTypeMetadata;
     value: string;
@@ -91,7 +97,9 @@ const RuleValueControl: FC<{
 const VoucherRulesEditor: FC<Props> = ({ value, onChange, metadata, metadataLoading, disabled }) => {
     const metaByType = new Map(metadata.map((m) => [m.ruleType, m]));
     const usedTypes = new Set(value.map((r) => r.ruleType));
-    const availableToAdd = metadata.filter((m) => !usedTypes.has(m.ruleType));
+    const availableToAdd = metadata.filter(
+        (m) => !usedTypes.has(m.ruleType) && !HIDDEN_RULE_TYPES.has(m.ruleType),
+    );
 
     const addRule = (ruleType: string) => {
         onChange([...value, { ruleType, ruleValue: "" }]);

@@ -16,6 +16,14 @@ import {
 import { fmtRelativeTime, NOTIFICATION_TYPE_LABEL, NOTIFICATION_TYPE_COLOR } from "../utils/notification.utils";
 import NotificationTypeIcon from "../components/NotificationTypeIcon";
 
+/* Dashboard UI stays English-only — resolve the shared filter constants to
+ * fixed English labels instead of going through customer-facing i18n. */
+const DASH_READ_STATUS_LABEL: Record<string, string> = {
+    "": "All",
+    unread: "Unread",
+    read: "Read",
+};
+
 const TrashIcon = () => (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="3 6 5 6 21 6" />
@@ -155,7 +163,7 @@ const DashboardNotificationsPage: FC = () => {
                     <Select
                         value={isReadFilter}
                         onChange={(v) => { setIsReadFilter(v); setPage(1); }}
-                        options={READ_STATUS_FILTER_OPTIONS}
+                        options={READ_STATUS_FILTER_OPTIONS.map((o) => ({ value: o.value, label: DASH_READ_STATUS_LABEL[o.value] }))}
                         style={{ width: 140 }}
                     />
                 </div>

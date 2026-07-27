@@ -1,0 +1,43 @@
+{
+    "nav": {
+        "home": "Home",
+        "theaters": "Theaters",
+        "promotions": "Promotions",
+        "about": "About",
+        "myTickets": "My Tickets",
+        "dashboard": "Dashboard",
+        "schedule": "Schedule",
+        "reports": "Reports",
+        "users": "Users",
+        "content": "Content",
+        "analytics": "Analytics",
+        "settings": "Settings"
+    },
+    "userMenu": {
+        "profile": "Profile",
+        "myTickets": "My Tickets",
+        "settings": "Settings",
+        "signOut": "Sign Out"
+    },
+    "notif": {
+        "title": "Notifications",
+        "newCount_one": "{{count}} new",
+        "newCount_other": "{{count}} new",
+        "loading": "Loading…",
+        "empty": "You're all caught up — no notifications yet.",
+        "viewAll": "View all notifications",
+        "bellAria_one": "Notifications — {{count}} unread",
+        "bellAria_other": "Notifications — {{count}} unread"
+    },
+    "login": "Login",
+    "signInPrompt": "Sign in to access your account",
+    "language": "Language",
+    "aria": {
+        "mainNav": "Main navigation",
+        "mobileNav": "Mobile navigation",
+        "navMenu": "Navigation menu",
+        "userMenu": "User menu",
+        "openMenu": "Open navigation menu",
+        "closeMenu": "Close menu"
+    }
+}

@@ -1,4 +1,6 @@
 import { useMemo, useState, type FC } from "react";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { Modal, Tabs, Button, Tooltip } from "antd";
 import dayjs from "dayjs";
 import { useAppSelector } from "@/store/hooks";
@@ -9,7 +11,9 @@ import RedeemConfirmModal from "@/features/customer/components/RedeemConfirmModa
 import type { RedeemableVoucher, RedeemableVoucherLike } from "@/features/customer/types/loyaltyVoucher.types";
 import { useVouchers } from "@/features/vouchers/hooks/useVouchers";
 import { GiftIcon, StarPointsIcon, LockIcon } from "@/components/ui/BrandIcons";
-import { formatPrice } from "../utils/seat.utils";
+import { formatPrice, } from "../utils/seat.utils";
+import { formatNumber } from "@/utils/formatCurrency";
+import { formatDate } from "@/utils/formatDate";
 import {
     evaluateVoucherEligibility,
     type EligibilityContext,
@@ -50,42 +54,39 @@ interface PickVoucher {
     rules: EligibilityRuleLike[];
 }
 
-const fmtDiscount = (discountType: string, discountValue: number): string =>
+const fmtDiscount = (t: TFunction, discountType: string, discountValue: number): string =>
     discountType === "fixed"
-        ? `${discountValue.toLocaleString("vi-VN")} ₫ Off`
-        : `${discountValue}% Off`;
+        ? t("profile:vouchers.discountFixed", { amount: formatNumber(discountValue) })
+        : t("profile:vouchers.discountPercent", { value: discountValue });
 
-const fmtPoints = (n: number) => n.toLocaleString("en-US");
-
-const fmtDate = (iso?: string): string => {
+const fmtValidUntil = (iso?: string): string => {
     if (!iso) return "";
-    const d = dayjs(iso);
-    return d.isValid() ? d.format("MMM D, YYYY") : "";
+    return dayjs(iso).isValid() ? formatDate(iso) : "";
 };
 
 const isUnexpired = (expiredAt: string | null): boolean =>
     !expiredAt || new Date(expiredAt).getTime() > Date.now();
 
-/** English restriction chip for a public (admin-shaped) rule, which — unlike
- *  the loyalty endpoints — carries no server-rendered displayText. */
-const describePublicRule = (ruleType: string, ruleValue: string): string => {
+/** Restriction chip for a public (admin-shaped) rule, which — unlike the
+ *  loyalty endpoints — carries no server-rendered displayText. */
+const describePublicRule = (t: TFunction, ruleType: string, ruleValue: string): string => {
     const list = () => ruleValue.split(",").map((v) => v.trim()).filter(Boolean).join(", ");
     switch (ruleType) {
         case "ApplyScope": {
             const s = ruleValue.toLowerCase();
-            if (s === "ticket") return "Tickets only";
-            if (s === "fnb" || s === "food") return "Food & drinks only";
-            return "Whole order";
+            if (s === "ticket") return t("voucherPicker.ruleTicketsOnly");
+            if (s === "fnb" || s === "food") return t("voucherPicker.ruleFnbOnly");
+            return t("voucherPicker.ruleWholeOrder");
         }
-        case "DayOfWeek": return `Only ${list()}`;
-        case "Cinema": return "Selected cinemas only";
-        case "Room": return "Selected rooms only";
-        case "Movie": return "Selected movies only";
-        case "SeatType": return `Seat type: ${list()}`;
-        case "Membership": return `${ruleValue} members`;
-        case "PaymentMethod": return `Pay via ${ruleValue}`;
-        case "Product": return "Requires a specific item";
-        case "FoodCategory": return `Requires ${ruleValue}`;
+        case "DayOfWeek": return t("voucherPicker.ruleOnlyDays", { days: list() });
+        case "Cinema": return t("voucherPicker.ruleCinemas");
+        case "Room": return t("voucherPicker.ruleRooms");
+        case "Movie": return t("voucherPicker.ruleMovies");
+        case "SeatType": return t("voucherPicker.ruleSeatType", { types: list() });
+        case "Membership": return t("voucherPicker.ruleMembership", { tier: ruleValue });
+        case "PaymentMethod": return t("voucherPicker.rulePaymentMethod", { method: ruleValue });
+        case "Product": return t("voucherPicker.ruleProduct");
+        case "FoodCategory": return t("voucherPicker.ruleFoodCategory", { category: ruleValue });
         default: return `${ruleType}: ${ruleValue}`;
     }
 };
@@ -104,6 +105,7 @@ const VoucherPickerModal: FC<Props> = ({
     startTime,
     appliedCode,
 }) => {
+    const { t } = useTranslation("booking");
     const [activeTab, setActiveTab] = useState("mine");
     const [redeemTarget, setRedeemTarget] = useState<RedeemableVoucherLike | null>(null);
 
@@ -179,10 +181,10 @@ const VoucherPickerModal: FC<Props> = ({
                 validUntil: v.validUntil,
                 description: v.description,
                 imageUrl: v.imageUrl,
-                ruleTags: v.rules.map((r) => describePublicRule(r.ruleType, r.ruleValue)),
+                ruleTags: v.rules.map((r) => describePublicRule(t, r.ruleType, r.ruleValue)),
                 rules: v.rules,
             }));
-    }, [publicData]);
+    }, [publicData, t]);
 
     const handleRedeem = (voucher: RedeemableVoucher) => {
         setRedeemTarget({
@@ -201,7 +203,8 @@ const VoucherPickerModal: FC<Props> = ({
 
     /* ── Shared card for a selectable (My Vouchers / Promos) voucher ── */
     const renderPickRow = (v: PickVoucher) => {
-        const { eligible, reason } = getEligibility(v);
+        const { eligible, reasonKey, reasonParams } = getEligibility(v);
+        const reason = reasonKey ? t(reasonKey, reasonParams) : undefined;
         const isApplied = !!appliedCode && appliedCode.toUpperCase() === v.voucherCode.toUpperCase();
         return (
             <button
@@ -220,13 +223,13 @@ const VoucherPickerModal: FC<Props> = ({
                 <div className={styles.cardBody}>
                     <div className={styles.cardTop}>
                         <span className={styles.rowDiscount}>
-                            {fmtDiscount(v.discountType, v.discountValue)}
+                            {fmtDiscount(t, v.discountType, v.discountValue)}
                             {v.quantity && v.quantity > 1 ? ` · ×${v.quantity}` : ""}
                         </span>
                         {isApplied ? (
-                            <span className={styles.appliedBadge}>Applied</span>
+                            <span className={styles.appliedBadge}>{t("voucherPicker.applied")}</span>
                         ) : eligible ? (
-                            <span className={styles.rowAction}>Use</span>
+                            <span className={styles.rowAction}>{t("voucherPicker.use")}</span>
                         ) : (
                             <Tooltip title={reason}>
                                 <span className={styles.reasonChip}>
@@ -239,10 +242,10 @@ const VoucherPickerModal: FC<Props> = ({
                     {v.description && <p className={styles.cardDesc}>{v.description}</p>}
                     <div className={styles.metaRow}>
                         {v.minOrderValue > 0 && (
-                            <span className={styles.metaChip}>Min. {formatPrice(v.minOrderValue)}</span>
+                            <span className={styles.metaChip}>{t("voucherPicker.min", { amount: formatPrice(v.minOrderValue) })}</span>
                         )}
                         {v.validUntil && (
-                            <span className={styles.metaChip}>Until {fmtDate(v.validUntil)}</span>
+                            <span className={styles.metaChip}>{t("voucherPicker.until", { date: fmtValidUntil(v.validUntil) })}</span>
                         )}
                     </div>
                     {v.ruleTags.length > 0 && (
@@ -260,33 +263,33 @@ const VoucherPickerModal: FC<Props> = ({
     const items = [
         {
             key: "mine",
-            label: "My Vouchers",
+            label: t("profile:vouchers.myVouchersTab"),
             children: myVouchersLoading ? (
-                <p className={styles.empty}>Loading your vouchers…</p>
+                <p className={styles.empty}>{t("profile:vouchers.loadingMine")}</p>
             ) : available.length === 0 ? (
-                <p className={styles.empty}>You don't have any vouchers ready to use yet.</p>
+                <p className={styles.empty}>{t("voucherPicker.emptyMine")}</p>
             ) : (
                 <div className={styles.list}>{available.map(renderPickRow)}</div>
             ),
         },
         {
             key: "public",
-            label: "Available Promos",
+            label: t("voucherPicker.promosTab"),
             children: publicLoading ? (
-                <p className={styles.empty}>Loading promotions…</p>
+                <p className={styles.empty}>{t("voucherPicker.loadingPromos")}</p>
             ) : publicVouchers.length === 0 ? (
-                <p className={styles.empty}>No public promotions right now.</p>
+                <p className={styles.empty}>{t("voucherPicker.emptyPromos")}</p>
             ) : (
                 <div className={styles.list}>{publicVouchers.map(renderPickRow)}</div>
             ),
         },
         {
             key: "redeem",
-            label: "Redeem with Points",
+            label: t("profile:vouchers.redeemTab"),
             children: redeemableLoading ? (
-                <p className={styles.empty}>Loading vouchers…</p>
+                <p className={styles.empty}>{t("profile:vouchers.loading")}</p>
             ) : eligibleRedeemable.length === 0 ? (
-                <p className={styles.empty}>Nothing to redeem right now.</p>
+                <p className={styles.empty}>{t("voucherPicker.emptyRedeem")}</p>
             ) : (
                 <div className={styles.list}>
                     {eligibleRedeemable.map((v) => {
@@ -302,30 +305,30 @@ const VoucherPickerModal: FC<Props> = ({
                                 <div className={styles.cardBody}>
                                     <div className={styles.cardTop}>
                                         <span className={styles.rowDiscount}>
-                                            {fmtDiscount(v.discountType, v.discountValue)}
+                                            {fmtDiscount(t, v.discountType, v.discountValue)}
                                         </span>
                                         {canAfford ? (
                                             <Button className={styles.redeemBtn} onClick={() => handleRedeem(v)}>
-                                                Redeem
+                                                {t("profile:vouchers.redeem")}
                                             </Button>
                                         ) : (
-                                            <Tooltip title={`You need ${fmtPoints(gap)} more points.`}>
+                                            <Tooltip title={t("profile:vouchers.needMoreTooltip", { points: formatNumber(gap) })}>
                                                 <span className={styles.needMoreChip}>
-                                                    <LockIcon size={11} /> {fmtPoints(gap)} more
+                                                    <LockIcon size={11} /> {t("voucherPicker.moreShort", { points: formatNumber(gap) })}
                                                 </span>
                                             </Tooltip>
                                         )}
                                     </div>
                                     <span className={styles.rowPoints}>
-                                        <StarPointsIcon size={12} /> {fmtPoints(v.requiredPoints)} pts
+                                        <StarPointsIcon size={12} /> {formatNumber(v.requiredPoints)} {t("profile:tickets.pts")}
                                     </span>
                                     {v.description && <p className={styles.cardDesc}>{v.description}</p>}
                                     <div className={styles.metaRow}>
                                         {v.minOrderValue > 0 && (
-                                            <span className={styles.metaChip}>Min. {formatPrice(v.minOrderValue)}</span>
+                                            <span className={styles.metaChip}>{t("voucherPicker.min", { amount: formatPrice(v.minOrderValue) })}</span>
                                         )}
                                         {v.validUntil && (
-                                            <span className={styles.metaChip}>Until {fmtDate(v.validUntil)}</span>
+                                            <span className={styles.metaChip}>{t("voucherPicker.until", { date: fmtValidUntil(v.validUntil) })}</span>
                                         )}
                                     </div>
                                     {v.voucherRules.length > 0 && (
@@ -353,9 +356,9 @@ const VoucherPickerModal: FC<Props> = ({
                 onCancel={onClose}
                 title={
                     <div className={styles.headerRow}>
-                        <span className={styles.title}>Choose a Voucher</span>
+                        <span className={styles.title}>{t("voucherPicker.title")}</span>
                         <span className={styles.pointsPill}>
-                            <StarPointsIcon size={14} /> {fmtPoints(totalPoints)} pts
+                            <StarPointsIcon size={14} /> {formatNumber(totalPoints)} {t("profile:tickets.pts")}
                         </span>
                     </div>
                 }
@@ -372,17 +375,17 @@ const VoucherPickerModal: FC<Props> = ({
                 {canEvaluate && (
                     <div className={styles.summary}>
                         <div className={styles.summaryRow}>
-                            <span>Seats</span>
+                            <span>{t("ticketDetail.seats")}</span>
                             <span className={styles.summaryVal}>{formatPrice(seatsSubTotal ?? 0)}</span>
                         </div>
                         {(fnBSubTotal ?? 0) > 0 && (
                             <div className={styles.summaryRow}>
-                                <span>Food &amp; Beverage</span>
+                                <span>{t("fnb.foodBeverage")}</span>
                                 <span className={styles.summaryVal}>{formatPrice(fnBSubTotal ?? 0)}</span>
                             </div>
                         )}
                         <div className={`${styles.summaryRow} ${styles.summaryTotal}`}>
-                            <span>Order total</span>
+                            <span>{t("voucherPicker.orderTotal")}</span>
                             <span className={styles.summaryVal}>{formatPrice(orderTotal)}</span>
                         </div>
                     </div>

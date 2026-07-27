@@ -1,6 +1,8 @@
 import { type FC } from "react";
+import { useTranslation } from "react-i18next";
 import { Modal, Form, Input, Button } from "antd";
 import { useRequestRefund } from "../hooks/useRefund";
+import { formatVnd } from "@/utils/formatCurrency";
 import styles from "./RefundModal.module.css";
 
 export interface RefundBookingInfo {
@@ -16,9 +18,8 @@ interface Props {
     onClose: () => void;
 }
 
-const fmtVnd = (n: number) => `${n.toLocaleString("vi-VN")} ₫`;
-
 const RefundModal: FC<Props> = ({ open, booking, onClose }) => {
+    const { t } = useTranslation("booking");
     const [form] = Form.useForm<{ reason: string }>();
     const { mutate, isPending } = useRequestRefund(() => {
         form.resetFields();
@@ -40,7 +41,7 @@ const RefundModal: FC<Props> = ({ open, booking, onClose }) => {
         <Modal
             open={open}
             onCancel={handleCancel}
-            title={<span className={styles.title}>Request Refund</span>}
+            title={<span className={styles.title}>{t("profile:tickets.requestRefund")}</span>}
             footer={null}
             destroyOnClose
             maskClosable={!isPending}
@@ -55,30 +56,30 @@ const RefundModal: FC<Props> = ({ open, booking, onClose }) => {
                 <Form form={form} layout="vertical" onFinish={handleFinish} className={styles.form} disabled={isPending}>
                     <div className={styles.summary}>
                         <div className={styles.summaryRow}>
-                            <span className={styles.summaryLabel}>Movie</span>
+                            <span className={styles.summaryLabel}>{t("refund.movie")}</span>
                             <span className={styles.summaryValue}>{booking.movieTitle}</span>
                         </div>
                         <div className={styles.summaryRow}>
-                            <span className={styles.summaryLabel}>Booking Code</span>
+                            <span className={styles.summaryLabel}>{t("confirm.bookingCode")}</span>
                             <span className={styles.summaryValue}>{booking.bookingCode}</span>
                         </div>
                         <div className={styles.summaryRow}>
-                            <span className={styles.summaryLabel}>Refund Amount</span>
-                            <span className={styles.summaryAmount}>{fmtVnd(booking.finalAmount)}</span>
+                            <span className={styles.summaryLabel}>{t("refund.amount")}</span>
+                            <span className={styles.summaryAmount}>{formatVnd(booking.finalAmount)}</span>
                         </div>
                     </div>
 
                     <Form.Item
                         name="reason"
-                        label={<span className={styles.label}>Reason for Refund</span>}
+                        label={<span className={styles.label}>{t("refund.reasonLabel")}</span>}
                         className={styles.item}
                         rules={[
-                            { required: true, message: "Please tell us why you want to cancel" },
-                            { max: 500, message: "Maximum 500 characters" },
+                            { required: true, message: t("refund.reasonRequired") },
+                            { max: 500, message: t("refund.reasonMax") },
                         ]}
                     >
                         <Input.TextArea
-                            placeholder="E.g. I can no longer attend this showtime..."
+                            placeholder={t("refund.reasonPlaceholder")}
                             className={styles.textarea}
                             rows={3}
                             maxLength={500}
@@ -87,16 +88,15 @@ const RefundModal: FC<Props> = ({ open, booking, onClose }) => {
                     </Form.Item>
 
                     <div className={styles.warning}>
-                        The full amount will be refunded to your wallet. This action cannot be undone, and refunds are
-                        only accepted more than 30 minutes before the showtime starts and before you've checked in.
+                        {t("refund.warning")}
                     </div>
 
                     <div className={styles.footer}>
                         <Button onClick={handleCancel} className={styles.cancelBtn} disabled={isPending}>
-                            Keep Booking
+                            {t("refund.keepBooking")}
                         </Button>
                         <Button htmlType="submit" loading={isPending} className={styles.confirmBtn} type="primary" danger>
-                            Confirm Refund
+                            {t("refund.confirm")}
                         </Button>
                     </div>
                 </Form>

@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { useAppDispatch } from "@/store/hooks";
 import { updateUserInfo } from "@/store/slices/authSlice";
 import { updateProfile } from "@/services/api/user.service";
@@ -8,6 +9,7 @@ import { PROFILE_QUERY_KEY } from "./useProfile";
 import type { UpdateProfilePayload } from "../types/profile.type";
 
 export const useUpdateProfile = (onSuccess?: () => void) => {
+    const { t } = useTranslation("profile");
     const queryClient = useQueryClient();
     const dispatch = useAppDispatch();
 
@@ -16,11 +18,11 @@ export const useUpdateProfile = (onSuccess?: () => void) => {
         onSuccess: (data) => {
             queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
             dispatch(updateUserInfo({ fullName: data.fullName, phone: data.phone, avatarURL: data.avatarURL }));
-            notify.success("Profile updated successfully.");
+            notify.success(t("toasts.profileUpdated"));
             onSuccess?.();
         },
         onError: (err: unknown) => {
-            notify.error("Failed to update profile.", getApiErrorMessage(err, "Please try again."));
+            notify.error(t("toasts.profileUpdateFailed"), getApiErrorMessage(err, t("common:errors.generic")));
         },
     });
 };

@@ -25,8 +25,10 @@ export interface EligibilityContext {
 
 export interface VoucherEligibility {
     eligible: boolean;
-    /** Short English reason shown when not eligible; undefined when eligible. */
-    reason?: string;
+    /** i18n key for the reason shown when not eligible; undefined when eligible.
+     *  The caller resolves it with t(reasonKey, reasonParams). */
+    reasonKey?: string;
+    reasonParams?: Record<string, string>;
 }
 
 const DAY_NAMES = [
@@ -67,15 +69,19 @@ export function evaluateVoucherEligibility(
     // food-only order) — applying it would save nothing.
     if (base <= 0) {
         const s = scope.toLowerCase();
-        if (s === "ticket") return { eligible: false, reason: "No tickets in this order" };
+        if (s === "ticket") return { eligible: false, reasonKey: "voucherPicker.reasonNoTickets" };
         if (s === "fnb" || s === "food" || s === "foodandbeverage")
-            return { eligible: false, reason: "No food & drinks in this order" };
+            return { eligible: false, reasonKey: "voucherPicker.reasonNoFnb" };
     }
 
     // Minimum order value — measured against the scope's subtotal.
     const min = input.minOrderValue ?? 0;
     if (min > 0 && base < min) {
-        return { eligible: false, reason: `Spend at least ${formatPrice(min)} to use` };
+        return {
+            eligible: false,
+            reasonKey: "voucherPicker.reasonMinOrder",
+            reasonParams: { amount: formatPrice(min) },
+        };
     }
 
     // Cinema restriction.
@@ -83,7 +89,7 @@ export function evaluateVoucherEligibility(
     if (cinemaRule?.ruleValue && ctx.cinemaId != null) {
         const allowed = splitList(cinemaRule.ruleValue);
         if (!allowed.includes(String(ctx.cinemaId))) {
-            return { eligible: false, reason: "Not valid at this cinema" };
+            return { eligible: false, reasonKey: "voucherPicker.reasonWrongCinema" };
         }
     }
 
@@ -95,9 +101,15 @@ export function evaluateVoucherEligibility(
             const showtimeDay = DAY_NAMES[parsed.getDay()];
             const allowed = splitList(dowRule.ruleValue).map((d) => d.toLowerCase());
             if (!allowed.includes(showtimeDay.toLowerCase())) {
-                return { eligible: false, reason: `Only valid on ${allowed
-                    .map((d) => d.charAt(0).toUpperCase() + d.slice(1))
-                    .join(", ")}` };
+                return {
+                    eligible: false,
+                    reasonKey: "voucherPicker.reasonWrongDay",
+                    reasonParams: {
+                        days: allowed
+                            .map((d) => d.charAt(0).toUpperCase() + d.slice(1))
+                            .join(", "),
+                    },
+                };
             }
         }
     }

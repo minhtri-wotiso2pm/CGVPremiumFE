@@ -104,9 +104,9 @@ export interface PaymentInitiateResponse {
     paymentMethod: string;
     amount: number;
     status: string;
-    /** PayOS — URL chuyển hướng để thanh toán */
+    /** PayOS — redirect URL for payment */
     checkoutUrl?: string;
-    /** PayOS — dữ liệu QR code dạng string */
+    /** PayOS — QR code payload as a string */
     qrCode?: string;
     paymentLinkId?: string;
     orderCode?: number;

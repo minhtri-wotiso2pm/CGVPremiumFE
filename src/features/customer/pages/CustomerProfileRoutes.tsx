@@ -2,7 +2,6 @@ import type { FC } from "react";
 import { Outlet } from "react-router-dom";
 import ProfileSidebar from "../components/ProfileSidebar";
 import ProfileBreadcrumb from "../components/ProfileBreadcrumb";
-import ProfilePlaceholder from "../components/ProfilePlaceholder";
 import styles from "./CustomerProfileLayout.module.css";
 
 /* ── Layout ── */
@@ -29,10 +28,4 @@ export { default as WalletPage } from "./WalletPage";
 
 export { default as NotificationsPage } from "./NotificationsPage";
 
-export const SettingsPage: FC = () => (
-    <ProfilePlaceholder
-        icon="⚙️"
-        title="Settings"
-        subtitle="Manage notification preferences, privacy settings, and account security."
-    />
-);
+export { default as SettingsPage } from "./SettingsPage";

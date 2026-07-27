@@ -1,0 +1,23 @@
+{
+    "actions": {
+        "save": "Lưu",
+        "cancel": "Hủy",
+        "close": "Đóng",
+        "confirm": "Xác nhận",
+        "tryAgain": "Thử lại",
+        "yes": "Có",
+        "no": "Không"
+    },
+    "status": {
+        "loading": "Đang tải…"
+    },
+    "time": {
+        "justNow": "vừa xong",
+        "minutesAgo_other": "{{count}} phút trước",
+        "hoursAgo_other": "{{count}} giờ trước",
+        "daysAgo_other": "{{count}} ngày trước"
+    },
+    "errors": {
+        "generic": "Đã có lỗi xảy ra. Vui lòng thử lại."
+    }
+}

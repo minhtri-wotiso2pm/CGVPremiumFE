@@ -1,5 +1,5 @@
-import dayjs from "dayjs";
-export const formatMemberSince = (iso: string) => dayjs(iso).format("DD MMMM YYYY");
+import { formatDate } from "@/utils/formatDate";
+export const formatMemberSince = (iso: string) => formatDate(iso);
 export const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
 export const getInitials = (name: string) =>
     name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();

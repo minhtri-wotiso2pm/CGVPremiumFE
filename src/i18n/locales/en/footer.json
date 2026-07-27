@@ -1,0 +1,36 @@
+{
+    "tagline": "Redefining the cinema experience in Vietnam. Premium screens, luxury seating, and world-class service for every film lover.",
+    "columns": {
+        "company": "Company",
+        "cinemaServices": "Cinema Services",
+        "support": "Support"
+    },
+    "links": {
+        "aboutUs": "About Us",
+        "careers": "Careers",
+        "contact": "Contact",
+        "privacyPolicy": "Privacy Policy",
+        "termsOfService": "Terms of Service",
+        "movieBooking": "Movie Booking",
+        "vipMembership": "VIP Membership",
+        "promotions": "Promotions",
+        "giftCards": "Gift Cards",
+        "events": "Events",
+        "helpCenter": "Help Center",
+        "faq": "FAQ",
+        "customerService": "Customer Service",
+        "refundPolicy": "Refund Policy",
+        "privacy": "Privacy",
+        "terms": "Terms",
+        "cookies": "Cookies"
+    },
+    "newsletter": {
+        "title": "Stay Updated",
+        "description": "Get exclusive offers, new releases, and VIP previews delivered to your inbox.",
+        "emailPlaceholder": "your@email.com",
+        "emailAria": "Email for newsletter",
+        "subscribe": "Subscribe",
+        "subscribed": "You're subscribed. Welcome to CVPremium!"
+    },
+    "copyright": "© 2026 CVPremium Entertainment Systems. All Rights Reserved."
+}

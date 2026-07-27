@@ -5,6 +5,7 @@
  */
 
 import { useState, type FC } from "react";
+import { useTranslation } from "react-i18next";
 import { Result, Button } from "antd";
 import { useProfile } from "../hooks/useProfile";
 import ProfileCard from "../components/ProfileCard";
@@ -13,6 +14,7 @@ import AvatarModal from "../components/AvatarModal";
 import ChangePasswordModal from "../components/ChangePasswordModal";
 
 const ProfilePage: FC = () => {
+    const { t } = useTranslation("profile");
     const { data: profile, isLoading, isError, refetch } = useProfile();
 
     const [editOpen, setEditOpen] = useState(false);
@@ -23,11 +25,11 @@ const ProfilePage: FC = () => {
         return (
             <Result
                 status="error"
-                title="Unable to load profile"
-                subTitle="Something went wrong while fetching your profile information."
+                title={t("page.loadErrorTitle")}
+                subTitle={t("page.loadErrorSubtitle")}
                 extra={
                     <Button onClick={() => refetch()} type="primary" danger>
-                        Try Again
+                        {t("common:actions.tryAgain")}
                     </Button>
                 }
                 style={{ background: "rgba(16,4,4,0.96)", borderRadius: 14, padding: "48px 24px" }}

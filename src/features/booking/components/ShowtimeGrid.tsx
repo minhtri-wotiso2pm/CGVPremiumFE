@@ -1,4 +1,5 @@
 import { type FC, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import type { ShowtimeCinema, ShowtimeItem } from "../types/showtime.types";
 import ShowtimeCard from "./ShowtimeCard";
 import ShowtimeEmptyState from "./ShowtimeEmptyState";
@@ -29,6 +30,7 @@ function groupByCinema(showtimes: ShowtimeItem[]): CinemaGroup[] {
 }
 
 const ShowtimeGrid: FC<Props> = ({ showtimes, isError, hasCinemaOrRoomFilter, onSelect, onRetry }) => {
+    const { t } = useTranslation("booking");
     // Only worth grouping when showtimes actually span more than one
     // cinema — e.g. "All Cinemas" is selected. A single-cinema result
     // (whether from an explicit filter or just having one cinema showing
@@ -46,9 +48,9 @@ const ShowtimeGrid: FC<Props> = ({ showtimes, isError, hasCinemaOrRoomFilter, on
                     <line x1="12" y1="8" x2="12" y2="12" />
                     <line x1="12" y1="16" x2="12.01" y2="16" />
                 </svg>
-                <p className="cgv-st-error__title">Unable to load showtimes</p>
-                <p className="cgv-st-error__body">A connection error occurred. Please try again.</p>
-                <button className="cgv-st-retry-btn" onClick={onRetry}>Try again</button>
+                <p className="cgv-st-error__title">{t("showtime.errorTitle")}</p>
+                <p className="cgv-st-error__body">{t("showtime.errorBody")}</p>
+                <button className="cgv-st-retry-btn" onClick={onRetry}>{t("common:actions.tryAgain")}</button>
             </div>
         );
     }
@@ -59,7 +61,7 @@ const ShowtimeGrid: FC<Props> = ({ showtimes, isError, hasCinemaOrRoomFilter, on
 
     if (!shouldGroup) {
         return (
-            <div className="cgv-st-grid cgv-st-fade-in" role="list" aria-label="Available showtimes">
+            <div className="cgv-st-grid cgv-st-fade-in" role="list" aria-label={t("showtime.availableShowtimes")}>
                 {showtimes.map((s) => (
                     <ShowtimeCard key={s.showtimeId} showtime={s} onSelect={onSelect} />
                 ))}
@@ -77,7 +79,7 @@ const ShowtimeGrid: FC<Props> = ({ showtimes, isError, hasCinemaOrRoomFilter, on
                             <span className="cgv-st-cinema-group__address">{cinema.address}</span>
                         )}
                     </div>
-                    <div className="cgv-st-grid" role="list" aria-label={`Showtimes at ${cinema.cinemaName}`}>
+                    <div className="cgv-st-grid" role="list" aria-label={t("showtime.showtimesAt", { cinema: cinema.cinemaName })}>
                         {cinemaShowtimes.map((s) => (
                             <ShowtimeCard key={s.showtimeId} showtime={s} onSelect={onSelect} />
                         ))}

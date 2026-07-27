@@ -1,5 +1,6 @@
 import { useState, type FC } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Popconfirm, Drawer, Button } from "antd";
 import {
     UserOutlined, TagOutlined, StarOutlined,
@@ -30,6 +31,7 @@ interface SidebarContentProps { onNavigate?: () => void }
 const SidebarContent: FC<SidebarContentProps> = ({ onNavigate }) => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { t } = useTranslation("profile");
     const user = useAppSelector((state) => state.auth.user);
     const { mutate: logoutMutate, isPending: loggingOut } = useLogout();
     const { data: membership } = useMembershipInfo();
@@ -63,17 +65,17 @@ const SidebarContent: FC<SidebarContentProps> = ({ onNavigate }) => {
                                     boxShadow: `0 0 10px ${color}0f`,
                                 }}
                             >
-                                {formatTierName(membership.currentTier)} Member
+                                {t("sidebar.tierMember", { tier: formatTierName(membership.currentTier) })}
                             </span>
                         );
                     })() : (
-                        <span className={styles.memberBadge}>Member</span>
+                        <span className={styles.memberBadge}>{t("sidebar.member")}</span>
                     )}
                 </div>
             </div>
 
             {/* Nav items */}
-            <nav aria-label="Profile navigation">
+            <nav aria-label={t("sidebar.navAria")}>
                 <ul className={styles.navList}>
                     {SIDEBAR_NAV_ITEMS.map((item) => {
                         const isActive = location.pathname === item.path;
@@ -85,7 +87,7 @@ const SidebarContent: FC<SidebarContentProps> = ({ onNavigate }) => {
                                     aria-current={isActive ? "page" : undefined}
                                 >
                                     <span className={styles.navIcon}>{ICON_MAP[item.icon]}</span>
-                                    {item.label}
+                                    {t(item.labelKey)}
                                     {isActive && <span className={styles.activeBar} aria-hidden />}
                                 </button>
                             </li>
@@ -95,11 +97,11 @@ const SidebarContent: FC<SidebarContentProps> = ({ onNavigate }) => {
                     {/* Logout */}
                     <li className={styles.logoutItem}>
                         <Popconfirm
-                            title={<span style={{ color: "#f0e8e8", fontWeight: 600 }}>Sign out</span>}
-                            description={<span style={{ color: "#9a7070" }}>Are you sure you want to sign out?</span>}
+                            title={<span style={{ color: "#f0e8e8", fontWeight: 600 }}>{t("sidebar.signOutTitle")}</span>}
+                            description={<span style={{ color: "#9a7070" }}>{t("sidebar.signOutConfirm")}</span>}
                             onConfirm={handleLogout}
-                            okText="Sign Out"
-                            cancelText="Cancel"
+                            okText={t("sidebar.signOut")}
+                            cancelText={t("common:actions.cancel")}
                             okButtonProps={{ danger: true, loading: loggingOut }}
                             cancelButtonProps={{ style: { background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.1)", color: "#9a7070" } }}
                             disabled={loggingOut}
@@ -108,7 +110,7 @@ const SidebarContent: FC<SidebarContentProps> = ({ onNavigate }) => {
                         >
                             <button className={`${styles.navItem} ${styles.navItemLogout}`} type="button" disabled={loggingOut}>
                                 <span className={styles.navIcon}><LogoutOutlined /></span>
-                                {loggingOut ? "Signing out…" : "Sign Out"}
+                                {loggingOut ? t("sidebar.signingOut") : t("sidebar.signOut")}
                             </button>
                         </Popconfirm>
                     </li>
@@ -121,11 +123,12 @@ const SidebarContent: FC<SidebarContentProps> = ({ onNavigate }) => {
 /* ─── Main export (desktop sticky + mobile drawer) ─── */
 const ProfileSidebar: FC = () => {
     const [drawerOpen, setDrawerOpen] = useState(false);
+    const { t } = useTranslation("profile");
 
     return (
         <>
             {/* Desktop */}
-            <aside className={styles.sidebarDesktop} aria-label="Account sidebar">
+            <aside className={styles.sidebarDesktop} aria-label={t("sidebar.asideAria")}>
                 <SidebarContent />
             </aside>
 
@@ -134,7 +137,7 @@ const ProfileSidebar: FC = () => {
                 <Button
                     icon={<MenuOutlined />}
                     onClick={() => setDrawerOpen(true)}
-                    aria-label="Open navigation menu"
+                    aria-label={t("sidebar.openMenuAria")}
                     style={{ background: "rgba(232,0,28,0.1)", border: "1px solid rgba(232,0,28,0.3)", color: "#E8001C" }}
                 />
             </div>
@@ -148,7 +151,7 @@ const ProfileSidebar: FC = () => {
                 styles={{ body: { padding: 0, background: "#0d0303" }, header: { background: "#0d0303", borderBottom: "1px solid rgba(255,255,255,0.06)" } }}
                 title={
                     <span style={{ color: "#f0e8e8", fontFamily: "'Inter', sans-serif", fontWeight: 600, letterSpacing: "0.04em" }}>
-                        My Account
+                        {t("sidebar.myAccount")}
                     </span>
                 }
             >

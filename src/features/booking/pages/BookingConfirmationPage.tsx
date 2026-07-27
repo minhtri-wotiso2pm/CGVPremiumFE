@@ -1,42 +1,14 @@
 import { type FC, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Spin } from "antd";
 import type { BookingConfirmationNavState, BookingResponse } from "../types/payment.types";
 import { formatPrice } from "../utils/seat.utils";
+import { formatDateTime } from "@/utils/formatDate";
 import { useMyBookings } from "../hooks/useMyBookings";
 import TicketQrList from "../components/TicketQrList";
 import { FilmClapperIcon } from "@/components/ui/BrandIcons";
 import "../components/payment.css";
-
-/* ── Helpers ──────────────────────────────── */
-function formatDateTime(iso: string): string {
-    try {
-        return new Date(iso).toLocaleString("vi-VN", {
-            weekday: "short",
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        });
-    } catch {
-        return iso;
-    }
-}
-
-function formatDateShort(iso: string): string {
-    try {
-        return new Date(iso).toLocaleString("vi-VN", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        });
-    } catch {
-        return iso;
-    }
-}
 
 const TicketIcon = () => (
     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -45,17 +17,22 @@ const TicketIcon = () => (
     </svg>
 );
 
-const PAYMENT_LABELS: Record<string, string> = {
-    payos:  "PayOS",
-    vnpay:  "VNPay",
-    wallet: "E-wallet",
-    cash:   "Cash",
+/** Brand names stay untranslated; only the generic methods resolve via i18n. */
+const PAYMENT_LABEL_KEYS: Record<string, string> = {
+    wallet: "payment.eWallet",
+    cash:   "confirm.cash",
+};
+
+const PAYMENT_BRAND_LABELS: Record<string, string> = {
+    payos: "PayOS",
+    vnpay: "VNPay",
 };
 
 /* ══════════════════════════════════════════
    BookingConfirmationPage
 ══════════════════════════════════════════ */
 const BookingConfirmationPage: FC = () => {
+    const { t } = useTranslation("booking");
     const navigate  = useNavigate();
     const { state } = useLocation();
     const navState  = (state ?? {}) as BookingConfirmationNavState;
@@ -134,20 +111,20 @@ const BookingConfirmationPage: FC = () => {
                 {/* ── Success header ── */}
                 <div className="cgv-confirm-hero">
                     <div className="cgv-confirm-icon" aria-hidden="true">✓</div>
-                    <p className="cgv-confirm-title">Booking successful!</p>
+                    <p className="cgv-confirm-title">{t("confirm.title")}</p>
                     <p className="cgv-confirm-subtitle">
-                        Thank you for booking with CV Premium
+                        {t("confirm.subtitle")}
                     </p>
 
                     {/* Booking code */}
                     <div className="cgv-confirm-code-wrap">
-                        <span className="cgv-confirm-code-label">Booking code</span>
+                        <span className="cgv-confirm-code-label">{t("confirm.bookingCode")}</span>
                         <span className="cgv-confirm-code">{booking.bookingCode}</span>
                         <button
                             className={`cgv-confirm-copy-btn${copied ? " cgv-confirm-copy-btn--copied" : ""}`}
                             onClick={handleCopyCode}
                         >
-                            {copied ? "Copied!" : "Copy"}
+                            {copied ? t("confirm.copied") : t("confirm.copy")}
                         </button>
                     </div>
                 </div>
@@ -157,7 +134,7 @@ const BookingConfirmationPage: FC = () => {
 
                     {/* Movie */}
                     <div className="cgv-confirm-card__section">
-                        <p className="cgv-confirm-card__sec-label">Movie details</p>
+                        <p className="cgv-confirm-card__sec-label">{t("confirm.movieDetails")}</p>
                         <div className="cgv-confirm-movie-row">
                             {moviePoster ? (
                                 <img
@@ -185,7 +162,7 @@ const BookingConfirmationPage: FC = () => {
                     {/* Seats */}
                     {(booking.seats ?? []).length > 0 && (
                         <div className="cgv-confirm-card__section">
-                            <p className="cgv-confirm-card__sec-label">Seats</p>
+                            <p className="cgv-confirm-card__sec-label">{t("ticketDetail.seats")}</p>
                             <div className="cgv-confirm-chips">
                                 {booking.seats.map((s) => (
                                     <span key={s.seatID} className="cgv-confirm-chip">
@@ -199,7 +176,7 @@ const BookingConfirmationPage: FC = () => {
                     {/* F&B */}
                     {hasFnb && (
                         <div className="cgv-confirm-card__section">
-                            <p className="cgv-confirm-card__sec-label">Food & Beverage</p>
+                            <p className="cgv-confirm-card__sec-label">{t("fnb.foodBeverage")}</p>
                             {booking.fnbItems.map((item) => (
                                 <div key={item.itemName} className="cgv-confirm-row">
                                     <span className="cgv-confirm-row__label">
@@ -215,16 +192,17 @@ const BookingConfirmationPage: FC = () => {
 
                     {/* Payment summary */}
                     <div className="cgv-confirm-card__section">
-                        <p className="cgv-confirm-card__sec-label">Payment</p>
+                        <p className="cgv-confirm-card__sec-label">{t("fnb.stepPayment")}</p>
                         <div className="cgv-confirm-row">
-                            <span className="cgv-confirm-row__label">Method</span>
+                            <span className="cgv-confirm-row__label">{t("confirm.method")}</span>
                             <span className="cgv-confirm-row__val">
-                                {PAYMENT_LABELS[paymentMethod] ?? paymentMethod}
+                                {PAYMENT_BRAND_LABELS[paymentMethod]
+                                    ?? (PAYMENT_LABEL_KEYS[paymentMethod] ? t(PAYMENT_LABEL_KEYS[paymentMethod]) : paymentMethod)}
                             </span>
                         </div>
                         {booking.discountAmount > 0 && (
                             <div className="cgv-confirm-row">
-                                <span className="cgv-confirm-row__label">Discount</span>
+                                <span className="cgv-confirm-row__label">{t("ticketDetail.discount")}</span>
                                 <span
                                     className="cgv-confirm-row__val"
                                     style={{ color: "#4caf50" }}
@@ -235,7 +213,7 @@ const BookingConfirmationPage: FC = () => {
                         )}
                         {booking.voucherApplied && (
                             <div className="cgv-confirm-row">
-                                <span className="cgv-confirm-row__label">Voucher</span>
+                                <span className="cgv-confirm-row__label">{t("payment.voucher")}</span>
                                 <span className="cgv-confirm-row__val">
                                     {booking.voucherApplied.voucherCode}
                                     {booking.voucherApplied.discountApplied > 0 && (
@@ -248,22 +226,22 @@ const BookingConfirmationPage: FC = () => {
                         )}
                         <div className="cgv-confirm-card__section" style={{ padding: "0", border: "none" }}>
                             <div className="cgv-confirm-row cgv-confirm-row--total" style={{ marginTop: 10 }}>
-                                <span className="cgv-confirm-row__label">Total paid</span>
+                                <span className="cgv-confirm-row__label">{t("ticketDetail.totalPaid")}</span>
                                 <span className="cgv-confirm-row__val">
                                     {formatPrice(booking.finalAmount)}
                                 </span>
                             </div>
                         </div>
                         <p style={{ margin: "10px 0 0", fontSize: 11.5, color: "rgba(240,232,232,0.45)" }}>
-                            Reward points will be added after you check in at the cinema.
+                            {t("confirm.pointsNote")}
                         </p>
                     </div>
 
                     {/* Booking date */}
                     <div className="cgv-confirm-card__section">
-                        <p className="cgv-confirm-card__sec-label">Booking time</p>
+                        <p className="cgv-confirm-card__sec-label">{t("confirm.bookingTime")}</p>
                         <p style={{ fontSize: 13, color: "rgba(240,232,232,0.6)" }}>
-                            {formatDateShort(booking.bookingDate)}
+                            {formatDateTime(booking.bookingDate)}
                         </p>
                     </div>
                 </div>
@@ -289,13 +267,13 @@ const BookingConfirmationPage: FC = () => {
                         onClick={() => navigate(`/customer/profile/tickets/${booking.bookingID}`)}
                     >
                         <TicketIcon />
-                        My Ticket
+                        {t("confirm.myTicket")}
                     </button>
                     <button
                         className="cgv-confirm-home-btn"
                         onClick={() => navigate("/customer", { replace: true })}
                     >
-                        Back to Home
+                        {t("confirm.backToHome")}
                     </button>
                 </div>
 

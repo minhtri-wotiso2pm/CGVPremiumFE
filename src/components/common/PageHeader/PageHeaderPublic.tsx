@@ -5,9 +5,12 @@ import {
     useRef,
     useCallback,
     type FC,
+    type CSSProperties,
 } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAppSelector } from "@/store/hooks";
+import { useLanguage } from "@/hooks/useLanguage";
 
 import { useLogout } from "@/features/auth/hooks/useLogoutMutation";
 import { buildLoginRedirectState } from "@/features/auth/utils/authRedirect";
@@ -76,37 +79,37 @@ const H = {
    Extend this map to add STAFF / ADMIN menus without touching JSX
 ───────────────────────────────────────────────────────────── */
 interface NavItem {
-    label: string;
+    labelKey: string;
     path: string;
     requireAuth?: boolean;
 }
 
 const NAV_CONFIG: Record<string, NavItem[]> = {
     GUEST: [
-        { label: "Home", path: "/" },
-        { label: "Theaters", path: "/theaters" },
-        { label: "Promotions", path: "/promotions" },
-        { label: "About", path: "/about" },
-        { label: "My Tickets", path: "/customer/profile/tickets", requireAuth: true },
+        { labelKey: "header:nav.home", path: "/" },
+        { labelKey: "header:nav.theaters", path: "/theaters" },
+        { labelKey: "header:nav.promotions", path: "/promotions" },
+        { labelKey: "header:nav.about", path: "/about" },
+        { labelKey: "header:nav.myTickets", path: "/customer/profile/tickets", requireAuth: true },
     ],
     CUSTOMER: [
-        { label: "Home", path: "/customer" },
-        { label: "Theaters", path: "/customer/theaters" },
-        { label: "Promotions", path: "/customer/promotions" },
-        { label: "About", path: "/customer/about" },
-        { label: "My Tickets", path: "/customer/profile/tickets" },
+        { labelKey: "header:nav.home", path: "/customer" },
+        { labelKey: "header:nav.theaters", path: "/customer/theaters" },
+        { labelKey: "header:nav.promotions", path: "/customer/promotions" },
+        { labelKey: "header:nav.about", path: "/customer/about" },
+        { labelKey: "header:nav.myTickets", path: "/customer/profile/tickets" },
     ],
     STAFF: [
-        { label: "Dashboard", path: "/staff" },
-        { label: "Schedule", path: "/staff/schedule" },
-        { label: "Reports", path: "/staff/reports" },
+        { labelKey: "header:nav.dashboard", path: "/staff" },
+        { labelKey: "header:nav.schedule", path: "/staff/schedule" },
+        { labelKey: "header:nav.reports", path: "/staff/reports" },
     ],
     ADMIN: [
-        { label: "Dashboard", path: "/admin" },
-        { label: "Users", path: "/admin/users" },
-        { label: "Content", path: "/admin/content" },
-        { label: "Analytics", path: "/admin/analytics" },
-        { label: "Settings", path: "/admin/settings" },
+        { labelKey: "header:nav.dashboard", path: "/admin" },
+        { labelKey: "header:nav.users", path: "/admin/users" },
+        { labelKey: "header:nav.content", path: "/admin/content" },
+        { labelKey: "header:nav.analytics", path: "/admin/analytics" },
+        { labelKey: "header:nav.settings", path: "/admin/settings" },
     ],
 };
 
@@ -171,6 +174,7 @@ interface NotifDropdownProps {
 }
 
 const NotifDropdown: FC<NotifDropdownProps> = ({ notifications, unreadCount, isLoading, onItemClick, onViewAll }) => {
+    const { t } = useTranslation("header");
     return (
         <div style={{
             position: "absolute", top: "calc(100% + 10px)", right: 0,
@@ -187,14 +191,14 @@ const NotifDropdown: FC<NotifDropdownProps> = ({ notifications, unreadCount, isL
                 display: "flex", justifyContent: "space-between", alignItems: "center",
             }}>
                 <span style={{ fontSize: 13, fontWeight: 600, color: H.textPrimary, letterSpacing: "0.02em" }}>
-                    Notifications
+                    {t("notif.title")}
                 </span>
                 {unreadCount > 0 && (
                     <span style={{
                         fontSize: 10, fontWeight: 700, color: H.crimson,
                         letterSpacing: "0.08em", textTransform: "uppercase",
                     }}>
-                        {unreadCount} new
+                        {t("notif.newCount", { count: unreadCount })}
                     </span>
                 )}
             </div>
@@ -202,11 +206,11 @@ const NotifDropdown: FC<NotifDropdownProps> = ({ notifications, unreadCount, isL
             {/* Items */}
             {isLoading ? (
                 <div style={{ padding: "28px 16px", textAlign: "center", fontSize: 12, color: H.textMuted }}>
-                    Loading…
+                    {t("notif.loading")}
                 </div>
             ) : notifications.length === 0 ? (
                 <div style={{ padding: "28px 16px", textAlign: "center", fontSize: 12.5, color: H.textMuted }}>
-                    You're all caught up — no notifications yet.
+                    {t("notif.empty")}
                 </div>
             ) : (
                 notifications.map((n) => {
@@ -279,7 +283,7 @@ const NotifDropdown: FC<NotifDropdownProps> = ({ notifications, unreadCount, isL
                         fontWeight: 600, letterSpacing: "0.04em",
                     }}
                 >
-                    View all notifications
+                    {t("notif.viewAll")}
                 </button>
             </div>
         </div>
@@ -299,11 +303,12 @@ interface UserDropdownProps {
 
 const UserDropdown: FC<UserDropdownProps> = ({ name, email, avatar, onClose, onLogout }) => {
     const navigate = useNavigate();
+    const { t } = useTranslation("header");
 
     const menuItems = [
-        { label: "Profile", icon: "", path: "/customer/profile" },
-        { label: "My Tickets", icon: "", path: "/customer/profile/tickets" },
-        { label: "Settings", icon: "", path: "/customer/profile/settings" },
+        { labelKey: "userMenu.profile", icon: "", path: "/customer/profile" },
+        { labelKey: "userMenu.myTickets", icon: "", path: "/customer/profile/tickets" },
+        { labelKey: "userMenu.settings", icon: "", path: "/customer/profile/settings" },
     ];
 
     return (
@@ -344,7 +349,7 @@ const UserDropdown: FC<UserDropdownProps> = ({ name, email, avatar, onClose, onL
             <div style={{ padding: "6px 0" }}>
                 {menuItems.map((item) => (
                     <button
-                        key={item.label}
+                        key={item.labelKey}
                         onClick={() => { navigate(item.path); onClose(); }}
                         style={{
                             width: "100%", background: "none", border: "none",
@@ -367,7 +372,7 @@ const UserDropdown: FC<UserDropdownProps> = ({ name, email, avatar, onClose, onL
                         }}
                     >
                         <span style={{ fontSize: 15 }}>{item.icon}</span>
-                        {item.label}
+                        {t(item.labelKey)}
                     </button>
                 ))}
             </div>
@@ -400,9 +405,56 @@ const UserDropdown: FC<UserDropdownProps> = ({ name, email, avatar, onClose, onL
                         <polyline points="16 17 21 12 16 7" />
                         <line x1="21" y1="12" x2="9" y2="12" />
                     </svg>
-                    Sign Out
+                    {t("userMenu.signOut")}
                 </button>
             </div>
+        </div>
+    );
+};
+
+/* ─────────────────────────────────────────────────────────────
+   LANGUAGE TOGGLE — compact EN | VI switch, visible to guests too
+───────────────────────────────────────────────────────────── */
+const LangToggle: FC<{ style?: CSSProperties }> = ({ style }) => {
+    const { t } = useTranslation("header");
+    const { language, setLanguage } = useLanguage();
+
+    const btn = (lang: "en" | "vi", label: string) => {
+        const active = language === lang;
+        return (
+            <button
+                onClick={() => setLanguage(lang)}
+                aria-pressed={active}
+                aria-label={lang === "en" ? "English" : "Tiếng Việt"}
+                style={{
+                    background: "none", border: "none", cursor: "pointer",
+                    padding: "4px 5px", fontFamily: "inherit",
+                    fontSize: 12, fontWeight: 700, letterSpacing: "0.08em",
+                    color: active ? H.textPrimary : H.textMuted,
+                    borderBottom: active ? `2px solid ${H.crimson}` : "2px solid transparent",
+                    transition: "color 0.15s, border-color 0.15s",
+                }}
+                onMouseEnter={(e) => {
+                    if (!active) (e.currentTarget).style.color = H.textSecondary;
+                }}
+                onMouseLeave={(e) => {
+                    if (!active) (e.currentTarget).style.color = H.textMuted;
+                }}
+            >
+                {label}
+            </button>
+        );
+    };
+
+    return (
+        <div
+            role="group"
+            aria-label={t("language")}
+            style={{ display: "flex", alignItems: "center", ...style }}
+        >
+            {btn("en", "EN")}
+            <span aria-hidden="true" style={{ color: H.textMuted, fontSize: 11, opacity: 0.5 }}>|</span>
+            {btn("vi", "VI")}
         </div>
     );
 };
@@ -423,6 +475,7 @@ const MobileDrawer: FC<DrawerProps> = ({
     isOpen, navItems, user, onClose, onLogout, activePath,
 }) => {
     const navigate = useNavigate();
+    const { t } = useTranslation("header");
 
     return (
         <>
@@ -453,7 +506,7 @@ const MobileDrawer: FC<DrawerProps> = ({
             }}
                 role="dialog"
                 aria-modal="true"
-                aria-label="Navigation menu"
+                aria-label={t("aria.navMenu")}
             >
                 {/* Drawer header */}
                 <div style={{
@@ -474,7 +527,7 @@ const MobileDrawer: FC<DrawerProps> = ({
                         </span>
                         <span style={{ width: 5, height: 5, borderRadius: "50%", background: H.crimson }} />
                     </div>
-                    <button onClick={onClose} aria-label="Close menu" style={{
+                    <button onClick={onClose} aria-label={t("aria.closeMenu")} style={{
                         background: "none", border: "none", cursor: "pointer",
                         color: H.textMuted, padding: 4,
                     }}>
@@ -517,7 +570,7 @@ const MobileDrawer: FC<DrawerProps> = ({
                         borderBottom: `1px solid ${H.border}`,
                     }}>
                         <p style={{ fontSize: 12, color: H.textMuted, margin: "0 0 12px", letterSpacing: "0.02em" }}>
-                            Sign in to access your account
+                            {t("signInPrompt")}
                         </p>
                         <button
                             onClick={() => { navigate("/login"); onClose(); }}
@@ -530,13 +583,13 @@ const MobileDrawer: FC<DrawerProps> = ({
                                 textTransform: "uppercase",
                             }}
                         >
-                            Login
+                            {t("login")}
                         </button>
                     </div>
                 )}
 
                 {/* Nav links */}
-                <nav style={{ flex: 1, padding: "12px 0", overflowY: "auto" }} aria-label="Mobile navigation">
+                <nav style={{ flex: 1, padding: "12px 0", overflowY: "auto" }} aria-label={t("aria.mobileNav")}>
                     {navItems.map((item) => {
                         const isActive = user ? activePath === item.path : false;
                         return (
@@ -569,11 +622,26 @@ const MobileDrawer: FC<DrawerProps> = ({
                                     }
                                 }}
                             >
-                                {item.label}
+                                {t(item.labelKey)}
                             </button>
                         );
                     })}
                 </nav>
+
+                {/* Language row */}
+                <div style={{
+                    padding: "12px 20px",
+                    borderTop: `1px solid ${H.border}`,
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                }}>
+                    <span style={{
+                        fontSize: 10, fontWeight: 700, letterSpacing: "0.14em",
+                        textTransform: "uppercase", color: H.textMuted,
+                    }}>
+                        {t("language")}
+                    </span>
+                    <LangToggle />
+                </div>
 
                 {/* Drawer footer */}
                 {user && onLogout && (
@@ -597,7 +665,7 @@ const MobileDrawer: FC<DrawerProps> = ({
                                 <polyline points="16 17 21 12 16 7" />
                                 <line x1="21" y1="12" x2="9" y2="12" />
                             </svg>
-                            Sign Out
+                            {t("userMenu.signOut")}
                         </button>
                     </div>
                 )}
@@ -613,6 +681,7 @@ const PageHeader: FC = () => {
     const { mutate: logout } = useLogout();
     const navigate = useNavigate();
     const location = useLocation();
+    const { t } = useTranslation("header");
 
     /* Redux state — no extra API call, use existing auth slice */
     const user = useAppSelector((state) => state.auth.user);
@@ -759,7 +828,7 @@ const PageHeader: FC = () => {
                     {/* ── CENTER: Desktop nav — sliding underline ── */}
                     <nav
                         className="cgv-fh__nav cgv-nav-desktop"
-                        aria-label="Main navigation"
+                        aria-label={t("aria.mainNav")}
                     >
                         {navItems.map((item) => {
                             const isActive = item.path === activePath;
@@ -773,7 +842,7 @@ const PageHeader: FC = () => {
                                     onMouseLeave={() => setHoverPath(null)}
                                     aria-current={isActive ? "page" : undefined}
                                 >
-                                    {item.label}
+                                    {t(item.labelKey)}
                                 </button>
                             );
                         })}
@@ -792,13 +861,16 @@ const PageHeader: FC = () => {
                     {/* ── RIGHT: actions ── */}
                     <div className="cgv-fh__actions">
 
+                        {/* Language toggle — always visible, guests included */}
+                        <LangToggle style={{ marginRight: 4 }} />
+
                         {user ? (
                             <>
                                 {/* Notification bell */}
                                 <div ref={notifWrapRef} style={{ position: "relative" }}>
                                     <button
                                         className="cgv-icon-btn"
-                                        aria-label={`Notifications — ${unreadCount} unread`}
+                                        aria-label={t("notif.bellAria", { count: unreadCount })}
                                         aria-haspopup="true"
                                         aria-expanded={notifDropOpen}
                                         onClick={() => {
@@ -843,7 +915,7 @@ const PageHeader: FC = () => {
                                         }}
                                         aria-haspopup="true"
                                         aria-expanded={userDropOpen}
-                                        aria-label="User menu"
+                                        aria-label={t("aria.userMenu")}
                                         className="cgv-fh__avatar-btn"
                                     >
                                         <span style={{
@@ -877,7 +949,7 @@ const PageHeader: FC = () => {
                                 onClick={() => navigate("/login")}
                                 className="cgv-fh__login"
                             >
-                                Login
+                                {t("login")}
                             </button>
                         )}
 
@@ -885,7 +957,7 @@ const PageHeader: FC = () => {
                         <button
                             className="cgv-icon-btn cgv-hamburger"
                             onClick={() => setDrawerOpen(true)}
-                            aria-label="Open navigation menu"
+                            aria-label={t("aria.openMenu")}
                             aria-haspopup="dialog"
                             style={{ marginLeft: 4 }}
                         >

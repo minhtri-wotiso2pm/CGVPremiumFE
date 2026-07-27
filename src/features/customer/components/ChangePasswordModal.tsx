@@ -1,4 +1,5 @@
 import { type FC } from "react";
+import { useTranslation } from "react-i18next";
 import { Modal, Form, Input, Button } from "antd";
 import { useSelfChangePassword } from "../hooks/useSelfChangePassword";
 import styles from "./ChangePasswordModal.module.css";
@@ -9,6 +10,7 @@ interface Props {
 }
 
 const ChangePasswordModal: FC<Props> = ({ open, onClose }) => {
+    const { t } = useTranslation("profile");
     const [form] = Form.useForm();
     const { mutate, isPending } = useSelfChangePassword(() => {
         form.resetFields();
@@ -28,7 +30,7 @@ const ChangePasswordModal: FC<Props> = ({ open, onClose }) => {
         <Modal
             open={open}
             onCancel={handleCancel}
-            title={<span className={styles.title}>Change Password</span>}
+            title={<span className={styles.title}>{t("card.changePassword")}</span>}
             footer={null}
             destroyOnClose
             styles={{
@@ -46,12 +48,12 @@ const ChangePasswordModal: FC<Props> = ({ open, onClose }) => {
             >
                 <Form.Item
                     name="oldPassword"
-                    label={<span className={styles.label}>Current Password</span>}
+                    label={<span className={styles.label}>{t("passwordModal.current")}</span>}
                     className={styles.item}
-                    rules={[{ required: true, message: "Please enter your current password" }]}
+                    rules={[{ required: true, message: t("validation.currentPasswordRequired") }]}
                 >
                     <Input.Password
-                        placeholder="Enter current password"
+                        placeholder={t("passwordModal.currentPlaceholder")}
                         autoComplete="current-password"
                         className={styles.input}
                     />
@@ -59,18 +61,18 @@ const ChangePasswordModal: FC<Props> = ({ open, onClose }) => {
 
                 <Form.Item
                     name="newPassword"
-                    label={<span className={styles.label}>New Password</span>}
+                    label={<span className={styles.label}>{t("passwordModal.new")}</span>}
                     className={styles.item}
                     rules={[
-                        { required: true, message: "Please enter a new password" },
-                        { min: 6, message: "Minimum 6 characters" },
-                        { pattern: /[A-Z]/, message: "Must contain at least one uppercase letter" },
-                        { pattern: /\d/, message: "Must contain at least one digit" },
-                        { pattern: /[@$!%*?&#^()\-_+=]/, message: "Must contain at least one special character" },
+                        { required: true, message: t("validation.newPasswordRequired") },
+                        { min: 6, message: t("validation.passwordMin") },
+                        { pattern: /[A-Z]/, message: t("validation.passwordUppercase") },
+                        { pattern: /\d/, message: t("validation.passwordDigit") },
+                        { pattern: /[@$!%*?&#^()\-_+=]/, message: t("validation.passwordSpecial") },
                     ]}
                 >
                     <Input.Password
-                        placeholder="Min 6 chars, 1 uppercase, 1 digit, 1 special"
+                        placeholder={t("passwordModal.newPlaceholder")}
                         autoComplete="new-password"
                         className={styles.input}
                     />
@@ -78,38 +80,38 @@ const ChangePasswordModal: FC<Props> = ({ open, onClose }) => {
 
                 <Form.Item
                     name="confirmPassword"
-                    label={<span className={styles.label}>Confirm New Password</span>}
+                    label={<span className={styles.label}>{t("passwordModal.confirm")}</span>}
                     className={styles.item}
                     dependencies={["newPassword"]}
                     rules={[
-                        { required: true, message: "Please confirm your new password" },
+                        { required: true, message: t("validation.confirmPasswordRequired") },
                         ({ getFieldValue }) => ({
                             validator(_, value) {
                                 if (!value || getFieldValue("newPassword") === value) {
                                     return Promise.resolve();
                                 }
-                                return Promise.reject(new Error("Passwords do not match"));
+                                return Promise.reject(new Error(t("validation.passwordsMismatch")));
                             },
                         }),
                     ]}
                 >
                     <Input.Password
-                        placeholder="Re-enter new password"
+                        placeholder={t("passwordModal.confirmPlaceholder")}
                         autoComplete="new-password"
                         className={styles.input}
                     />
                 </Form.Item>
 
                 <p className={styles.hint}>
-                    Password must be at least 6 characters with one uppercase letter, one digit, and one special character.
+                    {t("passwordModal.hint")}
                 </p>
 
                 <div className={styles.footer}>
                     <Button onClick={handleCancel} className={styles.cancelBtn} disabled={isPending}>
-                        Cancel
+                        {t("common:actions.cancel")}
                     </Button>
                     <Button htmlType="submit" loading={isPending} className={styles.saveBtn} type="primary">
-                        Save Changes
+                        {t("editModal.saveChanges")}
                     </Button>
                 </div>
             </Form>

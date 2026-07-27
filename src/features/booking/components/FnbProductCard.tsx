@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useTranslation } from "react-i18next";
 import type { Product } from "../types/fnb.types";
 import { formatPrice } from "../utils/seat.utils";
 import { FnbBagIcon, BurgerIcon, MealIcon, DrinkCupIcon, JuiceBoxIcon } from "@/components/ui/BrandIcons";
@@ -11,12 +12,12 @@ const TYPE_ICON: Record<string, FC<{ size?: number }>> = {
     beverage: JuiceBoxIcon,
 };
 
-const TYPE_LABEL: Record<string, string> = {
-    combo:    "Combo",
-    snack:    "Snack",
-    food:     "Food",
-    drink:    "Drink",
-    beverage: "Drink",
+const TYPE_LABEL_KEY: Record<string, string> = {
+    combo:    "fnb.typeCombo",
+    snack:    "fnb.typeSnack",
+    food:     "fnb.typeFood",
+    drink:    "fnb.typeDrink",
+    beverage: "fnb.typeDrink",
 };
 
 interface Props {
@@ -27,9 +28,11 @@ interface Props {
 }
 
 const FnbProductCard: FC<Props> = ({ product, quantity, onAdd, onRemove }) => {
+    const { t } = useTranslation("booking");
     const type  = (product.itemType ?? "").toLowerCase();
     const TypeIcon = TYPE_ICON[type] ?? FnbBagIcon;
-    const label = TYPE_LABEL[type] ?? product.itemType;
+    const labelKey = TYPE_LABEL_KEY[type];
+    const label = labelKey ? t(labelKey) : product.itemType;
     const isSelected = quantity > 0;
     const maxReached = product.stockQuantity > 0 && quantity >= product.stockQuantity;
 
@@ -61,7 +64,7 @@ const FnbProductCard: FC<Props> = ({ product, quantity, onAdd, onRemove }) => {
                             className="cgv-fnb-qty__btn"
                             onClick={onRemove}
                             disabled={quantity === 0}
-                            aria-label={`Decrease ${product.itemName}`}
+                            aria-label={t("fnb.decreaseAria", { item: product.itemName })}
                         >
                             −
                         </button>
@@ -70,7 +73,7 @@ const FnbProductCard: FC<Props> = ({ product, quantity, onAdd, onRemove }) => {
                             className="cgv-fnb-qty__btn cgv-fnb-qty__btn--add"
                             onClick={onAdd}
                             disabled={maxReached}
-                            aria-label={`Increase ${product.itemName}`}
+                            aria-label={t("fnb.increaseAria", { item: product.itemName })}
                         >
                             +
                         </button>

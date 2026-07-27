@@ -1,4 +1,5 @@
 import { type FC, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Skeleton, Modal } from "antd";
 import {
     ResponsiveContainer,
@@ -16,6 +17,8 @@ import {
     useWalletTransactionDetail,
 } from "../hooks/useWallet";
 import type { WalletTransaction, WalletTransactionFilters, WalletTransactionType } from "../types/wallet.types";
+import { formatVnd } from "@/utils/formatCurrency";
+import { formatDate, formatTime, formatShortDate } from "@/utils/formatDate";
 import styles from "./WalletPage.module.css";
 
 /* ─────────────────────────────────────────
@@ -64,22 +67,11 @@ const ErrorIcon: FC = () => (
     </svg>
 );
 
-/* ─────────────────────────────────────────
-   Formatters
-───────────────────────────────────────── */
-const fmtCurrency = (n: number) =>
-    n === 0 ? "0 ₫" : new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(n);
-
-const fmtDate = (iso: string) =>
-    new Date(iso).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
-
-const fmtTime = (iso: string) =>
-    new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
-
-const TYPE_CFG: Record<string, { label: string; color: string; bg: string; Icon: FC }> = {
-    top_up: { label: "Top Up", color: "#4ADE80", bg: "rgba(74,222,128,0.1)", Icon: TopUpIcon },
-    refund: { label: "Refund", color: "#60A5FA", bg: "rgba(96,165,250,0.1)", Icon: RefundIcon },
-    payment: { label: "Payment", color: "#F87171", bg: "rgba(248,113,113,0.1)", Icon: PaymentIcon },
+/* labelKey resolves in the profile namespace at render. */
+const TYPE_CFG: Record<string, { labelKey: string; color: string; bg: string; Icon: FC }> = {
+    top_up: { labelKey: "wallet.typeTopUp", color: "#4ADE80", bg: "rgba(74,222,128,0.1)", Icon: TopUpIcon },
+    refund: { labelKey: "wallet.typeRefund", color: "#60A5FA", bg: "rgba(96,165,250,0.1)", Icon: RefundIcon },
+    payment: { labelKey: "wallet.typePayment", color: "#F87171", bg: "rgba(248,113,113,0.1)", Icon: PaymentIcon },
 };
 
 const getTypeCfg = (type: string) => TYPE_CFG[type] ?? TYPE_CFG.payment;
@@ -87,7 +79,9 @@ const getTypeCfg = (type: string) => TYPE_CFG[type] ?? TYPE_CFG.payment;
 /* ─────────────────────────────────────────
    Balance Hero
 ───────────────────────────────────────── */
-const BalanceHero: FC<{ summary: { currentBalance: number; totalRefundReceived: number; totalSpent: number; transactionCount: number } }> = ({ summary }) => (
+const BalanceHero: FC<{ summary: { currentBalance: number; totalRefundReceived: number; totalSpent: number; transactionCount: number } }> = ({ summary }) => {
+    const { t } = useTranslation("profile");
+    return (
     <div className={`${styles.card} ${styles.hero}`}>
         <div className={styles.heroGlow} />
         <div className={styles.heroBody}>
@@ -96,37 +90,39 @@ const BalanceHero: FC<{ summary: { currentBalance: number; totalRefundReceived: 
                     <WalletIcon />
                 </div>
                 <div className={styles.balanceMeta}>
-                    <span className={styles.balanceEyebrow}>Current Balance</span>
-                    <span className={styles.balanceValue}>{fmtCurrency(summary.currentBalance)}</span>
+                    <span className={styles.balanceEyebrow}>{t("wallet.currentBalance")}</span>
+                    <span className={styles.balanceValue}>{formatVnd(summary.currentBalance)}</span>
                 </div>
             </div>
 
             <div className={styles.statsGrid}>
                 <div className={styles.statCell}>
                     <span className={styles.statValue} style={{ color: "#60A5FA" }}>
-                        {fmtCurrency(summary.totalRefundReceived)}
+                        {formatVnd(summary.totalRefundReceived)}
                     </span>
-                    <span className={styles.statLabel}>Total Refunded</span>
+                    <span className={styles.statLabel}>{t("wallet.totalRefunded")}</span>
                 </div>
                 <div className={styles.statCell}>
                     <span className={styles.statValue} style={{ color: "#F87171" }}>
-                        {fmtCurrency(summary.totalSpent)}
+                        {formatVnd(summary.totalSpent)}
                     </span>
-                    <span className={styles.statLabel}>Total Spent</span>
+                    <span className={styles.statLabel}>{t("membership.totalSpent")}</span>
                 </div>
                 <div className={styles.statCell}>
                     <span className={styles.statValue}>{summary.transactionCount}</span>
-                    <span className={styles.statLabel}>Transactions</span>
+                    <span className={styles.statLabel}>{t("wallet.transactions")}</span>
                 </div>
             </div>
         </div>
     </div>
-);
+    );
+};
 
 /* ─────────────────────────────────────────
    Chart: spent vs received over time
 ───────────────────────────────────────── */
 const WalletChart: FC = () => {
+    const { t } = useTranslation("profile");
     const { data, isLoading } = useWalletTransactionsForChart();
 
     const chartData = useMemo(() => {
@@ -150,26 +146,26 @@ const WalletChart: FC = () => {
             .slice(-14)
             .map((b) => ({
                 ...b,
-                label: new Date(b.date).toLocaleDateString("en-GB", { day: "2-digit", month: "short" }),
+                label: formatShortDate(b.date),
             }));
     }, [data]);
 
     return (
         <div className={`${styles.card} ${styles.chartSection}`}>
-            <p className={styles.sectionTitle}>Spending vs Refund / Top Up</p>
+            <p className={styles.sectionTitle}>{t("wallet.chartTitle")}</p>
 
             {isLoading ? (
                 <Skeleton active paragraph={{ rows: 4 }} />
             ) : chartData.length === 0 ? (
-                <div className={styles.chartEmpty}>No transaction data to chart yet.</div>
+                <div className={styles.chartEmpty}>{t("wallet.chartEmpty")}</div>
             ) : (
                 <>
                     <div className={styles.chartLegend}>
                         <span className={styles.legendItem}>
-                            <span className={styles.legendDot} style={{ background: "#F87171" }} /> Spent
+                            <span className={styles.legendDot} style={{ background: "#F87171" }} /> {t("wallet.spent")}
                         </span>
                         <span className={styles.legendItem}>
-                            <span className={styles.legendDot} style={{ background: "#4ADE80" }} /> Refund / Top Up
+                            <span className={styles.legendDot} style={{ background: "#4ADE80" }} /> {t("wallet.refundTopUp")}
                         </span>
                     </div>
                     <ResponsiveContainer width="100%" height={220}>
@@ -192,7 +188,7 @@ const WalletChart: FC = () => {
                                     fontSize: 12,
                                 }}
                                 labelStyle={{ color: "#f0e8e8", fontWeight: 700 }}
-                                formatter={(value, name) => [fmtCurrency(Number(value) || 0), name === "spent" ? "Spent" : "Refund / Top Up"]}
+                                formatter={(value, name) => [formatVnd(Number(value) || 0), name === "spent" ? t("wallet.spent") : t("wallet.refundTopUp")]}
                             />
                             <Bar dataKey="spent" fill="#F87171" radius={[4, 4, 0, 0]} maxBarSize={22} />
                             <Bar dataKey="received" fill="#4ADE80" radius={[4, 4, 0, 0]} maxBarSize={22} />
@@ -208,6 +204,7 @@ const WalletChart: FC = () => {
    Transaction row
 ───────────────────────────────────────── */
 const TransactionRow: FC<{ tx: WalletTransaction; onClick: () => void }> = ({ tx, onClick }) => {
+    const { t } = useTranslation("profile");
     const cfg = getTypeCfg(tx.transactionType);
     const isPositive = tx.amount >= 0;
 
@@ -218,9 +215,9 @@ const TransactionRow: FC<{ tx: WalletTransaction; onClick: () => void }> = ({ tx
             </div>
 
             <div className={styles.historyInfo}>
-                <p className={styles.historyDesc}>{tx.description || cfg.label}</p>
+                <p className={styles.historyDesc}>{tx.description || t(cfg.labelKey)}</p>
                 <p className={styles.historyMeta}>
-                    {fmtDate(tx.createdAt)} · {fmtTime(tx.createdAt)}
+                    {formatDate(tx.createdAt)} · {formatTime(tx.createdAt)}
                     {tx.bookingCode ? ` · ${tx.bookingCode}` : ""}
                 </p>
             </div>
@@ -228,9 +225,9 @@ const TransactionRow: FC<{ tx: WalletTransaction; onClick: () => void }> = ({ tx
             <div className={styles.historyAmountWrap}>
                 <span className={styles.historyAmount} style={{ color: cfg.color }}>
                     {isPositive ? "+" : ""}
-                    {fmtCurrency(tx.amount)}
+                    {formatVnd(tx.amount)}
                 </span>
-                <span className={styles.historyBalance}>Balance: {fmtCurrency(tx.balanceAfter)}</span>
+                <span className={styles.historyBalance}>{t("wallet.balance")}: {formatVnd(tx.balanceAfter)}</span>
             </div>
         </button>
     );
@@ -240,6 +237,7 @@ const TransactionRow: FC<{ tx: WalletTransaction; onClick: () => void }> = ({ tx
    Transaction detail modal
 ───────────────────────────────────────── */
 const TransactionDetailModal: FC<{ transactionId: number | null; onClose: () => void }> = ({ transactionId, onClose }) => {
+    const { t } = useTranslation("profile");
     const { data, isLoading, isError } = useWalletTransactionDetail(transactionId);
     const cfg = data ? getTypeCfg(data.transactionType) : null;
 
@@ -247,7 +245,7 @@ const TransactionDetailModal: FC<{ transactionId: number | null; onClose: () => 
         <Modal
             open={transactionId != null}
             onCancel={onClose}
-            title={<span className={styles.modalTitle}>Transaction Detail</span>}
+            title={<span className={styles.modalTitle}>{t("wallet.detailTitle")}</span>}
             footer={null}
             destroyOnClose
             styles={{
@@ -261,47 +259,47 @@ const TransactionDetailModal: FC<{ transactionId: number | null; onClose: () => 
             ) : isError || !data ? (
                 <div className={styles.errorState} style={{ padding: "24px 0" }}>
                     <div style={{ color: "#5a4040" }}><ErrorIcon /></div>
-                    <p className={styles.emptyTitle}>Could not load this transaction</p>
-                    <p className={styles.emptyText}>It may not exist or does not belong to your wallet.</p>
+                    <p className={styles.emptyTitle}>{t("wallet.detailLoadFailedTitle")}</p>
+                    <p className={styles.emptyText}>{t("wallet.detailLoadFailedText")}</p>
                 </div>
             ) : (
                 <>
                     <p className={styles.detailAmountBig} style={{ color: cfg!.color }}>
                         {data.amount >= 0 ? "+" : ""}
-                        {fmtCurrency(data.amount)}
+                        {formatVnd(data.amount)}
                     </p>
                     <div className={styles.detailList}>
                         <div className={styles.detailRow}>
-                            <span className={styles.detailLabel}>Type</span>
-                            <span className={styles.detailValue} style={{ color: cfg!.color }}>{cfg!.label}</span>
+                            <span className={styles.detailLabel}>{t("wallet.type")}</span>
+                            <span className={styles.detailValue} style={{ color: cfg!.color }}>{t(cfg!.labelKey)}</span>
                         </div>
                         <div className={styles.detailRow}>
-                            <span className={styles.detailLabel}>Transaction ID</span>
+                            <span className={styles.detailLabel}>{t("wallet.transactionId")}</span>
                             <span className={styles.detailValue}>#{data.transactionID}</span>
                         </div>
                         <div className={styles.detailRow}>
-                            <span className={styles.detailLabel}>Balance After</span>
-                            <span className={styles.detailValue}>{fmtCurrency(data.balanceAfter)}</span>
+                            <span className={styles.detailLabel}>{t("wallet.balanceAfter")}</span>
+                            <span className={styles.detailValue}>{formatVnd(data.balanceAfter)}</span>
                         </div>
                         {data.bookingCode && (
                             <div className={styles.detailRow}>
-                                <span className={styles.detailLabel}>Booking Code</span>
+                                <span className={styles.detailLabel}>{t("wallet.bookingCode")}</span>
                                 <span className={styles.detailValue}>{data.bookingCode}</span>
                             </div>
                         )}
                         {data.refundID != null && (
                             <div className={styles.detailRow}>
-                                <span className={styles.detailLabel}>Refund ID</span>
+                                <span className={styles.detailLabel}>{t("wallet.refundId")}</span>
                                 <span className={styles.detailValue}>#{data.refundID}</span>
                             </div>
                         )}
                         <div className={styles.detailRow}>
-                            <span className={styles.detailLabel}>Date & Time</span>
-                            <span className={styles.detailValue}>{fmtDate(data.createdAt)} · {fmtTime(data.createdAt)}</span>
+                            <span className={styles.detailLabel}>{t("wallet.dateTime")}</span>
+                            <span className={styles.detailValue}>{formatDate(data.createdAt)} · {formatTime(data.createdAt)}</span>
                         </div>
                         {data.description && (
                             <div className={styles.detailRow}>
-                                <span className={styles.detailLabel}>Description</span>
+                                <span className={styles.detailLabel}>{t("wallet.description")}</span>
                                 <span className={styles.detailValue}>{data.description}</span>
                             </div>
                         )}
@@ -330,6 +328,7 @@ const PAGE_SIZE = 10;
 const DEFAULT_FILTERS: WalletTransactionFilters = { page: 1, pageSize: PAGE_SIZE };
 
 const WalletPage: FC = () => {
+    const { t } = useTranslation("profile");
     const [filters, setFilters] = useState<WalletTransactionFilters>(DEFAULT_FILTERS);
     const [selectedId, setSelectedId] = useState<number | null>(null);
 
@@ -355,9 +354,9 @@ const WalletPage: FC = () => {
         return (
             <div className={`${styles.card} ${styles.errorState}`}>
                 <div style={{ color: "#5a4040" }}><ErrorIcon /></div>
-                <p className={styles.emptyTitle}>Failed to load wallet</p>
-                <p className={styles.emptyText}>Please try again later.</p>
-                <button className={styles.retryBtn} onClick={() => refetchSummary()}>Retry</button>
+                <p className={styles.emptyTitle}>{t("wallet.loadFailedTitle")}</p>
+                <p className={styles.emptyText}>{t("membership.loadFailedText")}</p>
+                <button className={styles.retryBtn} onClick={() => refetchSummary()}>{t("common:actions.tryAgain")}</button>
             </div>
         );
     }
@@ -369,15 +368,15 @@ const WalletPage: FC = () => {
 
             <div className={`${styles.card} ${styles.historySection}`}>
                 <div className={styles.historyHeader}>
-                    <p className={styles.sectionTitle} style={{ margin: 0 }}>Transaction History</p>
+                    <p className={styles.sectionTitle} style={{ margin: 0 }}>{t("wallet.historyTitle")}</p>
                     {totalCount > 0 && (
-                        <span className={styles.historyCount}>{totalCount} transaction{totalCount !== 1 ? "s" : ""}</span>
+                        <span className={styles.historyCount}>{t("membership.transactions", { count: totalCount })}</span>
                     )}
                 </div>
 
                 <div className={styles.filtersBar}>
                     <div className={styles.filterField}>
-                        <label className={styles.filterLabel} htmlFor="wallet-type-filter">Type</label>
+                        <label className={styles.filterLabel} htmlFor="wallet-type-filter">{t("wallet.type")}</label>
                         <select
                             id="wallet-type-filter"
                             className={styles.filterSelect}
@@ -388,15 +387,15 @@ const WalletPage: FC = () => {
                                 })
                             }
                         >
-                            <option value="">All types</option>
-                            <option value="top_up">Top Up</option>
-                            <option value="payment">Payment</option>
-                            <option value="refund">Refund</option>
+                            <option value="">{t("wallet.allTypes")}</option>
+                            <option value="top_up">{t("wallet.typeTopUp")}</option>
+                            <option value="payment">{t("wallet.typePayment")}</option>
+                            <option value="refund">{t("wallet.typeRefund")}</option>
                         </select>
                     </div>
 
                     <div className={styles.filterField}>
-                        <label className={styles.filterLabel} htmlFor="wallet-from-date">From</label>
+                        <label className={styles.filterLabel} htmlFor="wallet-from-date">{t("wallet.from")}</label>
                         <input
                             id="wallet-from-date"
                             type="date"
@@ -407,7 +406,7 @@ const WalletPage: FC = () => {
                     </div>
 
                     <div className={styles.filterField}>
-                        <label className={styles.filterLabel} htmlFor="wallet-to-date">To</label>
+                        <label className={styles.filterLabel} htmlFor="wallet-to-date">{t("wallet.to")}</label>
                         <input
                             id="wallet-to-date"
                             type="date"
@@ -418,7 +417,7 @@ const WalletPage: FC = () => {
                     </div>
 
                     {hasActiveFilters && (
-                        <button className={styles.resetBtn} onClick={resetFilters}>Clear filters</button>
+                        <button className={styles.resetBtn} onClick={resetFilters}>{t("tickets.clearFilters")}</button>
                     )}
                 </div>
 
@@ -427,20 +426,20 @@ const WalletPage: FC = () => {
                 ) : txError ? (
                     <div className={styles.errorState}>
                         <div style={{ color: "#5a4040" }}><ErrorIcon /></div>
-                        <p className={styles.emptyTitle}>Failed to load transactions</p>
-                        <p className={styles.emptyText}>Please try again.</p>
-                        <button className={styles.retryBtn} onClick={() => refetchTx()}>Retry</button>
+                        <p className={styles.emptyTitle}>{t("wallet.txLoadFailedTitle")}</p>
+                        <p className={styles.emptyText}>{t("wallet.txLoadFailedText")}</p>
+                        <button className={styles.retryBtn} onClick={() => refetchTx()}>{t("common:actions.tryAgain")}</button>
                     </div>
                 ) : transactions.length === 0 ? (
                     <div className={styles.emptyHistory}>
                         <div className={styles.emptyIconWrap}><EmptyHistoryIcon /></div>
                         <p className={styles.emptyTitle}>
-                            {hasActiveFilters ? "No transactions match your filters" : "No transactions yet"}
+                            {hasActiveFilters ? t("wallet.emptyFilteredTitle") : t("membership.emptyHistoryTitle")}
                         </p>
                         <p className={styles.emptyText}>
                             {hasActiveFilters
-                                ? "Try adjusting the type or date range."
-                                : "Your wallet transactions will appear here after your first top up, payment, or refund."}
+                                ? t("wallet.emptyFilteredText")
+                                : t("wallet.emptyText")}
                         </p>
                     </div>
                 ) : (
@@ -458,15 +457,15 @@ const WalletPage: FC = () => {
                                     disabled={filters.page <= 1}
                                     onClick={() => setFilters((prev) => ({ ...prev, page: prev.page - 1 }))}
                                 >
-                                    Previous
+                                    {t("membership.previous")}
                                 </button>
-                                <span className={styles.pageIndicator}>Page {filters.page} of {totalPages}</span>
+                                <span className={styles.pageIndicator}>{t("membership.pageOf", { page: filters.page, total: totalPages })}</span>
                                 <button
                                     className={styles.pageBtn}
                                     disabled={filters.page >= totalPages}
                                     onClick={() => setFilters((prev) => ({ ...prev, page: prev.page + 1 }))}
                                 >
-                                    Next
+                                    {t("membership.next")}
                                 </button>
                             </div>
                         )}

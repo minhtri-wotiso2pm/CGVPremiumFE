@@ -1,20 +1,22 @@
 import { type FC, useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import type { FnbItem, FnbNavState, PaymentNavState, Product } from "../types/fnb.types";
 import { useFnbProducts } from "../hooks/useFnbProducts";
 import { setActiveSeatHold } from "../utils/activeSeatHold";
 import { formatPrice, getSeatLabel } from "../utils/seat.utils";
+import { formatDateTime } from "@/utils/formatDate";
 import FnbProductCard from "../components/FnbProductCard";
 import { FilmClapperIcon } from "@/components/ui/BrandIcons";
 import "../components/fnb.css";
 
 /* ── Helpers ──────────────────────────────── */
-const GROUP_LABELS: Record<string, string> = {
-    combo:    "COMBO",
-    snack:    "SNACKS",
-    food:     "FOOD",
-    drink:    "DRINKS",
-    beverage: "DRINKS",
+const GROUP_LABEL_KEYS: Record<string, string> = {
+    combo:    "fnb.groupCombo",
+    snack:    "fnb.groupSnacks",
+    food:     "fnb.groupFood",
+    drink:    "fnb.groupDrinks",
+    beverage: "fnb.groupDrinks",
 };
 
 /** Fixed display order regardless of what order the API returns products
@@ -53,7 +55,7 @@ function groupProducts(products: Product[]) {
     });
     return entries.map(([type, items]) => ({
         type,
-        label: GROUP_LABELS[type] ?? type.toUpperCase(),
+        labelKey: GROUP_LABEL_KEYS[type] ?? null,
         items,
     }));
 }
@@ -83,6 +85,7 @@ const SkeletonGrid: FC = () => (
    FnbPage
 ══════════════════════════════════════════ */
 const FnbPage: FC = () => {
+    const { t } = useTranslation("booking");
     const navigate  = useNavigate();
     const { state } = useLocation();
     const navState  = (state ?? {}) as FnbNavState;
@@ -202,15 +205,10 @@ const FnbPage: FC = () => {
     }, [navigate]);
 
     /* ── Date format ──────────────────────────── */
-    const showDateStr = useMemo(() => {
-        if (!startTime) return "";
-        try {
-            return new Date(startTime).toLocaleString("en-US", {
-                weekday: "short", day: "2-digit", month: "2-digit",
-                hour: "2-digit", minute: "2-digit",
-            });
-        } catch { return startTime; }
-    }, [startTime]);
+    const showDateStr = useMemo(
+        () => (startTime ? formatDateTime(startTime) : ""),
+        [startTime]
+    );
 
     if (!showtimeId) return null;
 
@@ -221,22 +219,22 @@ const FnbPage: FC = () => {
 
                 {/* ── Step indicator ── */}
                 <div className="cgv-fnb-steps">
-                    <button className="cgv-fnb-back-btn" onClick={handleBack} aria-label="Back to seat selection">
+                    <button className="cgv-fnb-back-btn" onClick={handleBack} aria-label={t("fnb.backToSeats")}>
                         <BackIcon />
                     </button>
                     <div className="cgv-fnb-step cgv-fnb-step--done">
                         <span className="cgv-fnb-step__num">✓</span>
-                        Select Seats
+                        {t("fnb.stepSeats")}
                     </div>
                     <div className="cgv-fnb-step__sep" />
                     <div className="cgv-fnb-step cgv-fnb-step--active">
                         <span className="cgv-fnb-step__num">2</span>
-                        Food &amp; Beverage
+                        {t("fnb.stepFnb")}
                     </div>
                     <div className="cgv-fnb-step__sep" />
                     <div className="cgv-fnb-step">
                         <span className="cgv-fnb-step__num">3</span>
-                        Payment
+                        {t("fnb.stepPayment")}
                     </div>
                 </div>
 
@@ -248,11 +246,11 @@ const FnbPage: FC = () => {
                         <span className="cgv-fnb-timer__icon">⏱</span>
                         {isExpired ? (
                             <span style={{ color: "#ff6b6b", fontWeight: 600 }}>
-                                Your seat hold has expired — please go back and select seats again
+                                {t("fnb.holdExpired")}
                             </span>
                         ) : (
                             <>
-                                <span>Your seats are held for</span>
+                                <span>{t("fnb.holdFor")}</span>
                                 <span className="cgv-fnb-timer__count">
                                     {formatCountdown(timeLeft)}
                                 </span>
@@ -273,25 +271,25 @@ const FnbPage: FC = () => {
                             </>
                         ) : isError ? (
                             <div className="cgv-fnb-state">
-                                <p className="cgv-fnb-state__title">Couldn't load products</p>
+                                <p className="cgv-fnb-state__title">{t("fnb.loadErrorTitle")}</p>
                                 <p className="cgv-fnb-state__body">
-                                    Please check your connection and try again.
+                                    {t("fnb.loadErrorBody")}
                                 </p>
                                 <button className="cgv-fnb-retry-btn" onClick={() => refetch()}>
-                                    Retry
+                                    {t("common:actions.tryAgain")}
                                 </button>
                             </div>
                         ) : products.length === 0 ? (
                             <div className="cgv-fnb-state">
-                                <p className="cgv-fnb-state__title">No products available</p>
+                                <p className="cgv-fnb-state__title">{t("fnb.emptyTitle")}</p>
                                 <p className="cgv-fnb-state__body">
-                                    This cinema doesn't have food &amp; beverage items yet. You can continue without adding any.
+                                    {t("fnb.emptyBody")}
                                 </p>
                             </div>
                         ) : (
-                            productGroups.map(({ type, label, items }) => (
+                            productGroups.map(({ type, labelKey, items }) => (
                                 <div key={type} className="cgv-fnb-group">
-                                    <p className="cgv-fnb-group-title">{label}</p>
+                                    <p className="cgv-fnb-group-title">{labelKey ? t(labelKey) : type.toUpperCase()}</p>
                                     <div className="cgv-fnb-grid">
                                         {items.map((product) => (
                                             <FnbProductCard
@@ -311,7 +309,7 @@ const FnbPage: FC = () => {
                     {/* ── Right: summary sidebar ── */}
                     <aside className="cgv-fnb-right">
                         <div className="cgv-fnb-summary">
-                            <p className="cgv-fnb-summary__title">Order Summary</p>
+                            <p className="cgv-fnb-summary__title">{t("seats.orderSummary")}</p>
 
                             {/* Movie info */}
                             <div className="cgv-fnb-summary__movie">
@@ -343,7 +341,7 @@ const FnbPage: FC = () => {
                             {/* Seat list */}
                             {(selectedSeats ?? []).length > 0 && (
                                 <div>
-                                    <p className="cgv-fnb-summary__sec">Selected Seats</p>
+                                    <p className="cgv-fnb-summary__sec">{t("fnb.selectedSeats")}</p>
                                     <div className="cgv-fnb-summary__chips">
                                         {selectedSeats.map((s) => (
                                             <span key={s.seatId} className="cgv-fnb-summary__chip">
@@ -356,9 +354,9 @@ const FnbPage: FC = () => {
 
                             {/* F&B list */}
                             <div>
-                                <p className="cgv-fnb-summary__sec">Food &amp; Beverage</p>
+                                <p className="cgv-fnb-summary__sec">{t("fnb.foodBeverage")}</p>
                                 {fnbSummaryItems.length === 0 ? (
-                                    <p className="cgv-fnb-summary__fnb-empty">No items selected</p>
+                                    <p className="cgv-fnb-summary__fnb-empty">{t("fnb.noItems")}</p>
                                 ) : (
                                     fnbSummaryItems.map((item) => (
                                         <div
@@ -381,7 +379,7 @@ const FnbPage: FC = () => {
                                 <div className="cgv-fnb-summary__hr" />
                                 <div className="cgv-fnb-summary__row" style={{ marginTop: 8 }}>
                                     <span className="cgv-fnb-summary__row-label">
-                                        Seats ({(seatIds ?? []).length})
+                                        {t("fnb.seatsCount", { count: (seatIds ?? []).length })}
                                     </span>
                                     <span className="cgv-fnb-summary__row-val">
                                         {formatPrice(seatsTotal)}
@@ -389,7 +387,7 @@ const FnbPage: FC = () => {
                                 </div>
                                 {fnbTotal > 0 && (
                                     <div className="cgv-fnb-summary__row" style={{ marginTop: 6 }}>
-                                        <span className="cgv-fnb-summary__row-label">F&amp;B</span>
+                                        <span className="cgv-fnb-summary__row-label">{t("fnb.fnbShort")}</span>
                                         <span className="cgv-fnb-summary__row-val">
                                             {formatPrice(fnbTotal)}
                                         </span>
@@ -397,7 +395,7 @@ const FnbPage: FC = () => {
                                 )}
                                 <div className="cgv-fnb-summary__hr" style={{ marginTop: 10 }} />
                                 <div className="cgv-fnb-summary__total" style={{ marginTop: 10 }}>
-                                    <span className="cgv-fnb-summary__total-label">Estimated Total</span>
+                                    <span className="cgv-fnb-summary__total-label">{t("fnb.estimatedTotal")}</span>
                                     <span className="cgv-fnb-summary__total-val">
                                         {formatPrice(grandTotal)}
                                     </span>
@@ -410,10 +408,10 @@ const FnbPage: FC = () => {
                                 onClick={handleContinue}
                                 disabled={isExpired}
                             >
-                                Continue to Payment
+                                {t("fnb.continueToPayment")}
                             </button>
                             <button className="cgv-fnb-back-link" onClick={handleBack}>
-                                Back to seat selection
+                                {t("fnb.backToSeats")}
                             </button>
                         </div>
                     </aside>
@@ -425,15 +423,15 @@ const FnbPage: FC = () => {
                 <div className="cgv-fnb-mobile-bar__info">
                     <span className="cgv-fnb-mobile-bar__label">
                         {fnbSummaryItems.length > 0
-                            ? `${fnbSummaryItems.reduce((s, i) => s + i.qty, 0)} items`
-                            : "No items selected"}
+                            ? t("fnb.itemsCount", { count: fnbSummaryItems.reduce((s, i) => s + i.qty, 0) })
+                            : t("fnb.noItems")}
                     </span>
                     <span className="cgv-fnb-mobile-bar__total">
                         {formatPrice(grandTotal)}
                     </span>
                 </div>
                 <div className="cgv-fnb-mobile-bar__btns">
-                    <button className="cgv-fnb-mobile-bar__back" onClick={handleBack} aria-label="Back">
+                    <button className="cgv-fnb-mobile-bar__back" onClick={handleBack} aria-label={t("fnb.back")}>
                         <BackIcon />
                     </button>
                     <button
@@ -441,7 +439,7 @@ const FnbPage: FC = () => {
                         onClick={handleContinue}
                         disabled={isExpired}
                     >
-                        Continue
+                        {t("seats.continue")}
                     </button>
                 </div>
             </div>

@@ -1,4 +1,5 @@
 import { type FC, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import type { Seat as SeatType } from "../types/seat.types";
 import { isSeatSelectable, getSeatLabel } from "../utils/seat.utils";
 
@@ -9,6 +10,7 @@ interface Props {
 }
 
 const Seat: FC<Props> = ({ seat, isSelected, onSelect }) => {
+    const { t } = useTranslation("booking");
     const selectable = isSeatSelectable(seat);
     const seatType = (seat.seatType ?? "STANDARD").toString().toUpperCase();
 
@@ -34,12 +36,12 @@ const Seat: FC<Props> = ({ seat, isSelected, onSelect }) => {
             className={classNames}
             onClick={handleClick}
             disabled={!selectable}
-            aria-label={`${getSeatLabel(seat)}${isSelected ? " (selected)" : selectable ? "" : " (unavailable)"}`}
+            aria-label={`${getSeatLabel(seat)}${isSelected ? ` (${t("seats.selected")})` : selectable ? "" : ` (${t("seats.unavailable")})`}`}
             aria-pressed={isSelected}
             title={
                 selectable
                     ? `${getSeatLabel(seat)} · ${seat.seatType}`
-                    : `${getSeatLabel(seat)} · Unavailable`
+                    : `${getSeatLabel(seat)} · ${t("seats.unavailable")}`
             }
         >
             <span className="cgv-seat__col">{seat.seatCol}</span>

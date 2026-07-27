@@ -1,5 +1,7 @@
 import { type FC, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { QRCode, Spin } from "antd";
+import { formatDateTime } from "@/utils/formatDate";
 import { useTickets } from "../hooks/useTickets";
 import type { Ticket } from "../types/ticket.types";
 import type { BookingSeat } from "../types/payment.types";
@@ -102,6 +104,7 @@ interface TicketCardProps {
    cinema/room header, big seat code, QR with an embedded logo, a VALID/
    USED badge, icon-labeled info rows, and a booking-code footer strip. ── */
 const TicketCard: FC<TicketCardProps> = ({ ticket, label, cinemaName, roomName, startTime, bookingCode }) => {
+    const { t } = useTranslation("booking");
     const cardRef = useRef<HTMLDivElement>(null);
     const isValid = ticket.status.toLowerCase() !== "used";
 
@@ -117,14 +120,7 @@ const TicketCard: FC<TicketCardProps> = ({ ticket, label, cinemaName, roomName, 
         link.remove();
     };
 
-    const dateTime = (() => {
-        try {
-            const d = new Date(startTime);
-            const time = d.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", hour12: false });
-            const date = d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
-            return `${time}, ${date}`;
-        } catch { return ""; }
-    })();
+    const dateTime = startTime ? formatDateTime(startTime) : "";
 
     return (
         <div className="tkt-card-outer">
@@ -142,7 +138,7 @@ const TicketCard: FC<TicketCardProps> = ({ ticket, label, cinemaName, roomName, 
 
                 <span className={`tkt-card__valid${isValid ? "" : " tkt-card__valid--used"}`}>
                     <CheckCircleIcon />
-                    {isValid ? "VALID" : "USED"}
+                    {isValid ? t("ticket.valid") : t("ticket.used")}
                 </span>
 
                 <div className="tkt-card__info">
@@ -150,16 +146,16 @@ const TicketCard: FC<TicketCardProps> = ({ ticket, label, cinemaName, roomName, 
                     <InfoRow icon={<FilmIcon />}>CV</InfoRow>
                     <InfoRow icon={<PinIcon />}>{cinemaName}</InfoRow>
                     <InfoRow icon={<TagIcon />}>{bookingCode}</InfoRow>
-                    {label && <InfoRow icon={<SeatIcon />}>Seat: {label}</InfoRow>}
+                    {label && <InfoRow icon={<SeatIcon />}>{t("ticketDetail.seat")}: {label}</InfoRow>}
                 </div>
 
                 <div className="tkt-card__footer">
-                    <span className="tkt-card__footer-label">Booking code</span>
+                    <span className="tkt-card__footer-label">{t("confirm.bookingCode")}</span>
                     <span className="tkt-card__footer-code">{bookingCode}</span>
                 </div>
             </div>
 
-            <button className="tkt-card__dl" onClick={handleDownload}>Download</button>
+            <button className="tkt-card__dl" onClick={handleDownload}>{t("ticket.download")}</button>
         </div>
     );
 };
@@ -176,6 +172,7 @@ interface Props {
 }
 
 const TicketQrList: FC<Props> = ({ bookingId, seats = [], cinemaName, roomName, startTime, bookingCode, light = false }) => {
+    const { t } = useTranslation("booking");
     const listRef = useRef<HTMLDivElement>(null);
     const { data: tickets = [], isLoading } = useTickets(bookingId);
 
@@ -226,7 +223,7 @@ const TicketQrList: FC<Props> = ({ bookingId, seats = [], cinemaName, roomName, 
     if (tickets.length === 0) {
         return (
             <p className="tkt-empty">
-                Your e-tickets are being generated. Please refresh in a moment or check "My Tickets" later.
+                {t("ticket.generating")}
             </p>
         );
     }
@@ -234,10 +231,10 @@ const TicketQrList: FC<Props> = ({ bookingId, seats = [], cinemaName, roomName, 
     return (
         <div className={light ? "tkt--light" : undefined}>
             <div className="tkt-head">
-                <p className="tkt-head__title">Your E-Tickets</p>
+                <p className="tkt-head__title">{t("ticket.yourETickets")}</p>
                 <button className="tkt-print-btn" onClick={handlePrintAll}>
                     <PrinterIcon />
-                    Print all
+                    {t("ticket.printAll")}
                 </button>
             </div>
             <div className="tkt-grid" ref={listRef}>

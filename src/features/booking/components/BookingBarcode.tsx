@@ -1,4 +1,5 @@
 import { type FC } from "react";
+import { useTranslation } from "react-i18next";
 import Barcode from "@/components/ui/Barcode";
 import { printBill, type PrintableBooking } from "../utils/printBooking";
 
@@ -26,6 +27,7 @@ interface Props {
  * Shared by the customer e-ticket and the staff counter receipt.
  */
 const BookingBarcode: FC<Props> = ({ code, printable, variant = "dark", note, }) => {
+    const { t } = useTranslation("booking");
     const dark = variant === "dark";
     const labelColor = dark ? "#b09090" : "var(--dash-text-3)";
     const noteColor = dark ? "#8a6a6a" : "var(--dash-text-3)";
@@ -38,7 +40,7 @@ const BookingBarcode: FC<Props> = ({ code, printable, variant = "dark", note, })
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
                 <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: labelColor }}>
-                    Booking Code
+                    {t("confirm.bookingCode")}
                 </span>
                 {printable && (
                     <button
@@ -52,7 +54,7 @@ const BookingBarcode: FC<Props> = ({ code, printable, variant = "dark", note, })
                         }}
                     >
                         <PrinterIcon />
-                        Print bill
+                        {t("ticket.printBill")}
                     </button>
                 )}
             </div>

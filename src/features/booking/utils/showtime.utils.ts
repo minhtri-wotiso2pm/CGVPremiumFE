@@ -1,5 +1,4 @@
-const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+import dayjs from "dayjs";
 
 export function getTodayString(): string {
     const d = new Date();
@@ -19,11 +18,15 @@ export function generateDateRange(count: number): Date[] {
     });
 }
 
-export function getDateLabel(date: Date, index: number) {
+/** Weekday/month labels come from dayjs so they follow the active locale
+ *  (set globally on language change in src/i18n). The caller decides how to
+ *  label today. */
+export function getDateLabel(date: Date) {
+    const d = dayjs(date);
     return {
-        day: index === 0 ? "Today" : DAY_LABELS[date.getDay()],
+        day: d.format("ddd"),
         num: date.getDate(),
-        month: MONTH_LABELS[date.getMonth()],
+        month: d.format("MMM"),
     };
 }
 

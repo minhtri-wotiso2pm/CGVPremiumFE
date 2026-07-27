@@ -1,4 +1,5 @@
 import { useMemo, useState, type FC } from "react";
+import { useTranslation } from "react-i18next";
 import { Tabs, Button } from "antd";
 import { useMembershipInfo } from "../hooks/useMembership";
 import { useRedeemableVouchers, useMyVouchers } from "../hooks/useLoyaltyVouchers";
@@ -8,12 +9,12 @@ import MyVoucherCard from "../components/MyVoucherCard";
 import RedeemConfirmModal from "../components/RedeemConfirmModal";
 import type { RedeemableVoucher } from "../types/loyaltyVoucher.types";
 import { StarPointsIcon } from "@/components/ui/BrandIcons";
+import { formatNumber } from "@/utils/formatCurrency";
 import cardStyles from "../components/VoucherCard.module.css";
 import styles from "./VouchersPage.module.css";
 
-const fmtPoints = (n: number) => n.toLocaleString("en-US");
-
 const VouchersPage: FC = () => {
+    const { t } = useTranslation("profile");
     const [activeTab, setActiveTab] = useState("redeem");
     const [redeemTarget, setRedeemTarget] = useState<RedeemableVoucher | null>(null);
 
@@ -43,21 +44,21 @@ const VouchersPage: FC = () => {
     const items = [
         {
             key: "redeem",
-            label: "Redeem with Points",
+            label: t("vouchers.redeemTab"),
             children: redeemableLoading ? (
                 <div className={styles.stateBox}>
-                    <p className={styles.stateText}>Loading vouchers…</p>
+                    <p className={styles.stateText}>{t("vouchers.loading")}</p>
                 </div>
             ) : redeemableError ? (
                 <div className={styles.stateBox}>
-                    <p className={styles.stateTitle}>Failed to load</p>
-                    <p className={styles.stateText}>Could not load redeemable vouchers.</p>
-                    <Button className={styles.retryBtn} onClick={() => refetchRedeemable()}>Retry</Button>
+                    <p className={styles.stateTitle}>{t("vouchers.loadFailedTitle")}</p>
+                    <p className={styles.stateText}>{t("vouchers.loadFailedRedeemable")}</p>
+                    <Button className={styles.retryBtn} onClick={() => refetchRedeemable()}>{t("common:actions.tryAgain")}</Button>
                 </div>
             ) : eligibleRedeemable.length === 0 ? (
                 <div className={styles.stateBox}>
-                    <p className={styles.stateTitle}>Nothing to redeem right now</p>
-                    <p className={styles.stateText}>Check back soon — new rewards are added regularly.</p>
+                    <p className={styles.stateTitle}>{t("vouchers.emptyRedeemTitle")}</p>
+                    <p className={styles.stateText}>{t("vouchers.emptyRedeemText")}</p>
                 </div>
             ) : (
                 <div className={cardStyles.grid}>
@@ -74,21 +75,21 @@ const VouchersPage: FC = () => {
         },
         {
             key: "mine",
-            label: "My Vouchers",
+            label: t("vouchers.myVouchersTab"),
             children: myVouchersLoading ? (
                 <div className={styles.stateBox}>
-                    <p className={styles.stateText}>Loading your vouchers…</p>
+                    <p className={styles.stateText}>{t("vouchers.loadingMine")}</p>
                 </div>
             ) : myVouchersError ? (
                 <div className={styles.stateBox}>
-                    <p className={styles.stateTitle}>Failed to load</p>
-                    <p className={styles.stateText}>Could not load your vouchers.</p>
-                    <Button className={styles.retryBtn} onClick={() => refetchMyVouchers()}>Retry</Button>
+                    <p className={styles.stateTitle}>{t("vouchers.loadFailedTitle")}</p>
+                    <p className={styles.stateText}>{t("vouchers.loadFailedMine")}</p>
+                    <Button className={styles.retryBtn} onClick={() => refetchMyVouchers()}>{t("common:actions.tryAgain")}</Button>
                 </div>
             ) : myVouchers.length === 0 ? (
                 <div className={styles.stateBox}>
-                    <p className={styles.stateTitle}>No vouchers yet</p>
-                    <p className={styles.stateText}>Redeem your points on the other tab to get your first voucher.</p>
+                    <p className={styles.stateTitle}>{t("vouchers.emptyMineTitle")}</p>
+                    <p className={styles.stateText}>{t("vouchers.emptyMineText")}</p>
                 </div>
             ) : (
                 <div className={cardStyles.grid}>
@@ -104,15 +105,15 @@ const VouchersPage: FC = () => {
         <div className={styles.page}>
             <div className={styles.header}>
                 <div>
-                    <h1 className={styles.title}>Vouchers</h1>
+                    <h1 className={styles.title}>{t("nav.vouchers")}</h1>
                     <p className={styles.subtitle}>
-                        Exchange your points for discounts, and keep track of the vouchers you own.
+                        {t("vouchers.subtitle")}
                     </p>
                 </div>
                 <div className={styles.pointsPill}>
                     <span className={styles.pointsIcon}><StarPointsIcon size={18} /></span>
-                    <span className={styles.pointsValue}>{fmtPoints(totalPoints)}</span>
-                    <span className={styles.pointsLabel}>points</span>
+                    <span className={styles.pointsValue}>{formatNumber(totalPoints)}</span>
+                    <span className={styles.pointsLabel}>{t("vouchers.points")}</span>
                 </div>
             </div>
 

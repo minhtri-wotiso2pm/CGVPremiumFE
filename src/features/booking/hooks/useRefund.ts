@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { notify } from "@/utils/notify";
+import { formatVnd } from "@/utils/formatCurrency";
 import {
     requestRefundApi,
     getRefundHistoryApi,
@@ -11,14 +13,15 @@ const extractErrorMessage = (err: unknown, fallback: string): string =>
     (err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? fallback;
 
 export function useRequestRefund(onSuccess?: (walletBalance: number) => void) {
+    const { t } = useTranslation("booking");
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: (payload: RefundRequestPayload) => requestRefundApi(payload),
         onSuccess: (data) => {
             notify.success(
-                "Refund successful",
-                `${data.refundAmount.toLocaleString("vi-VN")} ₫ has been added to your wallet.`
+                t("refund.successTitle"),
+                t("refund.successBody", { amount: formatVnd(data.refundAmount) })
             );
             queryClient.invalidateQueries({ queryKey: ["my-bookings"] });
             queryClient.invalidateQueries({ queryKey: ["user-wallet"] });
@@ -26,7 +29,7 @@ export function useRequestRefund(onSuccess?: (walletBalance: number) => void) {
             onSuccess?.(data.walletBalance);
         },
         onError: (err: unknown) => {
-            notify.error("Refund failed", extractErrorMessage(err, "Please try again."));
+            notify.error(t("refund.failedTitle"), extractErrorMessage(err, t("common:errors.generic")));
         },
     });
 }

@@ -1,33 +1,31 @@
+import i18n from "@/i18n";
+import { formatDate } from "@/utils/formatDate";
 import type { NotificationItem, NotificationType } from "../types/notification.types";
 
-/** Compact relative-time string ("2 min ago", "3 hours ago", "5 days ago"),
- *  falling back to an absolute date once it's more than a week old — no
- *  new dayjs plugin needed for this small a formatting job. */
+/** Compact relative-time string ("2 mins ago", "3 hours ago", "5 days ago"),
+ *  falling back to an absolute date once it's more than a week old.
+ *  Resolves through i18n so the string follows the active language. */
 export const fmtRelativeTime = (iso: string): string => {
     const then = new Date(iso).getTime();
     if (Number.isNaN(then)) return "";
     const diffMs = Date.now() - then;
-    if (diffMs < 0) return "just now";
 
     const minute = 60_000;
     const hour = 60 * minute;
     const day = 24 * hour;
     const week = 7 * day;
 
-    if (diffMs < minute) return "just now";
+    if (diffMs < minute) return i18n.t("common:time.justNow");
     if (diffMs < hour) {
-        const m = Math.floor(diffMs / minute);
-        return `${m} min${m === 1 ? "" : "s"} ago`;
+        return i18n.t("common:time.minutesAgo", { count: Math.floor(diffMs / minute) });
     }
     if (diffMs < day) {
-        const h = Math.floor(diffMs / hour);
-        return `${h} hour${h === 1 ? "" : "s"} ago`;
+        return i18n.t("common:time.hoursAgo", { count: Math.floor(diffMs / hour) });
     }
     if (diffMs < week) {
-        const d = Math.floor(diffMs / day);
-        return `${d} day${d === 1 ? "" : "s"} ago`;
+        return i18n.t("common:time.daysAgo", { count: Math.floor(diffMs / day) });
     }
-    return new Date(iso).toLocaleDateString("en-US", { day: "2-digit", month: "short", year: "numeric" });
+    return formatDate(iso);
 };
 
 export const NOTIFICATION_TYPE_LABEL: Record<NotificationType, string> = {

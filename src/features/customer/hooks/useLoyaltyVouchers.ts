@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import {
     getRedeemableVouchersApi,
     getMyVouchersApi,
@@ -33,6 +34,7 @@ export function useMyVouchers(enabled = true) {
 }
 
 export function useRedeemVoucher() {
+    const { t } = useTranslation("profile");
     const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (voucherId: number) => redeemVoucherApi(voucherId),
@@ -43,11 +45,11 @@ export function useRedeemVoucher() {
             queryClient.invalidateQueries({ queryKey: CUSTOMER_MY_VOUCHERS_KEY });
             queryClient.invalidateQueries({ queryKey: MEMBERSHIP_INFO_KEY });
             queryClient.invalidateQueries({ queryKey: POINTS_HISTORY_KEY });
-            notify.success("Voucher redeemed", result.message ?? `${result.voucherCode} has been added to your vouchers.`);
+            notify.success(t("toasts.voucherRedeemed"), result.message ?? t("toasts.voucherRedeemedDesc", { code: result.voucherCode }));
         },
         onError: (err: unknown) => {
             const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
-            notify.error("Redeem failed", msg ?? "Could not redeem this voucher. Please try again.");
+            notify.error(t("toasts.redeemFailed"), msg ?? t("toasts.redeemFailedDesc"));
         },
     });
 }

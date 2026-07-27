@@ -1,9 +1,10 @@
-import { useEffect, type FC } from "react";
+import { useEffect, useMemo, type FC } from "react";
+import { useTranslation } from "react-i18next";
 import { Modal, Form, Input, Button } from "antd";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, Controller } from "react-hook-form";
 import type { ProfileResponse } from "../types/profile.type";
-import { updateProfileSchema, type UpdateProfileFormValues } from "../schemas/profile.schema";
+import { makeUpdateProfileSchema, type UpdateProfileFormValues } from "../schemas/profile.schema";
 import { useUpdateProfile } from "../hooks/useUpdateProfile";
 import styles from "./EditProfileModal.module.css";
 
@@ -14,11 +15,14 @@ interface Props {
 }
 
 const EditProfileModal: FC<Props> = ({ open, profile, onClose }) => {
+    const { t } = useTranslation("profile");
     const { mutate, isPending } = useUpdateProfile(onClose);
+
+    const resolver = useMemo(() => zodResolver(makeUpdateProfileSchema(t)), [t]);
 
     const { control, handleSubmit, reset, formState: { errors } } =
         useForm<UpdateProfileFormValues>({
-            resolver: zodResolver(updateProfileSchema),
+            resolver,
             defaultValues: { fullName: profile.fullName, phone: profile.phone ?? "" },
         });
 
@@ -32,7 +36,7 @@ const EditProfileModal: FC<Props> = ({ open, profile, onClose }) => {
         <Modal
             open={open}
             onCancel={onClose}
-            title={<span className={styles.title}>Edit Profile</span>}
+            title={<span className={styles.title}>{t("card.editProfile")}</span>}
             footer={null}
             destroyOnClose
             styles={{
@@ -43,18 +47,18 @@ const EditProfileModal: FC<Props> = ({ open, profile, onClose }) => {
         >
             <form onSubmit={handleSubmit(onSubmit)} className={styles.form} noValidate>
                 {/* Read-only email */}
-                <Form.Item label={<span className={styles.label}>Email</span>} className={styles.item}>
+                <Form.Item label={<span className={styles.label}>{t("card.email")}</span>} className={styles.item}>
                     <Input value={profile.email} readOnly className={styles.inputReadonly} />
                 </Form.Item>
 
                 {/* Read-only role */}
-                <Form.Item label={<span className={styles.label}>Role</span>} className={styles.item}>
+                <Form.Item label={<span className={styles.label}>{t("editModal.role")}</span>} className={styles.item}>
                     <Input value={profile.role} readOnly className={styles.inputReadonly} />
                 </Form.Item>
 
                 {/* Full Name */}
                 <Form.Item
-                    label={<span className={styles.label}>Full Name</span>}
+                    label={<span className={styles.label}>{t("editModal.fullName")}</span>}
                     validateStatus={errors.fullName ? "error" : ""}
                     help={errors.fullName?.message}
                     className={styles.item}
@@ -63,13 +67,13 @@ const EditProfileModal: FC<Props> = ({ open, profile, onClose }) => {
                     <Controller
                         name="fullName"
                         control={control}
-                        render={({ field }) => <Input {...field} className={styles.input} placeholder="Enter your full name" />}
+                        render={({ field }) => <Input {...field} className={styles.input} placeholder={t("editModal.fullNamePlaceholder")} />}
                     />
                 </Form.Item>
 
                 {/* Phone */}
                 <Form.Item
-                    label={<span className={styles.label}>Phone</span>}
+                    label={<span className={styles.label}>{t("card.phone")}</span>}
                     validateStatus={errors.phone ? "error" : ""}
                     help={errors.phone?.message}
                     className={styles.item}
@@ -78,13 +82,13 @@ const EditProfileModal: FC<Props> = ({ open, profile, onClose }) => {
                     <Controller
                         name="phone"
                         control={control}
-                        render={({ field }) => <Input {...field} className={styles.input} placeholder="e.g. 0912345678" maxLength={10} />}
+                        render={({ field }) => <Input {...field} className={styles.input} placeholder={t("editModal.phonePlaceholder")} maxLength={10} />}
                     />
                 </Form.Item>
 
                 <div className={styles.footer}>
-                    <Button onClick={onClose} className={styles.cancelBtn} disabled={isPending}>Cancel</Button>
-                    <Button htmlType="submit" loading={isPending} className={styles.saveBtn} type="primary">Save Changes</Button>
+                    <Button onClick={onClose} className={styles.cancelBtn} disabled={isPending}>{t("common:actions.cancel")}</Button>
+                    <Button htmlType="submit" loading={isPending} className={styles.saveBtn} type="primary">{t("editModal.saveChanges")}</Button>
                 </div>
             </form>
         </Modal>

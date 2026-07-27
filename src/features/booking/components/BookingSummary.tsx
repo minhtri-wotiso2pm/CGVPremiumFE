@@ -1,6 +1,8 @@
 import type { FC } from "react";
+import { useTranslation } from "react-i18next";
 import type { Seat, SeatNavState } from "../types/seat.types";
 import { getSeatLabel, formatPrice } from "../utils/seat.utils";
+import { formatDate, formatTime } from "@/utils/formatDate";
 
 const ArrowIcon = () => (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -19,22 +21,6 @@ interface Props {
     isContinueLoading?: boolean;
 }
 
-function formatTime(iso: string): string {
-    try {
-        return new Date(iso).toLocaleTimeString("vi-VN", {
-            hour: "2-digit", minute: "2-digit", hour12: false,
-        });
-    } catch { return ""; }
-}
-
-function formatDateShort(iso: string): string {
-    try {
-        return new Date(iso).toLocaleDateString("vi-VN", {
-            day: "2-digit", month: "2-digit", year: "numeric",
-        });
-    } catch { return ""; }
-}
-
 const BookingSummary: FC<Props> = ({
     selectedSeats,
     navState,
@@ -44,6 +30,7 @@ const BookingSummary: FC<Props> = ({
     onContinue,
     isContinueLoading = false,
 }) => {
+    const { t } = useTranslation("booking");
     const { startTime, cinemaName, roomName, roomType } = navState;
     const seats = Array.from(selectedSeats.values());
     const count = seats.length;
@@ -51,7 +38,7 @@ const BookingSummary: FC<Props> = ({
     return (
         <div className="cgv-seats-summary">
             <div className="cgv-seats-summary__header">
-                <p className="cgv-seats-summary__title">Order Summary</p>
+                <p className="cgv-seats-summary__title">{t("seats.orderSummary")}</p>
             </div>
 
             <div className="cgv-seats-summary__body">
@@ -59,13 +46,13 @@ const BookingSummary: FC<Props> = ({
                 <div className="cgv-seats-summary-info">
                     {cinemaName && (
                         <div className="cgv-seats-summary-info-row">
-                            <span className="cgv-seats-summary-info-label">Cinema</span>
+                            <span className="cgv-seats-summary-info-label">{t("showtime.cinema")}</span>
                             <span className="cgv-seats-summary-info-value">{cinemaName}</span>
                         </div>
                     )}
                     {roomName && (
                         <div className="cgv-seats-summary-info-row">
-                            <span className="cgv-seats-summary-info-label">Room</span>
+                            <span className="cgv-seats-summary-info-label">{t("seats.room")}</span>
                             <span className="cgv-seats-summary-info-value">
                                 {roomName}{roomType ? ` · ${roomType}` : ""}
                             </span>
@@ -73,9 +60,9 @@ const BookingSummary: FC<Props> = ({
                     )}
                     {startTime && (
                         <div className="cgv-seats-summary-info-row">
-                            <span className="cgv-seats-summary-info-label">Time</span>
+                            <span className="cgv-seats-summary-info-label">{t("seats.time")}</span>
                             <span className="cgv-seats-summary-info-value">
-                                {formatTime(startTime)} · {formatDateShort(startTime)}
+                                {formatTime(startTime)} · {formatDate(startTime)}
                             </span>
                         </div>
                     )}
@@ -85,7 +72,7 @@ const BookingSummary: FC<Props> = ({
                 <div>
                     <div className="cgv-seats-chips">
                         {count === 0 ? (
-                            <span className="cgv-seats-empty-chips">No seats selected</span>
+                            <span className="cgv-seats-empty-chips">{t("seats.noSeatsSelected")}</span>
                         ) : (
                             seats.map((seat) => (
                                 <span key={seat.seatId} className="cgv-seats-chip">
@@ -93,7 +80,7 @@ const BookingSummary: FC<Props> = ({
                                     <span
                                         className="cgv-seats-chip__x"
                                         role="button"
-                                        aria-label={`Remove seat ${getSeatLabel(seat)}`}
+                                        aria-label={t("seats.removeSeatAria", { seat: getSeatLabel(seat) })}
                                         onClick={() => onRemoveSeat(seat.seatId)}
                                         onKeyDown={(e) => e.key === "Enter" && onRemoveSeat(seat.seatId)}
                                         tabIndex={0}
@@ -109,11 +96,11 @@ const BookingSummary: FC<Props> = ({
                 {/* Totals */}
                 <div className="cgv-seats-total">
                     <div className="cgv-seats-total-row">
-                        <span className="cgv-seats-total-label">Seats selected</span>
+                        <span className="cgv-seats-total-label">{t("seats.seatsSelectedLabel")}</span>
                         <span className="cgv-seats-total-value">{count}</span>
                     </div>
                     <div className="cgv-seats-total-row">
-                        <span className="cgv-seats-total-price-label">Total</span>
+                        <span className="cgv-seats-total-price-label">{t("seats.total")}</span>
                         <span className="cgv-seats-total-price-value">
                             {count > 0 ? formatPrice(totalPrice) : "—"}
                         </span>
@@ -127,11 +114,11 @@ const BookingSummary: FC<Props> = ({
                     disabled={count === 0 || isContinueLoading}
                     onClick={onContinue}
                 >
-                    {isContinueLoading ? "Holding seats..." : <> Continue <ArrowIcon /> </>}
+                    {isContinueLoading ? t("seats.holdingSeats") : <> {t("seats.continue")} <ArrowIcon /> </>}
                 </button>
                 {count > 0 && (
                     <button className="cgv-seats-clear-btn" onClick={onClearAll}>
-                        Clear all seats
+                        {t("seats.clearAll")}
                     </button>
                 )}
             </div>

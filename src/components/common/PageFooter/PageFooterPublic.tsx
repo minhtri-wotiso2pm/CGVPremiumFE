@@ -1,4 +1,5 @@
 import { useState, type FC, type FormEvent, type JSX } from "react";
+import { useTranslation } from "react-i18next";
 
 /* ─────────────────────────────────────────────────────────────
    DESIGN TOKENS
@@ -21,29 +22,29 @@ const F = {
 /* ─────────────────────────────────────────────────────────────
    FOOTER DATA (replace / extend via CMS later)
 ───────────────────────────────────────────────────────────── */
-interface FooterLink { label: string; href: string }
+interface FooterLink { labelKey: string; href: string }
 
 const QUICK_LINKS: FooterLink[] = [
-    { label: "About Us", href: "/about" },
-    { label: "Careers", href: "/careers" },
-    { label: "Contact", href: "/contact" },
-    { label: "Privacy Policy", href: "/privacy" },
-    { label: "Terms of Service", href: "/terms" },
+    { labelKey: "footer:links.aboutUs", href: "/about" },
+    { labelKey: "footer:links.careers", href: "/careers" },
+    { labelKey: "footer:links.contact", href: "/contact" },
+    { labelKey: "footer:links.privacyPolicy", href: "/privacy" },
+    { labelKey: "footer:links.termsOfService", href: "/terms" },
 ];
 
 const CINEMA_SERVICES: FooterLink[] = [
-    { label: "Movie Booking", href: "/customer/movies" },
-    { label: "VIP Membership", href: "/customer/membership" },
-    { label: "Promotions", href: "/customer/promotions" },
-    { label: "Gift Cards", href: "/customer/gift-cards" },
-    { label: "Events", href: "/customer/events" },
+    { labelKey: "footer:links.movieBooking", href: "/customer/movies" },
+    { labelKey: "footer:links.vipMembership", href: "/customer/membership" },
+    { labelKey: "footer:links.promotions", href: "/customer/promotions" },
+    { labelKey: "footer:links.giftCards", href: "/customer/gift-cards" },
+    { labelKey: "footer:links.events", href: "/customer/events" },
 ];
 
 const SUPPORT_LINKS: FooterLink[] = [
-    { label: "Help Center", href: "/help" },
-    { label: "FAQ", href: "/faq" },
-    { label: "Customer Service", href: "/support" },
-    { label: "Refund Policy", href: "/refund" },
+    { labelKey: "footer:links.helpCenter", href: "/help" },
+    { labelKey: "footer:links.faq", href: "/faq" },
+    { labelKey: "footer:links.customerService", href: "/support" },
+    { labelKey: "footer:links.refundPolicy", href: "/refund" },
 ];
 
 interface SocialLink { label: string; href: string; icon: JSX.Element }
@@ -104,7 +105,9 @@ interface LinkColumnProps {
     links: FooterLink[];
 }
 
-const LinkColumn: FC<LinkColumnProps> = ({ heading, links }) => (
+const LinkColumn: FC<LinkColumnProps> = ({ heading, links }) => {
+    const { t } = useTranslation();
+    return (
     <div>
         <h3 style={{
             fontSize: 11, fontWeight: 700, letterSpacing: "0.22em",
@@ -115,7 +118,7 @@ const LinkColumn: FC<LinkColumnProps> = ({ heading, links }) => (
         </h3>
         <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10 }}>
             {links.map((link) => (
-                <li key={link.label}>
+                <li key={link.labelKey}>
                     <a
                         href={link.href}
                         style={{
@@ -127,18 +130,20 @@ const LinkColumn: FC<LinkColumnProps> = ({ heading, links }) => (
                         onMouseEnter={(e) => { (e.currentTarget).style.color = F.textPrimary; }}
                         onMouseLeave={(e) => { (e.currentTarget).style.color = F.textSecondary; }}
                     >
-                        {link.label}
+                        {t(link.labelKey)}
                     </a>
                 </li>
             ))}
         </ul>
     </div>
-);
+    );
+};
 
 /* ─────────────────────────────────────────────────────────────
    NEWSLETTER
 ───────────────────────────────────────────────────────────── */
 const Newsletter: FC = () => {
+    const { t } = useTranslation("footer");
     const [email, setEmail] = useState("");
     const [submitted, setSubmitted] = useState(false);
 
@@ -156,10 +161,10 @@ const Newsletter: FC = () => {
                 textTransform: "uppercase", color: F.crimson,
                 marginBottom: 14, marginTop: 0,
             }}>
-                Stay Updated
+                {t("newsletter.title")}
             </h3>
             <p style={{ fontSize: 12.5, color: F.textSecondary, lineHeight: 1.7, marginBottom: 16 }}>
-                Get exclusive offers, new releases, and VIP previews delivered to your inbox.
+                {t("newsletter.description")}
             </p>
 
             {submitted ? (
@@ -170,7 +175,7 @@ const Newsletter: FC = () => {
                     fontSize: 12.5, color: "#22c55e",
                     display: "flex", alignItems: "center", gap: 8,
                 }}>
-                    <span>✓</span> You're subscribed. Welcome to CVPremium!
+                    <span>✓</span> {t("newsletter.subscribed")}
                 </div>
             ) : (
                 <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -178,8 +183,8 @@ const Newsletter: FC = () => {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="your@email.com"
-                        aria-label="Email for newsletter"
+                        placeholder={t("newsletter.emailPlaceholder")}
+                        aria-label={t("newsletter.emailAria")}
                         required
                         style={{
                             background: F.inputBg,
@@ -210,7 +215,7 @@ const Newsletter: FC = () => {
                         onMouseEnter={(e) => { (e.currentTarget).style.opacity = "0.88"; }}
                         onMouseLeave={(e) => { (e.currentTarget).style.opacity = "1"; }}
                     >
-                        Subscribe
+                        {t("newsletter.subscribe")}
                     </button>
                 </form>
             )}
@@ -221,7 +226,9 @@ const Newsletter: FC = () => {
 /* ─────────────────────────────────────────────────────────────
    PAGE FOOTER — main export
 ───────────────────────────────────────────────────────────── */
-const PageFooter: FC = () => (
+const PageFooter: FC = () => {
+    const { t } = useTranslation("footer");
+    return (
     <>
         <style>{`
             @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap');
@@ -300,8 +307,7 @@ const PageFooter: FC = () => (
                             fontSize: 13, color: F.textSecondary,
                             lineHeight: 1.8, marginBottom: 24, maxWidth: 260,
                         }}>
-                            Redefining the cinema experience in Vietnam. Premium screens, luxury seating,
-                            and world-class service for every film lover.
+                            {t("tagline")}
                         </p>
 
                         {/* Social links */}
@@ -322,13 +328,13 @@ const PageFooter: FC = () => (
                     </div>
 
                     {/* Column 2: Quick Links */}
-                    <LinkColumn heading="Company" links={QUICK_LINKS} />
+                    <LinkColumn heading={t("columns.company")} links={QUICK_LINKS} />
 
                     {/* Column 3: Cinema Services */}
-                    <LinkColumn heading="Cinema Services" links={CINEMA_SERVICES} />
+                    <LinkColumn heading={t("columns.cinemaServices")} links={CINEMA_SERVICES} />
 
                     {/* Column 4: Support */}
-                    <LinkColumn heading="Support" links={SUPPORT_LINKS} />
+                    <LinkColumn heading={t("columns.support")} links={SUPPORT_LINKS} />
 
                     {/* Column 5: Newsletter */}
                     <Newsletter />
@@ -347,16 +353,16 @@ const PageFooter: FC = () => (
                     gap: 12, paddingBottom: 28,
                 }}>
                     <p style={{ fontSize: 11.5, color: F.textMuted, letterSpacing: "0.06em", margin: 0 }}>
-                        © 2026 CVPremium Entertainment Systems. All Rights Reserved.
+                        {t("copyright")}
                     </p>
                     <div style={{ display: "flex", gap: 20 }}>
                         {[
-                            { label: "Privacy", href: "/privacy" },
-                            { label: "Terms", href: "/terms" },
-                            { label: "Cookies", href: "/cookies" },
+                            { labelKey: "footer:links.privacy", href: "/privacy" },
+                            { labelKey: "footer:links.terms", href: "/terms" },
+                            { labelKey: "footer:links.cookies", href: "/cookies" },
                         ].map((item) => (
                             <a
-                                key={item.label}
+                                key={item.labelKey}
                                 href={item.href}
                                 style={{
                                     fontSize: 11.5, color: F.textMuted,
@@ -366,7 +372,7 @@ const PageFooter: FC = () => (
                                 onMouseEnter={(e) => { (e.currentTarget).style.color = F.textSecondary; }}
                                 onMouseLeave={(e) => { (e.currentTarget).style.color = F.textMuted; }}
                             >
-                                {item.label}
+                                {t(item.labelKey)}
                             </a>
                         ))}
                     </div>
@@ -374,6 +380,7 @@ const PageFooter: FC = () => (
             </div>
         </footer>
     </>
-);
+    );
+};
 
 export default PageFooter;

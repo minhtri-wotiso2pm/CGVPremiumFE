@@ -33,7 +33,7 @@ export interface SeatHoldResponse {
     expiresAt: string;
 }
 
-/** State truyền từ SeatSelectionPage → FnbPage */
+/** Router state passed from SeatSelectionPage to FnbPage */
 export interface FnbNavState extends SeatNavState {
     showtimeId: number;
     seatIds: number[];
@@ -42,7 +42,7 @@ export interface FnbNavState extends SeatNavState {
     holdExpiresAt: string;
 }
 
-/** State truyền từ FnbPage → PaymentPage */
+/** Router state passed from FnbPage to PaymentPage */
 export interface PaymentNavState extends FnbNavState {
     fnbItems: FnbItem[];
 }

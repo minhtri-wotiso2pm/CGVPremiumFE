@@ -1,4 +1,5 @@
 import { type FC, useMemo, useState } from "react";
+import { useTranslation, Trans } from "react-i18next";
 import { Input, DatePicker, Pagination, Button } from "antd";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
@@ -11,6 +12,8 @@ import RefundModal, { type RefundBookingInfo } from "@/features/booking/componen
 import ReviewModal, { type ReviewTarget } from "@/features/reviews/components/ReviewModal";
 import { canWriteReview } from "@/features/reviews/utils/reviewFormat";
 import { FilmClapperIcon, FnbBagIcon, CheckCircleIcon } from "@/components/ui/BrandIcons";
+import { formatVnd, formatNumber } from "@/utils/formatCurrency";
+import { formatDateTime } from "@/utils/formatDate";
 import styles from "./MyTicketsPage.module.css";
 
 const PAGE_SIZE = 10;
@@ -19,27 +22,15 @@ const PAGE_SIZE = 10;
  *  value in surfacing them in the customer's ticket list at all. */
 const HIDDEN_STATUSES = new Set(["cancelled", "expired", "pending"]);
 
-const fmtVnd = (n: number) => `${n.toLocaleString("vi-VN")} ₫`;
-
-const fmtDateTime = (iso: string): string => {
-    try {
-        const d = new Date(iso);
-        const time = d.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", hour12: false });
-        const date = d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
-        return `${time}, ${date}`;
-    } catch { return ""; }
-};
-
-const statusStyle = (status: string): { bg: string; color: string; label: string } => {
+/* labelKey resolves in the profile namespace; null falls back to the raw status. */
+const statusStyle = (status: string): { bg: string; color: string; labelKey: string | null } => {
     const s = status.toLowerCase();
-    if (s === "paid") return { bg: "rgba(34,197,94,0.14)", color: "#4ade80", label: "Paid" };
-    if (s === "used") return { bg: "rgba(167,139,250,0.14)", color: "#a78bfa", label: "Attended" };
-    if (s === "pending") return { bg: "rgba(245,158,11,0.14)", color: "#fbbf24", label: "Pending" };
-    if (s === "refunded") return { bg: "rgba(96,165,250,0.14)", color: "#60a5fa", label: "Refunded" };
-    return { bg: "rgba(148,163,184,0.14)", color: "#94a3b8", label: status };
+    if (s === "paid") return { bg: "rgba(34,197,94,0.14)", color: "#4ade80", labelKey: "tickets.status.paid" };
+    if (s === "used") return { bg: "rgba(167,139,250,0.14)", color: "#a78bfa", labelKey: "tickets.status.attended" };
+    if (s === "pending") return { bg: "rgba(245,158,11,0.14)", color: "#fbbf24", labelKey: "tickets.status.pending" };
+    if (s === "refunded") return { bg: "rgba(96,165,250,0.14)", color: "#60a5fa", labelKey: "tickets.status.refunded" };
+    return { bg: "rgba(148,163,184,0.14)", color: "#94a3b8", labelKey: null };
 };
-
-const fmtPoints = (n: number) => n.toLocaleString("en-US");
 
 /* ── Icons ── */
 const SearchIcon: FC = () => (
@@ -65,6 +56,7 @@ const StarIcon: FC<{ filled?: boolean }> = ({ filled }) => (
  *  price breakdown now live on the dedicated detail page (one click away)
  *  instead of expanding inline here. */
 const BookingCard: FC<{ booking: MyBooking; onViewDetail: () => void; onRefund: () => void; onReview: () => void }> = ({ booking, onViewDetail, onRefund, onReview }) => {
+    const { t } = useTranslation("profile");
     const st = statusStyle(booking.status);
     const refundEligible = canRequestRefund(booking.status, booking.startTime);
     const fnbOnly = isFnbOnlyBooking(booking);
@@ -90,20 +82,20 @@ const BookingCard: FC<{ booking: MyBooking; onViewDetail: () => void; onRefund: 
 
             <div className={styles.cardBody}>
                 <div className={styles.cardTop}>
-                    <div className={styles.movieTitle}>{fnbOnly ? "Food & Beverage Order" : booking.movie.title}</div>
+                    <div className={styles.movieTitle}>{fnbOnly ? t("tickets.fnbOrder") : booking.movie.title}</div>
                     <span className={styles.statusBadge} style={{ background: st.bg, color: st.color }}>
-                        {st.label}
+                        {st.labelKey ? t(st.labelKey) : booking.status}
                     </span>
                 </div>
 
                 {fnbOnly ? (
                     <div className={styles.meta}>
-                        {fnbCount} item{fnbCount === 1 ? "" : "s"} · Collect at the F&amp;B counter
+                        {t("tickets.fnbMeta", { count: fnbCount })}
                     </div>
                 ) : (
                     <>
                         {booking.startTime && (
-                            <div className={styles.meta}>{fmtDateTime(booking.startTime)}</div>
+                            <div className={styles.meta}>{formatDateTime(booking.startTime)}</div>
                         )}
                         {(booking.cinemaName || booking.roomName) && (
                             <div className={styles.metaSub}>
@@ -116,21 +108,21 @@ const BookingCard: FC<{ booking: MyBooking; onViewDetail: () => void; onRefund: 
                 {booking.purchaseReward && booking.purchaseReward.points > 0 && (
                     booking.purchaseReward.earned ? (
                         <div className={`${styles.rewardLine} ${styles.rewardLineEarned}`}>
-                            <CheckCircleIcon size={13} /> +{fmtPoints(booking.purchaseReward.points)} pts earned
+                            <CheckCircleIcon size={13} /> {t("tickets.rewardEarned", { points: formatNumber(booking.purchaseReward.points) })}
                         </div>
                     ) : (
                         <div className={styles.rewardLine}>
-                            Earns +{fmtPoints(booking.purchaseReward.points)} pts after check-in
+                            {t("tickets.rewardPending", { points: formatNumber(booking.purchaseReward.points) })}
                         </div>
                     )
                 )}
 
                 <div className={styles.cardBottom}>
-                    <span className={styles.price}>{fmtVnd(booking.finalAmount)}</span>
+                    <span className={styles.price}>{formatVnd(booking.finalAmount)}</span>
                     <div className={styles.actions}>
                         {reviewed && (
                             <span className={styles.reviewedPill}>
-                                <StarIcon filled /> Reviewed
+                                <StarIcon filled /> {t("tickets.reviewed")}
                             </span>
                         )}
                         {reviewEligible && (
@@ -139,9 +131,9 @@ const BookingCard: FC<{ booking: MyBooking; onViewDetail: () => void; onRefund: 
                                 icon={<StarIcon />}
                                 onClick={(e) => { e.stopPropagation(); onReview(); }}
                             >
-                                Write a Review
+                                {t("tickets.writeReview")}
                                 {booking.reviewReward && booking.reviewReward.points > 0
-                                    ? ` · +${fmtPoints(booking.reviewReward.points)} pts`
+                                    ? ` · +${formatNumber(booking.reviewReward.points)} ${t("tickets.pts")}`
                                     : ""}
                             </Button>
                         )}
@@ -150,14 +142,14 @@ const BookingCard: FC<{ booking: MyBooking; onViewDetail: () => void; onRefund: 
                                 className={styles.refundBtn}
                                 onClick={(e) => { e.stopPropagation(); onRefund(); }}
                             >
-                                Request Refund
+                                {t("tickets.requestRefund")}
                             </Button>
                         )}
                         <Button
                             className={styles.detailBtn}
                             onClick={(e) => { e.stopPropagation(); onViewDetail(); }}
                         >
-                            View Detail
+                            {t("tickets.viewDetail")}
                         </Button>
                     </div>
                 </div>
@@ -178,6 +170,7 @@ const SkeletonCard: FC = () => (
 );
 
 const MyTicketsPage: FC = () => {
+    const { t } = useTranslation("profile");
     const navigate = useNavigate();
     const { data: bookings = [], isLoading, isError, refetch } = useMyBookings();
     const [refundTarget, setRefundTarget] = useState<RefundBookingInfo | null>(null);
@@ -245,9 +238,9 @@ const MyTicketsPage: FC = () => {
         <div className={styles.page}>
             <div className={styles.header}>
                 <div>
-                    <h1 className={styles.title}>My Tickets</h1>
+                    <h1 className={styles.title}>{t("nav.tickets")}</h1>
                     <p className={styles.subtitle}>
-                        Your booked movies and e-tickets. Show the QR code at the cinema entrance.
+                        {t("tickets.subtitle")}
                     </p>
                 </div>
                 {!isLoading && !isError && visible.length > 0 && (
@@ -255,17 +248,17 @@ const MyTicketsPage: FC = () => {
                         <div className={styles.statPill}>
                             <span className={styles.statPillDot} style={{ background: "#9ca3af" }} />
                             <span className={styles.statPillValue}>{stats.total}</span>
-                            <span className={styles.statPillLabel}>Total</span>
+                            <span className={styles.statPillLabel}>{t("tickets.statTotal")}</span>
                         </div>
                         <div className={styles.statPill}>
                             <span className={styles.statPillDot} style={{ background: "#4ade80" }} />
                             <span className={styles.statPillValue}>{stats.upcoming}</span>
-                            <span className={styles.statPillLabel}>Upcoming</span>
+                            <span className={styles.statPillLabel}>{t("tickets.statUpcoming")}</span>
                         </div>
                         <div className={styles.statPill}>
                             <span className={styles.statPillDot} style={{ background: "#60a5fa" }} />
                             <span className={styles.statPillValue}>{stats.past}</span>
-                            <span className={styles.statPillLabel}>Past</span>
+                            <span className={styles.statPillLabel}>{t("tickets.statPast")}</span>
                         </div>
                     </div>
                 )}
@@ -277,15 +270,19 @@ const MyTicketsPage: FC = () => {
                         <StarIcon filled />
                     </span>
                     <span className={styles.reviewBannerText}>
-                        You have <strong>{pendingReviews}</strong> watched movie{pendingReviews === 1 ? "" : "s"} to review.
-                        Share your thoughts and earn loyalty points.
+                        <Trans
+                            t={t}
+                            i18nKey="tickets.reviewBanner"
+                            count={pendingReviews}
+                            components={{ bold: <strong /> }}
+                        />
                     </span>
                     <button
                         type="button"
                         className={styles.reviewBannerBtn}
                         onClick={() => { setStatusFilter("toReview"); setPage(1); }}
                     >
-                        Review now
+                        {t("tickets.reviewNow")}
                     </button>
                 </div>
             )}
@@ -295,7 +292,7 @@ const MyTicketsPage: FC = () => {
                     <Input
                         className={styles.searchInput}
                         prefix={<SearchIcon />}
-                        placeholder="Search by movie title..."
+                        placeholder={t("tickets.searchPlaceholder")}
                         value={search}
                         onChange={(e) => { setSearch(e.target.value); setPage(1); }}
                         allowClear
@@ -308,10 +305,10 @@ const MyTicketsPage: FC = () => {
                                 className={`${styles.statusFilterBtn} ${statusFilter === key ? styles.statusFilterBtnActive : ""}`}
                                 onClick={() => { setStatusFilter(key); setPage(1); }}
                             >
-                                {key === "all" ? "All"
-                                    : key === "upcoming" ? "Upcoming"
-                                        : key === "past" ? "Past"
-                                            : "To Review"}
+                                {key === "all" ? t("tickets.filterAll")
+                                    : key === "upcoming" ? t("tickets.statUpcoming")
+                                        : key === "past" ? t("tickets.statPast")
+                                            : t("tickets.filterToReview")}
                                 {key === "toReview" && pendingReviews > 0 && (
                                     <span className={styles.filterCount}>{pendingReviews}</span>
                                 )}
@@ -321,7 +318,7 @@ const MyTicketsPage: FC = () => {
                     <DatePicker
                         className={styles.datePicker}
                         classNames={{ popup: { root: styles.datePickerPopup } }}
-                        placeholder="Filter by showtime date"
+                        placeholder={t("tickets.dateFilterPlaceholder")}
                         value={dateFilter}
                         onChange={(v) => { setDateFilter(v); setPage(1); }}
                         format="DD/MM/YYYY"
@@ -329,7 +326,7 @@ const MyTicketsPage: FC = () => {
                     />
                     {hasFilters && (
                         <Button type="text" className={styles.clearBtn} onClick={clearFilters}>
-                            Clear filters
+                            {t("tickets.clearFilters")}
                         </Button>
                     )}
                 </div>
@@ -341,23 +338,23 @@ const MyTicketsPage: FC = () => {
                 </div>
             ) : isError ? (
                 <div className={styles.stateBox}>
-                    <p className={styles.stateText}>Failed to load your tickets.</p>
-                    <Button className={styles.detailBtn} onClick={() => refetch()}>Retry</Button>
+                    <p className={styles.stateText}>{t("tickets.loadFailed")}</p>
+                    <Button className={styles.detailBtn} onClick={() => refetch()}>{t("common:actions.tryAgain")}</Button>
                 </div>
             ) : isEmpty ? (
                 <div className={styles.stateBox}>
                     <div style={{ color: "#5a4040", marginBottom: 12 }}><TicketIcon /></div>
-                    <p className={styles.stateTitle}>No bookings yet</p>
-                    <p className={styles.stateText}>Book your first movie to see tickets here.</p>
+                    <p className={styles.stateTitle}>{t("tickets.emptyTitle")}</p>
+                    <p className={styles.stateText}>{t("tickets.emptyText")}</p>
                     <Button className={styles.primaryBtn} onClick={() => navigate("/customer")}>
-                        Browse Movies
+                        {t("tickets.browseMovies")}
                     </Button>
                 </div>
             ) : isFilterEmpty ? (
                 <div className={styles.stateBox}>
-                    <p className={styles.stateTitle}>No results found</p>
-                    <p className={styles.stateText}>Try adjusting your search or date filter.</p>
-                    <Button className={styles.detailBtn} onClick={clearFilters}>Clear filters</Button>
+                    <p className={styles.stateTitle}>{t("tickets.noResultsTitle")}</p>
+                    <p className={styles.stateText}>{t("tickets.noResultsText")}</p>
+                    <Button className={styles.detailBtn} onClick={clearFilters}>{t("tickets.clearFilters")}</Button>
                 </div>
             ) : (
                 <>
@@ -380,7 +377,7 @@ const MyTicketsPage: FC = () => {
                                         bookingID: b.bookingID,
                                         movieTitle: b.movie.title,
                                         posterUrl: b.movie.posterUrl,
-                                        subtitle: b.startTime ? fmtDateTime(b.startTime) : undefined,
+                                        subtitle: b.startTime ? formatDateTime(b.startTime) : undefined,
                                     })
                                 }
                             />

@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { useAppDispatch } from "@/store/hooks";
 import { updateUserInfo } from "@/store/slices/authSlice";
 import { deleteAvatar } from "@/services/api/user.service";
@@ -7,6 +8,7 @@ import { getApiErrorMessage } from "@/utils/apiMessage";
 import { PROFILE_QUERY_KEY } from "./useProfile";
 
 export const useDeleteAvatar = (onSuccess?: () => void) => {
+    const { t } = useTranslation("profile");
     const queryClient = useQueryClient();
     const dispatch = useAppDispatch();
 
@@ -17,11 +19,11 @@ export const useDeleteAvatar = (onSuccess?: () => void) => {
             if (data?.avatarURL !== undefined) {
                 dispatch(updateUserInfo({ avatarURL: data.avatarURL }));
             }
-            notify.success("Avatar removed successfully.");
+            notify.success(t("toasts.avatarRemoved"));
             onSuccess?.();
         },
         onError: (err: unknown) => {
-            notify.error("Failed to remove avatar.", getApiErrorMessage(err, "Please try again."));
+            notify.error(t("toasts.avatarRemoveFailed"), getApiErrorMessage(err, t("common:errors.generic")));
         },
     });
 };

@@ -1,5 +1,6 @@
 import { type FC, useMemo, useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useSeatMap } from "../hooks/useSeatMap";
 import { useSeatHold } from "../hooks/useSeatHold";
 import {
@@ -20,6 +21,7 @@ import SeatSelectionSkeleton from "../components/SeatSelectionSkeleton";
 import "../components/seat.css";
 
 const SeatSelectionPage: FC = () => {
+    const { t } = useTranslation("booking");
     const { showtimeId: showtimeIdStr } = useParams<{ showtimeId: string }>();
     const navigate  = useNavigate();
     const location  = useLocation();
@@ -75,14 +77,14 @@ const SeatSelectionPage: FC = () => {
             }
             if (lostSeats.length > 0) {
                 notify.warning(
-                    "Seat just taken",
-                    `${lostSeats.map(getSeatLabel).join(", ")} was just held or booked by someone else. Please choose another seat.`
+                    t("seats.seatTakenTitle"),
+                    t("seats.seatTakenBody", { seats: lostSeats.map(getSeatLabel).join(", ") })
                 );
                 return stillValid;
             }
             return prev;
         });
-    }, [data]);
+    }, [data, t]);
 
     const seatTypes  = useMemo(() => getSeatTypes(seatRowMap), [seatRowMap]);
     const hasVip     = seatTypes.has("VIP");
@@ -105,8 +107,8 @@ const SeatSelectionPage: FC = () => {
         if (partnerId != null) {
             if (!partner || !isSeatSelectable(partner)) {
                 notify.warning(
-                    "Can't select this couple seat",
-                    `Couple seat ${getSeatLabel(seat)} must be selected as a pair, but its partner seat is currently unavailable.`
+                    t("seats.coupleUnavailableTitle"),
+                    t("seats.coupleUnavailableBody", { seat: getSeatLabel(seat) })
                 );
                 return;
             }
@@ -133,7 +135,7 @@ const SeatSelectionPage: FC = () => {
             }
             return next;
         });
-    }, [couplePairMap, seatById]);
+    }, [couplePairMap, seatById, t]);
 
     const removeSeat = useCallback((seatId: number) => {
         setSelectedSeats((prev) => {
@@ -166,13 +168,13 @@ const SeatSelectionPage: FC = () => {
                 },
                 onError: () => {
                     notify.warning(
-                        "Couldn't hold your seats",
-                        "One or more of your selected seats may have just been booked. Please choose again."
+                        t("seats.holdFailedTitle"),
+                        t("seats.holdFailedBody")
                     );
                 },
             }
         );
-    }, [navigate, showtimeId, selectedSeats, navState, holdSeats]);
+    }, [navigate, showtimeId, selectedSeats, navState, holdSeats, t]);
 
     if (isLoading) return <SeatSelectionSkeleton />;
 
@@ -181,12 +183,12 @@ const SeatSelectionPage: FC = () => {
             <div className="cgv-seats-page">
                 <div className="cgv-seats-container">
                     <div className="cgv-seats-state">
-                        <p className="cgv-seats-state__title">Unable to load seat map</p>
+                        <p className="cgv-seats-state__title">{t("seats.loadErrorTitle")}</p>
                         <p className="cgv-seats-state__body">
-                            Please check your connection and try again.
+                            {t("seats.loadErrorBody")}
                         </p>
                         <button className="cgv-seats-retry-btn" onClick={() => refetch()}>
-                            Retry
+                            {t("common:actions.tryAgain")}
                         </button>
                     </div>
                 </div>
@@ -209,9 +211,9 @@ const SeatSelectionPage: FC = () => {
                         <div className="cgv-seats-map-wrapper">
                             {seatRowMap.size === 0 ? (
                                 <div className="cgv-seats-state">
-                                    <p className="cgv-seats-state__title">No seats found</p>
+                                    <p className="cgv-seats-state__title">{t("seats.noSeatsTitle")}</p>
                                     <p className="cgv-seats-state__body">
-                                        This showtime has no seats configured yet.
+                                        {t("seats.noSeatsBody")}
                                     </p>
                                 </div>
                             ) : (
@@ -247,8 +249,8 @@ const SeatSelectionPage: FC = () => {
                 <div>
                     <div className="cgv-seats-mobile-bar__count">
                         {selectedCount > 0
-                            ? `${selectedCount} seat${selectedCount > 1 ? "s" : ""} selected`
-                            : "No seats selected"}
+                            ? t("seats.seatsSelected", { count: selectedCount })
+                            : t("seats.noSeatsSelected")}
                     </div>
                     {selectedCount > 0 && (
                         <div className="cgv-seats-mobile-bar__price">
@@ -261,7 +263,7 @@ const SeatSelectionPage: FC = () => {
                     disabled={selectedCount === 0 || isHolding}
                     onClick={handleContinue}
                 >
-                    {isHolding ? "Holding seats..." : "Continue"}
+                    {isHolding ? t("seats.holdingSeats") : t("seats.continue")}
                 </button>
             </div>
         </div>

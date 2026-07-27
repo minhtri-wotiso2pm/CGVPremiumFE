@@ -1,0 +1,41 @@
+{
+    "nav": {
+        "home": "Trang chủ",
+        "theaters": "Rạp",
+        "promotions": "Khuyến mãi",
+        "about": "Giới thiệu",
+        "myTickets": "Vé của tôi",
+        "dashboard": "Bảng điều khiển",
+        "schedule": "Lịch làm việc",
+        "reports": "Báo cáo",
+        "users": "Người dùng",
+        "content": "Nội dung",
+        "analytics": "Phân tích",
+        "settings": "Cài đặt"
+    },
+    "userMenu": {
+        "profile": "Hồ sơ",
+        "myTickets": "Vé của tôi",
+        "settings": "Cài đặt",
+        "signOut": "Đăng xuất"
+    },
+    "notif": {
+        "title": "Thông báo",
+        "newCount_other": "{{count}} mới",
+        "loading": "Đang tải…",
+        "empty": "Bạn đã xem hết — chưa có thông báo mới.",
+        "viewAll": "Xem tất cả thông báo",
+        "bellAria_other": "Thông báo — {{count}} chưa đọc"
+    },
+    "login": "Đăng nhập",
+    "signInPrompt": "Đăng nhập để truy cập tài khoản của bạn",
+    "language": "Ngôn ngữ",
+    "aria": {
+        "mainNav": "Điều hướng chính",
+        "mobileNav": "Điều hướng di động",
+        "navMenu": "Menu điều hướng",
+        "userMenu": "Menu người dùng",
+        "openMenu": "Mở menu điều hướng",
+        "closeMenu": "Đóng menu"
+    }
+}

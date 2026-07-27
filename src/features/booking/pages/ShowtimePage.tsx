@@ -1,5 +1,6 @@
 import { type FC, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useMovieDetail } from "@/features/movies/hooks/useMovieDetail";
 import { useShowtimes } from "../hooks/useShowtimes";
 import { ALL_ROOM_TYPES } from "../constants/showtime.constants";
@@ -15,6 +16,7 @@ import ShowtimeSkeleton, { ShowtimeGridSkeleton, ShowtimeMovieInfoSkeleton } fro
 import "../components/showtime.css";
 
 const ShowtimePage: FC = () => {
+    const { t } = useTranslation("booking");
     const { movieId } = useParams<{ movieId: string }>();
     const navigate = useNavigate();
     const location = useLocation();
@@ -112,9 +114,9 @@ const ShowtimePage: FC = () => {
         <div className="cgv-st-page cgv-st-fade-in">
             {/* Breadcrumb */}
             <nav className="cgv-st-breadcrumb" aria-label="Breadcrumb">
-                <Link to="/customer">Home</Link>
+                <Link to="/customer">{t("breadcrumb.home")}</Link>
                 <span className="cgv-st-breadcrumb__sep" aria-hidden="true">›</span>
-                <Link to="/customer">Movies</Link>
+                <Link to="/customer">{t("breadcrumb.movies")}</Link>
                 {movie && (
                     <>
                         <span className="cgv-st-breadcrumb__sep" aria-hidden="true">›</span>
@@ -122,7 +124,7 @@ const ShowtimePage: FC = () => {
                     </>
                 )}
                 <span className="cgv-st-breadcrumb__sep" aria-hidden="true">›</span>
-                <span className="cgv-st-breadcrumb__current">Select Showtime</span>
+                <span className="cgv-st-breadcrumb__current">{t("showtime.breadcrumbCurrent")}</span>
             </nav>
 
             <div className="cgv-st-inner">
@@ -136,26 +138,26 @@ const ShowtimePage: FC = () => {
                 </div>
 
                 {/* ── RIGHT: Selection ──
-                    movieLoading = trang mở lần đầu → full skeleton
-                    showtimesLoading = đổi ngày → chỉ grid skeleton, filter giữ nguyên
+                    movieLoading = first page open → full skeleton
+                    showtimesLoading = date change → grid skeleton only, filters stay
                 ── */}
                 {movieLoading ? (
                     <ShowtimeSkeleton />
                 ) : (
                     <div className="cgv-st-selection">
-                        {/* Date — luôn visible */}
+                        {/* Date — always visible */}
                         <div className="cgv-st-section">
-                            <span className="cgv-st-section-label">Select Date</span>
+                            <span className="cgv-st-section-label">{t("showtime.selectDate")}</span>
                             <ShowtimeDateSelector
                                 selectedDate={selectedDate}
                                 onChange={handleDateChange}
                             />
                         </div>
 
-                        {/* Cinema — luôn visible sau khi có data lần đầu */}
+                        {/* Cinema — always visible once data has loaded */}
                         {cinemas.length > 0 && (
                             <div className="cgv-st-section">
-                                <span className="cgv-st-section-label">Cinema</span>
+                                <span className="cgv-st-section-label">{t("showtime.cinema")}</span>
                                 <ShowtimeCinemaFilter
                                     cinemas={cinemas}
                                     selectedCinemaId={selectedCinemaId}
@@ -164,10 +166,10 @@ const ShowtimePage: FC = () => {
                             </div>
                         )}
 
-                        {/* Room type — luôn visible */}
+                        {/* Room type — always visible */}
                         {roomTypes.length > 1 && (
                             <div className="cgv-st-section">
-                                <span className="cgv-st-section-label">Room Type</span>
+                                <span className="cgv-st-section-label">{t("showtime.roomType")}</span>
                                 <ShowtimeRoomTypeFilter
                                     roomTypes={roomTypes}
                                     selected={selectedRoomType}
@@ -176,9 +178,9 @@ const ShowtimePage: FC = () => {
                             </div>
                         )}
 
-                        {/* Showtimes — chỉ phần này skeleton khi đổi ngày */}
+                        {/* Showtimes — only this section skeletons on date change */}
                         <div className="cgv-st-section">
-                            <span className="cgv-st-section-label">Showtimes</span>
+                            <span className="cgv-st-section-label">{t("showtime.showtimes")}</span>
                             {showtimesLoading ? (
                                 <ShowtimeGridSkeleton />
                             ) : (

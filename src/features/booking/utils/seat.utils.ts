@@ -1,5 +1,6 @@
 import type { Seat } from "../types/seat.types";
 import { SEAT_STATUS } from "../constants/seat.constants";
+import { formatVnd } from "@/utils/formatCurrency";
 
 export function buildSeatRowMap(seats: Seat[]): Map<string, Seat[]> {
     const map = new Map<string, Seat[]>();
@@ -18,13 +19,9 @@ export function isSeatSelectable(seat: Seat): boolean {
     return seat.status?.toUpperCase() === SEAT_STATUS.AVAILABLE;
 }
 
-export function formatPrice(price: number): string {
-    return new Intl.NumberFormat("vi-VN", {
-        style: "currency",
-        currency: "VND",
-        maximumFractionDigits: 0,
-    }).format(price);
-}
+/** Kept as the booking/POS-wide alias for the shared money formatter so the
+ *  many existing call sites stay put. */
+export const formatPrice = formatVnd;
 
 export function getSeatLabel(seat: Seat): string {
     const row = (seat.seatRow ?? "?").toString().toUpperCase();

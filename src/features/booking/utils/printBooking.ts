@@ -1,4 +1,7 @@
+import i18n from "@/i18n";
 import { code39SvgString } from "@/utils/code39";
+import { formatVnd } from "@/utils/formatCurrency";
+import { formatDateTime } from "@/utils/formatDate";
 
 /** Normalized booking shape the printable bill needs — call sites adapt their
  *  own booking objects (MyBooking, BookingResponse) into this. */
@@ -16,15 +19,13 @@ export interface PrintableBooking {
     customerName?: string | null;
 }
 
-const vnd = (n: number) => `${Math.round(n).toLocaleString("vi-VN")} ₫`;
+const vnd = (n: number) => formatVnd(Math.round(n));
 
 const fmtTime = (iso?: string | null): string => {
     if (!iso) return "";
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return iso;
-    const time = d.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", hour12: false });
-    const date = d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
-    return `${time}, ${date}`;
+    return formatDateTime(iso);
 };
 
 const esc = (s: string) =>
@@ -36,20 +37,21 @@ const esc = (s: string) =>
  * The per-seat ticket QR codes are printed separately (see TicketQrList).
  */
 export function printBill(b: PrintableBooking): void {
+    const t = i18n.t;
     const barcode = code39SvgString(b.bookingCode, 68, 2);
 
     const seatsRows = b.seats.length
-        ? `<div class="sec-label">Seats</div>` +
+        ? `<div class="sec-label">${esc(t("booking:ticketDetail.seats"))}</div>` +
           b.seats
               .map(
                   (s) =>
-                      `<div class="row"><span>Seat ${esc(s.label)}</span><span>${s.price != null ? vnd(s.price) : ""}</span></div>`,
+                      `<div class="row"><span>${esc(t("booking:ticketDetail.seat"))} ${esc(s.label)}</span><span>${s.price != null ? vnd(s.price) : ""}</span></div>`,
               )
               .join("")
         : "";
 
     const fnbRows = b.fnbItems.length
-        ? `<div class="sec-label">Food &amp; Beverage</div>` +
+        ? `<div class="sec-label">${esc(t("booking:fnb.foodBeverage"))}</div>` +
           b.fnbItems
               .map(
                   (f) =>
@@ -66,14 +68,14 @@ export function printBill(b: PrintableBooking): void {
 
     const discountRow =
         b.discountAmount && b.discountAmount > 0
-            ? `<div class="row"><span>Discount</span><span>−${vnd(b.discountAmount)}</span></div>`
+            ? `<div class="row"><span>${esc(t("booking:ticketDetail.discount"))}</span><span>−${vnd(b.discountAmount)}</span></div>`
             : "";
     const subtotalRow =
         b.subTotal != null
-            ? `<div class="row"><span>Subtotal</span><span>${vnd(b.subTotal)}</span></div>`
+            ? `<div class="row"><span>${esc(t("booking:ticketDetail.subtotal"))}</span><span>${vnd(b.subTotal)}</span></div>`
             : "";
 
-    const html = `<!doctype html><html><head><meta charset="utf-8"><title>Bill — ${esc(b.bookingCode)}</title>
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>${esc(t("booking:ticket.billTitle", { code: b.bookingCode }))}</title>
       <style>
         * { box-sizing: border-box; }
         body { font-family: 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 20px; color: #111; }
@@ -99,12 +101,12 @@ export function printBill(b: PrintableBooking): void {
           ${movieBlock}
           ${seatsRows}
           ${fnbRows}
-          <div class="sec-label" style="border-top:1px dashed #ccc">Payment</div>
+          <div class="sec-label" style="border-top:1px dashed #ccc">${esc(t("booking:fnb.stepPayment"))}</div>
           ${subtotalRow}
           ${discountRow}
-          <div class="total"><span>Total</span><span>${vnd(b.finalAmount)}</span></div>
-          ${b.customerName ? `<div class="row" style="margin-top:8px"><span>Customer</span><span>${esc(b.customerName)}</span></div>` : ""}
-          <div class="foot">Scan this barcode at the F&amp;B counter for pickup.<br/>Keep it for your records.</div>
+          <div class="total"><span>${esc(t("booking:seats.total"))}</span><span>${vnd(b.finalAmount)}</span></div>
+          ${b.customerName ? `<div class="row" style="margin-top:8px"><span>${esc(t("booking:ticket.customer"))}</span><span>${esc(b.customerName)}</span></div>` : ""}
+          <div class="foot">${esc(t("booking:ticket.billFootScan"))}<br/>${esc(t("booking:ticket.billFootKeep"))}</div>
         </div>
         <script>window.onload=function(){setTimeout(function(){window.print();window.close();},250);};</script>
       </body></html>`;

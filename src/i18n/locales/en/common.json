@@ -1,0 +1,26 @@
+{
+    "actions": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "close": "Close",
+        "confirm": "Confirm",
+        "tryAgain": "Try Again",
+        "yes": "Yes",
+        "no": "No"
+    },
+    "status": {
+        "loading": "Loading…"
+    },
+    "time": {
+        "justNow": "just now",
+        "minutesAgo_one": "{{count}} min ago",
+        "minutesAgo_other": "{{count}} mins ago",
+        "hoursAgo_one": "{{count}} hour ago",
+        "hoursAgo_other": "{{count}} hours ago",
+        "daysAgo_one": "{{count}} day ago",
+        "daysAgo_other": "{{count}} days ago"
+    },
+    "errors": {
+        "generic": "Something went wrong. Please try again."
+    }
+}
