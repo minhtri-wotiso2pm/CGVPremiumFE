@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^6.2.5",
-    "@hookform/resolvers": "^5.4.0",
+    "@hookform/resolvers": "5.4.0",
     "@reduxjs/toolkit": "^2.12.0",
     "@tanstack/react-query": "^5.101.0",
     "@vercel/analytics": "^2.0.1",
