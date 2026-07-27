@@ -40,7 +40,6 @@ const ActivityLogPage: FC = () => {
     /* Any filter change resets pagination back to page 1. */
     const handleSearchChange = (v: string) => { setSearch(v); setPage(1); };
     const handleActionTypeChange = (v: string) => { setActionType(v); setPage(1); };
-    const handleModuleChange = (v: string) => { setModule(v); setPage(1); };
     const handleDateRangeChange = (v: [Dayjs, Dayjs] | null) => { setDateRange(v); setPage(1); };
 
     const handleReset = () => {
@@ -65,8 +64,6 @@ const ActivityLogPage: FC = () => {
                 onSearchChange={handleSearchChange}
                 actionType={actionType}
                 onActionTypeChange={handleActionTypeChange}
-                module={module}
-                onModuleChange={handleModuleChange}
                 dateRange={dateRange}
                 onDateRangeChange={handleDateRangeChange}
                 onReset={handleReset}

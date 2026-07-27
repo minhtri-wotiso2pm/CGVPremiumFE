@@ -2,7 +2,6 @@ import { type FC } from "react";
 import { Input, Select, DatePicker, Button, Tooltip } from "antd";
 import type { Dayjs } from "dayjs";
 import type { ActionTypeOption } from "../types/activityLog.types";
-import { ACTIVITY_LOG_MODULE_OPTIONS } from "../constants/activityLog.constants";
 
 const { RangePicker } = DatePicker;
 const { Search } = Input;
@@ -19,8 +18,6 @@ interface Props {
     onSearchChange: (v: string) => void;
     actionType: string;
     onActionTypeChange: (v: string) => void;
-    module: string;
-    onModuleChange: (v: string) => void;
     dateRange: [Dayjs, Dayjs] | null;
     onDateRangeChange: (v: [Dayjs, Dayjs] | null) => void;
     onReset: () => void;
@@ -31,7 +28,6 @@ interface Props {
 const LogFilters: FC<Props> = ({
     search, onSearchChange,
     actionType, onActionTypeChange,
-    module, onModuleChange,
     dateRange, onDateRangeChange,
     onReset,
     actionTypeOptions,
@@ -55,17 +51,6 @@ const LogFilters: FC<Props> = ({
                 options={[
                     { value: "all", label: "All Action Types" },
                     ...actionTypeOptions,
-                ]}
-            />
-            <Select
-                value={module || "all"}
-                onChange={(v) => onModuleChange(v === "all" ? "" : v)}
-                style={{ width: 160 }}
-                showSearch
-                optionFilterProp="label"
-                options={[
-                    { value: "all", label: "All Modules" },
-                    ...ACTIVITY_LOG_MODULE_OPTIONS,
                 ]}
             />
             <RangePicker

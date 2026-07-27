@@ -2,11 +2,9 @@ export const EMAIL_LOG_PAGE_SIZE = 10;
 export const EMAIL_LOG_PAGE_SIZE_MAX = 100;
 
 export const DELIVERY_STATUS_OPTIONS = [
-    { value: "queued", label: "Queued" },
     { value: "sending", label: "Sending" },
     { value: "sent", label: "Sent" },
     { value: "failed", label: "Failed" },
-    { value: "skipped", label: "Skipped" },
 ] as const;
 
 export const DELIVERY_STATUS_FILTER_OPTIONS = [
@@ -19,16 +17,8 @@ export const DELIVERY_STATUS_FILTER_OPTIONS = [
  *  whatever eventType a log actually has even if it isn't in this curated
  *  list (see EmailLogTable), so nothing is ever hidden. */
 export const EMAIL_EVENT_TYPE_OPTIONS = [
-    { value: "RegisterSuccess", label: "Register Success" },
-    { value: "EmailVerificationRequested", label: "Email Verification Requested" },
-    { value: "EmailVerified", label: "Email Verified" },
-    { value: "PasswordResetRequested", label: "Password Reset Requested" },
-    { value: "BookingSuccess", label: "Booking Success" },
-    { value: "BookingCancelled", label: "Booking Cancelled" },
-    { value: "PaymentSuccess", label: "Payment Success" },
-    { value: "PaymentFailed", label: "Payment Failed" },
-    { value: "RefundCompleted", label: "Refund Completed" },
-    { value: "MovieScheduleChanged", label: "Movie Schedule Changed" },
-    { value: "PromotionPublished", label: "Promotion Published" },
-    { value: "SystemAnnouncement", label: "System Announcement" },
+    { value: "register", label: "Register Success" },
+    { value: "forgot_password", label: "Password Reset Requested" },
+    { value: "booking_confirmed", label: "Booking Success" },
+    { value: "refund_processed", label: "Refund Completed" },
 ] as const;
