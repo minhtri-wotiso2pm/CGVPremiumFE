@@ -12,6 +12,7 @@ import type {
 } from "../types/showtime-mgmt.types";
 import { SHOWTIME_MGMT_QUERY_KEY } from "../constants/showtime-mgmt.constants";
 import { notify } from "@/utils/notify";
+import { getApiErrorMessage } from "@/utils/apiMessage";
 
 export function useManagerShowtimes(params: GetManagerShowtimesParams, enabled: boolean) {
     return useQuery({
@@ -67,8 +68,8 @@ export function useDeleteShowtime() {
             queryClient.invalidateQueries({ queryKey: [SHOWTIME_MGMT_QUERY_KEY] });
             notify.success("Showtime deleted", "The showtime has been removed.");
         },
-        onError: () => {
-            notify.error("Failed to delete", "Could not delete showtime. It may already have bookings.");
+        onError: (err: unknown) => {
+            notify.error("Failed to delete", getApiErrorMessage(err, "Could not delete showtime. It may already have bookings."));
         },
     });
 }

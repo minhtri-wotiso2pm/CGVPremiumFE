@@ -16,6 +16,7 @@ import {
 } from "../constants/report.constants";
 import { getPreviousPeriod } from "../utils/dateRange";
 import { notify } from "@/utils/notify";
+import { getApiErrorMessage } from "@/utils/apiMessage";
 
 export function useRevenueSummary(query: ReportQuery, enabled: boolean) {
     return useQuery({
@@ -139,8 +140,8 @@ export function useExportReport() {
         onSuccess: () => {
             notify.success("Export ready", "Your report has been downloaded.");
         },
-        onError: () => {
-            notify.error("Export failed", "Could not export the report. Please try again.");
+        onError: (err: unknown) => {
+            notify.error("Export failed", getApiErrorMessage(err, "Could not export the report. Please try again."));
         },
     });
 }

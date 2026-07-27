@@ -3,6 +3,7 @@ import { useAppDispatch } from "@/store/hooks";
 import { updateUserInfo } from "@/store/slices/authSlice";
 import { uploadAvatar } from "@/services/api/user.service";
 import { notify } from "@/utils/notify";
+import { getApiErrorMessage } from "@/utils/apiMessage";
 import { PROFILE_QUERY_KEY } from "./useProfile";
 
 export const useUploadAvatar = (onSuccess?: () => void) => {
@@ -19,8 +20,8 @@ export const useUploadAvatar = (onSuccess?: () => void) => {
             notify.success("Avatar updated successfully.");
             onSuccess?.();
         },
-        onError: () => {
-            notify.error("Failed to upload avatar.", "Please try again.");
+        onError: (err: unknown) => {
+            notify.error("Failed to upload avatar.", getApiErrorMessage(err, "Please try again."));
         },
     });
 };

@@ -524,6 +524,17 @@
     .dash-mobile-toggle { display: none !important; }
 }
 
+/* Touch devices: row-action and header icon buttons get a 44px min hit area
+   (they're 30–36px for mouse). Scoped to coarse pointers so the dense
+   desktop tables keep their compact controls. */
+@media (pointer: coarse) {
+    .dash-action-btn,
+    .dash-icon-btn {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
 /* ── AntD overrides (scoped to dash) ── */
 .dash-shell .ant-table-thead > tr > th {
     background: #FAFAFA !important;

@@ -70,7 +70,7 @@ import type { StatusFilter } from "../components/MovieFilterBar";
 export function getMovieSectionTitle(
     status: StatusFilter,
     search: string,
-    genre: string
+    genres: string[]
 ) {
 
     if (status === "NOW_SHOWING")
@@ -82,8 +82,11 @@ export function getMovieSectionTitle(
     if (search)
         return `Results for "${search}"`;
 
-    if (genre)
-        return `${genre} Movies`;
+    if (genres.length === 1)
+        return `${genres[0]} Movies`;
+
+    if (genres.length > 1)
+        return `${genres.length} Genres Selected`;
 
     return "All Movies";
 }

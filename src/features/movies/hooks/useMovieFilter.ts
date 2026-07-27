@@ -7,7 +7,7 @@ export function useMovieFilter(
     movies: Movie[],
     search: string,
     status: StatusFilter,
-    genre: string
+    genres: string[]
 ) {
 
     return useMemo(() => {
@@ -26,9 +26,12 @@ export function useMovieFilter(
                 status === "ALL" ||
                 movie.status === status;
 
+            /* No genre selected → match all. Otherwise the movie must
+               contain at least one of the selected genres (OR logic,
+               same as real cinema sites). */
             const matchGenre =
-                !genre ||
-                movie.genres.includes(genre);
+                genres.length === 0 ||
+                genres.some((g) => movie.genres.includes(g));
 
             return (
                 matchSearch &&
@@ -38,6 +41,6 @@ export function useMovieFilter(
 
         });
 
-    }, [movies, search, status, genre]);
+    }, [movies, search, status, genres]);
 
 }

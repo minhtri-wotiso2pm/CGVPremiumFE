@@ -8,6 +8,7 @@ import {
 import type { SeatTypePayload } from "../types/room.types";
 import { SEAT_TYPE_QUERY_KEY } from "../constants/room.constants";
 import { notify } from "@/utils/notify";
+import { getApiErrorMessage } from "@/utils/apiMessage";
 
 export function useSeatTypes() {
     return useQuery({
@@ -25,8 +26,8 @@ export function useCreateSeatType() {
             queryClient.invalidateQueries({ queryKey: SEAT_TYPE_QUERY_KEY });
             notify.success("Seat type created", "The seat type has been added successfully.");
         },
-        onError: () => {
-            notify.error("Failed to create", "Could not create seat type. Please try again.");
+        onError: (err: unknown) => {
+            notify.error("Failed to create", getApiErrorMessage(err, "Could not create seat type. Please try again."));
         },
     });
 }
@@ -40,8 +41,8 @@ export function useUpdateSeatType() {
             queryClient.invalidateQueries({ queryKey: SEAT_TYPE_QUERY_KEY });
             notify.success("Seat type updated", "Changes have been saved successfully.");
         },
-        onError: () => {
-            notify.error("Failed to update", "Could not update seat type. Please try again.");
+        onError: (err: unknown) => {
+            notify.error("Failed to update", getApiErrorMessage(err, "Could not update seat type. Please try again."));
         },
     });
 }
@@ -54,8 +55,8 @@ export function useDeleteSeatType() {
             queryClient.invalidateQueries({ queryKey: SEAT_TYPE_QUERY_KEY });
             notify.success("Seat type deleted", "The seat type has been removed.");
         },
-        onError: () => {
-            notify.error("Failed to delete", "Could not delete seat type. It may be in use by seats.");
+        onError: (err: unknown) => {
+            notify.error("Failed to delete", getApiErrorMessage(err, "Could not delete seat type. It may be in use by seats."));
         },
     });
 }

@@ -1,4 +1,6 @@
 import { type FC, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAppSelector } from "@/store/hooks";
 import { useCinemas } from "@/features/manager/hooks/useCinemas";
 import type { Cinema } from "@/features/manager/types/cinema.types";
 import { normalizeText } from "@/utils/string";
@@ -37,13 +39,21 @@ const PinIcon = () => (
     </svg>
 );
 
-const TheaterCard: FC<{ cinema: Cinema; selected: boolean; onSelect: () => void }> = ({ cinema, selected, onSelect }) => {
+const TheaterCard: FC<{
+    cinema: Cinema;
+    selected: boolean;
+    onSelect: () => void;
+    onEnter: () => void;
+}> = ({ cinema, selected, onSelect, onEnter }) => {
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
         `${cinema.cinemaName}, ${cinema.address}`,
     )}`;
 
     return (
-        <div className={`thtr-card${selected ? " thtr-card--selected" : ""}`}>
+        <div
+            className={`thtr-card${selected ? " thtr-card--selected" : ""}`}
+            onMouseEnter={onSelect}
+        >
             <div className="thtr-card__head">
                 <div className="thtr-card__icon"><CinemaIcon /></div>
                 <div className="thtr-card__info">
@@ -53,11 +63,8 @@ const TheaterCard: FC<{ cinema: Cinema; selected: boolean; onSelect: () => void 
             </div>
 
             <div className="thtr-card__actions">
-                <button
-                    className={`thtr-card__select${selected ? " thtr-card__select--active" : ""}`}
-                    onClick={onSelect}
-                >
-                    {selected ? "Selected" : "Select Cinema"}
+                <button className="thtr-card__select" onClick={onEnter}>
+                    Select Cinema
                 </button>
                 <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="thtr-card__cta">
                     <PinIcon />
@@ -70,8 +77,15 @@ const TheaterCard: FC<{ cinema: Cinema; selected: boolean; onSelect: () => void 
 
 const TheatersPage: FC = () => {
     const { data: cinemas = [], isLoading } = useCinemas();
+    const navigate = useNavigate();
+    const user = useAppSelector((s) => s.auth.user);
     const [search, setSearch] = useState("");
     const [selectedCinemaId, setSelectedCinemaId] = useState<number | null>(null);
+
+    const handleEnter = (cinemaId: number) => {
+        const base = user ? "/customer" : "";
+        navigate(`${base}/theaters/${cinemaId}/movies`);
+    };
 
     const activeCinemas = useMemo(
         () => cinemas.filter((c) => c.status === "ACTIVE"),
@@ -146,6 +160,7 @@ const TheatersPage: FC = () => {
                                 cinema={c}
                                 selected={c.cinemaId === selectedCinemaId}
                                 onSelect={() => setSelectedCinemaId(c.cinemaId)}
+                                onEnter={() => handleEnter(c.cinemaId)}
                             />
                         ))}
                     </div>

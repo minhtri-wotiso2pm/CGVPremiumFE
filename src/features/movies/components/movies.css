@@ -72,37 +72,82 @@
 .cgv-filterbar__search {
     display: flex;
     align-items: center;
-    gap: 8px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--cgv-border);
+    gap: 9px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: var(--cgv-radius-md);
     padding: 0 14px;
     flex: 1;
     min-width: 200px;
     max-width: 340px;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.cgv-filterbar__search:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .cgv-filterbar__search:focus-within {
-    border-color: rgba(232, 0, 28, 0.4);
-    box-shadow: 0 0 0 3px rgba(232, 0, 28, 0.07);
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(232, 0, 28, 0.55);
+    box-shadow: 0 0 0 3px rgba(232, 0, 28, 0.12);
+}
+
+.cgv-filterbar__search-icon {
+    color: var(--cgv-text-secondary);
+    flex-shrink: 0;
+    transition: color 0.2s;
+}
+
+.cgv-filterbar__search:focus-within .cgv-filterbar__search-icon {
+    color: var(--cgv-crimson);
 }
 
 .cgv-filterbar__search-input {
     background: transparent;
     border: none;
     outline: none;
-    color: var(--cgv-text-primary);
+    color: #fff;
     font-family: var(--cgv-font-body);
-    font-size: 13.5px;
-    padding: 9px 0;
+    font-size: 14.5px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    padding: 10px 0;
     width: 100%;
     caret-color: var(--cgv-crimson);
 }
 
 .cgv-filterbar__search-input::placeholder {
-    color: var(--cgv-text-muted);
-    font-size: 13px;
+    color: var(--cgv-text-secondary);
+    font-size: 14px;
+    font-weight: 400;
+    opacity: 1;
+}
+
+/* Hide the native "search" clear (X) so only our styled button shows. */
+.cgv-filterbar__search-input::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.cgv-filterbar__search-clear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--cgv-text-secondary);
+    padding: 2px;
+    line-height: 1;
+    border-radius: 50%;
+    transition: color 0.15s, background 0.15s;
+}
+
+.cgv-filterbar__search-clear:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
 }
 
 /* Status tabs */
@@ -147,37 +192,77 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--cgv-border);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: var(--cgv-radius-md);
-    color: var(--cgv-text-secondary);
+    color: var(--cgv-text-primary);
     font-family: var(--cgv-font-body);
     font-size: 13px;
-    padding: 8px 14px;
+    font-weight: 500;
+    padding: 9px 14px;
     cursor: pointer;
     outline: none;
     white-space: nowrap;
     transition: border-color 0.2s, background 0.2s, color 0.2s;
-    min-width: 130px;
+    min-width: 140px;
 }
 
 .cgv-genre-btn:hover,
 .cgv-genre-btn[aria-expanded="true"] {
-    border-color: rgba(232, 0, 28, 0.4);
-    background: rgba(232, 0, 28, 0.05);
-    color: var(--cgv-text-primary);
+    border-color: rgba(232, 0, 28, 0.45);
+    background: rgba(232, 0, 28, 0.08);
+    color: #fff;
+}
+
+/* Active state when one or more genres are picked */
+.cgv-genre-btn--active {
+    border-color: rgba(232, 0, 28, 0.5);
+    background: rgba(232, 0, 28, 0.12);
+    color: #fff;
 }
 
 .cgv-genre-btn__label {
     flex: 1;
     text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.cgv-genre-btn__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 100px;
+    background: var(--cgv-crimson);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+/* Touch devices: the status tabs and genre picker get a 44px min hit area so
+   they're comfortable to tap on a phone. Scoped to coarse pointers so the
+   compact desktop filter bar is unchanged. */
+@media (pointer: coarse) {
+    .cgv-filterbar__tab {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+    }
+    .cgv-genre-btn {
+        min-height: 44px;
+    }
 }
 
 .cgv-genre-dropdown {
     position: absolute;
     top: calc(100% + 6px);
     left: 0;
-    min-width: 180px;
+    min-width: 220px;
     background: rgba(16, 4, 4, 0.98);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: var(--cgv-radius-md);
@@ -186,19 +271,64 @@
     z-index: 200;
     overflow: hidden;
     animation: cgv-dropdown-in 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
-    max-height: 300px;
-    overflow-y: auto;
 }
 
-.cgv-genre-dropdown::-webkit-scrollbar {
+/* Header row with count + clear-all */
+.cgv-genre-dropdown__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cgv-genre-dropdown__head-label {
+    font-family: var(--cgv-font-body);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cgv-text-secondary);
+}
+
+.cgv-genre-dropdown__clear {
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: var(--cgv-font-body);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--cgv-crimson);
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+.cgv-genre-dropdown__clear:hover:not(:disabled) {
+    opacity: 0.75;
+}
+
+.cgv-genre-dropdown__clear:disabled {
+    color: var(--cgv-text-muted);
+    cursor: not-allowed;
+}
+
+/* Scrollable options list */
+.cgv-genre-dropdown__list {
+    max-height: 280px;
+    overflow-y: auto;
+    padding: 5px 0;
+}
+
+.cgv-genre-dropdown__list::-webkit-scrollbar {
     width: 4px;
 }
 
-.cgv-genre-dropdown::-webkit-scrollbar-track {
+.cgv-genre-dropdown__list::-webkit-scrollbar-track {
     background: transparent;
 }
 
-.cgv-genre-dropdown::-webkit-scrollbar-thumb {
+.cgv-genre-dropdown__list::-webkit-scrollbar-thumb {
     background: rgba(232, 0, 28, 0.3);
     border-radius: 4px;
 }
@@ -208,7 +338,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 14px;
+    padding: 9px 14px;
     background: none;
     border: none;
     font-family: var(--cgv-font-body);
@@ -226,9 +356,82 @@
 }
 
 .cgv-genre-option--active {
-    color: var(--cgv-crimson) !important;
-    background: rgba(232, 0, 28, 0.08) !important;
+    color: #fff;
+    background: rgba(232, 0, 28, 0.1);
     font-weight: 600;
+}
+
+/* Checkbox indicator */
+.cgv-genre-check {
+    width: 17px;
+    height: 17px;
+    flex-shrink: 0;
+    border-radius: 5px;
+    border: 1.5px solid rgba(255, 255, 255, 0.28);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.cgv-genre-check--on {
+    background: var(--cgv-crimson);
+    border-color: var(--cgv-crimson);
+}
+
+/* Selected-genre chip row */
+.cgv-filterbar__chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 0 0 14px;
+    margin-top: -2px;
+}
+
+.cgv-genre-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 100px;
+    border: 1px solid rgba(232, 0, 28, 0.35);
+    background: rgba(232, 0, 28, 0.12);
+    color: var(--cgv-text-primary);
+    font-family: var(--cgv-font-body);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.cgv-genre-chip:hover {
+    background: rgba(232, 0, 28, 0.2);
+    border-color: rgba(232, 0, 28, 0.55);
+}
+
+.cgv-genre-chip svg {
+    color: var(--cgv-text-secondary);
+    transition: color 0.15s;
+}
+
+.cgv-genre-chip:hover svg {
+    color: #fff;
+}
+
+.cgv-genre-chip--clear {
+    border-style: dashed;
+    border-color: rgba(255, 255, 255, 0.18);
+    background: transparent;
+    color: var(--cgv-text-secondary);
+    font-weight: 600;
+}
+
+.cgv-genre-chip--clear:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
 }
 
 @keyframes cgv-dropdown-in {

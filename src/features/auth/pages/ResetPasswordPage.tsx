@@ -32,13 +32,13 @@ const T = {
 ───────────────────────────────────────────────────────────── */
 const rules = {
     newPassword: (v: string): string => {
-        if (!v) return "Mật khẩu không được để trống.";
-        if (v.length < 6) return "Mật khẩu phải có ít nhất 6 ký tự.";
+        if (!v) return "Password is required.";
+        if (v.length < 6) return "Password must be at least 6 characters.";
         return "";
     },
     confirmPassword: (v: string, pw: string): string => {
-        if (!v) return "Xác nhận mật khẩu không được để trống.";
-        if (v !== pw) return "Mật khẩu xác nhận không khớp.";
+        if (!v) return "Please confirm your password.";
+        if (v !== pw) return "Passwords do not match.";
         return "";
     },
 };
@@ -55,9 +55,9 @@ function passwordStrength(v: string): 0 | 1 | 2 | 3 {
 }
 
 const strengthMeta: Record<1 | 2 | 3, { label: string; color: string }> = {
-    1: { label: "Yếu", color: T.crimson },
-    2: { label: "Trung bình", color: "#f59e0b" },
-    3: { label: "Mạnh", color: "#22c55e" },
+    1: { label: "Weak", color: T.crimson },
+    2: { label: "Medium", color: "#f59e0b" },
+    3: { label: "Strong", color: "#22c55e" },
 };
 
 function StrengthBar({ score }: { score: 0 | 1 | 2 | 3 }) {
@@ -78,7 +78,7 @@ function StrengthBar({ score }: { score: 0 | 1 | 2 | 3 }) {
                 ))}
             </div>
             <p style={{ fontSize: 10.5, color: meta.color, marginTop: 5, letterSpacing: "0.04em" }}>
-                Độ mạnh: {meta.label}
+                Strength: {meta.label}
             </p>
         </div>
     );
@@ -240,7 +240,7 @@ function InvalidTokenCard({ onBack }: { onBack: () => void }) {
     return (
         <div
             role="main"
-            aria-label="Liên kết đặt lại mật khẩu không hợp lệ"
+            aria-label="Invalid password reset link"
             style={{
                 position: "relative", zIndex: 10,
                 background: T.surface,
@@ -381,7 +381,7 @@ export default function ResetPasswordPage() {
             const msg =
                 (err as { response?: { data?: { message?: string } } })
                     ?.response?.data?.message;
-            setApiError(msg ?? "Có lỗi xảy ra. Vui lòng thử lại.");
+            setApiError(msg ?? "Something went wrong. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -450,7 +450,7 @@ export default function ResetPasswordPage() {
                     <div
                         className="cgv-card"
                         role="main"
-                        aria-label="Đặt lại mật khẩu CVPremium"
+                        aria-label="Reset your CVPremium password"
                         style={{
                             position: "relative", zIndex: 10,
                             background: T.surface,
@@ -517,7 +517,7 @@ export default function ResetPasswordPage() {
                                 <button
                                     type="button"
                                     className="cgv-toggle-pw"
-                                    aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                                    aria-label={showPassword ? "Hide password" : "Show password"}
                                     onClick={() => setShowPassword((v) => !v)}
                                     style={toggleBtnStyle}
                                 >
@@ -546,7 +546,7 @@ export default function ResetPasswordPage() {
                                 <button
                                     type="button"
                                     className="cgv-toggle-pw"
-                                    aria-label={showConfirmPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                                    aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                                     onClick={() => setShowConfirmPassword((v) => !v)}
                                     style={toggleBtnStyle}
                                 >

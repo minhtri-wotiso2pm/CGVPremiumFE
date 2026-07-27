@@ -11,6 +11,7 @@ import {
 import type { GetVouchersParams, VoucherFormData } from "../types/voucher.types";
 import { VOUCHER_QUERY_KEY } from "../constants/voucher.constants";
 import { notify } from "@/utils/notify";
+import { getApiErrorMessage } from "@/utils/apiMessage";
 
 export function useVouchers(params: GetVouchersParams, enabled = true) {
     return useQuery({
@@ -60,8 +61,8 @@ export function useDeleteVoucher() {
             queryClient.invalidateQueries({ queryKey: [VOUCHER_QUERY_KEY] });
             notify.success("Voucher deleted", "The promotion has been removed.");
         },
-        onError: () => {
-            notify.error("Failed to delete", "Could not delete voucher. Please try again.");
+        onError: (err: unknown) => {
+            notify.error("Failed to delete", getApiErrorMessage(err, "Could not delete voucher. Please try again."));
         },
     });
 }
@@ -89,8 +90,8 @@ export function useRuleOptions(ruleType: string, dataSource: string | null) {
 export function useUploadVoucherImage() {
     return useMutation({
         mutationFn: (file: File) => uploadVoucherImageApi(file),
-        onError: () => {
-            notify.error("Image upload failed", "Could not upload the image. Please try again.");
+        onError: (err: unknown) => {
+            notify.error("Image upload failed", getApiErrorMessage(err, "Could not upload the image. Please try again."));
         },
     });
 }

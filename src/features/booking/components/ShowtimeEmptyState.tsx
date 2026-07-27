@@ -16,11 +16,11 @@ const ShowtimeEmptyState: FC<Props> = ({ hasCinemaOrRoomFilter }) => (
             <line x1="3" y1="10" x2="21" y2="10" />
             <line x1="9" y1="16" x2="15" y2="16" />
         </svg>
-        <p className="cgv-st-empty__title">Hiện chưa có suất chiếu</p>
+        <p className="cgv-st-empty__title">No showtimes available</p>
         <p className="cgv-st-empty__subtitle">
             {hasCinemaOrRoomFilter
-                ? "Thử chọn rạp hoặc loại phòng khác."
-                : "Vui lòng chọn ngày khác để xem lịch chiếu."}
+                ? "Try selecting a different cinema or room type."
+                : "Please choose another date to see showtimes."}
         </p>
     </div>
 );

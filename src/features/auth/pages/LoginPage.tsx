@@ -38,13 +38,13 @@ VALIDATION
 ───────────────────────────────────────────────────────────── */
 const rules = {
     email: (v: string): string => {
-        if (!v.trim()) return "Email không được để trống.";
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "Định dạng email không hợp lệ.";
+        if (!v.trim()) return "Email is required.";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "Invalid email format.";
         return "";
     },
     password: (v: string): string => {
-        if (!v) return "Mật khẩu không được để trống.";
-        if (v.length < 6) return "Mật khẩu phải có ít nhất 6 ký tự.";
+        if (!v) return "Password is required.";
+        if (v.length < 6) return "Password must be at least 6 characters.";
         return "";
     },
 };
@@ -260,11 +260,11 @@ export default function LoginPage() {
             if (axios.isAxiosError(err)) {
                 setApiError(
                     err.response?.data?.message ??
-                    "Email hoặc mật khẩu không chính xác. Vui lòng thử lại."
+                    "Incorrect email or password. Please try again."
                 );
             } else {
                 setApiError(
-                    "Đã xảy ra lỗi. Vui lòng thử lại."
+                    "Something went wrong. Please try again."
                 );
             }
         } finally {
@@ -376,7 +376,7 @@ export default function LoginPage() {
                 <div
                     className="cgv-card"
                     role="main"
-                    aria-label="Đăng nhập CVPremium"
+                    aria-label="Sign in to CVPremium"
                     style={{
                         position: "relative", zIndex: 10,
                         background: T.surface,
@@ -493,7 +493,7 @@ export default function LoginPage() {
                         rightAddon={
                             <button
                                 type="button"
-                                aria-label={showPw ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                                aria-label={showPw ? "Hide password" : "Show password"}
                                 onClick={() => setShowPw((v) => !v)}
                                 style={{
                                     background: "none", border: "none", cursor: "pointer",
@@ -520,7 +520,7 @@ export default function LoginPage() {
                             htmlFor="rememberMe"
                             style={{ fontSize: 12, color: T.textFaint, cursor: "pointer", letterSpacing: "0.02em" }}
                         >
-                            Ghi nhớ đăng nhập
+                            Remember me
                         </label>
                     </div>
 
@@ -545,7 +545,7 @@ export default function LoginPage() {
                         }}
                     >
                         {loading && <span className="cgv-spinner" aria-hidden="true" />}
-                        {loading ? "Đang đăng nhập…" : "Sign In"}
+                        {loading ? "Signing in…" : "Sign In"}
                     </button>
 
 

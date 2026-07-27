@@ -31,8 +31,8 @@ const T = {
 ───────────────────────────────────────────────────────────── */
 const rules = {
     email: (v: string): string => {
-        if (!v.trim()) return "Email không được để trống.";
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "Định dạng email không hợp lệ.";
+        if (!v.trim()) return "Email is required.";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "Invalid email format.";
         return "";
     },
 };
@@ -219,7 +219,7 @@ export default function ForgotPasswordPage() {
                 setApiError(response.message);
             }
         } catch {
-            setApiError("Có lỗi xảy ra. Vui lòng thử lại.");
+            setApiError("Something went wrong. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -276,7 +276,7 @@ export default function ForgotPasswordPage() {
                 <div
                     className="cgv-card"
                     role="main"
-                    aria-label="Quên mật khẩu CVPremium"
+                    aria-label="Forgot your CVPremium password"
                     style={{
                         position: "relative", zIndex: 10,
                         background: T.surface,

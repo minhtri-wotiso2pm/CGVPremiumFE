@@ -360,6 +360,27 @@
     }
 }
 
+/* ── Touch devices: enlarge tap targets ──────────────────────
+   On coarse pointers (phones/tablets) the header icon controls — the
+   notification bell, the hamburger, the avatar button — get a comfortable
+   44px minimum hit area (Apple HIG). Scoped to `pointer: coarse` so the
+   tighter mouse-desktop layout is untouched. */
+@media (pointer: coarse) {
+    .cgv-icon-btn,
+    .cgv-hamburger {
+        min-width: 44px;
+        min-height: 44px;
+    }
+    .cgv-fh--scrolled .cgv-icon-btn {
+        padding: 8px;
+    }
+    .cgv-fh__avatar-btn,
+    .cgv-fh__login,
+    .cgv-fh__navlink {
+        min-height: 44px;
+    }
+}
+
 /* ── Reduced motion ────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
 

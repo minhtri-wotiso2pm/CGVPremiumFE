@@ -30,10 +30,10 @@ const T = {
    PASSWORD REQUIREMENT RULES
 ───────────────────────────────────────────────────────────── */
 const PASSWORD_RULES = [
-    { id: "len",     label: "Ít nhất 6 ký tự",                    test: (v: string) => v.length >= 6 },
-    { id: "upper",   label: "Ít nhất 1 chữ hoa (A–Z)",            test: (v: string) => /[A-Z]/.test(v) },
-    { id: "digit",   label: "Ít nhất 1 chữ số (0–9)",             test: (v: string) => /[0-9]/.test(v) },
-    { id: "special", label: "Ít nhất 1 ký tự đặc biệt (!@#$…)",   test: (v: string) => /[^A-Za-z0-9]/.test(v) },
+    { id: "len",     label: "At least 6 characters",              test: (v: string) => v.length >= 6 },
+    { id: "upper",   label: "At least 1 uppercase letter (A–Z)",  test: (v: string) => /[A-Z]/.test(v) },
+    { id: "digit",   label: "At least 1 number (0–9)",            test: (v: string) => /[0-9]/.test(v) },
+    { id: "special", label: "At least 1 special character (!@#$…)", test: (v: string) => /[^A-Za-z0-9]/.test(v) },
 ] as const;
 
 /* ─────────────────────────────────────────────────────────────
@@ -41,31 +41,31 @@ const PASSWORD_RULES = [
 ───────────────────────────────────────────────────────────── */
 const rules = {
     fullName: (v: string): string => {
-        if (!v.trim()) return "Họ và tên không được để trống.";
-        if (v.trim().length < 2) return "Họ và tên phải có ít nhất 2 ký tự.";
+        if (!v.trim()) return "Full name is required.";
+        if (v.trim().length < 2) return "Full name must be at least 2 characters.";
         return "";
     },
     email: (v: string): string => {
-        if (!v.trim()) return "Email không được để trống.";
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "Định dạng email không hợp lệ.";
+        if (!v.trim()) return "Email is required.";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "Invalid email format.";
         return "";
     },
     phone: (v: string): string => {
-        if (!v.trim()) return "Số điện thoại không được để trống.";
-        if (!/^\d+$/.test(v)) return "Số điện thoại chỉ được chứa chữ số.";
-        if (v.length !== 10) return "Số điện thoại phải đúng 10 chữ số.";
-        if (!v.startsWith("0")) return "Số điện thoại phải bắt đầu bằng số 0.";
+        if (!v.trim()) return "Phone number is required.";
+        if (!/^\d+$/.test(v)) return "Phone number must contain digits only.";
+        if (v.length !== 10) return "Phone number must be exactly 10 digits.";
+        if (!v.startsWith("0")) return "Phone number must start with 0.";
         return "";
     },
     password: (v: string): string => {
-        if (!v) return "Mật khẩu không được để trống.";
+        if (!v) return "Password is required.";
         const missing = PASSWORD_RULES.filter((r) => !r.test(v)).map((r) => r.label);
-        if (missing.length > 0) return `Mật khẩu thiếu: ${missing.join(" · ")}.`;
+        if (missing.length > 0) return `Password is missing: ${missing.join(" · ")}.`;
         return "";
     },
     confirmPassword: (v: string, pw: string): string => {
-        if (!v) return "Xác nhận mật khẩu không được để trống.";
-        if (v !== pw) return "Mật khẩu xác nhận không khớp.";
+        if (!v) return "Please confirm your password.";
+        if (v !== pw) return "Passwords do not match.";
         return "";
     },
 };
@@ -123,9 +123,9 @@ function passwordStrength(v: string): 0 | 1 | 2 | 3 {
 }
 
 const strengthMeta: Record<1 | 2 | 3, { label: string; color: string }> = {
-    1: { label: "Yếu", color: T.crimson },
-    2: { label: "Trung bình", color: "#f59e0b" },
-    3: { label: "Mạnh", color: "#22c55e" },
+    1: { label: "Weak", color: T.crimson },
+    2: { label: "Medium", color: "#f59e0b" },
+    3: { label: "Strong", color: "#22c55e" },
 };
 
 function StrengthBar({ score }: { score: 0 | 1 | 2 | 3 }) {
@@ -149,7 +149,7 @@ function StrengthBar({ score }: { score: 0 | 1 | 2 | 3 }) {
                 fontSize: 10.5, color: meta.color,
                 marginTop: 5, letterSpacing: "0.04em",
             }}>
-                Độ mạnh: {meta.label}
+                Strength: {meta.label}
             </p>
         </div>
     );
@@ -358,7 +358,7 @@ function TogglePwButton({ show, onToggle, label }: TogglePwProps) {
         <button
             type="button"
             className="cgv-toggle-pw"
-            aria-label={label ?? (show ? "Ẩn mật khẩu" : "Hiện mật khẩu")}
+            aria-label={label ?? (show ? "Hide password" : "Show password")}
             onClick={onToggle}
             style={{
                 background: "none", border: "none",
@@ -452,9 +452,9 @@ export default function RegisterPage() {
             navigate("/registerEmail");
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
-                setSubmitErr(error.response?.data?.message ?? "Đăng ký thất bại.");
+                setSubmitErr(error.response?.data?.message ?? "Registration failed.");
             } else {
-                setSubmitErr("Đã có lỗi xảy ra. Vui lòng thử lại.");
+                setSubmitErr("Something went wrong. Please try again.");
             }
         } finally {
             setLoading(false);
@@ -531,7 +531,7 @@ export default function RegisterPage() {
                 <div
                     className="cgv-card"
                     role="main"
-                    aria-label="Đăng ký CVPremium"
+                    aria-label="Register for CVPremium"
                     style={{
                         position: "relative", zIndex: 10,
                         background: T.surface,
@@ -580,7 +580,7 @@ export default function RegisterPage() {
 
                     <FormField
                         id="cgv-fullName" label="Full Name" type="text"
-                        value={fullName} placeholder="Nguyễn Văn A" autoComplete="name"
+                        value={fullName} placeholder="John Doe" autoComplete="name"
                         error={fullNameError} isValid={fullNameValid} isFocused={focusedField === "fullName"}
                         onChange={(v) => { setFullName(v); setSubmitErr(""); }}
                         onFocus={() => setFocusedField("fullName")}
@@ -616,7 +616,7 @@ export default function RegisterPage() {
                     <FormField
                         id="cgv-password" label="Password"
                         type={showPw ? "text" : "password"}
-                        value={password} placeholder="Ít nhất 6 ký tự, 1 chữ hoa, 1 số, 1 ký tự đặc biệt" autoComplete="new-password"
+                        value={password} placeholder="At least 6 chars, 1 uppercase, 1 number, 1 special" autoComplete="new-password"
                         error={passwordError} isValid={passwordValid} isFocused={focusedField === "password"}
                         onChange={(v) => { setPassword(v); setSubmitErr(""); }}
                         onFocus={() => setFocusedField("password")}
@@ -678,7 +678,7 @@ export default function RegisterPage() {
                         }}
                     >
                         {loading && <span className="cgv-spinner" aria-hidden="true" />}
-                        {loading ? "Đang đăng ký…" : "Register"}
+                        {loading ? "Registering…" : "Register"}
                     </button>
 
                     {/* Sign in link */}

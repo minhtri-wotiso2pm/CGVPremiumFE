@@ -46,9 +46,9 @@ const ShowtimeGrid: FC<Props> = ({ showtimes, isError, hasCinemaOrRoomFilter, on
                     <line x1="12" y1="8" x2="12" y2="12" />
                     <line x1="12" y1="16" x2="12.01" y2="16" />
                 </svg>
-                <p className="cgv-st-error__title">Không thể tải lịch chiếu</p>
-                <p className="cgv-st-error__body">Đã xảy ra lỗi kết nối. Vui lòng thử lại.</p>
-                <button className="cgv-st-retry-btn" onClick={onRetry}>Thử lại</button>
+                <p className="cgv-st-error__title">Unable to load showtimes</p>
+                <p className="cgv-st-error__body">A connection error occurred. Please try again.</p>
+                <button className="cgv-st-retry-btn" onClick={onRetry}>Try again</button>
             </div>
         );
     }

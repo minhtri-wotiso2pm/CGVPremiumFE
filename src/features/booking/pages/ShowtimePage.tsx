@@ -1,5 +1,5 @@
 import { type FC, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { useMovieDetail } from "@/features/movies/hooks/useMovieDetail";
 import { useShowtimes } from "../hooks/useShowtimes";
 import { ALL_ROOM_TYPES } from "../constants/showtime.constants";
@@ -17,14 +17,19 @@ import "../components/showtime.css";
 const ShowtimePage: FC = () => {
     const { movieId } = useParams<{ movieId: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
     const id = Number(movieId);
+
+    /* ── Nav state when arriving from a specific cinema (Theaters flow) ──
+       lets the page open already scoped to that theater on that date. ── */
+    const navState = (location.state ?? null) as { cinemaId?: number; date?: string } | null;
 
     /* ── Movie data (cached from MovieDetailPage if visited) ── */
     const { data: movie, isLoading: movieLoading } = useMovieDetail(id);
 
     /* ── Local filter state ── */
-    const [selectedDate, setSelectedDate] = useState<string>(getTodayString);
-    const [selectedCinemaId, setSelectedCinemaId] = useState<number | null>(null);
+    const [selectedDate, setSelectedDate] = useState<string>(navState?.date ?? getTodayString);
+    const [selectedCinemaId, setSelectedCinemaId] = useState<number | null>(navState?.cinemaId ?? null);
     const [selectedRoomType, setSelectedRoomType] = useState<string>(ALL_ROOM_TYPES);
 
     /* ── API: only refetch when date or movieName changes ── */

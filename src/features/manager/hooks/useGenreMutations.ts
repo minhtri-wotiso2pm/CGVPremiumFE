@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createGenreApi, updateGenreApi, deleteGenreApi } from "@/services/api/movie-mgmt.service";
 import { notify } from "@/utils/notify";
+import { getApiErrorMessage } from "@/utils/apiMessage";
 import { GENRE_QUERY_KEY } from "./useGenreList";
 
 export function useCreateGenre() {
@@ -11,8 +12,8 @@ export function useCreateGenre() {
             queryClient.invalidateQueries({ queryKey: GENRE_QUERY_KEY });
             notify.success("Genre Added", "The new genre has been added successfully.");
         },
-        onError: () => {
-            notify.error("Failed to Add Genre", "Could not add the genre. Please try again.");
+        onError: (err: unknown) => {
+            notify.error("Failed to Add Genre", getApiErrorMessage(err, "Could not add the genre. Please try again."));
         },
     });
 }
@@ -26,8 +27,8 @@ export function useUpdateGenre() {
             queryClient.invalidateQueries({ queryKey: GENRE_QUERY_KEY });
             notify.success("Genre Updated", "The genre name has been updated.");
         },
-        onError: () => {
-            notify.error("Update Failed", "Could not update the genre. Please try again.");
+        onError: (err: unknown) => {
+            notify.error("Update Failed", getApiErrorMessage(err, "Could not update the genre. Please try again."));
         },
     });
 }
@@ -40,8 +41,8 @@ export function useDeleteGenre() {
             queryClient.invalidateQueries({ queryKey: GENRE_QUERY_KEY });
             notify.success("Genre Deleted", "The genre has been removed.");
         },
-        onError: () => {
-            notify.error("Delete Failed", "Could not delete the genre. Please try again.");
+        onError: (err: unknown) => {
+            notify.error("Delete Failed", getApiErrorMessage(err, "Could not delete the genre. Please try again."));
         },
     });
 }

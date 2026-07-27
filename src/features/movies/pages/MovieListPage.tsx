@@ -67,11 +67,12 @@ const MovieListPage: FC<Props> = ({ onMovieClick, onBook }) => {
 
         search,
         status,
-        genre,
+        genres,
 
         setSearch,
         setStatus,
-        setGenre,
+        setGenres,
+        toggleGenre,
 
         resetFilters
 
@@ -85,14 +86,14 @@ const MovieListPage: FC<Props> = ({ onMovieClick, onBook }) => {
         movies,
         search,
         status,
-        genre
+        genres
 
     );
 
     const sectionTitle = getMovieSectionTitle(
         status,
         search,
-        genre
+        genres
     );
 
     const featuredMovies = getFeaturedMovies(movies, 3);
@@ -107,7 +108,7 @@ const MovieListPage: FC<Props> = ({ onMovieClick, onBook }) => {
     } = usePagination(
         filtered,
         MOVIE_PAGE_SIZE,
-        [search, status, genre]
+        [search, status, genres]
     );
 
     /* Navigation */
@@ -149,13 +150,14 @@ const MovieListPage: FC<Props> = ({ onMovieClick, onBook }) => {
             <MovieFilterBar
                 search={search}
                 status={status}
-                genre={genre}
-                genres={allGenres}
+                genres={genres}
+                allGenres={allGenres}
                 totalCount={movies.length}
                 filteredCount={filtered.length}
                 onSearchChange={setSearch}
                 onStatusChange={setStatus}
-                onGenreChange={setGenre}
+                onGenreToggle={toggleGenre}
+                onGenresClear={() => setGenres([])}
             />
 
             {/* Movie grid */}

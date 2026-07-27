@@ -11,6 +11,8 @@ const normalizeVoucherRules = (raw: unknown): VoucherRuleDisplay[] => {
     return raw.map((r: Record<string, unknown>) => ({
         ruleType: String(r.ruleType ?? ""),
         displayText: String(r.displayText ?? ""),
+        ruleValue: String(r.ruleValue ?? ""),
+        operator: String(r.operator ?? "="),
     }));
 };
 
@@ -19,6 +21,7 @@ const normalizeRedeemable = (v: Record<string, unknown>): RedeemableVoucher => (
     voucherCode: String(v.voucherCode ?? ""),
     discountType: String(v.discountType ?? "percent"),
     discountValue: Number(v.discountValue ?? 0),
+    minOrderValue: Number(v.minOrderValue ?? 0),
     requiredPoints: Number(v.requiredPoints ?? 0),
     exchangeLimit: Number(v.exchangeLimit ?? 0),
     validFrom: String(v.validFrom ?? ""),
@@ -39,8 +42,12 @@ const normalizeMyVoucher = (v: Record<string, unknown>): MyVoucher => ({
     voucherCode: String(v.voucherCode ?? ""),
     discountType: String(v.discountType ?? "percent"),
     discountValue: Number(v.discountValue ?? 0),
+    minOrderValue: Number(v.minOrderValue ?? 0),
     quantity: Number(v.quantity ?? 1),
     voucherRules: normalizeVoucherRules(v.voucherRules),
+    validFrom: String(v.validFrom ?? ""),
+    validUntil: String(v.validUntil ?? ""),
+    description: String(v.description ?? ""),
     redeemedAt: String(v.redeemedAt ?? ""),
     expiredAt: (v.expiredAt ?? null) as string | null,
     imageUrl: (v.imageUrl ?? null) as string | null,

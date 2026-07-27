@@ -16,9 +16,9 @@ const PaymentCancelledPage: FC = () => {
             <div className="cgv-confirm-inner">
                 <div className="cgv-confirm-hero">
                     <div className="cgv-confirm-icon cgv-confirm-icon--cancelled" aria-hidden="true">✕</div>
-                    <p className="cgv-confirm-title">Thanh toán đã bị hủy</p>
+                    <p className="cgv-confirm-title">Payment cancelled</p>
                     <p className="cgv-confirm-subtitle">
-                        Bạn đã hủy giao dịch trên PayOS, vé chưa được thanh toán.
+                        You cancelled the PayOS transaction; your ticket has not been paid for.
                     </p>
                 </div>
 
@@ -28,14 +28,14 @@ const PaymentCancelledPage: FC = () => {
                             className="cgv-confirm-invoice-btn"
                             onClick={() => navigate("/customer/profile/tickets", { replace: true })}
                         >
-                            Xem vé của tôi
+                            View my tickets
                         </button>
                     )}
                     <button
                         className="cgv-confirm-home-btn"
                         onClick={() => navigate("/customer", { replace: true })}
                     >
-                        Về trang chủ
+                        Back to Home
                     </button>
                 </div>
             </div>

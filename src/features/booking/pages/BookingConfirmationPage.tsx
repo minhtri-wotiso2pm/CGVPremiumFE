@@ -38,11 +38,18 @@ function formatDateShort(iso: string): string {
     }
 }
 
+const TicketIcon = () => (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M3 9a2 2 0 012-2h14a2 2 0 012 2v1a2 2 0 000 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2v-1a2 2 0 000-4V9z" />
+        <line x1="15" y1="7" x2="15" y2="17" strokeDasharray="1.5 2.5" />
+    </svg>
+);
+
 const PAYMENT_LABELS: Record<string, string> = {
     payos:  "PayOS",
     vnpay:  "VNPay",
-    wallet: "Ví điện tử",
-    cash:   "Tiền mặt",
+    wallet: "E-wallet",
+    cash:   "Cash",
 };
 
 /* ══════════════════════════════════════════
@@ -127,20 +134,20 @@ const BookingConfirmationPage: FC = () => {
                 {/* ── Success header ── */}
                 <div className="cgv-confirm-hero">
                     <div className="cgv-confirm-icon" aria-hidden="true">✓</div>
-                    <p className="cgv-confirm-title">Đặt vé thành công!</p>
+                    <p className="cgv-confirm-title">Booking successful!</p>
                     <p className="cgv-confirm-subtitle">
-                        Cảm ơn bạn đã mua vé tại CV Premium
+                        Thank you for booking with CV Premium
                     </p>
 
                     {/* Booking code */}
                     <div className="cgv-confirm-code-wrap">
-                        <span className="cgv-confirm-code-label">Mã đặt vé</span>
+                        <span className="cgv-confirm-code-label">Booking code</span>
                         <span className="cgv-confirm-code">{booking.bookingCode}</span>
                         <button
                             className={`cgv-confirm-copy-btn${copied ? " cgv-confirm-copy-btn--copied" : ""}`}
                             onClick={handleCopyCode}
                         >
-                            {copied ? "Đã sao chép!" : "Sao chép"}
+                            {copied ? "Copied!" : "Copy"}
                         </button>
                     </div>
                 </div>
@@ -150,7 +157,7 @@ const BookingConfirmationPage: FC = () => {
 
                     {/* Movie */}
                     <div className="cgv-confirm-card__section">
-                        <p className="cgv-confirm-card__sec-label">Thông tin phim</p>
+                        <p className="cgv-confirm-card__sec-label">Movie details</p>
                         <div className="cgv-confirm-movie-row">
                             {moviePoster ? (
                                 <img
@@ -178,7 +185,7 @@ const BookingConfirmationPage: FC = () => {
                     {/* Seats */}
                     {(booking.seats ?? []).length > 0 && (
                         <div className="cgv-confirm-card__section">
-                            <p className="cgv-confirm-card__sec-label">Ghế</p>
+                            <p className="cgv-confirm-card__sec-label">Seats</p>
                             <div className="cgv-confirm-chips">
                                 {booking.seats.map((s) => (
                                     <span key={s.seatID} className="cgv-confirm-chip">
@@ -192,7 +199,7 @@ const BookingConfirmationPage: FC = () => {
                     {/* F&B */}
                     {hasFnb && (
                         <div className="cgv-confirm-card__section">
-                            <p className="cgv-confirm-card__sec-label">Đồ ăn & Thức uống</p>
+                            <p className="cgv-confirm-card__sec-label">Food & Beverage</p>
                             {booking.fnbItems.map((item) => (
                                 <div key={item.itemName} className="cgv-confirm-row">
                                     <span className="cgv-confirm-row__label">
@@ -208,16 +215,16 @@ const BookingConfirmationPage: FC = () => {
 
                     {/* Payment summary */}
                     <div className="cgv-confirm-card__section">
-                        <p className="cgv-confirm-card__sec-label">Thanh toán</p>
+                        <p className="cgv-confirm-card__sec-label">Payment</p>
                         <div className="cgv-confirm-row">
-                            <span className="cgv-confirm-row__label">Phương thức</span>
+                            <span className="cgv-confirm-row__label">Method</span>
                             <span className="cgv-confirm-row__val">
                                 {PAYMENT_LABELS[paymentMethod] ?? paymentMethod}
                             </span>
                         </div>
                         {booking.discountAmount > 0 && (
                             <div className="cgv-confirm-row">
-                                <span className="cgv-confirm-row__label">Giảm giá</span>
+                                <span className="cgv-confirm-row__label">Discount</span>
                                 <span
                                     className="cgv-confirm-row__val"
                                     style={{ color: "#4caf50" }}
@@ -241,20 +248,20 @@ const BookingConfirmationPage: FC = () => {
                         )}
                         <div className="cgv-confirm-card__section" style={{ padding: "0", border: "none" }}>
                             <div className="cgv-confirm-row cgv-confirm-row--total" style={{ marginTop: 10 }}>
-                                <span className="cgv-confirm-row__label">Tổng đã thanh toán</span>
+                                <span className="cgv-confirm-row__label">Total paid</span>
                                 <span className="cgv-confirm-row__val">
                                     {formatPrice(booking.finalAmount)}
                                 </span>
                             </div>
                         </div>
                         <p style={{ margin: "10px 0 0", fontSize: 11.5, color: "rgba(240,232,232,0.45)" }}>
-                            Điểm thưởng sẽ được cộng sau khi bạn check-in tại rạp.
+                            Reward points will be added after you check in at the cinema.
                         </p>
                     </div>
 
                     {/* Booking date */}
                     <div className="cgv-confirm-card__section">
-                        <p className="cgv-confirm-card__sec-label">Thời gian đặt vé</p>
+                        <p className="cgv-confirm-card__sec-label">Booking time</p>
                         <p style={{ fontSize: 13, color: "rgba(240,232,232,0.6)" }}>
                             {formatDateShort(booking.bookingDate)}
                         </p>
@@ -277,19 +284,18 @@ const BookingConfirmationPage: FC = () => {
 
                 {/* ── Actions ── */}
                 <div className="cgv-confirm-actions">
-                    <a
-                        href={`${import.meta.env.VITE_API_BASE_URL}/invoices/booking/${booking.bookingID}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    <button
                         className="cgv-confirm-invoice-btn"
+                        onClick={() => navigate(`/customer/profile/tickets/${booking.bookingID}`)}
                     >
-                        📄 Tải hóa đơn
-                    </a>
+                        <TicketIcon />
+                        My Ticket
+                    </button>
                     <button
                         className="cgv-confirm-home-btn"
                         onClick={() => navigate("/customer", { replace: true })}
                     >
-                        Về trang chủ
+                        Back to Home
                     </button>
                 </div>
 
