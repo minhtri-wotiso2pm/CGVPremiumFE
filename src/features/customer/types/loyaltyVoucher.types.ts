@@ -1,8 +1,12 @@
 /** One restriction on a voucher, already rendered server-side into display
- *  text — no client-side ID→name resolution needed for these two endpoints. */
+ *  text — no client-side ID→name resolution needed for these two endpoints.
+ *  `ruleValue`/`operator` are kept so the checkout picker can evaluate
+ *  eligibility (cinema, day-of-week, apply scope) against the current order. */
 export interface VoucherRuleDisplay {
     ruleType: string;
     displayText: string;
+    ruleValue: string;
+    operator: string;
 }
 
 /**
@@ -25,6 +29,7 @@ export interface RedeemableVoucher {
     voucherCode: string;
     discountType: string;
     discountValue: number;
+    minOrderValue: number;
     requiredPoints: number;
     exchangeLimit: number;
     validFrom: string;
@@ -46,8 +51,12 @@ export interface MyVoucher {
     voucherCode: string;
     discountType: string;
     discountValue: number;
+    minOrderValue: number;
     quantity: number;
     voucherRules: VoucherRuleDisplay[];
+    validFrom: string;
+    validUntil: string;
+    description: string;
     redeemedAt: string;
     expiredAt: string | null;
     imageUrl: string | null;

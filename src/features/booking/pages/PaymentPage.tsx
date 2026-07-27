@@ -89,6 +89,7 @@ const PaymentPage: FC = () => {
         movieTitle,
         moviePoster,
         startTime,
+        cinemaId,
         cinemaName,
         roomName,
         roomType,
@@ -846,6 +847,11 @@ const PaymentPage: FC = () => {
                 open={pickerOpen}
                 onClose={() => setPickerOpen(false)}
                 onSelect={handlePickVoucher}
+                seatsSubTotal={pricing?.seatsSubTotal}
+                fnBSubTotal={pricing?.fnBSubTotal}
+                cinemaId={cinemaId}
+                startTime={startTime}
+                appliedCode={appliedCode}
             />
         </div>
     );

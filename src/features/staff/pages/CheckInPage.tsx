@@ -34,6 +34,14 @@ const HISTORY_PAGE_SIZE = 10;
 // reflects whether the ticket is still valid.
 const isBookingVoided = (bookingStatus: string) => /cancel|refund/i.test(bookingStatus);
 
+/* Apple-style line icon: 24-grid, rounded — matches the F&B Pickup empty state. */
+const TicketLargeIcon = () => (
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h13A1.5 1.5 0 0 1 20 8.5v1.2a1.8 1.8 0 0 0 0 4.6v1.2A1.5 1.5 0 0 1 18.5 17h-13A1.5 1.5 0 0 1 4 15.5v-1.2a1.8 1.8 0 0 0 0-4.6V8.5Z" />
+        <path d="M13 7v10" strokeDasharray="1.5 2" />
+    </svg>
+);
+
 export default function CheckInPage() {
     const user = useAppSelector((state) => state.auth.user);
     const searchRef = useRef<InputRef>(null);
@@ -231,6 +239,18 @@ export default function CheckInPage() {
                         style={{ marginBottom: 20 }}
                         onClose={() => setLookupError(null)}
                     />
+                )}
+
+                {!result && !lookupMutation.isPending && !lookupError && (
+                    <div className="dash-card" style={{ marginBottom: 20 }}>
+                        <div className={styles.emptyPrompt}>
+                            <span className={styles.emptyIcon}><TicketLargeIcon /></span>
+                            <p className={styles.emptyTitle}>No ticket loaded</p>
+                            <p className={styles.emptyBody}>
+                                Look up a booking to see its seats and showtime and check the customer in.
+                            </p>
+                        </div>
+                    </div>
                 )}
 
                 {result && (
