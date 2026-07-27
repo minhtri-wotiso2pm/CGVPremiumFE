@@ -1,4 +1,5 @@
 import { type FC } from "react";
+import { useTranslation } from "react-i18next";
 import type { Movie } from "@/features/movies/types/movie.types";
 import { formatDuration } from "@/features/movies/utils/movie.utils";
 import { RankBadge } from "@/features/movies/components/MovieStatusBadge";
@@ -22,13 +23,14 @@ const PlayIcon = () => (
  *  (never a split-screen layout). Re-keyed per movie so the parallax
  *  drift + fade replay on every slide change. */
 const HeroOverlayInfo: FC<Props> = ({ movie, synopsis, direction, onBook, onDetails }) => {
+    const { t } = useTranslation("movies");
     const parallaxStyle = useParallaxStyle(direction);
 
     return (
         <div className="cgv-hoverlay cgv-hoverlay--parallax" style={parallaxStyle}>
             <div className="cgv-hoverlay__eyebrow-row">
                 <p className="cgv-hoverlay__eyebrow">
-                    {movie.status === "NOW_SHOWING" ? "Now Showing" : "Coming Soon"}
+                    {movie.status === "NOW_SHOWING" ? t("status.nowShowing") : t("status.comingSoon")}
                 </p>
                 <RankBadge rank={movie.salesRank} isTopSelling={movie.isTopSelling} />
             </div>
@@ -46,10 +48,10 @@ const HeroOverlayInfo: FC<Props> = ({ movie, synopsis, direction, onBook, onDeta
             <div className="cgv-hoverlay__cta-row">
                 <button className="cgv-hoverlay__cta cgv-hoverlay__cta--primary" onClick={() => onBook(movie.movieId)}>
                     <PlayIcon />
-                    Book Now
+                    {t("actions.bookNow")}
                 </button>
                 <button className="cgv-hoverlay__cta cgv-hoverlay__cta--secondary" onClick={() => onDetails(movie.movieId)}>
-                    Details
+                    {t("actions.details")}
                 </button>
             </div>
         </div>

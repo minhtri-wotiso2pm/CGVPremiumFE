@@ -1,5 +1,6 @@
 import { useState, useCallback, createElement } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { notification } from "antd";
 import { useAppDispatch } from "@/store/hooks";
 import { loginSuccess } from "@/store/slices/authSlice";
@@ -36,15 +37,17 @@ const T = {
 /* ─────────────────────────────────────────────────────────────
 VALIDATION
 ───────────────────────────────────────────────────────────── */
+/** Each rule returns an i18n key (or "" when valid); the component resolves
+ *  it with t() at render, so errors follow the active language live. */
 const rules = {
     email: (v: string): string => {
-        if (!v.trim()) return "Email is required.";
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "Invalid email format.";
+        if (!v.trim()) return "validation.emailRequired";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "validation.emailInvalid";
         return "";
     },
     password: (v: string): string => {
-        if (!v) return "Password is required.";
-        if (v.length < 6) return "Password must be at least 6 characters.";
+        if (!v) return "validation.passwordRequired";
+        if (v.length < 6) return "validation.passwordMin";
         return "";
     },
 };
@@ -198,6 +201,7 @@ function FormField({
 MAIN PAGE
 ───────────────────────────────────────────────────────────── */
 export default function LoginPage() {
+    const { t } = useTranslation("auth");
     const dispatch = useAppDispatch();
     const navigate = useNavigate();
     const location = useLocation();
@@ -219,12 +223,14 @@ export default function LoginPage() {
     const [apiError, setApiError] = useState("");
 
     /* Derived errors (only show after touch) */
-    const emailError = emailTouched ? rules.email(email) : "";
-    const pwError = pwTouched ? rules.password(password) : "";
+    const emailErrorKey = rules.email(email);
+    const pwErrorKey = rules.password(password);
+    const emailError = emailTouched && emailErrorKey ? t(emailErrorKey) : "";
+    const pwError = pwTouched && pwErrorKey ? t(pwErrorKey) : "";
 
     /* Derived validity */
-    const emailValid = !rules.email(email) && email !== "";
-    const pwValid = !rules.password(password) && password !== "";
+    const emailValid = !emailErrorKey && email !== "";
+    const pwValid = !pwErrorKey && password !== "";
 
     /* Submit handler */
     const handleLogin = useCallback(async () => {
@@ -247,8 +253,8 @@ export default function LoginPage() {
             const notifKey = `login-${Date.now()}`;
             notification.success({
                 key: notifKey,
-                message: createElement("span", { style: { color: "#ffffff", fontWeight: 600 } }, `Welcome back, ${user.fullName || "Guest"}!`),
-                description: createElement("span", { style: { color: "#c8b8b8" } }, "You have successfully signed in."),
+                message: createElement("span", { style: { color: "#ffffff", fontWeight: 600 } }, t("login.welcomeBack", { name: user.fullName || t("login.guest") })),
+                description: createElement("span", { style: { color: "#c8b8b8" } }, t("login.signedIn")),
                 placement: "topRight",
                 style: { background: "#1a0f0f", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 10, cursor: "pointer" },
                 onClick: () => notification.destroy(notifKey),
@@ -260,17 +266,15 @@ export default function LoginPage() {
             if (axios.isAxiosError(err)) {
                 setApiError(
                     err.response?.data?.message ??
-                    "Incorrect email or password. Please try again."
+                    t("login.badCredentials")
                 );
             } else {
-                setApiError(
-                    "Something went wrong. Please try again."
-                );
+                setApiError(t("common:errors.generic"));
             }
         } finally {
             setLoading(false);
         }
-    }, [email, password, rememberMe, dispatch, navigate, redirectTo]);
+    }, [email, password, rememberMe, dispatch, navigate, redirectTo, t]);
 
     const handleKeyDown = useCallback(
         (e: React.KeyboardEvent) => { if (e.key === "Enter") handleLogin(); },
@@ -376,7 +380,7 @@ export default function LoginPage() {
                 <div
                     className="cgv-card"
                     role="main"
-                    aria-label="Sign in to CVPremium"
+                    aria-label={t("login.cardAria")}
                     style={{
                         position: "relative", zIndex: 10,
                         background: T.surface,
@@ -407,7 +411,7 @@ export default function LoginPage() {
                         textAlign: "center", fontSize: 9.5, letterSpacing: "0.35em",
                         color: "#5a4040", fontWeight: 500, textTransform: "uppercase", marginBottom: 40,
                     }}>
-                        Cinema of Excellence
+                        {t("brandTagline")}
                     </p>
                     <div style={{ width: 32, height: 1, background: "rgba(232,0,28,0.3)", margin: "0 auto 40px" }} />
 
@@ -437,10 +441,10 @@ export default function LoginPage() {
                     {/* Email */}
                     <FormField
                         id="cgv-email"
-                        label="Email Address"
+                        label={t("fields.email")}
                         type="email"
                         value={email}
-                        placeholder="name@luxury.com"
+                        placeholder={t("fields.emailPlaceholder")}
                         autoComplete="email"
                         error={emailError}
                         isValid={emailValid}
@@ -458,7 +462,7 @@ export default function LoginPage() {
                                 }}
                                 onClick={() => { navigate("/registerEmailSend") }}
                             >
-                                Resend Verification Email?
+                                {t("login.resendVerification")}
                             </button>
                         }
                     />
@@ -466,10 +470,10 @@ export default function LoginPage() {
                     {/* Password */}
                     <FormField
                         id="cgv-password"
-                        label="Password"
+                        label={t("fields.password")}
                         type={showPw ? "text" : "password"}
                         value={password}
-                        placeholder="Enter your password"
+                        placeholder={t("login.passwordPlaceholder")}
                         autoComplete="current-password"
                         error={pwError}
                         isValid={pwValid}
@@ -487,13 +491,13 @@ export default function LoginPage() {
                                 }}
                                 onClick={() => { navigate("/forgotPassword") }}
                             >
-                                Forgot password?
+                                {t("login.forgotPassword")}
                             </button>
                         }
                         rightAddon={
                             <button
                                 type="button"
-                                aria-label={showPw ? "Hide password" : "Show password"}
+                                aria-label={showPw ? t("fields.hidePassword") : t("fields.showPassword")}
                                 onClick={() => setShowPw((v) => !v)}
                                 style={{
                                     background: "none", border: "none", cursor: "pointer",
@@ -520,7 +524,7 @@ export default function LoginPage() {
                             htmlFor="rememberMe"
                             style={{ fontSize: 12, color: T.textFaint, cursor: "pointer", letterSpacing: "0.02em" }}
                         >
-                            Remember me
+                            {t("login.rememberMe")}
                         </label>
                     </div>
 
@@ -545,14 +549,14 @@ export default function LoginPage() {
                         }}
                     >
                         {loading && <span className="cgv-spinner" aria-hidden="true" />}
-                        {loading ? "Signing in…" : "Sign In"}
+                        {loading ? t("login.signingIn") : t("login.signIn")}
                     </button>
 
 
 
                     {/* Register */}
                     <p style={{ textAlign: "center", marginTop: 28, fontSize: 12.5, color: T.textFaint }}>
-                        New to the CVPremium? {" "}
+                        {t("login.newHere")} {" "}
                         <a
                             href="/register"
                             onClick={(e) => { e.preventDefault(); navigate("/register"); }}
@@ -565,7 +569,7 @@ export default function LoginPage() {
                             onMouseEnter={(e) => (e.currentTarget.style.borderBottomColor = T.crimson)}
                             onMouseLeave={(e) => (e.currentTarget.style.borderBottomColor = "transparent")}
                         >
-                            Register for VIP
+                            {t("login.registerVip")}
                         </a>
                     </p>
                 </div>
@@ -576,7 +580,7 @@ export default function LoginPage() {
                     fontSize: 9.5, color: "#5a4040", letterSpacing: "0.14em",
                     textAlign: "center", textTransform: "uppercase",
                 }}>
-                    © 2026 CVPremium Entertainment Systems · All Rights Reserved
+                    {t("copyright")}
                 </p>
             </div>
         </>

@@ -1,4 +1,5 @@
 import { type FC, useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { Movie } from "@/features/movies/types/movie.types";
 import { getYouTubeId } from "@/features/movies/utils/movie.utils";
 import { useMovieDetail } from "@/features/movies/hooks/useMovieDetail";
@@ -33,6 +34,7 @@ const matches = (query: string) => typeof window !== "undefined" && window.match
  * Controls) and the ParallaxEngine / PreloadManager hooks.
  */
 const MovieHero: FC<Props> = ({ featuredMovies, totalMovies, onMovieClick, onBook }) => {
+    const { t } = useTranslation("movies");
     const playIntro = useIntroEntrance();
 
     const [isTouch] = useState(() => !matches("(hover: hover) and (pointer: fine)"));
@@ -136,7 +138,7 @@ const MovieHero: FC<Props> = ({ featuredMovies, totalMovies, onMovieClick, onBoo
         <section
             className={`cgv-hero${playIntro ? " cgv-hero--intro" : ""}`}
             style={playIntro ? { animationDelay: `${SPLASH_TOTAL_MS + 60}ms` } : undefined}
-            aria-label={`Featured movies hero — ${totalMovies} movies available`}
+            aria-label={t("hero.aria", { count: totalMovies })}
             onMouseEnter={() => setHovering(true)}
             onMouseLeave={handleMouseLeave}
             onTouchStart={handleTouchStart}
@@ -198,8 +200,8 @@ const MovieHero: FC<Props> = ({ featuredMovies, totalMovies, onMovieClick, onBoo
             ) : (
                 <div className="cgv-hoverlay">
                     <p className="cgv-hoverlay__eyebrow">CV Premium</p>
-                    <h1 className="cgv-hoverlay__title">Now Showing</h1>
-                    <p className="cgv-hoverlay__desc">Discover the latest blockbuster movies and book your seats instantly.</p>
+                    <h1 className="cgv-hoverlay__title">{t("status.nowShowing")}</h1>
+                    <p className="cgv-hoverlay__desc">{t("hero.fallbackDesc")}</p>
                 </div>
             )}
         </section>

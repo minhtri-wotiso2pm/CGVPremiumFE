@@ -1,13 +1,14 @@
 import { type FC, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, useScroll, useTransform, useReducedMotion, useMotionValueEvent } from "framer-motion";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { bandValue, revealUp, staggerContainer, viewportOnce } from "./motionVariants";
 
-const STORY_PARAGRAPHS = [
-    "CV Premium began with a simple belief: a great film deserves a great room to live in. Not just a screen and a row of seats, but a space built entirely around the moment the lights go down.",
-    "What started as a single flagship cinema grew into a nationwide chain, one city at a time — each new location built on the same obsession with picture quality, sound, and comfort that defined the first.",
-    "We don't think of ourselves as a chain of theaters. We think of ourselves as the last mile of every story a filmmaker tells — the room where their work finally becomes an experience.",
-    "Today, CV Premium is where audiences come not just to watch a movie, but to feel one.",
+const STORY_PARAGRAPH_KEYS = [
+    "about.story1",
+    "about.story2",
+    "about.story3",
+    "about.story4",
 ];
 
 // Fixed 4-paragraph bands — each crossfades in, holds, then fades for the
@@ -29,6 +30,7 @@ const BANDS: [number, number][][] = [
  *  stacked reveal-on-scroll on mobile/reduced-motion, where pinning would
  *  feel disorienting rather than premium. */
 const BrandStorySection: FC = () => {
+    const { t } = useTranslation("public");
     const reduceMotion = useReducedMotion();
     const isNarrow = useMediaQuery("(max-width: 768px)");
     const usePinned = !reduceMotion && !isNarrow;
@@ -58,7 +60,7 @@ const BrandStorySection: FC = () => {
                         whileInView="visible"
                         viewport={viewportOnce}
                     >
-                        Our Story
+                        {t("about.ourStory")}
                     </motion.p>
                     <motion.div
                         className="abt-story__paragraphs"
@@ -67,9 +69,9 @@ const BrandStorySection: FC = () => {
                         whileInView="visible"
                         viewport={viewportOnce}
                     >
-                        {STORY_PARAGRAPHS.map((p, i) => (
+                        {STORY_PARAGRAPH_KEYS.map((key, i) => (
                             <motion.p key={i} className="abt-story__p" variants={revealUp}>
-                                {p}
+                                {t(key)}
                             </motion.p>
                         ))}
                     </motion.div>
@@ -85,18 +87,18 @@ const BrandStorySection: FC = () => {
                 <div className="abt-story__scrim" aria-hidden="true" />
 
                 <div className="abt-story__inner abt-story__inner--pinned">
-                    <p className="abt-eyebrow">Our Story</p>
+                    <p className="abt-eyebrow">{t("about.ourStory")}</p>
 
                     <div className="abt-story-pin__stack">
-                        {STORY_PARAGRAPHS.map((p, i) => (
+                        {STORY_PARAGRAPH_KEYS.map((key, i) => (
                             <p key={i} className="abt-story__p abt-story__p--pinned" style={{ opacity: bands[i] }}>
-                                {p}
+                                {t(key)}
                             </p>
                         ))}
                     </div>
 
                     <div className="abt-pin__dots" aria-hidden="true">
-                        {STORY_PARAGRAPHS.map((_, i) => (
+                        {STORY_PARAGRAPH_KEYS.map((_, i) => (
                             <span key={i} className="abt-pin__dot">
                                 <span className="abt-pin__dot-fill" style={{ opacity: bands[i] }} />
                             </span>

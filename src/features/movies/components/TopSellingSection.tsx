@@ -1,4 +1,5 @@
 import { type CSSProperties, type FC, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { Movie } from "@/features/movies/types/movie.types";
 import "./movies.css";
 
@@ -86,10 +87,12 @@ const ChevronIcon: FC<{ direction: "left" | "right" }> = ({ direction }) => (
  *  list is already ordered by popularity (real salesRank first, then
  *  tickets sold for the filler movies). */
 const PositionBadge: FC<{ position: number }> = ({ position }) => {
-    if (position === 1) return <span className="cgv-rank-badge cgv-rank-badge--gold">Top 1</span>;
-    if (position === 2) return <span className="cgv-rank-badge cgv-rank-badge--silver">Top 2</span>;
-    if (position === 3) return <span className="cgv-rank-badge cgv-rank-badge--bronze">Top 3</span>;
-    return <span className="cgv-rank-badge cgv-rank-badge--hot">Top {position}</span>;
+    const { t } = useTranslation("movies");
+    const label = t("rank.top", { rank: position });
+    if (position === 1) return <span className="cgv-rank-badge cgv-rank-badge--gold">{label}</span>;
+    if (position === 2) return <span className="cgv-rank-badge cgv-rank-badge--silver">{label}</span>;
+    if (position === 3) return <span className="cgv-rank-badge cgv-rank-badge--bronze">{label}</span>;
+    return <span className="cgv-rank-badge cgv-rank-badge--hot">{label}</span>;
 };
 
 /** Scale/opacity/z-index per tier, keyed by distance from the active card:
@@ -120,6 +123,7 @@ function wrappedDistance(index: number, activeIndex: number, n: number): number 
  *  is circular — Next past the last movie wraps to the first, and vice
  *  versa for Prev. */
 const TopSellingSection: FC<Props> = ({ movies, onCardClick, onBook }) => {
+    const { t } = useTranslation("movies");
     const [activeIndex, setActiveIndex] = useState(0);
     const n = movies.length;
 
@@ -129,9 +133,9 @@ const TopSellingSection: FC<Props> = ({ movies, onCardClick, onBook }) => {
     const goNext = () => setActiveIndex((i) => (i + 1) % n);
 
     return (
-        <section className="cgv-movie-section cgv-top-selling" aria-label="Top Selling Movies">
+        <section className="cgv-movie-section cgv-top-selling" aria-label={t("topSelling.aria")}>
             <div className="cgv-movie-section__heading">
-                <h2 className="cgv-movie-section__title"><FireIcon /> Top Selling This Week</h2>
+                <h2 className="cgv-movie-section__title"><FireIcon /> {t("topSelling.title")}</h2>
                 <div className="cgv-movie-section__rule" aria-hidden="true" />
             </div>
 
@@ -140,7 +144,7 @@ const TopSellingSection: FC<Props> = ({ movies, onCardClick, onBook }) => {
                     <button
                         className="cgv-tsell__nav cgv-tsell__nav--prev"
                         onClick={goPrev}
-                        aria-label="Show previous movie"
+                        aria-label={t("topSelling.showPrev")}
                     >
                         <ChevronIcon direction="left" />
                     </button>
@@ -172,12 +176,12 @@ const TopSellingSection: FC<Props> = ({ movies, onCardClick, onBook }) => {
                                 }}
                                 role="button"
                                 tabIndex={0}
-                                aria-label={isActive ? `${m.title} — click to view details` : `Show ${m.title}`}
+                                aria-label={isActive ? t("card.cardAria", { title: m.title }) : t("topSelling.showMovie", { title: m.title })}
                             >
                                 <div className="cgv-tsell__poster-wrap">
                                     <img
                                         src={m.posterUrl || FALLBACK_POSTER}
-                                        alt={`Poster for ${m.title}`}
+                                        alt={t("card.posterAlt", { title: m.title })}
                                         className="cgv-tsell__poster"
                                         loading="lazy"
                                         onError={(e) => { e.currentTarget.src = FALLBACK_POSTER; }}
@@ -194,13 +198,13 @@ const TopSellingSection: FC<Props> = ({ movies, onCardClick, onBook }) => {
                                                     className="cgv-tsell__btn cgv-tsell__btn--primary"
                                                     onClick={(e) => { e.stopPropagation(); onBook(m.movieId); }}
                                                 >
-                                                    Book Now
+                                                    {t("actions.bookNow")}
                                                 </button>
                                                 <button
                                                     className="cgv-tsell__btn cgv-tsell__btn--secondary"
                                                     onClick={(e) => { e.stopPropagation(); onCardClick(m.movieId); }}
                                                 >
-                                                    Details
+                                                    {t("actions.details")}
                                                 </button>
                                             </div>
                                         </div>
@@ -215,7 +219,7 @@ const TopSellingSection: FC<Props> = ({ movies, onCardClick, onBook }) => {
                     <button
                         className="cgv-tsell__nav cgv-tsell__nav--next"
                         onClick={goNext}
-                        aria-label="Show next movie"
+                        aria-label={t("topSelling.showNext")}
                     >
                         <ChevronIcon direction="right" />
                     </button>

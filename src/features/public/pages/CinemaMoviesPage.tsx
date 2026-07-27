@@ -1,5 +1,6 @@
 import { type FC, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAppSelector } from "@/store/hooks";
 import { useMovies } from "@/features/movies/hooks/useMovies";
 import { useCinemas } from "@/features/manager/hooks/useCinemas";
@@ -18,6 +19,7 @@ const BackIcon = () => (
 );
 
 const CinemaMoviesPage: FC = () => {
+    const { t } = useTranslation("public");
     const { cinemaId } = useParams<{ cinemaId: string }>();
     const id = Number(cinemaId);
     const navigate = useNavigate();
@@ -68,19 +70,19 @@ const CinemaMoviesPage: FC = () => {
         <div className="thtr-page">
             <div className="thtr-head">
                 <span className="thtr-head__eyebrow">CV Premium</span>
-                <h1 className="thtr-head__title">{cinema?.cinemaName ?? "Cinema"}</h1>
+                <h1 className="thtr-head__title">{cinema?.cinemaName ?? t("cinemaMovies.cinema")}</h1>
                 {cinema?.address && <p className="thtr-head__sub">{cinema.address}</p>}
             </div>
 
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>
                 <button className="thtr-reset" onClick={goBack}>
                     <BackIcon />
-                    All Cinemas
+                    {t("cinemaMovies.allCinemas")}
                 </button>
             </div>
 
             <div className="cgv-st-section" style={{ marginBottom: 28 }}>
-                <span className="cgv-st-section-label">Select Date</span>
+                <span className="cgv-st-section-label">{t("booking:showtime.selectDate")}</span>
                 <ShowtimeDateSelector selectedDate={selectedDate} onChange={setSelectedDate} />
             </div>
 
@@ -88,7 +90,7 @@ const CinemaMoviesPage: FC = () => {
                 movies={playingMovies}
                 loading={loading}
                 error={error}
-                sectionTitle="Now Showing at This Cinema"
+                sectionTitle={t("cinemaMovies.sectionTitle")}
                 onCardClick={handleCardClick}
                 onBook={handleBook}
                 onReset={() => setSelectedDate(getTodayString())}

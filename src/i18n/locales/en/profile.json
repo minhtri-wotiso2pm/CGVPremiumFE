@@ -122,6 +122,7 @@
             "attended": "Attended",
             "pending": "Pending",
             "refunded": "Refunded",
+            "noshow": "No-show",
             "cancelled": "Cancelled",
             "expired": "Expired"
         }

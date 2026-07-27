@@ -1,22 +1,24 @@
 import type { FC } from "react";
+import { useTranslation } from "react-i18next";
 import "./movies.css";
 
 interface Props {
     status: string;
 }
 
-const STATUS_MAP: Record<string, { label: string; cls: string }> = {
-    NOW_SHOWING: { label: "Now Showing", cls: "cgv-badge--now-showing" },
-    COMING_SOON: { label: "Coming Soon", cls: "cgv-badge--coming-soon" },
+const STATUS_MAP: Record<string, { labelKey: string; cls: string }> = {
+    NOW_SHOWING: { labelKey: "status.nowShowing", cls: "cgv-badge--now-showing" },
+    COMING_SOON: { labelKey: "status.comingSoon", cls: "cgv-badge--coming-soon" },
 };
 
 const MovieStatusBadge: FC<Props> = ({ status }) => {
+    const { t } = useTranslation("movies");
     if (!status) return null;
-    const config = STATUS_MAP[status] ?? { label: status, cls: "cgv-badge--default" };
+    const config = STATUS_MAP[status];
     return (
-        <span className={`cgv-badge ${config.cls}`}>
+        <span className={`cgv-badge ${config?.cls ?? "cgv-badge--default"}`}>
             <span className="cgv-badge__dot" aria-hidden="true" />
-            {config.label}
+            {config ? t(config.labelKey) : status}
         </span>
     );
 };
@@ -43,11 +45,12 @@ export const AgeBadge: FC<AgeBadgeProps> = ({ rating }) => {
 interface RankBadgeProps { rank: number | null; isTopSelling: boolean }
 
 export const RankBadge: FC<RankBadgeProps> = ({ rank, isTopSelling }) => {
+    const { t } = useTranslation("movies");
     if (!isTopSelling) return null;
-    if (rank === 1) return <span className="cgv-rank-badge cgv-rank-badge--gold">Top 1</span>;
-    if (rank === 2) return <span className="cgv-rank-badge cgv-rank-badge--silver">Top 2</span>;
-    if (rank === 3) return <span className="cgv-rank-badge cgv-rank-badge--bronze">Top 3</span>;
-    return <span className="cgv-rank-badge cgv-rank-badge--hot">Hot Trending</span>;
+    if (rank === 1) return <span className="cgv-rank-badge cgv-rank-badge--gold">{t("rank.top", { rank: 1 })}</span>;
+    if (rank === 2) return <span className="cgv-rank-badge cgv-rank-badge--silver">{t("rank.top", { rank: 2 })}</span>;
+    if (rank === 3) return <span className="cgv-rank-badge cgv-rank-badge--bronze">{t("rank.top", { rank: 3 })}</span>;
+    return <span className="cgv-rank-badge cgv-rank-badge--hot">{t("rank.hotTrending")}</span>;
 };
 
 export default MovieStatusBadge;

@@ -1,4 +1,5 @@
 import { type FC, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, useScroll, useReducedMotion, useMotionValueEvent } from "framer-motion";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { EASE_SMOOTH, bandValue, revealUp, staggerContainer, viewportOnce } from "./motionVariants";
@@ -29,21 +30,9 @@ const SoundIcon = () => (
 );
 
 const EXPERIENCES = [
-    {
-        icon: <SeatIcon />,
-        title: "Seating Comfort",
-        desc: "Wide reclining leather seats with extra legroom, individually assigned so every guest gets the same unobstructed view.",
-    },
-    {
-        icon: <ScreenIcon />,
-        title: "Premium Screens",
-        desc: "4K laser projection across every hall, with IMAX and large-format screens built for scale rather than just size.",
-    },
-    {
-        icon: <SoundIcon />,
-        title: "Sound Immersion",
-        desc: "Object-based Dolby Atmos surround sound tuned per room, so dialogue, score and effects arrive exactly where they should.",
-    },
+    { icon: <SeatIcon />, titleKey: "about.expSeatingTitle", descKey: "about.expSeatingDesc" },
+    { icon: <ScreenIcon />, titleKey: "about.expScreensTitle", descKey: "about.expScreensDesc" },
+    { icon: <SoundIcon />, titleKey: "about.expSoundTitle", descKey: "about.expSoundDesc" },
 ];
 
 // Card crossfade bands + horizontal track position, computed as plain
@@ -62,6 +51,7 @@ const CARD_BANDS: [number, number][][] = [
  *  in sync with a dot-and-progress indicator. Falls back to the original
  *  staggered card grid on mobile/reduced-motion. */
 const ExperienceSection: FC = () => {
+    const { t } = useTranslation("public");
     const reduceMotion = useReducedMotion();
     const isNarrow = useMediaQuery("(max-width: 768px)");
     const usePinned = !reduceMotion && !isNarrow;
@@ -89,7 +79,7 @@ const ExperienceSection: FC = () => {
                         whileInView="visible"
                         viewport={viewportOnce}
                     >
-                        The Experience
+                        {t("about.theExperience")}
                     </motion.p>
                     <motion.h2
                         className="abt-section-title"
@@ -98,7 +88,7 @@ const ExperienceSection: FC = () => {
                         whileInView="visible"
                         viewport={viewportOnce}
                     >
-                        Built around the moment the lights go down
+                        {t("about.expHeadline")}
                     </motion.h2>
 
                     <motion.div
@@ -110,15 +100,15 @@ const ExperienceSection: FC = () => {
                     >
                         {EXPERIENCES.map((item) => (
                             <motion.div
-                                key={item.title}
+                                key={item.titleKey}
                                 className="abt-exp__card"
                                 variants={revealUp}
                                 whileHover={{ y: -6, scale: 1.02 }}
                                 transition={{ duration: 0.35, ease: EASE_SMOOTH }}
                             >
                                 <div className="abt-exp__icon">{item.icon}</div>
-                                <h3 className="abt-exp__title">{item.title}</h3>
-                                <p className="abt-exp__desc">{item.desc}</p>
+                                <h3 className="abt-exp__title">{t(item.titleKey)}</h3>
+                                <p className="abt-exp__desc">{t(item.descKey)}</p>
                             </motion.div>
                         ))}
                     </motion.div>
@@ -131,18 +121,18 @@ const ExperienceSection: FC = () => {
         <section className="abt-exp-pin" ref={pinRef}>
             <div className="abt-exp-pin__sticky">
                 <div className="abt-exp-pin__head">
-                    <p className="abt-eyebrow">The Experience</p>
-                    <h2 className="abt-section-title">Built around the moment the lights go down</h2>
+                    <p className="abt-eyebrow">{t("about.theExperience")}</p>
+                    <h2 className="abt-section-title">{t("about.expHeadline")}</h2>
                 </div>
 
                 <div className="abt-exp-pin__viewport">
                     <motion.div className="abt-exp-pin__track" style={{ x: trackX }}>
                         {EXPERIENCES.map((item, i) => (
-                            <div key={item.title} className="abt-exp-pin__panel" style={{ opacity: cardOpacities[i] }}>
+                            <div key={item.titleKey} className="abt-exp-pin__panel" style={{ opacity: cardOpacities[i] }}>
                                 <span className="abt-exp-pin__index">0{i + 1}</span>
                                 <div className="abt-exp__icon abt-exp-pin__icon">{item.icon}</div>
-                                <h3 className="abt-exp-pin__title">{item.title}</h3>
-                                <p className="abt-exp-pin__desc">{item.desc}</p>
+                                <h3 className="abt-exp-pin__title">{t(item.titleKey)}</h3>
+                                <p className="abt-exp-pin__desc">{t(item.descKey)}</p>
                             </div>
                         ))}
                     </motion.div>

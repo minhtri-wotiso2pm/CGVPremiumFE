@@ -187,12 +187,20 @@
     display: flex;
     flex-direction: column;
     gap: 28px;
+    /* Grid items default to `min-width: auto`, whose min-content is the full
+       width of the (non-shrinking) date strip — 13 × 66px. Without this the
+       column blows the `1fr` track past the viewport on mobile, so the date
+       strip couldn't scroll and the cards got crushed. `min-width: 0` lets the
+       track shrink to the viewport and hands the overflow to the strip's own
+       horizontal scroll. */
+    min-width: 0;
 }
 
 .cgv-st-section {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    min-width: 0;
 }
 
 .cgv-st-section-label {

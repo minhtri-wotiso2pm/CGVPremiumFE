@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import { resetPassword } from "@/services/api/auth.service";
 import { EyeIcon, EyeOffIcon } from "@/components/ui/BrandIcons";
@@ -32,13 +33,13 @@ const T = {
 ───────────────────────────────────────────────────────────── */
 const rules = {
     newPassword: (v: string): string => {
-        if (!v) return "Password is required.";
-        if (v.length < 6) return "Password must be at least 6 characters.";
+        if (!v) return "validation.newPasswordRequired";
+        if (v.length < 6) return "validation.passwordMin";
         return "";
     },
     confirmPassword: (v: string, pw: string): string => {
-        if (!v) return "Please confirm your password.";
-        if (v !== pw) return "Passwords do not match.";
+        if (!v) return "validation.confirmPasswordRequired";
+        if (v !== pw) return "validation.passwordsMismatch";
         return "";
     },
 };
@@ -54,15 +55,17 @@ function passwordStrength(v: string): 0 | 1 | 2 | 3 {
     return score as 0 | 1 | 2 | 3;
 }
 
-const strengthMeta: Record<1 | 2 | 3, { label: string; color: string }> = {
-    1: { label: "Weak", color: T.crimson },
-    2: { label: "Medium", color: "#f59e0b" },
-    3: { label: "Strong", color: "#22c55e" },
+const strengthMeta: Record<1 | 2 | 3, { color: string }> = {
+    1: { color: T.crimson },
+    2: { color: "#f59e0b" },
+    3: { color: "#22c55e" },
 };
 
 function StrengthBar({ score }: { score: 0 | 1 | 2 | 3 }) {
+    const { t } = useTranslation("auth");
     if (score === 0) return null;
-    const meta = strengthMeta[score];
+    const meta = strengthMeta[score as 1 | 2 | 3];
+    const label = score === 1 ? t("reset.strengthWeak") : score === 2 ? t("reset.strengthMedium") : t("reset.strengthStrong");
     return (
         <div style={{ marginTop: 8 }}>
             <div style={{ display: "flex", gap: 4, height: 3 }}>
@@ -78,7 +81,7 @@ function StrengthBar({ score }: { score: 0 | 1 | 2 | 3 }) {
                 ))}
             </div>
             <p style={{ fontSize: 10.5, color: meta.color, marginTop: 5, letterSpacing: "0.04em" }}>
-                Strength: {meta.label}
+                {t("reset.strengthLabel")} {label}
             </p>
         </div>
     );
@@ -237,10 +240,11 @@ function SeatRow() {
    INVALID TOKEN CARD
 ───────────────────────────────────────────────────────────── */
 function InvalidTokenCard({ onBack }: { onBack: () => void }) {
+    const { t } = useTranslation("auth");
     return (
         <div
             role="main"
-            aria-label="Invalid password reset link"
+            aria-label={t("reset.ariaInvalid")}
             style={{
                 position: "relative", zIndex: 10,
                 background: T.surface,
@@ -267,7 +271,7 @@ function InvalidTokenCard({ onBack }: { onBack: () => void }) {
             </div>
 
             <p style={{ fontSize: 9.5, letterSpacing: "0.35em", color: "#5a4040", fontWeight: 500, textTransform: "uppercase", marginBottom: 40 }}>
-                Cinema of Excellence
+                {t("brandTagline")}
             </p>
 
             {/* Warning icon */}
@@ -294,13 +298,11 @@ function InvalidTokenCard({ onBack }: { onBack: () => void }) {
                 fontSize: 20, fontWeight: 700, letterSpacing: "0.04em",
                 color: T.textPrimary, margin: "0 0 12px",
             }}>
-                Invalid Reset Link
+                {t("reset.invalidTitle")}
             </h2>
 
             <p style={{ fontSize: 13, color: T.textMuted, lineHeight: 1.75, letterSpacing: "0.02em", marginBottom: 36 }}>
-                The password reset link is invalid or has expired.
-                <br />
-                Please request a new one.
+                {t("reset.invalidBody")}
             </p>
 
             <div style={{ width: 32, height: 1, background: "rgba(232,0,28,0.3)", margin: "0 auto 32px" }} />
@@ -320,7 +322,7 @@ function InvalidTokenCard({ onBack }: { onBack: () => void }) {
                     boxShadow: `0 4px 20px ${T.crimsonGlow}`,
                 }}
             >
-                Back to Login
+                {t("reset.backToLogin")}
             </button>
         </div>
     );
@@ -330,6 +332,7 @@ function InvalidTokenCard({ onBack }: { onBack: () => void }) {
    RESET PASSWORD PAGE
 ───────────────────────────────────────────────────────────── */
 export default function ResetPasswordPage() {
+    const { t } = useTranslation("auth");
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const token = searchParams.get("token");
@@ -475,11 +478,11 @@ export default function ResetPasswordPage() {
                         </div>
 
                         <p style={{ textAlign: "center", fontSize: 9.5, letterSpacing: "0.35em", color: "#5a4040", fontWeight: 500, textTransform: "uppercase", marginBottom: 10 }}>
-                            Create New Password
+                                                    {t("reset.createNewPassword")}
                         </p>
 
                         <p style={{ textAlign: "center", fontSize: 13, color: T.textMuted, letterSpacing: "0.02em", lineHeight: 1.7, marginBottom: 36, padding: "0 4px" }}>
-                            Enter a new password for your account.
+                                                    {t("reset.intro")}
                         </p>
 
                         <div style={{ width: 32, height: 1, background: "rgba(232,0,28,0.3)", margin: "0 auto 36px" }} />
@@ -501,10 +504,10 @@ export default function ResetPasswordPage() {
                         {/* New Password */}
                         <FormField
                             id="cgv-new-password"
-                            label="New Password"
+                                                    label={t("reset.newPasswordLabel")}
                             type={showPassword ? "text" : "password"}
                             value={newPassword}
-                            placeholder="Minimum 6 characters"
+                                                    placeholder={t("reset.newPasswordPlaceholder")}
                             autoComplete="new-password"
                             error={passwordError}
                             isValid={passwordValid}
@@ -517,7 +520,7 @@ export default function ResetPasswordPage() {
                                 <button
                                     type="button"
                                     className="cgv-toggle-pw"
-                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                                            aria-label={showPassword ? t("fields.hidePassword") : t("fields.showPassword")}
                                     onClick={() => setShowPassword((v) => !v)}
                                     style={toggleBtnStyle}
                                 >
@@ -530,10 +533,10 @@ export default function ResetPasswordPage() {
                         {/* Confirm Password */}
                         <FormField
                             id="cgv-confirm-password"
-                            label="Confirm Password"
+                                                    label={t("reset.confirmPasswordLabel")}
                             type={showConfirmPassword ? "text" : "password"}
                             value={confirmPassword}
-                            placeholder="Re-enter your password"
+                                                    placeholder={t("reset.confirmPasswordPlaceholder")}
                             autoComplete="new-password"
                             error={confirmPasswordError}
                             isValid={confirmPasswordValid}
@@ -546,7 +549,7 @@ export default function ResetPasswordPage() {
                                 <button
                                     type="button"
                                     className="cgv-toggle-pw"
-                                    aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                                                            aria-label={showConfirmPassword ? t("fields.hidePassword") : t("fields.showPassword")}
                                     onClick={() => setShowConfirmPassword((v) => !v)}
                                     style={toggleBtnStyle}
                                 >
@@ -577,12 +580,12 @@ export default function ResetPasswordPage() {
                             }}
                         >
                             {loading && <span className="cgv-spinner" aria-hidden="true" />}
-                            {loading ? "Resetting..." : "Reset Password"}
+                            {loading ? t("reset.resetting") : t("reset.resetPassword")}
                         </button>
 
                         {/* Back to login */}
                         <p style={{ textAlign: "center", marginTop: 28, fontSize: 12.5, color: T.textFaint }}>
-                            Remember your password?{" "}
+                                                    {t("reset.rememberPrompt")} {" "}
                             <button
                                 type="button"
                                 className="cgv-back-link"
@@ -594,7 +597,7 @@ export default function ResetPasswordPage() {
                                     letterSpacing: "0.02em", transition: "color 0.2s",
                                 }}
                             >
-                                Sign In
+                                                        {t("login.signIn")}
                             </button>
                         </p>
                     </div>
@@ -606,7 +609,7 @@ export default function ResetPasswordPage() {
                     fontSize: 9.5, color: "#5a4040", letterSpacing: "0.14em",
                     textAlign: "center", textTransform: "uppercase",
                 }}>
-                    © 2026 CVPremium Entertainment Systems · All Rights Reserved
+                                    {t("copyright", { ns: "footer" })}
                 </p>
             </div>
         </>

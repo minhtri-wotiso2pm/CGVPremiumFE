@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useTranslation } from "react-i18next";
 import type { Movie } from "@/features/movies/types/movie.types";
 import MovieStatusBadge, { AgeBadge, RankBadge } from "./MovieStatusBadge";
 import "./movies.css";
@@ -21,6 +22,7 @@ function formatDuration(minutes: number): string {
 const FALLBACK_POSTER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='300' viewBox='0 0 200 300'%3E%3Crect width='200' height='300' fill='%23120505'/%3E%3Ctext x='100' y='155' text-anchor='middle' fill='%235a4040' font-size='14' font-family='sans-serif'%3ENo Image%3C/text%3E%3C/svg%3E";
 
 const MovieCard: FC<Props> = ({ movie, onClick, onBook, showBook = true }) => {
+    const { t } = useTranslation("movies");
     const { movieId, title, genres, ageRating, posterUrl, durationMinutes, status, isTopSelling, salesRank } = movie;
 
     return (
@@ -30,13 +32,13 @@ const MovieCard: FC<Props> = ({ movie, onClick, onBook, showBook = true }) => {
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onClick(movieId); }}
             tabIndex={0}
             role="button"
-            aria-label={`${title} — click to view details`}
+            aria-label={t("card.cardAria", { title })}
         >
             {/* Poster */}
             <div className="cgv-card__poster-wrap">
                 <img
                     src={posterUrl || FALLBACK_POSTER}
-                    alt={`Poster for ${title}`}
+                    alt={t("card.posterAlt", { title })}
                     className="cgv-card__poster"
                     loading="lazy"
                     onError={(e) => { (e.currentTarget).src = FALLBACK_POSTER; }}
@@ -62,7 +64,7 @@ const MovieCard: FC<Props> = ({ movie, onClick, onBook, showBook = true }) => {
                             onClick={(e) => { e.stopPropagation(); onBook?.(movieId); }}
                             tabIndex={-1}
                         >
-                            Book Now
+                            {t("actions.bookNow")}
                         </button>
                     )}
                     <button
@@ -70,7 +72,7 @@ const MovieCard: FC<Props> = ({ movie, onClick, onBook, showBook = true }) => {
                         onClick={(e) => { e.stopPropagation(); onClick(movieId); }}
                         tabIndex={-1}
                     >
-                        View Detail
+                        {t("actions.viewDetail")}
                     </button>
                 </div>
             </div>

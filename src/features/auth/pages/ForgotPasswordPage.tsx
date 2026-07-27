@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import { forgotPassword } from "@/services/api/auth.service";
 
@@ -31,8 +32,8 @@ const T = {
 ───────────────────────────────────────────────────────────── */
 const rules = {
     email: (v: string): string => {
-        if (!v.trim()) return "Email is required.";
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "Invalid email format.";
+        if (!v.trim()) return "validation.emailRequired";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "validation.emailInvalid";
         return "";
     },
 };
@@ -191,6 +192,7 @@ function SeatRow() {
    FORGOT PASSWORD PAGE
 ───────────────────────────────────────────────────────────── */
 export default function ForgotPasswordPage() {
+    const { t } = useTranslation("auth");
     const navigate = useNavigate();
 
     const [email, setEmail] = useState("");
@@ -200,8 +202,9 @@ export default function ForgotPasswordPage() {
     const [focusedField, setFocusedField] = useState<"email" | null>(null);
 
     /* Derived */
-    const emailError = emailTouched ? rules.email(email) : "";
-    const emailValid = !rules.email(email) && email !== "";
+    const emailErrorKey = rules.email(email);
+    const emailError = emailTouched && emailErrorKey ? t(emailErrorKey) : "";
+    const emailValid = !emailErrorKey && email !== "";
 
     const handleForgotPassword = useCallback(async () => {
         setEmailTouched(true);
@@ -219,11 +222,11 @@ export default function ForgotPasswordPage() {
                 setApiError(response.message);
             }
         } catch {
-            setApiError("Something went wrong. Please try again.");
+            setApiError(t("common:errors.generic"));
         } finally {
             setLoading(false);
         }
-    }, [email, navigate]);
+    }, [email, navigate, t]);
 
     const handleKeyDown = useCallback(
         (e: React.KeyboardEvent) => { if (e.key === "Enter") handleForgotPassword(); },
@@ -276,7 +279,7 @@ export default function ForgotPasswordPage() {
                 <div
                     className="cgv-card"
                     role="main"
-                    aria-label="Forgot your CVPremium password"
+                    aria-label={t("forgot.cardAria")}
                     style={{
                         position: "relative", zIndex: 10,
                         background: T.surface,
@@ -301,11 +304,11 @@ export default function ForgotPasswordPage() {
                     </div>
 
                     <p style={{ textAlign: "center", fontSize: 9.5, letterSpacing: "0.35em", color: "#5a4040", fontWeight: 500, textTransform: "uppercase", marginBottom: 10 }}>
-                        Password Recovery
+                        {t("forgot.eyebrow")}
                     </p>
 
                     <p style={{ textAlign: "center", fontSize: 13, color: T.textMuted, letterSpacing: "0.02em", lineHeight: 1.7, marginBottom: 36, padding: "0 4px" }}>
-                        Enter your registered email address and we'll send you a password reset link.
+                        {t("forgot.intro")}
                     </p>
 
                     <div style={{ width: 32, height: 1, background: "rgba(232,0,28,0.3)", margin: "0 auto 36px" }} />
@@ -327,10 +330,10 @@ export default function ForgotPasswordPage() {
                     {/* Email field */}
                     <FormField
                         id="cgv-forgot-email"
-                        label="Email Address"
+                        label={t("fields.email")}
                         type="email"
                         value={email}
-                        placeholder="name@luxury.com"
+                        placeholder={t("fields.emailPlaceholder")}
                         autoComplete="email"
                         error={emailError}
                         isValid={emailValid}
@@ -363,12 +366,12 @@ export default function ForgotPasswordPage() {
                         }}
                     >
                         {loading && <span className="cgv-spinner" aria-hidden="true" />}
-                        {loading ? "Sending..." : "Send Reset Link"}
+                        {loading ? t("forgot.sending") : t("forgot.sendResetLink")}
                     </button>
 
                     {/* Back to login */}
                     <p style={{ textAlign: "center", marginTop: 28, fontSize: 12.5, color: T.textFaint }}>
-                        Remember your password?{" "}
+                        {t("forgot.rememberPassword")}{" "}
                         <button
                             type="button"
                             className="cgv-back-link"
@@ -380,7 +383,7 @@ export default function ForgotPasswordPage() {
                                 transition: "color 0.2s",
                             }}
                         >
-                            Sign In
+                            {t("login.signIn")}
                         </button>
                     </p>
                 </div>
@@ -391,7 +394,7 @@ export default function ForgotPasswordPage() {
                     fontSize: 9.5, color: "#5a4040", letterSpacing: "0.14em",
                     textAlign: "center", textTransform: "uppercase",
                 }}>
-                    © 2026 CVPremium Entertainment Systems · All Rights Reserved
+                    {t("copyright")}
                 </p>
             </div>
         </>

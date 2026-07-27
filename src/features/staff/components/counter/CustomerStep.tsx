@@ -1,12 +1,16 @@
 import { type FC, useState } from "react";
-import { Alert, Button, Input } from "antd";
+import { useTranslation } from "react-i18next";
+import { Alert, Button, Input, Tooltip } from "antd";
+import dayjs from "dayjs";
 import QrScanner from "../QrScanner";
 import { useUserLookup } from "../../hooks/useUserLookup";
 import { getCheckInErrorInfo } from "../../hooks/useCheckIn";
 import type { CounterCustomer } from "../../types/counter.types";
-import type { LookedUpMember } from "../../types/lookup.types";
+import type { LookedUpMember, MemberVoucher } from "../../types/lookup.types";
 import { formatPrice } from "@/features/booking/utils/seat.utils";
+import { evaluateVoucherEligibility } from "@/features/booking/utils/voucherEligibility";
 import { CheckIcon, PersonIcon, QrIcon } from "./icons";
+import { LockIcon } from "@/components/ui/BrandIcons";
 import styles from "./counter.module.css";
 
 const { Search } = Input;
@@ -17,6 +21,12 @@ const initials = (name: string) =>
 const fmtDiscount = (type: string, value: number) =>
     type === "percent" ? `${value}% off` : `${formatPrice(value)} off`;
 
+const fmtValidUntil = (iso?: string): string => {
+    if (!iso) return "";
+    const d = dayjs(iso);
+    return d.isValid() ? d.format("MMM D, YYYY") : "";
+};
+
 type Choice = "guest" | "member" | null;
 
 interface Props {
@@ -25,9 +35,33 @@ interface Props {
     onSetGuest: () => void;
     onSetMember: (member: LookedUpMember) => void;
     onSetVoucher: (code: string | null) => void;
+    /** Order context so ineligible vouchers can be greyed out and unselectable. */
+    seatsSubtotal?: number;
+    fnbSubtotal?: number;
+    cinemaId?: number;
+    startTime?: string;
+    movieId?: number;
+    /** Seat types in the order (e.g. ["STANDARD","COUPLE"]). */
+    seatTypes?: string[];
+    /** F&B item ids in the order. */
+    productIds?: number[];
 }
 
-const CustomerStep: FC<Props> = ({ customer, voucherCode, onSetGuest, onSetMember, onSetVoucher }) => {
+const CustomerStep: FC<Props> = ({
+    customer,
+    voucherCode,
+    onSetGuest,
+    onSetMember,
+    onSetVoucher,
+    seatsSubtotal,
+    fnbSubtotal,
+    cinemaId,
+    startTime,
+    movieId,
+    seatTypes,
+    productIds,
+}) => {
+    const { t } = useTranslation("booking");
     const initialChoice: Choice = customer.resolved ? (customer.member ? "member" : "guest") : null;
     const [choice, setChoice] = useState<Choice>(initialChoice);
     const [lookupInput, setLookupInput] = useState("");
@@ -36,6 +70,21 @@ const CustomerStep: FC<Props> = ({ customer, voucherCode, onSetGuest, onSetMembe
 
     const lookup = useUserLookup();
     const member = customer.member;
+
+    const getEligibility = (v: MemberVoucher) =>
+        evaluateVoucherEligibility(
+            { minOrderValue: v.minOrderValue ?? 0, rules: v.voucherRules ?? [] },
+            {
+                seatsSubTotal: seatsSubtotal ?? 0,
+                fnBSubTotal: fnbSubtotal ?? 0,
+                cinemaId,
+                startTime,
+                movieId,
+                seatTypes,
+                membershipTier: member?.membership?.currentTier ?? null,
+                productIds,
+            },
+        );
 
     const runLookup = (raw: string) => {
         const value = raw.trim();
@@ -167,21 +216,55 @@ const CustomerStep: FC<Props> = ({ customer, voucherCode, onSetGuest, onSetMembe
                                 <div className={styles.voucherList}>
                                     {member.vouchers.map((v) => {
                                         const active = voucherCode === v.voucherCode;
+                                        const { eligible, reasonKey, reasonParams } = getEligibility(v);
+                                        const reason = reasonKey ? t(reasonKey, reasonParams) : "";
+                                        const rules = v.voucherRules ?? [];
                                         return (
                                             <button
                                                 key={v.voucherId}
                                                 type="button"
-                                                className={`${styles.voucherRow} ${active ? styles.voucherRowActive : ""}`}
-                                                onClick={() => onSetVoucher(active ? null : v.voucherCode)}
+                                                className={`${styles.voucherRow} ${active ? styles.voucherRowActive : ""} ${eligible ? "" : styles.voucherRowDisabled}`}
+                                                onClick={() => eligible && onSetVoucher(active ? null : v.voucherCode)}
+                                                disabled={!eligible}
+                                                aria-disabled={!eligible}
                                             >
                                                 {v.imageUrl && <img className={styles.voucherThumb} src={v.imageUrl} alt="" />}
-                                                <span style={{ minWidth: 0 }}>
-                                                    <span className={styles.voucherDiscount}>{fmtDiscount(v.discountType, v.discountValue)}</span>
-                                                    {" · "}
-                                                    <span className={styles.voucherCode}>{v.voucherCode}</span>
+                                                <span className={styles.voucherBody}>
+                                                    <span className={styles.voucherTopRow}>
+                                                        <span className={styles.voucherName}>{v.voucherCode}</span>
+                                                        <span className={styles.voucherDiscount}>{fmtDiscount(v.discountType, v.discountValue)}</span>
+                                                    </span>
                                                     {v.description && <span className={styles.voucherDesc}>{v.description}</span>}
+                                                    <span className={styles.voucherMetaRow}>
+                                                        {(v.minOrderValue ?? 0) > 0 && (
+                                                            <span className={styles.voucherMetaChip}>Min. {formatPrice(v.minOrderValue!)}</span>
+                                                        )}
+                                                        {v.validUntil && (
+                                                            <span className={styles.voucherMetaChip}>Until {fmtValidUntil(v.validUntil)}</span>
+                                                        )}
+                                                        {v.quantity != null && v.quantity > 1 && (
+                                                            <span className={styles.voucherMetaChip}>×{v.quantity}</span>
+                                                        )}
+                                                    </span>
+                                                    {rules.length > 0 && (
+                                                        <span className={styles.voucherRuleTags}>
+                                                            {rules.map((r, i) => (
+                                                                <span key={`${r.ruleType}-${i}`} className={styles.voucherRuleTag}>
+                                                                    {r.displayText || r.ruleType}
+                                                                </span>
+                                                            ))}
+                                                        </span>
+                                                    )}
                                                 </span>
-                                                {active && <span className={styles.voucherCheck}><CheckIcon size={20} /></span>}
+                                                {active ? (
+                                                    <span className={styles.voucherCheck}><CheckIcon size={20} /></span>
+                                                ) : !eligible ? (
+                                                    <Tooltip title={reason}>
+                                                        <span className={styles.voucherReason}>
+                                                            <LockIcon size={11} /> {reason}
+                                                        </span>
+                                                    </Tooltip>
+                                                ) : null}
                                             </button>
                                         );
                                     })}

@@ -1,4 +1,5 @@
 import { type FC, type ChangeEvent, useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import "./movies.css";
 
 export type StatusFilter = "ALL" | "NOW_SHOWING" | "COMING_SOON";
@@ -16,10 +17,10 @@ interface Props {
     onGenresClear: () => void;
 }
 
-const STATUS_TABS: { label: string; value: StatusFilter }[] = [
-    { label: "All", value: "ALL" },
-    { label: "Now Showing", value: "NOW_SHOWING" },
-    { label: "Coming Soon", value: "COMING_SOON" },
+const STATUS_TABS: { labelKey: string; value: StatusFilter }[] = [
+    { labelKey: "filter.all", value: "ALL" },
+    { labelKey: "status.nowShowing", value: "NOW_SHOWING" },
+    { labelKey: "status.comingSoon", value: "COMING_SOON" },
 ];
 
 /* ── Custom Multi-select Genre Dropdown ── */
@@ -31,6 +32,7 @@ interface GenreDropdownProps {
 }
 
 const GenreDropdown: FC<GenreDropdownProps> = ({ selected, allGenres, onToggle, onClear }) => {
+    const { t } = useTranslation("movies");
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
 
@@ -44,7 +46,7 @@ const GenreDropdown: FC<GenreDropdownProps> = ({ selected, allGenres, onToggle, 
 
     const count = selected.length;
     const label =
-        count === 0 ? "All Genres" : count === 1 ? selected[0] : `${count} genres`;
+        count === 0 ? t("filter.allGenres") : count === 1 ? selected[0] : t("filter.genreCount", { count });
 
     return (
         <div ref={ref} style={{ position: "relative" }}>
@@ -54,7 +56,7 @@ const GenreDropdown: FC<GenreDropdownProps> = ({ selected, allGenres, onToggle, 
                 onClick={() => setOpen((v) => !v)}
                 aria-haspopup="listbox"
                 aria-expanded={open}
-                aria-label="Filter by genre"
+                aria-label={t("filter.filterByGenre")}
             >
                 <span className="cgv-genre-btn__label">{label}</span>
                 {count > 0 && <span className="cgv-genre-btn__badge">{count}</span>}
@@ -70,18 +72,18 @@ const GenreDropdown: FC<GenreDropdownProps> = ({ selected, allGenres, onToggle, 
 
             {/* Dropdown panel */}
             {open && (
-                <div className="cgv-genre-dropdown" role="listbox" aria-multiselectable="true" aria-label="Genres">
+                <div className="cgv-genre-dropdown" role="listbox" aria-multiselectable="true" aria-label={t("filter.genres")}>
                     {/* Header: clear-all */}
                     <div className="cgv-genre-dropdown__head">
                         <span className="cgv-genre-dropdown__head-label">
-                            {count > 0 ? `${count} selected` : "Select genres"}
+                            {count > 0 ? t("filter.selectedCount", { count }) : t("filter.selectGenres")}
                         </span>
                         <button
                             className="cgv-genre-dropdown__clear"
                             onClick={onClear}
                             disabled={count === 0}
                         >
-                            Clear all
+                            {t("filter.clearAll")}
                         </button>
                     </div>
 
@@ -123,8 +125,10 @@ const MovieFilterBar: FC<Props> = ({
     search, status, genres, allGenres,
     totalCount, filteredCount,
     onSearchChange, onStatusChange, onGenreToggle, onGenresClear,
-}) => (
-    <div className="cgv-filterbar" role="search" aria-label="Filter movies">
+}) => {
+    const { t } = useTranslation("movies");
+    return (
+    <div className="cgv-filterbar" role="search" aria-label={t("filter.filterMovies")}>
         <div className="cgv-filterbar__inner">
 
             {/* Search */}
@@ -138,16 +142,16 @@ const MovieFilterBar: FC<Props> = ({
                 <input
                     type="search"
                     className="cgv-filterbar__search-input"
-                    placeholder="Search movies…"
+                    placeholder={t("filter.searchPlaceholder")}
                     value={search}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => onSearchChange(e.target.value)}
-                    aria-label="Search movies by title"
+                    aria-label={t("filter.searchAria")}
                 />
                 {search && (
                     <button
                         className="cgv-filterbar__search-clear"
                         onClick={() => onSearchChange("")}
-                        aria-label="Clear search"
+                        aria-label={t("filter.clearSearch")}
                     >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"
@@ -159,7 +163,7 @@ const MovieFilterBar: FC<Props> = ({
             </div>
 
             {/* Status tabs */}
-            <div className="cgv-filterbar__tabs" role="tablist" aria-label="Filter by status">
+            <div className="cgv-filterbar__tabs" role="tablist" aria-label={t("filter.filterByStatus")}>
                 {STATUS_TABS.map((tab) => (
                     <button
                         key={tab.value}
@@ -168,7 +172,7 @@ const MovieFilterBar: FC<Props> = ({
                         className={`cgv-filterbar__tab${status === tab.value ? " cgv-filterbar__tab--active" : ""}`}
                         onClick={() => onStatusChange(tab.value)}
                     >
-                        {tab.label}
+                        {t(tab.labelKey)}
                     </button>
                 ))}
             </div>
@@ -183,19 +187,19 @@ const MovieFilterBar: FC<Props> = ({
 
             {/* Result count */}
             <p className="cgv-filterbar__count" aria-live="polite">
-                <strong>{filteredCount}</strong> / {totalCount} movies
+                <strong>{filteredCount}</strong> / {t("filter.moviesCount", { count: totalCount })}
             </p>
         </div>
 
         {/* Selected genre chips */}
         {genres.length > 0 && (
-            <div className="cgv-filterbar__chips" aria-label="Active genre filters">
+            <div className="cgv-filterbar__chips" aria-label={t("filter.activeFilters")}>
                 {genres.map((g) => (
                     <button
                         key={g}
                         className="cgv-genre-chip"
                         onClick={() => onGenreToggle(g)}
-                        aria-label={`Remove ${g} filter`}
+                        aria-label={t("filter.removeFilter", { genre: g })}
                     >
                         {g}
                         <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
@@ -206,11 +210,12 @@ const MovieFilterBar: FC<Props> = ({
                     </button>
                 ))}
                 <button className="cgv-genre-chip cgv-genre-chip--clear" onClick={onGenresClear}>
-                    Clear all
+                    {t("filter.clearAll")}
                 </button>
             </div>
         )}
     </div>
-);
+    );
+};
 
 export default MovieFilterBar;

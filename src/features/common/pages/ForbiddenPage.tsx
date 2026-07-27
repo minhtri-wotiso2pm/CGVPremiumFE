@@ -51,15 +51,15 @@ const HomeIcon: FC = () => (
 );
 
 /* ── Arrow back icon ── */
-const ArrowBackIcon: FC = () => (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
-        strokeLinejoin="round" aria-hidden="true"
-    >
-        <line x1="19" y1="12" x2="5" y2="12" />
-        <polyline points="12 19 5 12 12 5" />
-    </svg>
-);
+// const ArrowBackIcon: FC = () => (
+//     <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+//         stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
+//         strokeLinejoin="round" aria-hidden="true"
+//     >
+//         <line x1="19" y1="12" x2="5" y2="12" />
+//         <polyline points="12 19 5 12 12 5" />
+//     </svg>
+// );
 
 /* ─────────────────────────────────────────────────────────────
    PAGE COMPONENT
@@ -77,13 +77,13 @@ const ForbiddenPage: FC = () => {
             onClick: () => navigate(homeRoute),
             ariaLabel: "Return to home page",
         },
-        {
-            label: "Go Back",
-            variant: "secondary",
-            icon: <ArrowBackIcon />,
-            onClick: () => navigate(-1),
-            ariaLabel: "Go to previous page",
-        },
+        // {
+        //     label: "Go Back",
+        //     variant: "secondary",
+        //     icon: <ArrowBackIcon />,
+        //     onClick: () => navigate(-1),
+        //     ariaLabel: "Go to previous page",
+        // },
     ];
 
     return (

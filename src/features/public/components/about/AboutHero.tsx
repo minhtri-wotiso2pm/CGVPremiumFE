@@ -1,4 +1,5 @@
 import { type FC, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, useMotionValue, useReducedMotion, useTransform } from "framer-motion";
 import { EASE_SMOOTH } from "./motionVariants";
 import heroVideo from "@/assets/videos/HeroVideo.mp4";
@@ -33,6 +34,7 @@ const ChevronDownIcon = () => (
  *    and skips both the video and the scroll listener entirely.
  */
 const AboutHero: FC = () => {
+    const { t } = useTranslation("public");
     const sectionRef = useRef<HTMLElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
     // Latches true once the clip has played through, so it never restarts.
@@ -151,7 +153,7 @@ const AboutHero: FC = () => {
                     transition={{ duration: 0.8, ease: EASE_SMOOTH, delay: 0.2 }}
                 >
                     <span className="abt-hero__eyebrow-rule" />
-                    Est. Cinematic Experience
+                    {t("about.heroEyebrow")}
                 </motion.p>
 
                 <h1 className="abt-hero__title">
@@ -179,8 +181,7 @@ const AboutHero: FC = () => {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.9, ease: EASE_SMOOTH, delay: 0.85 }}
                 >
-                    Cinema, reimagined for every story worth telling — where each
-                    frame becomes a memory worth returning to.
+                    {t("about.heroTagline")}
                 </motion.p>
 
                 <motion.div
@@ -193,7 +194,7 @@ const AboutHero: FC = () => {
                         <span className="abt-hero__scroll-dot" />
                     </span>
                     <span className="abt-hero__scroll-label">
-                        Discover our story <ChevronDownIcon />
+                        {t("about.heroScroll")} <ChevronDownIcon />
                     </span>
                 </motion.div>
             </motion.div>

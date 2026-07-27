@@ -319,6 +319,7 @@ const VoucherPickerModal: FC<Props> = ({
                                             </Tooltip>
                                         )}
                                     </div>
+                                    <span className={styles.rowCode}>{v.voucherCode}</span>
                                     <span className={styles.rowPoints}>
                                         <StarPointsIcon size={12} /> {formatNumber(v.requiredPoints)} {t("profile:tickets.pts")}
                                     </span>

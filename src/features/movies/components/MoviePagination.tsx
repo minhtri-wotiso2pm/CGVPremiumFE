@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useTranslation } from "react-i18next";
 import "./movies.css";
 
 interface Props {
@@ -8,6 +9,7 @@ interface Props {
 }
 
 const MoviePagination: FC<Props> = ({ currentPage, totalPages, onPageChange }) => {
+    const { t } = useTranslation("movies");
     if (totalPages <= 1) return null;
 
     /** Build visible page numbers with ellipsis */
@@ -24,13 +26,13 @@ const MoviePagination: FC<Props> = ({ currentPage, totalPages, onPageChange }) =
     };
 
     return (
-        <nav className="cgv-pagination" aria-label="Movie list pagination">
+        <nav className="cgv-pagination" aria-label={t("pagination.aria")}>
             {/* Previous */}
             <button
                 className="cgv-pagination__btn"
                 onClick={() => onPageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                aria-label="Previous page"
+                aria-label={t("pagination.previous")}
             >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"
@@ -48,7 +50,7 @@ const MoviePagination: FC<Props> = ({ currentPage, totalPages, onPageChange }) =
                         key={p}
                         className={`cgv-pagination__btn${currentPage === p ? " cgv-pagination__btn--active" : ""}`}
                         onClick={() => onPageChange(p as number)}
-                        aria-label={`Page ${p}`}
+                        aria-label={t("pagination.page", { page: p })}
                         aria-current={currentPage === p ? "page" : undefined}
                     >
                         {p}
@@ -61,7 +63,7 @@ const MoviePagination: FC<Props> = ({ currentPage, totalPages, onPageChange }) =
                 className="cgv-pagination__btn"
                 onClick={() => onPageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                aria-label="Next page"
+                aria-label={t("pagination.next")}
             >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"

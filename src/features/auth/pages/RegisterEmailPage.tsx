@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import { verifyEmail } from "@/services/api/auth.service";
 
@@ -30,7 +31,7 @@ const T = {
    VALIDATION
 ───────────────────────────────────────────────────────────── */
 const validateCode = (v: string): string => {
-    if (!v.trim()) return "Verification code is required.";
+    if (!v.trim()) return "validation.codeRequired";
     return "";
 };
 
@@ -197,13 +198,13 @@ function SeatRow() {
 /* ─────────────────────────────────────────────────────────────
    SUCCESS STATE CARD BODY
 ───────────────────────────────────────────────────────────── */
-function SuccessBody({ onGoToLogin }: { onGoToLogin: () => void }) {
+function SuccessBody({ onGoToLogin, t }: { onGoToLogin: () => void; t: any }) {
     return (
         <>
             {/* Animated success icon */}
             <div
                 role="status"
-                aria-label="Email verified successfully"
+                            aria-label={t("verify.successIconAria")}
                 style={{
                     width: 72, height: 72, borderRadius: "50%",
                     border: "2px solid rgba(34,197,94,0.35)",
@@ -231,7 +232,7 @@ function SuccessBody({ onGoToLogin }: { onGoToLogin: () => void }) {
                 color: T.textPrimary, margin: "0 0 14px",
                 textAlign: "center",
             }}>
-                Email Verified Successfully
+                {t("verify.successTitle")}
             </h2>
 
             {/* Body copy */}
@@ -239,13 +240,13 @@ function SuccessBody({ onGoToLogin }: { onGoToLogin: () => void }) {
                 fontSize: 13, color: T.textMuted, lineHeight: 1.8,
                 letterSpacing: "0.02em", marginBottom: 8, textAlign: "center",
             }}>
-                Your email has been verified.
+                {t("verify.successBody.verified")}
             </p>
             <p style={{
                 fontSize: 13, color: T.textFaint, lineHeight: 1.7,
                 letterSpacing: "0.02em", marginBottom: 36, textAlign: "center",
             }}>
-                You can now sign in to your account.
+                {t("verify.successBody.signIn")}
             </p>
 
             <div style={{
@@ -270,7 +271,7 @@ function SuccessBody({ onGoToLogin }: { onGoToLogin: () => void }) {
                     boxShadow: `0 4px 20px ${T.crimsonGlow}`,
                 }}
             >
-                Go To Login
+                {t("verify.goToLogin")}
             </button>
         </>
     );
@@ -283,6 +284,7 @@ type PageState = "form" | "success";
 
 export default function VerifyEmailPage() {
     const navigate = useNavigate();
+    const { t } = useTranslation("auth");
 
     /* ── Form state ── */
     const [code, setCode] = useState("");
@@ -412,7 +414,7 @@ export default function VerifyEmailPage() {
                 <div
                     className="cgv-card"
                     role="main"
-                    aria-label="Verify your CVPremium email"
+                                    aria-label={t("verify.aria")}
                     style={{
                         position: "relative", zIndex: 10,
                         background: T.surface,
@@ -459,7 +461,7 @@ export default function VerifyEmailPage() {
 
                     {/* ── SUCCESS STATE ── */}
                     {isSuccess ? (
-                        <SuccessBody onGoToLogin={() => navigate("/login")} />
+                                            <SuccessBody onGoToLogin={() => navigate("/login")} t={t} />
                     ) : (
                         /* ── FORM STATE ── */
                         <>
@@ -468,7 +470,7 @@ export default function VerifyEmailPage() {
                                 color: T.textMuted, letterSpacing: "0.02em",
                                 lineHeight: 1.75, marginBottom: 36, padding: "0 4px",
                             }}>
-                                Enter the verification code sent to your email address.
+                                            {t("verify.formIntro")}
                             </p>
 
                             <div style={{
@@ -500,10 +502,10 @@ export default function VerifyEmailPage() {
                             {/* ── Code input ── */}
                             <FormField
                                 id="cgv-verify-code"
-                                label="Verification Code"
+                                label={t("verify.codeLabel")}
                                 type="text"
                                 value={code}
-                                placeholder="Enter verification code"
+                                placeholder={t("verify.codePlaceholder")}
                                 autoComplete="one-time-code"
                                 error={codeError}
                                 isValid={codeValid}

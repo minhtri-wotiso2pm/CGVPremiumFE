@@ -1,4 +1,5 @@
 import { type FC, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import type { Cinema } from "@/features/manager/types/cinema.types";
@@ -61,6 +62,7 @@ interface Props {
  *  to match the site theme. Cinemas without latitude/longitude just get no
  *  pin — see the "Theaters map" backend requirements note. */
 const TheaterMap: FC<Props> = ({ cinemas, selectedCinemaId, onSelect }) => {
+    const { t } = useTranslation("public");
     const withCoords = cinemas.filter(hasCoords);
     const selected = withCoords.find((c) => c.cinemaId === selectedCinemaId);
     const focusPosition: [number, number] | null = selected ? [selected.latitude, selected.longitude] : null;
@@ -87,7 +89,7 @@ const TheaterMap: FC<Props> = ({ cinemas, selectedCinemaId, onSelect }) => {
                         <Popup>
                             <strong>{c.cinemaName}</strong>
                             <br />
-                            {c.status === "ACTIVE" ? "Active" : "Inactive"}
+                            {c.status === "ACTIVE" ? t("theaters.statusActive") : t("theaters.statusInactive")}
                         </Popup>
                     </Marker>
                 ))}
@@ -97,7 +99,7 @@ const TheaterMap: FC<Props> = ({ cinemas, selectedCinemaId, onSelect }) => {
 
             {withCoords.length === 0 && (
                 <div className="thtr-map__notice">
-                    Cinema coordinates aren't available yet — pins will appear once the backend adds them.
+                    {t("theaters.noCoords")}
                 </div>
             )}
         </div>

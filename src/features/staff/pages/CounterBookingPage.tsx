@@ -1,8 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import axios from "axios";
 import { Button } from "antd";
 import { useQuery } from "@tanstack/react-query";
 import { useAppSelector } from "@/store/hooks";
 import { calculatePricingApi } from "@/services/api/booking.service";
+import { notify } from "@/utils/notify";
 import { useCounterBooking } from "../hooks/useCounterBooking";
 import CounterStepper from "../components/counter/CounterStepper";
 import ModeSelect from "../components/counter/ModeSelect";
@@ -47,6 +49,26 @@ export default function CounterBookingPage() {
         staleTime: 30_000,
     });
     const pricing = pricingQuery.data ?? null;
+
+    // Safety net for voucher rules we can't fully verify on the client (e.g.
+    // Room, or anything the backend enforces differently): if pricing fails
+    // *because of the applied voucher*, drop the voucher, tell the staff why,
+    // and let pricing recompute cleanly instead of leaving the order stuck on a
+    // 400. Guarded by voucherCode so a non-voucher error is never mis-handled,
+    // and by a ref so we surface each distinct message only once.
+    const lastVoucherErrorRef = useRef<string | null>(null);
+    useEffect(() => {
+        if (!pricingQuery.isError || !state.voucherCode) return;
+        const msg = axios.isAxiosError(pricingQuery.error)
+            ? (pricingQuery.error.response?.data as { message?: string } | undefined)?.message
+            : undefined;
+        if (!msg || !/voucher/i.test(msg)) return;
+        const signature = `${state.voucherCode}:${msg}`;
+        if (lastVoucherErrorRef.current === signature) return;
+        lastVoucherErrorRef.current = signature;
+        notify.warning("Voucher removed", msg);
+        cb.setVoucher(null);
+    }, [pricingQuery.isError, pricingQuery.error, state.voucherCode, cb]);
 
     const handlePaid = (r: CounterReceipt) => {
         // Seats are now booked (not just held). finalize() drops the hold
@@ -141,6 +163,13 @@ export default function CounterBookingPage() {
                         onSetGuest={cb.setGuest}
                         onSetMember={cb.setMember}
                         onSetVoucher={cb.setVoucher}
+                        seatsSubtotal={cb.seatsSubtotal}
+                        fnbSubtotal={cb.fnbSubtotal}
+                        cinemaId={cinemaId}
+                        startTime={state.showtime?.startTime}
+                        movieId={state.showtime?.movieId}
+                        seatTypes={state.selectedSeats.map((s) => String(s.seatType))}
+                        productIds={fnbItems.map((i) => i.itemId)}
                     />
                 );
             case "payment":

@@ -1,19 +1,21 @@
 import { type FC, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, useScroll } from "framer-motion";
 import { revealUp, staggerContainer, viewportOnce } from "./motionVariants";
 
 const MILESTONES = [
-    { year: "2011", title: "The First Screen", desc: "CV Premium opens its flagship cinema, built around a single idea: picture and sound quality shouldn't be a premium tier — they should be the standard." },
-    { year: "2015", title: "Nationwide Expansion", desc: "New locations open across the country's major cities, each one built to the same spec as the flagship rather than a scaled-down version of it." },
-    { year: "2019", title: "IMAX & Dolby Atmos", desc: "Large-format screens and object-based surround sound roll out chain-wide, turning every premium hall into a genuine destination screening." },
-    { year: "2023", title: "Premium Redefined", desc: "Reclining seating, app-based booking and a rebuilt loyalty program bring the in-cinema and online experience onto the same standard." },
-    { year: "2026", title: "CV Premium Today", desc: "Now operating across dozens of cinemas nationwide, still measuring every new room against the one that started it all." },
+    { year: "2011", titleKey: "about.ms2011Title", descKey: "about.ms2011Desc" },
+    { year: "2015", titleKey: "about.ms2015Title", descKey: "about.ms2015Desc" },
+    { year: "2019", titleKey: "about.ms2019Title", descKey: "about.ms2019Desc" },
+    { year: "2023", titleKey: "about.ms2023Title", descKey: "about.ms2023Desc" },
+    { year: "2026", titleKey: "about.ms2026Title", descKey: "about.ms2026Desc" },
 ];
 
 /** Alternating milestone timeline with a vertical line that fills in as
  *  the section scrolls through view — a lightweight progress cue rather
  *  than a literal scrollbar. */
 const TimelineSection: FC = () => {
+    const { t } = useTranslation("public");
     const trackRef = useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll({
         target: trackRef,
@@ -30,7 +32,7 @@ const TimelineSection: FC = () => {
                     whileInView="visible"
                     viewport={viewportOnce}
                 >
-                    Our Journey
+                    {t("about.ourJourney")}
                 </motion.p>
                 <motion.h2
                     className="abt-section-title"
@@ -39,7 +41,7 @@ const TimelineSection: FC = () => {
                     whileInView="visible"
                     viewport={viewportOnce}
                 >
-                    A decade, one standard
+                    {t("about.journeyHeadline")}
                 </motion.h2>
 
                 <div className="abt-timeline__track" ref={trackRef}>
@@ -62,8 +64,8 @@ const TimelineSection: FC = () => {
                             >
                                 <span className="abt-timeline__dot" aria-hidden="true" />
                                 <span className="abt-timeline__year">{m.year}</span>
-                                <h3 className="abt-timeline__title">{m.title}</h3>
-                                <p className="abt-timeline__desc">{m.desc}</p>
+                                <h3 className="abt-timeline__title">{t(m.titleKey)}</h3>
+                                <p className="abt-timeline__desc">{t(m.descKey)}</p>
                             </motion.li>
                         ))}
                     </motion.ol>

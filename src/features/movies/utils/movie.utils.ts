@@ -1,4 +1,5 @@
 import type { Movie } from "../types/movie.types";
+import { formatDate } from "@/utils/formatDate";
 
 export function formatDuration(minutes: number): string {
     const h = Math.floor(minutes / 60);
@@ -6,10 +7,7 @@ export function formatDuration(minutes: number): string {
     return h > 0 ? `${h}h ${m > 0 ? `${m}m` : ""}`.trim() : `${m}m`;
 }
 
-export function formatShowingDate(dateStr: string): string {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-}
+export const formatShowingDate = formatDate;
 
 export function getYouTubeId(url: string): string | null {
     const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
@@ -67,26 +65,28 @@ export function getTopSellingCarouselMovies(movies: Movie[], count = 5): Movie[]
 
 import type { StatusFilter } from "../components/MovieFilterBar";
 
+/** Returns an i18n key + params rather than a finished string so the caller
+ *  renders it in the active language. */
 export function getMovieSectionTitle(
     status: StatusFilter,
     search: string,
     genres: string[]
-) {
+): { key: string; params?: Record<string, string | number> } {
 
     if (status === "NOW_SHOWING")
-        return "Now Showing";
+        return { key: "movies:section.nowShowing" };
 
     if (status === "COMING_SOON")
-        return "Coming Soon";
+        return { key: "movies:section.comingSoon" };
 
     if (search)
-        return `Results for "${search}"`;
+        return { key: "movies:section.results", params: { search } };
 
     if (genres.length === 1)
-        return `${genres[0]} Movies`;
+        return { key: "movies:section.genreMovies", params: { genre: genres[0] } };
 
     if (genres.length > 1)
-        return `${genres.length} Genres Selected`;
+        return { key: "movies:section.genresSelected", params: { count: genres.length } };
 
-    return "All Movies";
+    return { key: "movies:section.allMovies" };
 }

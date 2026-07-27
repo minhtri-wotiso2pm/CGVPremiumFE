@@ -1,4 +1,5 @@
 import { type FC } from "react";
+import { useTranslation } from "react-i18next";
 
 interface Props {
     posterUrl: string;
@@ -20,7 +21,9 @@ const PlayIcon = () => (
  *  slide crossfades toward its VideoLayer once a trailer starts playing. */
 const HeroPosterLayer: FC<Props> = ({
     posterUrl, fallbackUrl, title, active, videoPlaying, showTapToPlay, onTapPlay,
-}) => (
+}) => {
+    const { t } = useTranslation("movies");
+    return (
     <div
         className={`cgv-hposter${active ? " cgv-hposter--active" : ""}${videoPlaying ? " cgv-hposter--hidden" : ""}`}
     >
@@ -35,12 +38,13 @@ const HeroPosterLayer: FC<Props> = ({
                 type="button"
                 className="cgv-hposter__tap"
                 onClick={onTapPlay}
-                aria-label={`Play trailer for ${title}`}
+                aria-label={t("hero.playTrailer", { title })}
             >
                 <PlayIcon />
             </button>
         )}
     </div>
-);
+    );
+};
 
 export default HeroPosterLayer;

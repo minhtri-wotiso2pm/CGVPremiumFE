@@ -15,6 +15,12 @@ import enHeader from "./locales/en/header.json";
 import enFooter from "./locales/en/footer.json";
 import enProfile from "./locales/en/profile.json";
 import enBooking from "./locales/en/booking.json";
+import enMovie from "./locales/en/movies.json";
+import enPublic from "./locales/en/public.json";
+import enAuth from "./locales/en/auth.json";
+import viAuth from "./locales/vi/auth.json";
+import viPublic from "./locales/vi/public.json";
+import viMovie from "./locales/vi/movies.json";
 import viCommon from "./locales/vi/common.json";
 import viHeader from "./locales/vi/header.json";
 import viFooter from "./locales/vi/footer.json";
@@ -24,8 +30,8 @@ import viBooking from "./locales/vi/booking.json";
 export type AppLanguage = "en" | "vi";
 
 const resources = {
-    en: { common: enCommon, header: enHeader, footer: enFooter, profile: enProfile, booking: enBooking },
-    vi: { common: viCommon, header: viHeader, footer: viFooter, profile: viProfile, booking: viBooking },
+    en: { common: enCommon, header: enHeader, footer: enFooter, profile: enProfile, booking: enBooking, movies: enMovie, public: enPublic, auth: enAuth },
+    vi: { common: viCommon, header: viHeader, footer: viFooter, profile: viProfile, booking: viBooking, movies: viMovie, public: viPublic, auth: viAuth },
 } as const;
 
 const stored = localStorage.getItem(STORAGE_KEYS.LANGUAGE);

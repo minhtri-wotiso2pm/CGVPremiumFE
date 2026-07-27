@@ -1,4 +1,5 @@
 import { type FC } from "react";
+import { useTranslation } from "react-i18next";
 
 interface Props {
     showNav: boolean;
@@ -37,14 +38,16 @@ const UnmuteIcon = () => (
 
 /** Controls — prev/next navigation + the mute toggle (pulses gently while
  *  a trailer is actively playing muted, per the brief). */
-const HeroControls: FC<Props> = ({ showNav, onPrev, onNext, showMute, muted, pulsing, onToggleMute }) => (
+const HeroControls: FC<Props> = ({ showNav, onPrev, onNext, showMute, muted, pulsing, onToggleMute }) => {
+    const { t } = useTranslation("movies");
+    return (
     <>
         {showNav && (
             <>
-                <button type="button" className="cgv-hnav cgv-hnav--prev" onClick={onPrev} aria-label="Previous movie">
+                <button type="button" className="cgv-hnav cgv-hnav--prev" onClick={onPrev} aria-label={t("hero.prevMovie")}>
                     <ChevronLeft />
                 </button>
-                <button type="button" className="cgv-hnav cgv-hnav--next" onClick={onNext} aria-label="Next movie">
+                <button type="button" className="cgv-hnav cgv-hnav--next" onClick={onNext} aria-label={t("hero.nextMovie")}>
                     <ChevronRight />
                 </button>
             </>
@@ -55,13 +58,14 @@ const HeroControls: FC<Props> = ({ showNav, onPrev, onNext, showMute, muted, pul
                 type="button"
                 className={`cgv-hmute${pulsing ? " cgv-hmute--pulse" : ""}`}
                 onClick={onToggleMute}
-                aria-label={muted ? "Unmute trailer" : "Mute trailer"}
+                aria-label={muted ? t("hero.unmute") : t("hero.mute")}
                 aria-pressed={!muted}
             >
                 {muted ? <MuteIcon /> : <UnmuteIcon />}
             </button>
         )}
     </>
-);
+    );
+};
 
 export default HeroControls;

@@ -1,0 +1,93 @@
+{
+    "status": {
+        "nowShowing": "Now Showing",
+        "comingSoon": "Coming Soon"
+    },
+    "rank": {
+        "top": "Top {{rank}}",
+        "hotTrending": "Hot Trending"
+    },
+    "actions": {
+        "bookNow": "Book Now",
+        "viewDetail": "View Detail",
+        "details": "Details",
+        "watchTrailer": "Watch Trailer"
+    },
+    "section": {
+        "nowShowing": "Now Showing",
+        "comingSoon": "Coming Soon",
+        "allMovies": "All Movies",
+        "results": "Results for \"{{search}}\"",
+        "genreMovies": "{{genre}} Movies",
+        "genresSelected": "{{count}} Genres Selected"
+    },
+    "filter": {
+        "all": "All",
+        "allGenres": "All Genres",
+        "genreCount": "{{count}} genres",
+        "selectGenres": "Select genres",
+        "selectedCount": "{{count}} selected",
+        "clearAll": "Clear all",
+        "genres": "Genres",
+        "filterByGenre": "Filter by genre",
+        "filterByStatus": "Filter by status",
+        "filterMovies": "Filter movies",
+        "searchPlaceholder": "Search movies…",
+        "searchAria": "Search movies by title",
+        "clearSearch": "Clear search",
+        "moviesCount_one": "{{count}} movie",
+        "moviesCount_other": "{{count}} movies",
+        "activeFilters": "Active genre filters",
+        "removeFilter": "Remove {{genre}} filter"
+    },
+    "card": {
+        "cardAria": "{{title}} — click to view details",
+        "posterAlt": "Poster for {{title}}"
+    },
+    "hero": {
+        "aria_one": "Featured movies hero — {{count}} movie available",
+        "aria_other": "Featured movies hero — {{count}} movies available",
+        "fallbackDesc": "Discover the latest blockbuster movies and book your seats instantly.",
+        "prevMovie": "Previous movie",
+        "nextMovie": "Next movie",
+        "mute": "Mute trailer",
+        "unmute": "Unmute trailer",
+        "playTrailer": "Play trailer for {{title}}"
+    },
+    "topSelling": {
+        "title": "Top Selling This Week",
+        "aria": "Top Selling Movies",
+        "showPrev": "Show previous movie",
+        "showNext": "Show next movie",
+        "showMovie": "Show {{title}}"
+    },
+    "empty": {
+        "title": "No movies found",
+        "body": "We couldn't find any movies matching your filters. Try adjusting your search or browse all titles.",
+        "resetFilters": "Reset Filters"
+    },
+    "error": {
+        "title": "Unable to load movies",
+        "body": "Something went wrong while fetching movies. Please check your connection and try again."
+    },
+    "pagination": {
+        "aria": "Movie list pagination",
+        "previous": "Previous page",
+        "next": "Next page",
+        "page": "Page {{page}}"
+    },
+    "detail": {
+        "aria": "Movie details",
+        "director_one": "Director",
+        "director_other": "Directors",
+        "cast": "Cast",
+        "showing": "Showing",
+        "synopsis": "Synopsis",
+        "trailer": "Trailer",
+        "trailerFor": "Trailer — {{title}}",
+        "related": "You Might Also Like",
+        "notFoundTitle": "Movie not found",
+        "notFoundBody": "We couldn't load this movie. It may have been removed or the link is invalid.",
+        "backToMovies": "Back to Movies"
+    }
+}

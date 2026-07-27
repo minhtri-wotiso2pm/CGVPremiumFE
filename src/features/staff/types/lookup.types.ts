@@ -19,6 +19,14 @@ export interface MemberWallet {
     balance: number;
 }
 
+/** One restriction on a member voucher, already rendered server-side into
+ *  display text; `ruleValue` is kept so the counter can evaluate eligibility. */
+export interface MemberVoucherRule {
+    ruleType: string;
+    ruleValue?: string;
+    displayText?: string;
+}
+
 /** A voucher the member can apply, returned inline on lookup (same shape as
  *  GET /vouchers/redeemable). */
 export interface MemberVoucher {
@@ -26,12 +34,16 @@ export interface MemberVoucher {
     voucherCode: string;
     discountType: string;
     discountValue: number;
+    minOrderValue?: number;
     requiredPoints?: number;
     exchangeLimit?: number;
     validFrom?: string;
     validUntil?: string;
     imageUrl?: string | null;
     description?: string;
+    voucherRules?: MemberVoucherRule[];
+    /** Number of usable copies the member holds of this voucher. */
+    quantity?: number;
 }
 
 export interface LookedUpMember {

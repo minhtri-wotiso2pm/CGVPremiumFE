@@ -1,5 +1,6 @@
 import { type FC, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 import { useVouchers } from "@/features/vouchers/hooks/useVouchers";
 import type { Voucher } from "@/features/vouchers/types/voucher.types";
@@ -11,6 +12,8 @@ import { normalizeText } from "@/utils/string";
 import { useVoucherRuleLabels } from "../hooks/useVoucherRuleLabels";
 import VoucherRuleChips from "../components/VoucherRuleChips";
 import { StarPointsIcon, CheckCircleIcon, CopyIcon, ChevronRightIcon } from "@/components/ui/BrandIcons";
+import { formatNumber } from "@/utils/formatCurrency";
+import { formatDate } from "@/utils/formatDate";
 import "../promotions.css";
 
 const HERO_AUTOPLAY_MS = 5000;
@@ -22,13 +25,12 @@ const EXPIRING_SOON_DAYS = 3;
  *  voucher on the page at once. */
 const GRID_PAGE_SIZE = 6;
 
-const fmtDate = (iso: string) => (iso ? dayjs(iso.slice(0, 10)).format("DD/MM/YYYY") : "—");
-const fmtPoints = (n: number) => n.toLocaleString("en-US");
+const fmtDate = (iso: string) => (iso ? formatDate(iso.slice(0, 10)) : "—");
 
-const discountLabel = (v: Voucher) =>
+const discountLabel = (v: Voucher, unitOff: string, unitPercentOff: string) =>
     v.discountType === "percent"
-        ? { value: `${v.discountValue}`, unit: "% OFF" }
-        : { value: `${v.discountValue.toLocaleString("vi-VN")}₫`, unit: "OFF" };
+        ? { value: `${v.discountValue}`, unit: unitPercentOff }
+        : { value: `${formatNumber(v.discountValue)}₫`, unit: unitOff };
 
 /** Days remaining until validUntil (whole days, can be negative if past). */
 const daysUntil = (iso: string): number | null => {
@@ -66,12 +68,15 @@ const useCopyCode = (code: string) => {
 
 /** Code/copy affordance for a directly-usable public voucher. */
 const VoucherCodeRow: FC<{ voucher: Voucher; compact?: boolean }> = ({ voucher, compact }) => {
+    const { t } = useTranslation("public");
     const { copied, copy } = useCopyCode(voucher.voucherCode);
     return (
         <div className={compact ? "promo-card__code-row" : "promo-featured__code-row"}>
             <div className={compact ? "promo-card__code" : "promo-featured__code"}>{voucher.voucherCode}</div>
             <button className={`promo-card__copy${copied ? " promo-card__copy--done" : ""}`} onClick={copy}>
-                {copied ? <><CheckCircleIcon size={14} /> Copied</> : <><CopyIcon size={14} /> Copy</>}
+                {copied
+                    ? <><CheckCircleIcon size={14} /> {t("promotions.copied")}</>
+                    : <><CopyIcon size={14} /> {t("promotions.copy")}</>}
             </button>
         </div>
     );
@@ -83,22 +88,25 @@ const RedeemCta: FC<{
     voucher: Voucher;
     isLoggedIn: boolean;
     onRedeem: (voucher: Voucher) => void;
-}> = ({ voucher, isLoggedIn, onRedeem }) => (
+}> = ({ voucher, isLoggedIn, onRedeem }) => {
+    const { t } = useTranslation("public");
+    return (
     <div className="promo-card__redeem-row">
         <span className="promo-card__redeem-badge">
-            <StarPointsIcon size={13} /> Redeem with points
+            <StarPointsIcon size={13} /> {t("promotions.redeemWithPoints")}
         </span>
         {isLoggedIn ? (
             <button className="promo-card__redeem-btn" onClick={() => onRedeem(voucher)}>
-                Redeem for {fmtPoints(voucher.requiredPoints ?? 0)} pts
+                {t("promotions.redeemFor", { points: formatNumber(voucher.requiredPoints ?? 0) })}
             </button>
         ) : (
             <Link to="/login" className="promo-card__redeem-btn promo-card__redeem-btn--login">
-                Log in to redeem
+                {t("promotions.loginToRedeem")}
             </Link>
         )}
     </div>
-);
+    );
+};
 
 /* ── Hero — up to 3 newest vouchers, side by side ── */
 const FeaturedCard: FC<{
@@ -106,7 +114,8 @@ const FeaturedCard: FC<{
     isLoggedIn: boolean;
     onRedeem: (voucher: Voucher) => void;
 }> = ({ voucher, isLoggedIn, onRedeem }) => {
-    const d = discountLabel(voucher);
+    const { t } = useTranslation("public");
+    const d = discountLabel(voucher, t("promotions.off"), t("promotions.percentOff"));
     const pct = usagePercent(voucher);
     const expiring = isExpiringSoon(voucher.validUntil);
 
@@ -117,23 +126,23 @@ const FeaturedCard: FC<{
         >
             <div className="promo-featured__scrim" />
             <div className="promo-featured__content">
-                <span className="promo-featured__eyebrow">Featured</span>
+                <span className="promo-featured__eyebrow">{t("promotions.featured")}</span>
                 <div className="promo-featured__discount">
                     {d.value}<span>{d.unit}</span>
                 </div>
-                <p className="promo-featured__desc">{voucher.description || "Special promotion."}</p>
+                <p className="promo-featured__desc">{voucher.description || t("promotions.specialPromotion")}</p>
 
                 <div className="promo-featured__meta">
-                    {voucher.minOrderValue > 0 && <span>Min order: {voucher.minOrderValue.toLocaleString("vi-VN")}₫</span>}
+                    {voucher.minOrderValue > 0 && <span>{t("promotions.minOrder", { amount: formatNumber(voucher.minOrderValue) })}</span>}
                     <span className={expiring ? "promo-featured__expiring" : ""}>
-                        Valid until {fmtDate(voucher.validUntil)}
+                        {t("promotions.validUntil", { date: fmtDate(voucher.validUntil) })}
                     </span>
                 </div>
 
                 {pct !== null && (
-                    <div className="promo-featured__progress" aria-label={`${pct}% claimed`}>
+                    <div className="promo-featured__progress" aria-label={t("promotions.percentClaimed", { percent: pct })}>
                         <div className="promo-featured__progress-bar" style={{ width: `${pct}%` }} />
-                        <span>{voucher.usedCount}/{voucher.maxUses} claimed</span>
+                        <span>{t("promotions.claimed", { used: voucher.usedCount, max: voucher.maxUses })}</span>
                     </div>
                 )}
 
@@ -154,6 +163,7 @@ const HeroCarousel: FC<{
     isLoggedIn: boolean;
     onRedeem: (voucher: Voucher) => void;
 }> = ({ vouchers, isLoggedIn, onRedeem }) => {
+    const { t } = useTranslation("public");
     const [index, setIndex] = useState(0);
     const [paused, setPaused] = useState(false);
     const count = vouchers.length;
@@ -190,7 +200,7 @@ const HeroCarousel: FC<{
                         type="button"
                         className="promo-hero__nav promo-hero__nav--prev"
                         onClick={() => setIndex((i) => (i - 1 + count) % count)}
-                        aria-label="Previous promotion"
+                        aria-label={t("promotions.prevPromo")}
                     >
                         <ChevronRightIcon size={20} />
                     </button>
@@ -198,7 +208,7 @@ const HeroCarousel: FC<{
                         type="button"
                         className="promo-hero__nav promo-hero__nav--next"
                         onClick={() => setIndex((i) => (i + 1) % count)}
-                        aria-label="Next promotion"
+                        aria-label={t("promotions.nextPromo")}
                     >
                         <ChevronRightIcon size={20} />
                     </button>
@@ -210,7 +220,7 @@ const HeroCarousel: FC<{
                                 type="button"
                                 className={`promo-hero__dot${i === index ? " promo-hero__dot--active" : ""}`}
                                 onClick={() => setIndex(i)}
-                                aria-label={`Go to promotion ${i + 1}`}
+                                aria-label={t("promotions.goToPromo", { index: i + 1 })}
                             />
                         ))}
                     </div>
@@ -227,7 +237,8 @@ const PromoCard: FC<{
     isLoggedIn: boolean;
     onRedeem: (voucher: Voucher) => void;
 }> = ({ voucher, labels, isLoggedIn, onRedeem }) => {
-    const d = discountLabel(voucher);
+    const { t } = useTranslation("public");
+    const d = discountLabel(voucher, t("promotions.off"), t("promotions.percentOff"));
     const pct = usagePercent(voucher);
     const expiring = isExpiringSoon(voucher.validUntil);
 
@@ -245,25 +256,25 @@ const PromoCard: FC<{
                 {(voucher.category || expiring) && (
                     <div className="promo-card__tags">
                         {voucher.category && <span className="promo-card__category">{voucher.category}</span>}
-                        {expiring && <span className="promo-card__expiring-badge">Expires soon</span>}
+                        {expiring && <span className="promo-card__expiring-badge">{t("promotions.expiresSoon")}</span>}
                     </div>
                 )}
-                <p className="promo-card__desc">{voucher.description || "Special promotion."}</p>
+                <p className="promo-card__desc">{voucher.description || t("promotions.specialPromotion")}</p>
                 <div className="promo-card__meta">
                     {voucher.minOrderValue > 0 && (
-                        <span>Min order: {voucher.minOrderValue.toLocaleString("vi-VN")}₫</span>
+                        <span>{t("promotions.minOrder", { amount: formatNumber(voucher.minOrderValue) })}</span>
                     )}
-                    <span className={expiring ? "promo-card__meta-expiring" : ""}>Valid until {fmtDate(voucher.validUntil)}</span>
+                    <span className={expiring ? "promo-card__meta-expiring" : ""}>{t("promotions.validUntil", { date: fmtDate(voucher.validUntil) })}</span>
                 </div>
 
                 <VoucherRuleChips rules={voucher.rules} labels={labels} />
 
                 {pct !== null && (
-                    <div className="promo-card__progress" aria-label={`${pct}% claimed`}>
+                    <div className="promo-card__progress" aria-label={t("promotions.percentClaimed", { percent: pct })}>
                         <div className="promo-card__progress-track">
                             <div className="promo-card__progress-bar" style={{ width: `${pct}%` }} />
                         </div>
-                        <span>{voucher.usedCount}/{voucher.maxUses} claimed</span>
+                        <span>{t("promotions.claimed", { used: voucher.usedCount, max: voucher.maxUses })}</span>
                     </div>
                 )}
 
@@ -278,6 +289,7 @@ const PromoCard: FC<{
 };
 
 const PromotionsPage: FC = () => {
+    const { t } = useTranslation("public");
     const { data, isLoading } = useVouchers({ pageIndex: 1, pageSize: 100 });
     const [search, setSearch] = useState("");
     const [category, setCategory] = useState("");
@@ -338,8 +350,8 @@ const PromotionsPage: FC = () => {
         <div className="promo-page">
             <div className="promo-head">
                 <span className="promo-head__eyebrow">CV Premium</span>
-                <h1 className="promo-head__title">Promotions &amp; Offers</h1>
-                <p className="promo-head__sub">Exclusive deals to make every visit more rewarding.</p>
+                <h1 className="promo-head__title">{t("promotions.title")}</h1>
+                <p className="promo-head__sub">{t("promotions.subtitle")}</p>
             </div>
 
             {isLoading ? (
@@ -351,8 +363,8 @@ const PromotionsPage: FC = () => {
                 </>
             ) : activeVouchers.length === 0 ? (
                 <div className="promo-empty">
-                    <p style={{ margin: 0, fontSize: 16 }}>No active promotions right now.</p>
-                    <p style={{ margin: "6px 0 0", fontSize: 14 }}>Check back soon for exclusive offers.</p>
+                    <p style={{ margin: 0, fontSize: 16 }}>{t("promotions.emptyTitle")}</p>
+                    <p style={{ margin: "6px 0 0", fontSize: 14 }}>{t("promotions.emptyBody")}</p>
                 </div>
             ) : (
                 <>
@@ -364,20 +376,20 @@ const PromotionsPage: FC = () => {
                         <div className="promo-search">
                             <input
                                 type="text"
-                                placeholder="Search by code or description..."
+                                placeholder={t("promotions.searchPlaceholder")}
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                             />
                         </div>
                         {categories.length > 0 && (
-                            <div className="promo-tabs" role="tablist" aria-label="Filter by category">
+                            <div className="promo-tabs" role="tablist" aria-label={t("promotions.filterByCategory")}>
                                 <button
                                     role="tab"
                                     aria-selected={category === ""}
                                     className={`promo-tab${category === "" ? " promo-tab--active" : ""}`}
                                     onClick={() => setCategory("")}
                                 >
-                                    All
+                                    {t("promotions.all")}
                                 </button>
                                 {categories.map((c) => (
                                     <button
@@ -396,7 +408,7 @@ const PromotionsPage: FC = () => {
 
                     {filtered.length === 0 ? (
                         <div className="promo-empty">
-                            <p style={{ margin: 0, fontSize: 16 }}>No promotions match your search.</p>
+                            <p style={{ margin: 0, fontSize: 16 }}>{t("promotions.noResults")}</p>
                         </div>
                     ) : (
                         <>
@@ -419,7 +431,7 @@ const PromotionsPage: FC = () => {
                                         className="promo-load-more__btn"
                                         onClick={() => setVisibleCount((c) => c + GRID_PAGE_SIZE)}
                                     >
-                                        Load more ({filtered.length - visibleCount} more)
+                                        {t("promotions.loadMore", { count: filtered.length - visibleCount })}
                                     </button>
                                 </div>
                             )}

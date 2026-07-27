@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import type { MovieDetail } from "../types/movie.types";
 import type { PersonRef } from "@/features/persons/types/person.types";
 import MovieStatusBadge, { AgeBadge } from "./MovieStatusBadge";
@@ -34,6 +35,7 @@ const PeopleLinks: FC<{ people: PersonRef[]; base: string }> = ({ people, base }
 );
 
 const MovieDetailHero: FC<Props> = ({ movie, onWatchTrailer, onBook, personBase = "" }) => {
+    const { t } = useTranslation("movies");
     const { goBooking } = useMovieNavigation();
     const handleBook = onBook ?? goBooking;
     const { data: rating } = useMovieRatingSummary(movie.movieId);
@@ -42,7 +44,7 @@ const MovieDetailHero: FC<Props> = ({ movie, onWatchTrailer, onBook, personBase 
     const hasActors = (movie.actors?.length ?? 0) > 0;
 
     return (
-        <section className="cgv-detail-hero" aria-label="Movie details">
+        <section className="cgv-detail-hero" aria-label={t("detail.aria")}>
             {/* Blurred background */}
             <div
                 className="cgv-detail-hero__bg"
@@ -57,7 +59,7 @@ const MovieDetailHero: FC<Props> = ({ movie, onWatchTrailer, onBook, personBase 
                 <div className="cgv-detail-hero__poster-wrap">
                     <img
                         src={poster}
-                        alt={`Poster — ${movie.title}`}
+                        alt={t("card.posterAlt", { title: movie.title })}
                         className="cgv-detail-hero__poster"
                         onError={(e) => { e.currentTarget.src = FALLBACK; }}
                     />
@@ -104,7 +106,7 @@ const MovieDetailHero: FC<Props> = ({ movie, onWatchTrailer, onBook, personBase 
                     <dl className="cgv-detail-hero__meta">
                         {(hasDirectors || movie.director) && (
                             <>
-                                <dt>{movie.directors?.length === 1 ? "Director" : "Directors"}</dt>
+                                <dt>{t("detail.director", { count: movie.directors?.length ?? 1 })}</dt>
                                 <dd>
                                     {hasDirectors
                                         ? <PeopleLinks people={movie.directors} base={personBase} />
@@ -114,7 +116,7 @@ const MovieDetailHero: FC<Props> = ({ movie, onWatchTrailer, onBook, personBase 
                         )}
                         {(hasActors || movie.cast) && (
                             <>
-                                <dt>Cast</dt>
+                                <dt>{t("detail.cast")}</dt>
                                 <dd>
                                     {hasActors
                                         ? <PeopleLinks people={movie.actors} base={personBase} />
@@ -122,7 +124,7 @@ const MovieDetailHero: FC<Props> = ({ movie, onWatchTrailer, onBook, personBase 
                                 </dd>
                             </>
                         )}
-                        <dt>Showing</dt>
+                        <dt>{t("detail.showing")}</dt>
                         <dd>
                             {formatShowingDate(movie.showingFromDate)}
                             {" — "}
@@ -143,7 +145,7 @@ const MovieDetailHero: FC<Props> = ({ movie, onWatchTrailer, onBook, personBase 
                                 <path d="M12 22V7" /><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" />
                                 <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
                             </svg>
-                            Book Now
+                            {t("actions.bookNow")}
                         </button>
 
                         {movie.trailerUrl && (
@@ -154,7 +156,7 @@ const MovieDetailHero: FC<Props> = ({ movie, onWatchTrailer, onBook, personBase 
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                                     <polygon points="5 3 19 12 5 21 5 3" />
                                 </svg>
-                                Watch Trailer
+                                {t("actions.watchTrailer")}
                             </button>
                         )}
                     </div>

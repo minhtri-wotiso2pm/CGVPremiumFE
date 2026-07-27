@@ -1,0 +1,90 @@
+{
+    "status": {
+        "nowShowing": "Đang chiếu",
+        "comingSoon": "Sắp chiếu"
+    },
+    "rank": {
+        "top": "Top {{rank}}",
+        "hotTrending": "Đang hot"
+    },
+    "actions": {
+        "bookNow": "Đặt vé",
+        "viewDetail": "Xem chi tiết",
+        "details": "Chi tiết",
+        "watchTrailer": "Xem trailer"
+    },
+    "section": {
+        "nowShowing": "Đang chiếu",
+        "comingSoon": "Sắp chiếu",
+        "allMovies": "Tất cả phim",
+        "results": "Kết quả cho \"{{search}}\"",
+        "genreMovies": "Phim {{genre}}",
+        "genresSelected": "Đã chọn {{count}} thể loại"
+    },
+    "filter": {
+        "all": "Tất cả",
+        "allGenres": "Tất cả thể loại",
+        "genreCount": "{{count}} thể loại",
+        "selectGenres": "Chọn thể loại",
+        "selectedCount": "Đã chọn {{count}}",
+        "clearAll": "Xóa tất cả",
+        "genres": "Thể loại",
+        "filterByGenre": "Lọc theo thể loại",
+        "filterByStatus": "Lọc theo trạng thái",
+        "filterMovies": "Lọc phim",
+        "searchPlaceholder": "Tìm phim…",
+        "searchAria": "Tìm phim theo tên",
+        "clearSearch": "Xóa từ khóa",
+        "moviesCount_other": "{{count}} phim",
+        "activeFilters": "Bộ lọc thể loại đang áp dụng",
+        "removeFilter": "Bỏ lọc {{genre}}"
+    },
+    "card": {
+        "cardAria": "{{title}} — nhấn để xem chi tiết",
+        "posterAlt": "Áp phích phim {{title}}"
+    },
+    "hero": {
+        "aria_other": "Phim nổi bật — có {{count}} phim",
+        "fallbackDesc": "Khám phá những bộ phim bom tấn mới nhất và đặt ghế ngay lập tức.",
+        "prevMovie": "Phim trước",
+        "nextMovie": "Phim tiếp theo",
+        "mute": "Tắt tiếng trailer",
+        "unmute": "Bật tiếng trailer",
+        "playTrailer": "Phát trailer phim {{title}}"
+    },
+    "topSelling": {
+        "title": "Bán chạy tuần này",
+        "aria": "Phim bán chạy",
+        "showPrev": "Xem phim trước",
+        "showNext": "Xem phim tiếp theo",
+        "showMovie": "Xem {{title}}"
+    },
+    "empty": {
+        "title": "Không tìm thấy phim",
+        "body": "Không có phim nào khớp với bộ lọc của bạn. Hãy thử đổi từ khóa hoặc xem toàn bộ phim.",
+        "resetFilters": "Đặt lại bộ lọc"
+    },
+    "error": {
+        "title": "Không tải được danh sách phim",
+        "body": "Đã có lỗi khi tải phim. Vui lòng kiểm tra kết nối và thử lại."
+    },
+    "pagination": {
+        "aria": "Phân trang danh sách phim",
+        "previous": "Trang trước",
+        "next": "Trang sau",
+        "page": "Trang {{page}}"
+    },
+    "detail": {
+        "aria": "Chi tiết phim",
+        "director_other": "Đạo diễn",
+        "cast": "Diễn viên",
+        "showing": "Thời gian chiếu",
+        "synopsis": "Nội dung phim",
+        "trailer": "Trailer",
+        "trailerFor": "Trailer — {{title}}",
+        "related": "Có thể bạn cũng thích",
+        "notFoundTitle": "Không tìm thấy phim",
+        "notFoundBody": "Không tải được phim này. Phim có thể đã bị gỡ hoặc đường dẫn không hợp lệ.",
+        "backToMovies": "Quay lại danh sách phim"
+    }
+}

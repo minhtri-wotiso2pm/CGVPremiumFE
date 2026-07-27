@@ -19,6 +19,7 @@
 
 /* React */
 import { type FC, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 
 /* Components */
 import MovieHero from "@/features/movies/components/MovieHero";
@@ -51,6 +52,8 @@ interface Props {
 }
 
 const MovieListPage: FC<Props> = ({ onMovieClick, onBook }) => {
+
+    const { t } = useTranslation("movies");
 
     /* Data */
     const {
@@ -90,11 +93,12 @@ const MovieListPage: FC<Props> = ({ onMovieClick, onBook }) => {
 
     );
 
-    const sectionTitle = getMovieSectionTitle(
+    const sectionTitleKey = getMovieSectionTitle(
         status,
         search,
         genres
     );
+    const sectionTitle = t(sectionTitleKey.key, sectionTitleKey.params);
 
     const featuredMovies = getFeaturedMovies(movies, 3);
     const topSellingMovies = getTopSellingCarouselMovies(movies, 10);

@@ -1,18 +1,19 @@
 import { type FC, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { motion, animate, useInView, useReducedMotion } from "framer-motion";
 import { EASE_SMOOTH, revealUp, staggerContainer, viewportOnce } from "./motionVariants";
 
 interface Stat {
     value: number;
     suffix: string;
-    label: string;
+    labelKey: string;
 }
 
 const STATS: Stat[] = [
-    { value: 50, suffix: "+", label: "Cinemas Nationwide" },
-    { value: 15, suffix: "", label: "Years of Premium Cinema" },
-    { value: 100, suffix: "%", label: "4K Laser Projection" },
-    { value: 1, suffix: "M+", label: "Guests Every Month" },
+    { value: 50, suffix: "+", labelKey: "about.statCinemas" },
+    { value: 15, suffix: "", labelKey: "about.statYears" },
+    { value: 100, suffix: "%", labelKey: "about.statProjection" },
+    { value: 1, suffix: "M+", labelKey: "about.statGuests" },
 ];
 
 /** Counts up from 0 to `to` once the number scrolls into view. Uses
@@ -46,7 +47,9 @@ const Counter: FC<{ to: number; suffix: string }> = ({ to, suffix }) => {
 
 /** "By the Numbers" — social-proof stats that count up as they scroll
  *  into view, reinforcing the Brand Story with scale/credibility. */
-const StatsSection: FC = () => (
+const StatsSection: FC = () => {
+    const { t } = useTranslation("public");
+    return (
     <section className="abt-stats">
         <div className="abt-stats__inner">
             <motion.p
@@ -56,7 +59,7 @@ const StatsSection: FC = () => (
                 whileInView="visible"
                 viewport={viewportOnce}
             >
-                By The Numbers
+                {t("about.byTheNumbers")}
             </motion.p>
 
             <motion.div
@@ -67,14 +70,15 @@ const StatsSection: FC = () => (
                 viewport={viewportOnce}
             >
                 {STATS.map((s) => (
-                    <motion.div key={s.label} className="abt-stats__item" variants={revealUp}>
+                    <motion.div key={s.labelKey} className="abt-stats__item" variants={revealUp}>
                         <Counter to={s.value} suffix={s.suffix} />
-                        <p className="abt-stats__label">{s.label}</p>
+                        <p className="abt-stats__label">{t(s.labelKey)}</p>
                     </motion.div>
                 ))}
             </motion.div>
         </div>
     </section>
-);
+    );
+};
 
 export default StatsSection;

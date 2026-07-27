@@ -13,7 +13,10 @@ export interface VoucherEligibilityInput {
     rules: EligibilityRuleLike[];
 }
 
-/** Everything about the current order the picker can evaluate rules against. */
+/** Everything about the current order the picker can evaluate rules against.
+ *  Every field beyond the subtotals is optional: a rule is only ever enforced
+ *  when the matching context is supplied, so a caller that can't provide (say)
+ *  the seat types simply lets the server be the final gate for `SeatType`. */
 export interface EligibilityContext {
     seatsSubTotal: number;
     fnBSubTotal: number;
@@ -21,6 +24,15 @@ export interface EligibilityContext {
     cinemaId?: number;
     /** ISO start time of the showtime — for `DayOfWeek` rules. Undefined ⇒ skip. */
     startTime?: string;
+    /** Movie of the current showtime — for `Movie` rules. */
+    movieId?: number;
+    /** Seat types in the order (e.g. ["STANDARD","COUPLE"]) — for `SeatType` rules. */
+    seatTypes?: string[];
+    /** The member's tier (e.g. "MegaVip") — for `Membership` rules. */
+    membershipTier?: string | null;
+    /** F&B item ids in the order — for `Product` rules. Provided (even empty)
+     *  means "products are known", so a Product rule with no match is enforced. */
+    productIds?: number[];
 }
 
 export interface VoucherEligibility {
@@ -49,12 +61,12 @@ function splitList(value: string): string[] {
 
 /**
  * Decides whether a voucher can be applied to the order in front of the
- * customer. Deliberately lenient: only the rules we can actually evaluate
- * client-side with the data on hand (ApplyScope, minOrderValue, Cinema,
- * DayOfWeek) ever mark a voucher ineligible. Anything we can't verify
- * (Movie, Room, SeatType, Membership, PaymentMethod, Product, FoodCategory)
- * is left for the server to reject at apply time — better a rare inline
- * "not valid" than wrongly greying out a voucher the customer could use.
+ * customer. Deliberately lenient: a rule only ever marks a voucher ineligible
+ * when the matching order context is actually supplied. Callers that know the
+ * cinema, day, movie, seat types, member tier, and F&B items (e.g. the staff
+ * counter) get the full check; callers with less context enforce only what
+ * they can and leave the rest (Room, PaymentMethod, FoodCategory, or anything
+ * whose context is absent) for the server to reject at apply time.
  */
 export function evaluateVoucherEligibility(
     input: VoucherEligibilityInput,
@@ -111,6 +123,53 @@ export function evaluateVoucherEligibility(
                     },
                 };
             }
+        }
+    }
+
+    // Movie restriction.
+    const movieRule = rules.find((r) => r.ruleType === "Movie");
+    if (movieRule?.ruleValue && ctx.movieId != null) {
+        const allowed = splitList(movieRule.ruleValue);
+        if (!allowed.includes(String(ctx.movieId))) {
+            return { eligible: false, reasonKey: "voucherPicker.reasonWrongMovie" };
+        }
+    }
+
+    // Seat-type restriction — order must include at least one seat of an
+    // allowed type. Only enforced when the order actually has seats.
+    const seatRule = rules.find((r) => r.ruleType === "SeatType");
+    if (seatRule?.ruleValue && ctx.seatTypes && ctx.seatTypes.length > 0) {
+        const allowed = splitList(seatRule.ruleValue).map((s) => s.toLowerCase());
+        const hasMatch = ctx.seatTypes.some((t) => allowed.includes(t.toLowerCase()));
+        if (!hasMatch) {
+            return {
+                eligible: false,
+                reasonKey: "voucherPicker.reasonWrongSeatType",
+                reasonParams: { types: splitList(seatRule.ruleValue).join(", ") },
+            };
+        }
+    }
+
+    // Membership-tier restriction.
+    const memRule = rules.find((r) => r.ruleType === "Membership");
+    if (memRule?.ruleValue && ctx.membershipTier != null) {
+        const allowed = splitList(memRule.ruleValue).map((m) => m.toLowerCase());
+        if (!allowed.includes(ctx.membershipTier.toLowerCase())) {
+            return {
+                eligible: false,
+                reasonKey: "voucherPicker.reasonWrongMembership",
+                reasonParams: { tier: splitList(memRule.ruleValue).join(", ") },
+            };
+        }
+    }
+
+    // Product restriction — order must contain one of the required F&B items.
+    const productRule = rules.find((r) => r.ruleType === "Product");
+    if (productRule?.ruleValue && ctx.productIds != null) {
+        const allowed = splitList(productRule.ruleValue);
+        const hasMatch = ctx.productIds.some((id) => allowed.includes(String(id)));
+        if (!hasMatch) {
+            return { eligible: false, reasonKey: "voucherPicker.reasonWrongProduct" };
         }
     }
 

@@ -1,5 +1,6 @@
 import { type FC, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAppSelector } from "@/store/hooks";
 import { useCinemas } from "@/features/manager/hooks/useCinemas";
 import type { Cinema } from "@/features/manager/types/cinema.types";
@@ -45,6 +46,7 @@ const TheaterCard: FC<{
     onSelect: () => void;
     onEnter: () => void;
 }> = ({ cinema, selected, onSelect, onEnter }) => {
+    const { t } = useTranslation("public");
     const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
         `${cinema.cinemaName}, ${cinema.address}`,
     )}`;
@@ -64,11 +66,11 @@ const TheaterCard: FC<{
 
             <div className="thtr-card__actions">
                 <button className="thtr-card__select" onClick={onEnter}>
-                    Select Cinema
+                    {t("theaters.selectCinema")}
                 </button>
                 <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="thtr-card__cta">
                     <PinIcon />
-                    Get Directions
+                    {t("theaters.getDirections")}
                 </a>
             </div>
         </div>
@@ -76,6 +78,7 @@ const TheaterCard: FC<{
 };
 
 const TheatersPage: FC = () => {
+    const { t } = useTranslation("public");
     const { data: cinemas = [], isLoading } = useCinemas();
     const navigate = useNavigate();
     const user = useAppSelector((s) => s.auth.user);
@@ -109,8 +112,8 @@ const TheatersPage: FC = () => {
         <div className="thtr-page">
             <div className="thtr-head">
                 <span className="thtr-head__eyebrow">CV Premium</span>
-                <h1 className="thtr-head__title">Select Your Cinema</h1>
-                <p className="thtr-head__sub">Find a CV Premium cinema near you.</p>
+                <h1 className="thtr-head__title">{t("theaters.title")}</h1>
+                <p className="thtr-head__sub">{t("theaters.subtitle")}</p>
             </div>
 
             <div className="thtr-toolbar">
@@ -118,20 +121,20 @@ const TheatersPage: FC = () => {
                     <span className="thtr-search__icon"><SearchIcon /></span>
                     <input
                         type="text"
-                        placeholder="Search by name or address..."
+                        placeholder={t("theaters.searchPlaceholder")}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
-                <button className="thtr-reset" onClick={handleReset} aria-label="Reset filters">
+                <button className="thtr-reset" onClick={handleReset} aria-label={t("theaters.resetAria")}>
                     <ResetIcon />
-                    Reset
+                    {t("theaters.reset")}
                 </button>
             </div>
 
             {!isLoading && (
                 <p className="thtr-count">
-                    {filtered.length} theater{filtered.length !== 1 ? "s" : ""} found
+                    {t("theaters.foundCount", { count: filtered.length })}
                 </p>
             )}
 
@@ -147,9 +150,9 @@ const TheatersPage: FC = () => {
             ) : filtered.length === 0 ? (
                 <div className="thtr-empty">
                     <p style={{ margin: 0, fontSize: 16 }}>
-                        {activeCinemas.length === 0 ? "No theaters available right now." : "No theaters match your search."}
+                        {activeCinemas.length === 0 ? t("theaters.emptyNone") : t("theaters.emptySearch")}
                     </p>
-                    <p style={{ margin: "6px 0 0", fontSize: 14 }}>Please check back soon.</p>
+                    <p style={{ margin: "6px 0 0", fontSize: 14 }}>{t("theaters.checkBack")}</p>
                 </div>
             ) : (
                 <div className="thtr-layout">

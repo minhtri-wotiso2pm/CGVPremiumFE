@@ -646,7 +646,7 @@
 
 .voucherRow {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 12px;
     padding: 12px 14px;
     border-radius: var(--dash-radius);
@@ -656,16 +656,22 @@
     font-family: inherit;
     text-align: left;
     width: 100%;
-    transition: border-color 0.15s ease, background 0.15s ease;
+    transition: border-color 0.15s ease, background 0.15s ease, opacity 0.15s ease;
 }
 
-.voucherRow:hover {
+.voucherRow:hover:not(:disabled) {
     border-color: var(--dash-crimson-border);
 }
 
 .voucherRowActive {
     border-color: var(--dash-crimson);
     background: var(--dash-crimson-subtle);
+}
+
+.voucherRowDisabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    filter: grayscale(0.55);
 }
 
 .voucherThumb {
@@ -677,10 +683,38 @@
     flex-shrink: 0;
 }
 
+.voucherBody {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Name (code) leads the card; discount sits beside it as a badge. */
+.voucherTopRow {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.voucherName {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--dash-text);
+    font-family: 'SF Mono', ui-monospace, 'Menlo', 'Consolas', monospace;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .voucherDiscount {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
     color: var(--dash-crimson-dim);
+    flex-shrink: 0;
 }
 
 .voucherCode {
@@ -693,7 +727,40 @@
 .voucherDesc {
     font-size: 12px;
     color: var(--dash-text-3);
-    margin-top: 2px;
+    line-height: 1.35;
+}
+
+.voucherMetaRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.voucherMetaChip {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--dash-gold, #c9a24b);
+    background: rgba(201, 162, 75, 0.12);
+    border: 1px solid rgba(201, 162, 75, 0.28);
+    padding: 2px 8px;
+    border-radius: 100px;
+    white-space: nowrap;
+}
+
+.voucherRuleTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.voucherRuleTag {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--dash-text-3);
+    background: var(--dash-surface-hover);
+    border: 1px solid var(--dash-border);
+    padding: 2px 8px;
+    border-radius: 6px;
 }
 
 .voucherCheck {
@@ -701,6 +768,26 @@
     color: var(--dash-crimson);
     flex-shrink: 0;
     display: inline-flex;
+    align-self: center;
+}
+
+.voucherReason {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    align-self: center;
+    max-width: 40%;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: #d68a8a;
+    background: rgba(214, 138, 138, 0.1);
+    border: 1px solid rgba(214, 138, 138, 0.25);
+    padding: 3px 8px;
+    border-radius: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* ── Payment step ── */

@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useTranslation } from "react-i18next";
 import { getYouTubeId } from "../utils/movie.utils";
 import "./movies.css";
 
@@ -8,6 +9,7 @@ interface Props {
 }
 
 const MovieDetailTrailer: FC<Props> = ({ trailerUrl, title }) => {
+    const { t } = useTranslation("movies");
     const videoId = getYouTubeId(trailerUrl);
 
     if (!videoId) return null;
@@ -19,7 +21,7 @@ const MovieDetailTrailer: FC<Props> = ({ trailerUrl, title }) => {
             <div className="cgv-detail-trailer__ratio">
                 <iframe
                     src={embedUrl}
-                    title={`Trailer — ${title}`}
+                    title={t("detail.trailerFor", { title })}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
                     className="cgv-detail-trailer__iframe"
