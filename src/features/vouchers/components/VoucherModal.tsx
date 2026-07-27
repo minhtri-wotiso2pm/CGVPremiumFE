@@ -5,12 +5,12 @@ import dayjs, { type Dayjs } from "dayjs";
 import type { Voucher, VoucherFormData, VoucherRule } from "../types/voucher.types";
 import {
     DISCOUNT_TYPE_OPTIONS,
-    VOUCHER_CATEGORY_OPTIONS,
+    // VOUCHER_CATEGORY_OPTIONS,
     DEFAULT_VOUCHER_CATEGORY,
 } from "../constants/voucher.constants";
 import {
     voucherCodeRules,
-    categoryRules,
+    // categoryRules,
     discountTypeRules,
     validityRules,
     descriptionRules,
@@ -203,16 +203,16 @@ const VoucherModal: FC<Props> = ({ mode, voucher, open, onClose }) => {
         >
             <Form form={form} layout="vertical" requiredMark={false} style={{ marginTop: 4 }}>
                 <Row gutter={12}>
-                    <Col span={12}>
+                    <Col span={24}>
                         <Form.Item label="Voucher Code" name="voucherCode" rules={voucherCodeRules}>
                             <Input placeholder="e.g. SUMMER10" maxLength={40} style={{ textTransform: "uppercase" }} />
                         </Form.Item>
                     </Col>
-                    <Col span={12}>
+                    {/* <Col span={12}>
                         <Form.Item label="Category" name="category" rules={categoryRules}>
                             <Select options={[...VOUCHER_CATEGORY_OPTIONS]} />
                         </Form.Item>
-                    </Col>
+                    </Col> */}
                 </Row>
 
                 <Row gutter={12}>
