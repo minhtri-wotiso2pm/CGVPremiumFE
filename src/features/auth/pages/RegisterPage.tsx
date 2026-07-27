@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { registerApi } from "@/services/api/auth.service";
 import axios from "axios";
 
@@ -30,10 +31,10 @@ const T = {
    PASSWORD REQUIREMENT RULES
 ───────────────────────────────────────────────────────────── */
 const PASSWORD_RULES = [
-    { id: "len",     label: "At least 6 characters",              test: (v: string) => v.length >= 6 },
-    { id: "upper",   label: "At least 1 uppercase letter (A–Z)",  test: (v: string) => /[A-Z]/.test(v) },
-    { id: "digit",   label: "At least 1 number (0–9)",            test: (v: string) => /[0-9]/.test(v) },
-    { id: "special", label: "At least 1 special character (!@#$…)", test: (v: string) => /[^A-Za-z0-9]/.test(v) },
+    { id: "len",     label: "validation.rule.len",     test: (v: string) => v.length >= 6 },
+    { id: "upper",   label: "validation.rule.upper",   test: (v: string) => /[A-Z]/.test(v) },
+    { id: "digit",   label: "validation.rule.digit",   test: (v: string) => /[0-9]/.test(v) },
+    { id: "special", label: "validation.rule.special", test: (v: string) => /[^A-Za-z0-9]/.test(v) },
 ] as const;
 
 /* ─────────────────────────────────────────────────────────────
@@ -41,31 +42,31 @@ const PASSWORD_RULES = [
 ───────────────────────────────────────────────────────────── */
 const rules = {
     fullName: (v: string): string => {
-        if (!v.trim()) return "Full name is required.";
-        if (v.trim().length < 2) return "Full name must be at least 2 characters.";
+        if (!v.trim()) return "validation.fullNameRequired";
+        if (v.trim().length < 2) return "validation.fullNameMin";
         return "";
     },
     email: (v: string): string => {
-        if (!v.trim()) return "Email is required.";
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "Invalid email format.";
+        if (!v.trim()) return "validation.emailRequired";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return "validation.emailInvalid";
         return "";
     },
     phone: (v: string): string => {
-        if (!v.trim()) return "Phone number is required.";
-        if (!/^\d+$/.test(v)) return "Phone number must contain digits only.";
-        if (v.length !== 10) return "Phone number must be exactly 10 digits.";
-        if (!v.startsWith("0")) return "Phone number must start with 0.";
+        if (!v.trim()) return "validation.phoneRequired";
+        if (!/^\d+$/.test(v)) return "validation.phoneDigitsOnly";
+        if (v.length !== 10) return "validation.phoneLength";
+        if (!v.startsWith("0")) return "validation.phoneStartZero";
         return "";
     },
-    password: (v: string): string => {
-        if (!v) return "Password is required.";
+    password: (v: string): string | { key: string; missing: string[] } => {
+        if (!v) return "validation.newPasswordRequired";
         const missing = PASSWORD_RULES.filter((r) => !r.test(v)).map((r) => r.label);
-        if (missing.length > 0) return `Password is missing: ${missing.join(" · ")}.`;
+        if (missing.length > 0) return { key: "validation.passwordMissing", missing };
         return "";
     },
     confirmPassword: (v: string, pw: string): string => {
-        if (!v) return "Please confirm your password.";
-        if (v !== pw) return "Passwords do not match.";
+        if (!v) return "validation.confirmPasswordRequired";
+        if (v !== pw) return "validation.passwordsMismatch";
         return "";
     },
 };
@@ -74,6 +75,7 @@ const rules = {
    PASSWORD CHECKLIST
 ───────────────────────────────────────────────────────────── */
 function PasswordChecklist({ value, show }: { value: string; show: boolean }) {
+    const { t } = useTranslation("auth");
     if (!show) return null;
     return (
         <div style={{
@@ -102,7 +104,7 @@ function PasswordChecklist({ value, show }: { value: string; show: boolean }) {
                             color: passed ? "#22c55e" : "#7a5858",
                             transition: "color 0.2s",
                         }}>
-                            {rule.label}
+                            {t(rule.label)}
                         </span>
                     </div>
                 );
@@ -123,13 +125,14 @@ function passwordStrength(v: string): 0 | 1 | 2 | 3 {
 }
 
 const strengthMeta: Record<1 | 2 | 3, { label: string; color: string }> = {
-    1: { label: "Weak", color: T.crimson },
-    2: { label: "Medium", color: "#f59e0b" },
-    3: { label: "Strong", color: "#22c55e" },
+    1: { label: "reset.strengthWeak", color: T.crimson },
+    2: { label: "reset.strengthMedium", color: "#f59e0b" },
+    3: { label: "reset.strengthStrong", color: "#22c55e" },
 };
 
 function StrengthBar({ score }: { score: 0 | 1 | 2 | 3 }) {
     if (score === 0) return null;
+    const { t } = useTranslation("auth");
     const meta = strengthMeta[score];
     return (
         <div style={{ marginTop: 8 }}>
@@ -149,7 +152,7 @@ function StrengthBar({ score }: { score: 0 | 1 | 2 | 3 }) {
                 fontSize: 10.5, color: meta.color,
                 marginTop: 5, letterSpacing: "0.04em",
             }}>
-                Strength: {meta.label}
+                {t("reset.strengthLabel")} {t(meta.label)}
             </p>
         </div>
     );
@@ -209,7 +212,7 @@ interface FieldProps {
     value: string;
     placeholder: string;
     autoComplete: string;
-    error: string;
+    error: string | { key: string; missing: string[] };
     isValid: boolean;
     isFocused: boolean;
     onChange: (v: string) => void;
@@ -230,6 +233,7 @@ function FormField({
     rightAddon, belowInput, rightLabel,
     maxLength, inputMode,
 }: FieldProps) {
+    const { t } = useTranslation("auth");
     const borderColor = error
         ? T.borderError
         : isValid
@@ -245,6 +249,14 @@ function FormField({
             : isFocused
                 ? "0 0 0 3px rgba(232,0,28,0.07)"
                 : "none";
+
+    const renderError = () => {
+        if (!error) return null;
+        if (typeof error === "string") return t(error);
+        // object with key + missing
+        const list = error.missing.map((m) => t(m)).join(" · ");
+        return t(error.key, { list });
+    };
 
     return (
         <div style={{ marginBottom: 20 }}>
@@ -320,7 +332,7 @@ function FormField({
                     lineHeight: 1.4,
                 }}
             >
-                {error && <><span aria-hidden="true">⚠</span>{error}</>}
+                {error && <><span aria-hidden="true">⚠</span>{renderError()}</>}
             </p>
         </div>
     );
@@ -354,11 +366,12 @@ interface TogglePwProps {
 }
 
 function TogglePwButton({ show, onToggle, label }: TogglePwProps) {
+    const { t } = useTranslation("auth");
     return (
         <button
             type="button"
             className="cgv-toggle-pw"
-            aria-label={label ?? (show ? "Hide password" : "Show password")}
+            aria-label={label ?? (show ? t("fields.hidePassword") : t("fields.showPassword"))}
             onClick={onToggle}
             style={{
                 background: "none", border: "none",
@@ -379,6 +392,7 @@ function TogglePwButton({ show, onToggle, label }: TogglePwProps) {
 ───────────────────────────────────────────────────────────── */
 export default function RegisterPage() {
     const navigate = useNavigate();
+    const { t } = useTranslation("auth");
 
     /* ── Form values ── */
     const [fullName, setFullName] = useState("");
@@ -531,7 +545,7 @@ export default function RegisterPage() {
                 <div
                     className="cgv-card"
                     role="main"
-                    aria-label="Register for CVPremium"
+                    aria-label={t("register.aria")}
                     style={{
                         position: "relative", zIndex: 10,
                         background: T.surface,
@@ -556,10 +570,10 @@ export default function RegisterPage() {
                     </div>
 
                     <p style={{ textAlign: "center", fontSize: 9.5, letterSpacing: "0.35em", color: "#5a4040", fontWeight: 500, textTransform: "uppercase", marginBottom: 6 }}>
-                        Cinema of Excellence
+                        {t("brandTagline")}
                     </p>
                     <p style={{ textAlign: "center", fontSize: 11.5, color: T.textMuted, letterSpacing: "0.04em", marginBottom: 36 }}>
-                        Create your VIP membership
+                        {t("register.intro")}
                     </p>
                     <div style={{ width: 32, height: 1, background: "rgba(232,0,28,0.3)", margin: "0 auto 36px" }} />
 
@@ -576,11 +590,11 @@ export default function RegisterPage() {
                     )}
 
                     {/* ── Section 1: Personal info ── */}
-                    <SectionLabel>Personal Information</SectionLabel>
+                    <SectionLabel>{t("register.section.personal")}</SectionLabel>
 
                     <FormField
-                        id="cgv-fullName" label="Full Name" type="text"
-                        value={fullName} placeholder="John Doe" autoComplete="name"
+                        id="cgv-fullName" label={t("register.fullName")} type="text"
+                        value={fullName} placeholder={t("register.fullNamePlaceholder")} autoComplete="name"
                         error={fullNameError} isValid={fullNameValid} isFocused={focusedField === "fullName"}
                         onChange={(v) => { setFullName(v); setSubmitErr(""); }}
                         onFocus={() => setFocusedField("fullName")}
@@ -589,8 +603,8 @@ export default function RegisterPage() {
                     />
 
                     <FormField
-                        id="cgv-email" label="Email Address" type="email"
-                        value={email} placeholder="name@luxury.com" autoComplete="email"
+                        id="cgv-email" label={t("fields.email")} type="email"
+                        value={email} placeholder={t("fields.emailPlaceholder")} autoComplete="email"
                         error={emailError} isValid={emailValid} isFocused={focusedField === "email"}
                         onChange={(v) => { setEmail(v); setSubmitErr(""); }}
                         onFocus={() => setFocusedField("email")}
@@ -599,8 +613,8 @@ export default function RegisterPage() {
                     />
 
                     <FormField
-                        id="cgv-phone" label="Phone Number" type="tel"
-                        value={phone} placeholder="0912 345 678" autoComplete="tel"
+                        id="cgv-phone" label={t("register.phone") } type="tel"
+                        value={phone} placeholder={t("register.phonePlaceholder")} autoComplete="tel"
                         maxLength={10} inputMode="numeric"
                         error={phoneError} isValid={phoneValid} isFocused={focusedField === "phone"}
                         onChange={(v) => { handlePhoneChange(v); setSubmitErr(""); }}
@@ -610,13 +624,13 @@ export default function RegisterPage() {
                     />
 
                     {/* ── Section 2: Security ── */}
-                    <SectionLabel>Account Security</SectionLabel>
+                    <SectionLabel>{t("register.section.security")}</SectionLabel>
 
                     {/* Password + StrengthBar */}
                     <FormField
-                        id="cgv-password" label="Password"
+                        id="cgv-password" label={t("fields.password")}
                         type={showPw ? "text" : "password"}
-                        value={password} placeholder="At least 6 chars, 1 uppercase, 1 number, 1 special" autoComplete="new-password"
+                        value={password} placeholder={t("register.passwordPlaceholder")} autoComplete="new-password"
                         error={passwordError} isValid={passwordValid} isFocused={focusedField === "password"}
                         onChange={(v) => { setPassword(v); setSubmitErr(""); }}
                         onFocus={() => setFocusedField("password")}
@@ -641,9 +655,9 @@ export default function RegisterPage() {
 
                     {/* Confirm Password — no strength bar, match indicator only */}
                     <FormField
-                        id="cgv-confirmPassword" label="Confirm Password"
+                        id="cgv-confirmPassword" label={t("register.confirmPassword")}
                         type={showConfirmPw ? "text" : "password"}
-                        value={confirmPassword} placeholder="Re-enter your password" autoComplete="new-password"
+                        value={confirmPassword} placeholder={t("register.confirmPasswordPlaceholder")} autoComplete="new-password"
                         error={confirmPasswordError} isValid={confirmPasswordValid} isFocused={focusedField === "confirmPassword"}
                         onChange={(v) => { setConfirmPassword(v); setSubmitErr(""); }}
                         onFocus={() => setFocusedField("confirmPassword")}
@@ -678,12 +692,12 @@ export default function RegisterPage() {
                         }}
                     >
                         {loading && <span className="cgv-spinner" aria-hidden="true" />}
-                        {loading ? "Registering…" : "Register"}
+                        {loading ? t("register.registering") : t("register.register")}
                     </button>
 
                     {/* Sign in link */}
                     <p style={{ textAlign: "center", marginTop: 28, fontSize: 12.5, color: T.textFaint }}>
-                        Already have an account?{" "}
+                        {t("register.already")}{" "}
                         <a
                             href="/login"
                             onClick={(e) => { e.preventDefault(); navigate("/login"); }}
@@ -694,7 +708,7 @@ export default function RegisterPage() {
                                 transition: "border-color 0.2s",
                             }}
                         >
-                            Sign In
+                            {t("login.signIn")}
                         </a>
                     </p>
                 </div>

@@ -1,4 +1,5 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 /* ─────────────────────────────────────────────────────────────
    DESIGN TOKENS — CVPremium Design System
@@ -53,6 +54,7 @@ export default function RegisterSuccessfulPage() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const email = searchParams.get("email") ?? "";
+    const { t } = useTranslation(["auth", "footer"]);
 
     return (
         <>
@@ -105,7 +107,7 @@ export default function RegisterSuccessfulPage() {
                 <div
                     className="cgv-card"
                     role="main"
-                    aria-label="Email sent successfully"
+                    aria-label={t("success.register.aria")}
                     style={{
                         position: "relative", zIndex: 10,
                         background: T.surface,
@@ -131,7 +133,7 @@ export default function RegisterSuccessfulPage() {
                     </div>
 
                     <p style={{ fontSize: 9.5, letterSpacing: "0.35em", color: "#5a4040", fontWeight: 500, textTransform: "uppercase", marginBottom: 40 }}>
-                        Cinema of Excellence
+                        {t("brandTagline")}
                     </p>
 
                     {/* Success icon */}
@@ -159,8 +161,7 @@ export default function RegisterSuccessfulPage() {
                         fontSize: 20, fontWeight: 700, letterSpacing: "0.04em",
                         color: T.textPrimary, margin: "0 0 12px",
                     }}>
-                        Email verified successfully
-
+                        {t("success.register.title")}
                     </h2>
 
                     {/* Description */}
@@ -169,14 +170,14 @@ export default function RegisterSuccessfulPage() {
                         lineHeight: 1.75, letterSpacing: "0.02em",
                         margin: "0 0 8px",
                     }}>
-                        Your account has been activated
+                        {t("success.register.description")}
                     </p>
 
                     {/* Email display */}
                     {email && (
                         <div
                             role="status"
-                            aria-label={`Email sent to ${email}`}
+                            aria-label={t("success.register.emailStatus", { email })}
                             style={{
                                 display: "inline-block",
                                 background: "rgba(232,0,28,0.08)",
@@ -198,7 +199,7 @@ export default function RegisterSuccessfulPage() {
                         lineHeight: 1.7, letterSpacing: "0.02em",
                         marginBottom: 36,
                     }}>
-                        You can now sign in and enjoy CVPremium
+                        {t("success.register.helper")}
                     </p>
 
                     <div style={{ width: 32, height: 1, background: "rgba(232,0,28,0.3)", margin: "0 auto 32px" }} />
@@ -220,7 +221,7 @@ export default function RegisterSuccessfulPage() {
                             marginBottom: 12,
                         }}
                     >
-                        Back to Login
+                        {t("success.register.button")}
                     </button>
 
                     {/* Secondary button
@@ -250,7 +251,7 @@ export default function RegisterSuccessfulPage() {
                     fontSize: 9.5, color: "#5a4040", letterSpacing: "0.14em",
                     textAlign: "center", textTransform: "uppercase",
                 }}>
-                    © 2026 CVPremium Entertainment Systems · All Rights Reserved
+                    {t("copyright", { ns: "footer" })}
                 </p>
             </div>
         </>
