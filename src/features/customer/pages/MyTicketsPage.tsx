@@ -29,6 +29,7 @@ const statusStyle = (status: string): { bg: string; color: string; labelKey: str
     if (s === "used") return { bg: "rgba(167,139,250,0.14)", color: "#a78bfa", labelKey: "tickets.status.attended" };
     if (s === "pending") return { bg: "rgba(245,158,11,0.14)", color: "#fbbf24", labelKey: "tickets.status.pending" };
     if (s === "refunded") return { bg: "rgba(96,165,250,0.14)", color: "#60a5fa", labelKey: "tickets.status.refunded" };
+    if (s === "no_show") return { bg: "rgba(148,163,184,0.14)", color: "#c1c8d1", labelKey: "tickets.status.noshow" };
     return { bg: "rgba(148,163,184,0.14)", color: "#94a3b8", labelKey: null };
 };
 

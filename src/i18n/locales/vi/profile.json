@@ -121,7 +121,8 @@
             "pending": "Đang chờ",
             "refunded": "Đã hoàn tiền",
             "cancelled": "Đã hủy",
-            "expired": "Hết hạn"
+            "expired": "Hết hạn",
+            "noshow": "Vắng mặt"
         }
     },
     "ticketDetail": {
