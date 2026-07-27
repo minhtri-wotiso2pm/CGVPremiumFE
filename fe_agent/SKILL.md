@@ -1,394 +1,449 @@
-\# SKILL.md
+# SKILL.md
 
+## Purpose
 
+You are an engineering agent working on **CGVPremiumFE**, a React + TypeScript cinema management system (CGV cinema chain).
 
-\## Purpose
+Your goal is to implement requested changes **correctly**, **safely**, and **consistently** with the existing architecture.
 
+You must **never invent requirements, business rules, or API contracts.**
 
+---
 
-You are an engineering agent working on \*\*CGVPremiumFE\*\*, a React + TypeScript cinema management system.
+# Core Principles
 
+1. **Never assume requirements.** If a requirement is ambiguous, incomplete, or has multiple valid interpretations — stop, ask, wait.
 
+2. **Preserve existing behavior.** Don't touch unrelated features, refactor unrelated code, rename APIs, move files, or "improve" code that wasn't part of the request.
 
-Your goal is to implement requested changes \*\*correctly\*\*, \*\*safely\*\*, and \*\*consistently\*\* with the existing architecture.
+3. **Reuse existing patterns.** Before creating a hook, component, service, utility, table, modal, form, validation schema, or query hook — search the project for an existing one first.
 
+4. **Smallest correct change wins.** Prefer the minimal diff that satisfies the request over the more "complete" refactor you might be tempted to do.
 
+---
 
-You must \*\*never invent requirements, business rules, or API contracts.\*\*
-
-
-
-\---
-
-
-
-\# Core Principles
-
-
-
-1\. \*\*Never assume requirements.\*\* If a requirement is ambiguous, incomplete, or has multiple valid interpretations — stop, ask, wait.
-
-2\. \*\*Preserve existing behavior.\*\* Don't touch unrelated features, refactor unrelated code, rename APIs, move files, or "improve" code that wasn't part of the request.
-
-3\. \*\*Reuse existing patterns.\*\* Before creating a hook, component, service, utility, table, modal, form, validation schema, or query hook — search the project for an existing one first.
-
-4\. \*\*Smallest correct change wins.\*\* Prefer the minimal diff that satisfies the request over the more "complete" refactor you might be tempted to do.
-
-
-
-Examples:
-
-
-
-"I think Manager should also have this permission."
-
-"Currently only Admin has this action. Should Manager also have access?"
-
-
-
-Assuming: "COMING\_SOON movies cannot be booked."
-
-&#x20;Asking: "Should COMING\_SOON movies allow showtime creation?"
-
-
-
-\---
-
-
-
-\# Before Implementing — Investigation Workflow
-
-
+# Before Implementing — Investigation Workflow
 
 For every request, in order:
 
+1. **Locate the existing implementation** (or nearest analog) before writing anything.
 
+2. **Grep/search for reusable code** — hooks, services, schemas, components — rather than assuming none exists.
 
-1\. \*\*Locate the existing implementation\*\* (or nearest analog) before writing anything.
+3. **Read neighboring files** in the same feature folder to match conventions (naming, file layout, error handling, query key shape).
 
-2\. \*\*Grep/search for reusable code\*\* — hooks, services, schemas, components — rather than assuming none exists.
+4. **Identify all affected modules** (routes, store slices, shared types, other features consuming the same API).
 
-3\. \*\*Read neighboring files\*\* in the same feature folder to match conventions (naming, file layout, error handling, query key shape).
+5. Only then implement.
 
-4\. \*\*Identify all affected modules\*\* (routes, store slices, shared types, other features consuming the same API).
+---
 
-5\. Only then implement.
+# Project Architecture
 
-
-
-Do not skip straight to writing code because the task "seems simple" — the fastest wrong implementation still costs more than a 30-second search.
-
-
-
-\---
-
-
-
-\# Project Architecture
-
-
-
-Feature-based:
-
-
+Feature-based with role-based route prefixes:
 
 ```
-
 src/
-
-&#x20;   features/       # domain logic, grouped by feature (e.g. features/movie, features/booking)
-
-&#x20;   components/      # shared, cross-feature UI components
-
-&#x20;   layouts/
-
-&#x20;   routes/
-
-&#x20;   services/        # API clients
-
-&#x20;   store/           # Redux slices (global/auth state)
-
-&#x20;   hooks/           # shared hooks
-
-&#x20;   utils/
-
-&#x20;   constants/
-
-&#x20;   types/
-
+  features/       # domain logic, grouped by feature
+  components/     # shared, cross-feature UI components (small — most UI is feature-local)
+  layouts/        # role-specific layout wrappers
+  routes/         # route guards and router config
+  services/       # API service functions + Axios config
+  store/          # Redux store (auth only)
+  hooks/          # shared hooks (useDebounce, useMediaQuery, usePagination)
+  utils/          # shared utilities (notify, formatCurrency, formatDate, etc.)
+  constants/      # roles, permissions, routes, storageKeys
+  types/          # mostly empty — types live in feature folders
+  providers/      # QueryProvider (only non-empty provider)
+  styles/         # global CSS (index.css with CSS reset)
+  assets/         # static images and videos
 ```
 
+Within a feature folder:
 
+```
+features/<name>/
+  components/     # UI components (PascalCase命名)
+  hooks/          # custom hooks (use* prefix)
+  pages/          # routed page components
+  types/          # TypeScript interfaces/types
+  constants/      # query keys, option lists, config values
+  schemas/        # validation rules (Ant Design Rule[] or Zod)
+  utils/          # pure helper functions
+```
 
-Within a feature folder, follow the existing internal structure (e.g. `features/movie/{api,hooks,components,types}`) rather than inventing a new shape for a new feature.
+**Never invent a new subfolder shape.** Match the feature you're working in.
 
+---
 
+# Technology Stack
 
-\---
+React 19 · TypeScript 6 · Vite 8 · Redux Toolkit · React Query (@tanstack/react-query v5) · React Router DOM v7 · Axios · Ant Design v6 · Zod · Framer Motion · Recharts · React Hook Form · Leaflet
 
+Use only what's already used in the project. Do not introduce a new dependency without an explicit request — check `package.json` first.
 
+---
 
-\# Technology Stack
+# Path Aliases
 
+The `@/` alias maps to `src/`. Use it everywhere:
 
+```ts
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { notify } from "@/utils/notify";
+```
 
-React 19 · TypeScript · Vite · Redux Toolkit · React Query · React Router DOM · Axios · Ant Design · Zod
+Configured in both `vite.config.ts` and `tsconfig.app.json`.
 
+---
 
+# TypeScript Conventions
 
-Use only what's already used in the project. Do not introduce a new dependency, even a popular one, without an explicit request — check `package.json` first if unsure whether something is already available.
+- `verbatimModuleSyntax: true` is enabled — use `import type` for type-only imports.
+- `noUnusedLocals: true` and `noUnusedParameters: true` — no dead code.
+- Feature types live in `features/<name>/types/*.types.ts` (plural `.types.ts` is dominant, some use `.type.ts`).
+- Global `src/types/` files are mostly empty — types are feature-colocated.
+- Use explicit interfaces over `any`. Avoid unnecessary type assertions.
 
+---
 
+# State Management
 
-\---
+**Redux: auth only.** Single `authSlice` with `loginSuccess`, `updateUserInfo`, `logout`. No server state in Redux. No RTK Query. No thunks.
 
+**React Query: all server state.** Every API call goes through `useQuery` or `useMutation`. Don't duplicate server state in Redux.
 
+**useAuth()** reads from Redux (`state.auth`) — this is the only hook that reads auth state from Redux.
 
-\# Coding Conventions
+**localStorage** persists `accessToken` and `user` — the auth slice reads from localStorage at module load to hydrate initial state.
 
+---
 
+# React Query Patterns
 
-\*\*TypeScript\*\* — explicit types, interfaces, existing shared types. Avoid `any` and unnecessary type assertions.
+## Query Keys
 
+Query keys are **co-located per feature** — NOT centralized. The file `src/constants/queryKeys.ts` is empty.
 
+Define query keys in the feature's `constants/` file or in the hook file itself:
 
-\*\*React\*\* — functional components, hooks, composition. No class components.
+```ts
+// features/admin/constants/admin.constants.ts
+export const ADMIN_USERS_QUERY_KEY = ["admin", "users"] as const;
 
+// features/customer/hooks/useProfile.ts
+export const PROFILE_QUERY_KEY = ["profile"] as const;
+```
 
+Two patterns exist (both are acceptable):
+- **Array constant:** `["admin", "users"] as const` — use with spread: `[...ADMIN_USERS_QUERY_KEY, params]`
+- **Factory function:** `(movieName, date) => ["showtimes", movieName, date] as const` — for parameterized keys
 
-\*\*State\*\* — React Query for server state, Redux for auth/global state. Don't duplicate state across the two.
+## Query Hook Pattern
 
+```ts
+export function useUsers(params: GetUsersParams) {
+    return useQuery({
+        queryKey: [...ADMIN_USERS_QUERY_KEY, params],
+        queryFn: () => getUsersApi(params),
+        placeholderData: (prev) => prev,  // v5 keepPreviousData for paginated lists
+    });
+}
+```
 
+- Use `placeholderData: (prev) => prev` for paginated lists (React Query v5 pattern).
+- Use `enabled` for conditional queries: `enabled: !!movieName && !!date`.
+- Use `staleTime` for data that changes infrequently (e.g., `2 * 60 * 1000`).
+- Use `refetchInterval` for polling (e.g., `30_000` for notification unread count).
+- No error/loading handling at hook level — left to the consuming component.
 
-\*\*Forms\*\* — reuse existing form components, Zod schemas, and validation layouts. When adding a field, mirror backend validation on the frontend if backend validation already exists for it. Don't build a parallel form pattern when one exists in the feature.
+## Mutation Hook Pattern
 
+Two styles exist in the codebase (match the feature you're working in):
 
+**Style A: With notifications (most features)**
+```ts
+export function useCreateUser() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: createUserApi,
+        onSuccess: (res) => {
+            queryClient.invalidateQueries({ queryKey: ADMIN_USERS_QUERY_KEY });
+            notify.success(res.message ?? "User created successfully");
+        },
+        onError: (err: any) => {
+            notify.error("Failed to create user", err?.response?.data?.message);
+        },
+    });
+}
+```
 
-\*\*API calls\*\* — always go through an existing service; never call Axios directly from a page/component if a service already exists for that resource.
+**Style B: Minimal (some features — booking, notifications)**
+```ts
+export function useCreateBooking() {
+    return useMutation({ mutationFn: createBookingApi });
+}
+```
 
+## Cache Invalidation
 
+Always invalidate in `onSuccess` — never use optimistic updates. Invalidate the **base key** (without params) to invalidate all variants:
 
-\*\*Routing\*\* — reuse existing route guards; don't duplicate authorization logic in a new place.
+```ts
+queryClient.invalidateQueries({ queryKey: ADMIN_USERS_QUERY_KEY });
+```
 
+For list+detail consistency, invalidate both:
+```ts
+queryClient.invalidateQueries({ queryKey: MOVIE_LIST_QUERY_KEY });
+queryClient.invalidateQueries({ queryKey: ["manager-movie-detail", movieId] });
+```
 
+---
 
-\*\*React Query\*\* — reuse existing query keys where present; invalidate only the queries actually affected by the change; avoid introducing unnecessary refetches.
+# Service Layer
 
+All API calls go through `src/services/api/*.service.ts`. Never call `axiosInstance` directly from components.
 
+```ts
+import axiosInstance from "@/services/axios/axiosInstance";
 
-\*\*Tables\*\* — when modifying, preserve existing pagination, filtering, sorting, loading, and empty states. Don't rewrite the table to add one column.
+export const getUsersApi = async (params: GetUsersParams): Promise<UserListResponse> => {
+    const { data } = await axiosInstance.get("/admin/users", { params });
+    return data;
+};
+```
 
+Pattern: async function → typed params → `axiosInstance.get/post/put/patch/delete` → return `response.data`.
 
+Services do NOT handle errors — errors bubble up to the calling hook/component.
 
-\*\*Error handling\*\* — reuse existing notification utilities, message components, error boundaries, and loading states. A new error path should look like the rest of the app, not introduce a new UX pattern.
+Services do NOT import from Redux — they are pure data-fetching functions.
 
+---
 
+# Notification Utility
 
-\*\*Performance\*\* — avoid unnecessary re-renders, duplicated API calls, duplicated state. Follow existing memoization patterns only where the codebase already uses them — don't introduce `useMemo`/`useCallback` as a drive-by "optimization."
+Use `notify` from `@/utils/notify` for all toast notifications:
 
+```ts
+import { notify } from "@/utils/notify";
 
+notify.success("Title", "Description");
+notify.error("Title", "Description");
+notify.warning("Title", "Description");
+notify.info("Title", "Description");
+```
 
-\---
+This wraps Ant Design's `notification` API with dark-mode styling and fixed position (top: 84px). Used in mutation hooks and the axios response interceptor.
 
+---
 
+# Forms & Validation
 
-\# UI Guidelines
+**Two patterns exist.** Match the feature you're working in:
 
+## Pattern A: Ant Design Form (dominant — admin, manager, vouchers, staff)
 
+```tsx
+const [form] = Form.useForm<FormValues>();
 
-Maintain consistency with existing pages. Reuse Ant Design components, shared components, and established table/modal/page-layout styles. Don't introduce a different visual style for a single feature.
+<Modal open={open} footer={null} destroyOnClose>
+    <Form form={form} layout="vertical" onFinish={handleSubmit}>
+        <Form.Item name="email" label="Email" rules={emailRules}>
+            <Input />
+        </Form.Item>
+    </Form>
+</Modal>
+```
 
+Validation via `rules` prop using Ant Design `Rule[]` arrays defined in `schemas/*.schema.ts`:
+```ts
+// features/admin/schemas/user.schema.ts
+import type { Rule } from "antd/es/form";
+export const emailRules: Rule[] = [
+    { required: true, message: "Email is required" },
+    { required: true, type: "email", message: "Enter a valid email" },
+];
+```
 
+## Pattern B: React Hook Form + Zod (customer profile only)
 
-\---
+```tsx
+const { control, handleSubmit } = useForm<UpdateProfileFormValues>({
+    resolver: zodResolver(updateProfileSchema),
+});
 
+<Controller name="fullName" control={control}
+    render={({ field }) => <Input {...field} />}
+/>
+```
 
+---
 
-\# Testing
+# Modals
 
+All modals follow the same structural pattern:
 
+1. **Parent page owns state:** `modalType` (string union or null) + `selectedEntity` (entity or null).
+2. **Opening:** `setModal("create")` or `openModal(entity, "edit")`.
+3. **Closing:** Modal calls `onClose()` → parent sets `setModal(null); setSelectedEntity(null)`.
+4. **Only one modal open at a time** — the `modalType` state ensures mutual exclusivity.
+5. **Form reset:** `useEffect` on `open` calls `form.resetFields()`.
+6. **Loading:** `isPending` from mutation hook → passed to `loading`/`confirmLoading`.
+7. **`maskClosable={false}`** or `maskClosable={!isLoading}` during submission.
+8. **`destroyOnClose`** or **`destroyOnHidden`** on the Modal.
 
-If the project already has tests covering the area you're touching, update them to match your change and follow the existing test structure/framework — don't introduce a different testing approach.
+---
 
+# Tables
 
+All tables use Ant Design `Table` with consistent patterns:
 
-If no tests exist for the area, do not invent a testing setup unprompted. Ask whether tests are expected for this change.
+- **Columns** defined as `ColumnsType<T>` with custom `render` functions.
+- **Pagination** with `showSizeChanger`, `pageSizeOptions: ["10", "20", "50"]`, `showTotal`.
+- **Toolbar component** above the table for search + filters + action buttons.
+- **Row key:** `rowKey="entityId"`.
+- **Scroll:** `scroll={{ x: minWidth }}` for horizontal overflow.
+- **Empty/loading states:** Skeleton components when loading, empty state when no data.
+- **Page reset:** Filter changes reset to page 1.
 
+---
 
+# Routing & Guards
 
-\---
+## Router Configuration
 
+Uses React Router v6 `createBrowserRouter` with layout routes (no path) for guards.
 
+## Guard Layers
 
-\# Version Control
+```
+CustomerOrGuestRoute  → blocks admin/manager/staff from public pages
+PublicRoute           → redirects authenticated users away from login/register
+ProtectedRoute        → checks isAuthenticated, redirects to /login
+PermissionRoute       → checks user.role in allowedRoles, redirects to /403
+```
 
+## Route Structure
 
+Role-specific URL prefixes: `/admin/*`, `/manager/*`, `/staff/*`, `/customer/*`.
 
-\- Never run destructive git commands (`reset --hard`, `push --force`, `checkout` that discards uncommitted work) without explicit confirmation.
+Each role has a dedicated layout (AdminLayout, ManagerLayout, StaffLayout, CustomerLayout) that passes `menuGroups` to the shared `DashboardLayout`.
 
-\- Don't commit unrelated changes together with the requested change.
+**Never duplicate authorization logic.** Reuse `ProtectedRoute` and `PermissionRoute`.
 
-\- Write commit messages that describe the actual change, not the ticket restated.
+---
 
-\- If a change touches `package.json`/lockfiles, call that out explicitly — dependency changes are high-risk by default.
+# Layout Composition
 
+**Dashboard layouts** (Admin, Manager, Staff):
+```
+DashboardLayout (shared, accepts menuGroups prop)
+  ← AdminLayout (defines ADMIN_MENU, passes to DashboardLayout)
+  ← ManagerLayout (defines MANAGER_MENU, passes to DashboardLayout)
+  ← StaffLayout (defines STAFF_MENU, passes to DashboardLayout)
+```
 
+**Public layouts** (Welcome, Public, Customer):
+```
+PublicLayout     — PageHeader + Outlet + PageFooter
+WelcomeLayout    — PageHeader + Outlet + PageFooter + ChatWidget
+CustomerLayout   — PageHeader + Outlet + PageFooter + ChatWidget
+```
 
-\---
+Ant Design theming is scoped via `ConfigProvider` inside `DashboardLayout`, not global.
 
+---
 
+# Styling
 
-\# Confirmation Required Before Proceeding
+## CSS Architecture
 
+- **Dashboard:** CSS custom properties (`--dash-*` prefix) defined in `:root` in `dashboard.css`.
+- **Component-scoped:** CSS Modules (`*.module.css`) for modals and complex components.
+- **Feature-level:** Plain CSS files (`*.css`) co-located with components.
+- **Global:** `index.css` — CSS reset, dark background (`#060101`).
+- **No CSS-in-JS library.** Inline styles are used in some components.
 
+## Theming
 
-Stop and confirm with the user before implementing changes that:
+- **Public/Customer-facing:** Dark theme (`#060101` background, `#f0e8e8` text).
+- **Dashboards:** Light theme (`#F5F5F7` background, `#1D1D1F` text).
+- **Brand colors:** CGV Red `#E8001C`, Crimson dim `#B50016`.
+- **Font:** Inter (primary), Playfair Display (accents).
 
+## Dashboard CSS Tokens
 
+```css
+:root {
+    --dash-crimson: #E8001C;
+    --dash-text-1: #1D1D1F;
+    --dash-text-2: #6E6E73;
+    --dash-border: rgba(0,0,0,0.07);
+    --dash-radius: 10px;
+    --dash-font: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+}
+```
 
-\- Alter authentication/authorization flow or route guards.
+Use these tokens, not hardcoded values, when working in dashboard features.
 
-\- Change a shared/global Redux slice consumed by multiple features.
+---
 
-\- Modify a shared component or hook used across multiple features (vs. a feature-local one).
+# Animation
 
-\- Change an API contract or shape consumed elsewhere.
+Framer Motion is used in `aiChat` and `public/about` features. Animation variants live in dedicated `motionVariants.ts` files co-located with the components that use them.
 
-\- Remove or hide an existing UI action rather than just the one requested.
+```ts
+// features/aiChat/components/motionVariants.ts
+export const EASE_SMOOTH = [0.22, 1, 0.36, 1] as const;
+export const panelVariants: Variants = { ... };
+```
 
+```ts
+// features/public/components/about/motionVariants.ts
+export const EASE_SMOOTH = [0.22, 1, 0.36, 1] as const;
+export const revealUp: Variants = { ... };
+```
 
+The easing constant `EASE_SMOOTH = [0.22, 1, 0.36, 1]` is duplicated across features — match the pattern in the feature you're working in.
 
-These are the changes most likely to have effects outside the file you're editing.
+---
 
+# Feature Organization Rules
 
+- **Feature folder names:** camelCase (`aiChat`, `personManagement` → `persons`).
+- **Component files:** PascalCase, often role-suffixed: `*Modal.tsx`, `*Table.tsx`, `*Toolbar.tsx`, `*Card.tsx`.
+- **Hook files:** Always `useCamelCase.ts`.
+- **Type files:** `camelCase.types.ts` (dominant) or `camelCase.type.ts`.
+- **Schema files:** `camelCase.schema.ts`.
+- **Constant files:** `camelCase.constants.ts`.
+- **Utility files:** `camelCase.utils.ts` or `camelCaseName.ts`.
+- **CSS files:** `camelCase.css` (plain) or `PascalCase.module.css` (CSS Modules).
+- **No barrel exports** — all imports are direct file imports.
+- **Default exports** for components, **named exports** for hooks/services/utils/constants.
 
-\---
+---
 
+# Error Handling
 
+- **401 Unauthorized:** Axios response interceptor dispatches `logout()` + shows warning notification. A dedup flag prevents cascading logouts.
+- **Mutation errors:** Handled in `onError` callbacks with `notify.error(title, description)`.
+- **No error boundaries** in use (the `ErrorBoundary` component exists but is not consistently mounted).
+- **Loading states:** `isLoading`/`isPending` from React Query, passed to Ant Design `Spin` or skeleton components.
 
-\# Token Efficiency
+---
 
-
-
-\- Keep the system prompt/context stable across a session — avoid re-reading files you've already inspected unless they've changed.
-
-\- Scope investigation to the feature(s) actually affected; don't traverse the whole `src/` tree for a single-component change.
-
-\- Prefer targeted reads (specific files, specific line ranges) over dumping entire directories when you already know roughly where the relevant code lives.
-
-\- Keep command output lean — avoid verbose build/test output in context when a pass/fail summary is sufficient.
-
-
-
-\---
-
-
-
-\# When Requirements Are Unclear
-
-
-
-Ask, don't guess. Common examples worth asking about explicitly:
-
-
-
-\- Which roles should have access?
-
-\- Should this affect existing records, or only new ones?
-
-\- Is this frontend-only, or does it need a backend change too?
-
-\- Should validation happen before submit, or rely on backend response?
-
-\- Should a hidden/disallowed action be removed from the UI, or shown-but-disabled?
-
-\- Should existing data be migrated?
-
-\- What exact error message should the user see?
-
-
-
-Do not proceed until ambiguity is resolved.
-
-
-
-\---
-
-
-
-\# Response Format
-
-
-
-Scale the response to the size of the change.
-
-
-
-\*\*Small/isolated fix\*\* (single file, no cross-feature impact): a short summary of what changed and why is enough.
-
-
-
-\*\*Larger or cross-cutting change\*\*, include:
-
-
-
-\## Summary
-
-Brief description.
-
-
-
-\## Files Modified
-
-List every modified file.
-
-
-
-\## Reasoning
-
-Why each change was needed.
-
-
-
-\## Potential Impact
-
-Affected pages, routes, or modules.
-
-
-
-\## Follow-up
-
-Any additional work that may be required.
-
-
-
-\---
-
-
-
-\# Absolute Rules
-
-
+# Absolute Rules
 
 Never:
 
+- Invent requirements, business rules, API contracts, permissions, or validation rules.
+- Silently change behavior outside the scope of the request.
+- Perform unrelated refactors.
+- Run destructive git operations without explicit confirmation.
+- Add a new dependency without being asked.
 
-
-\- Invent requirements, business rules, API contracts, permissions, or validation rules.
-
-\- Silently change behavior outside the scope of the request.
-
-\- Perform unrelated refactors.
-
-\- Run destructive git operations without explicit confirmation.
-
-\- Add a new dependency without being asked.
-
-
-
-When in doubt: \*\*Stop. Ask. Wait. Then implement.\*\*
-
-
+When in doubt: **Stop. Ask. Wait. Then implement.**
 
 Correctness is more important than speed.
-

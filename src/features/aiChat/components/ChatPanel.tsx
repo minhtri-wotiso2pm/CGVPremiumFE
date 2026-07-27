@@ -13,9 +13,10 @@ import { panelVariants } from "./motionVariants";
 interface Props {
     chat: ReturnType<typeof useAiChat>;
     onClose: () => void;
+    onHappy?: () => void;
 }
 
-const ChatPanel: FC<Props> = ({ chat, onClose }) => {
+const ChatPanel: FC<Props> = ({ chat, onClose, onHappy }) => {
     const navigate = useNavigate();
     const user = useAppSelector((state) => state.auth.user);
     const panelRef = useRef<HTMLDivElement>(null);
@@ -84,12 +85,12 @@ const ChatPanel: FC<Props> = ({ chat, onClose }) => {
             {suggestions.length > 0 && (
                 <ChatFollowUpChips
                     questions={suggestions}
-                    onSelect={chat.sendMessage}
+                    onSelect={(q) => { onHappy?.(); chat.sendMessage(q); }}
                     disabled={chat.isSending}
                 />
             )}
 
-            <ChatInputBar onSend={chat.sendMessage} disabled={chat.isSending} autoFocus />
+            <ChatInputBar onSend={(text) => { onHappy?.(); chat.sendMessage(text); }} disabled={chat.isSending} autoFocus />
         </motion.div>
     );
 };
