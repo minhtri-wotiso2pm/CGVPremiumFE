@@ -26,25 +26,25 @@ interface FooterLink { labelKey: string; href: string }
 
 const QUICK_LINKS: FooterLink[] = [
     { labelKey: "footer:links.aboutUs", href: "/about" },
-    { labelKey: "footer:links.careers", href: "/careers" },
-    { labelKey: "footer:links.contact", href: "/contact" },
-    { labelKey: "footer:links.privacyPolicy", href: "/privacy" },
-    { labelKey: "footer:links.termsOfService", href: "/terms" },
+    { labelKey: "footer:links.careers", href: "/about" },
+    { labelKey: "footer:links.contact", href: "/about" },
+    { labelKey: "footer:links.privacyPolicy", href: "/about" },
+    { labelKey: "footer:links.termsOfService", href: "/about" },
 ];
 
 const CINEMA_SERVICES: FooterLink[] = [
-    { labelKey: "footer:links.movieBooking", href: "/customer/movies" },
-    { labelKey: "footer:links.vipMembership", href: "/customer/membership" },
-    { labelKey: "footer:links.promotions", href: "/customer/promotions" },
-    { labelKey: "footer:links.giftCards", href: "/customer/gift-cards" },
-    { labelKey: "footer:links.events", href: "/customer/events" },
+    { labelKey: "footer:links.movieBooking", href: "/ " },
+    { labelKey: "footer:links.vipMembership", href: "/customer/profile/membership" },
+    { labelKey: "footer:links.promotions", href: "/promotions" },
+    { labelKey: "footer:links.giftCards", href: "/customer/profile/wallet" },
+    { labelKey: "footer:links.events", href: "/promotions" },
 ];
 
 const SUPPORT_LINKS: FooterLink[] = [
-    { labelKey: "footer:links.helpCenter", href: "/help" },
-    { labelKey: "footer:links.faq", href: "/faq" },
-    { labelKey: "footer:links.customerService", href: "/support" },
-    { labelKey: "footer:links.refundPolicy", href: "/refund" },
+    { labelKey: "footer:links.helpCenter", href: "/chat" },
+    { labelKey: "footer:links.faq", href: "/chat" },
+    { labelKey: "footer:links.customerService", href: "/chat" },
+    { labelKey: "footer:links.refundPolicy", href: "/chat" },
 ];
 
 interface SocialLink { label: string; href: string; icon: JSX.Element }
@@ -108,34 +108,34 @@ interface LinkColumnProps {
 const LinkColumn: FC<LinkColumnProps> = ({ heading, links }) => {
     const { t } = useTranslation();
     return (
-    <div>
-        <h3 style={{
-            fontSize: 11, fontWeight: 700, letterSpacing: "0.22em",
-            textTransform: "uppercase", color: F.crimson,
-            marginBottom: 20, marginTop: 0,
-        }}>
-            {heading}
-        </h3>
-        <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10 }}>
-            {links.map((link) => (
-                <li key={link.labelKey}>
-                    <a
-                        href={link.href}
-                        style={{
-                            color: F.textSecondary, textDecoration: "none",
-                            fontSize: 13, letterSpacing: "0.01em",
-                            transition: "color 0.15s",
-                            display: "inline-block",
-                        }}
-                        onMouseEnter={(e) => { (e.currentTarget).style.color = F.textPrimary; }}
-                        onMouseLeave={(e) => { (e.currentTarget).style.color = F.textSecondary; }}
-                    >
-                        {t(link.labelKey)}
-                    </a>
-                </li>
-            ))}
-        </ul>
-    </div>
+        <div>
+            <h3 style={{
+                fontSize: 11, fontWeight: 700, letterSpacing: "0.22em",
+                textTransform: "uppercase", color: F.crimson,
+                marginBottom: 20, marginTop: 0,
+            }}>
+                {heading}
+            </h3>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10 }}>
+                {links.map((link) => (
+                    <li key={link.labelKey}>
+                        <a
+                            href={link.href}
+                            style={{
+                                color: F.textSecondary, textDecoration: "none",
+                                fontSize: 13, letterSpacing: "0.01em",
+                                transition: "color 0.15s",
+                                display: "inline-block",
+                            }}
+                            onMouseEnter={(e) => { (e.currentTarget).style.color = F.textPrimary; }}
+                            onMouseLeave={(e) => { (e.currentTarget).style.color = F.textSecondary; }}
+                        >
+                            {t(link.labelKey)}
+                        </a>
+                    </li>
+                ))}
+            </ul>
+        </div>
     );
 };
 
@@ -229,8 +229,8 @@ const Newsletter: FC = () => {
 const PageFooter: FC = () => {
     const { t } = useTranslation("footer");
     return (
-    <>
-        <style>{`
+        <>
+            <style>{`
             @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap');
             .cgv-footer-grid {
                 display: grid;
@@ -271,115 +271,115 @@ const PageFooter: FC = () => {
             }
         `}</style>
 
-        <footer style={{
-            background: F.bg,
-            borderTop: `1px solid ${F.topBorder}`,
-            paddingTop: 64,
-            fontFamily: "'Inter','Helvetica Neue',Arial,sans-serif",
-        }}>
-            <div style={{ maxWidth: 1320, margin: "0 auto", padding: "0 24px" }}>
+            <footer style={{
+                background: F.bg,
+                borderTop: `1px solid ${F.topBorder}`,
+                paddingTop: 64,
+                fontFamily: "'Inter','Helvetica Neue',Arial,sans-serif",
+            }}>
+                <div style={{ maxWidth: 1320, margin: "0 auto", padding: "0 24px" }}>
 
-                {/* ── MAIN GRID ── */}
-                <div className="cgv-footer-grid">
+                    {/* ── MAIN GRID ── */}
+                    <div className="cgv-footer-grid">
 
-                    {/* Column 1: Brand */}
-                    <div>
-                        {/* Logo */}
-                        <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 16 }}>
-                            <span style={{
-                                fontFamily: "'Playfair Display', Georgia, serif",
-                                fontSize: 20, fontWeight: 700,
-                                letterSpacing: "0.08em",
-                                background: "linear-gradient(135deg,#ff1a1a,#cc0000,#990000)",
-                                WebkitBackgroundClip: "text",
-                                WebkitTextFillColor: "transparent",
-                                backgroundClip: "text",
+                        {/* Column 1: Brand */}
+                        <div>
+                            {/* Logo */}
+                            <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 16 }}>
+                                <span style={{
+                                    fontFamily: "'Playfair Display', Georgia, serif",
+                                    fontSize: 20, fontWeight: 700,
+                                    letterSpacing: "0.08em",
+                                    background: "linear-gradient(135deg,#ff1a1a,#cc0000,#990000)",
+                                    WebkitBackgroundClip: "text",
+                                    WebkitTextFillColor: "transparent",
+                                    backgroundClip: "text",
+                                }}>
+                                    CVPREMIUM
+                                </span>
+                                <span style={{
+                                    width: 5, height: 5, borderRadius: "50%",
+                                    background: F.crimson, marginBottom: 13, flexShrink: 0,
+                                }} />
+                            </div>
+
+                            <p style={{
+                                fontSize: 13, color: F.textSecondary,
+                                lineHeight: 1.8, marginBottom: 24, maxWidth: 260,
                             }}>
-                                CVPREMIUM
-                            </span>
-                            <span style={{
-                                width: 5, height: 5, borderRadius: "50%",
-                                background: F.crimson, marginBottom: 13, flexShrink: 0,
-                            }} />
+                                {t("tagline")}
+                            </p>
+
+                            {/* Social links */}
+                            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                                {SOCIAL_LINKS.map((s) => (
+                                    <a
+                                        key={s.label}
+                                        href={s.href}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        aria-label={s.label}
+                                        className="cgv-social-btn"
+                                    >
+                                        {s.icon}
+                                    </a>
+                                ))}
+                            </div>
                         </div>
 
-                        <p style={{
-                            fontSize: 13, color: F.textSecondary,
-                            lineHeight: 1.8, marginBottom: 24, maxWidth: 260,
-                        }}>
-                            {t("tagline")}
-                        </p>
+                        {/* Column 2: Quick Links */}
+                        <LinkColumn heading={t("columns.company")} links={QUICK_LINKS} />
 
-                        {/* Social links */}
-                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                            {SOCIAL_LINKS.map((s) => (
+                        {/* Column 3: Cinema Services */}
+                        <LinkColumn heading={t("columns.cinemaServices")} links={CINEMA_SERVICES} />
+
+                        {/* Column 4: Support */}
+                        <LinkColumn heading={t("columns.support")} links={SUPPORT_LINKS} />
+
+                        {/* Column 5: Newsletter */}
+                        <Newsletter />
+                    </div>
+
+                    {/* ── DIVIDER ── */}
+                    <div style={{
+                        height: 1, background: F.border,
+                        margin: "48px 0 24px",
+                    }} />
+
+                    {/* ── BOTTOM BAR ── */}
+                    <div style={{
+                        display: "flex", alignItems: "center",
+                        justifyContent: "space-between", flexWrap: "wrap",
+                        gap: 12, paddingBottom: 28,
+                    }}>
+                        <p style={{ fontSize: 11.5, color: F.textMuted, letterSpacing: "0.06em", margin: 0 }}>
+                            {t("copyright")}
+                        </p>
+                        <div style={{ display: "flex", gap: 20 }}>
+                            {[
+                                { labelKey: "footer:links.privacy", href: "/privacy" },
+                                { labelKey: "footer:links.terms", href: "/terms" },
+                                { labelKey: "footer:links.cookies", href: "/cookies" },
+                            ].map((item) => (
                                 <a
-                                    key={s.label}
-                                    href={s.href}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    aria-label={s.label}
-                                    className="cgv-social-btn"
+                                    key={item.labelKey}
+                                    href={item.href}
+                                    style={{
+                                        fontSize: 11.5, color: F.textMuted,
+                                        textDecoration: "none", letterSpacing: "0.04em",
+                                        transition: "color 0.15s",
+                                    }}
+                                    onMouseEnter={(e) => { (e.currentTarget).style.color = F.textSecondary; }}
+                                    onMouseLeave={(e) => { (e.currentTarget).style.color = F.textMuted; }}
                                 >
-                                    {s.icon}
+                                    {t(item.labelKey)}
                                 </a>
                             ))}
                         </div>
                     </div>
-
-                    {/* Column 2: Quick Links */}
-                    <LinkColumn heading={t("columns.company")} links={QUICK_LINKS} />
-
-                    {/* Column 3: Cinema Services */}
-                    <LinkColumn heading={t("columns.cinemaServices")} links={CINEMA_SERVICES} />
-
-                    {/* Column 4: Support */}
-                    <LinkColumn heading={t("columns.support")} links={SUPPORT_LINKS} />
-
-                    {/* Column 5: Newsletter */}
-                    <Newsletter />
                 </div>
-
-                {/* ── DIVIDER ── */}
-                <div style={{
-                    height: 1, background: F.border,
-                    margin: "48px 0 24px",
-                }} />
-
-                {/* ── BOTTOM BAR ── */}
-                <div style={{
-                    display: "flex", alignItems: "center",
-                    justifyContent: "space-between", flexWrap: "wrap",
-                    gap: 12, paddingBottom: 28,
-                }}>
-                    <p style={{ fontSize: 11.5, color: F.textMuted, letterSpacing: "0.06em", margin: 0 }}>
-                        {t("copyright")}
-                    </p>
-                    <div style={{ display: "flex", gap: 20 }}>
-                        {[
-                            { labelKey: "footer:links.privacy", href: "/privacy" },
-                            { labelKey: "footer:links.terms", href: "/terms" },
-                            { labelKey: "footer:links.cookies", href: "/cookies" },
-                        ].map((item) => (
-                            <a
-                                key={item.labelKey}
-                                href={item.href}
-                                style={{
-                                    fontSize: 11.5, color: F.textMuted,
-                                    textDecoration: "none", letterSpacing: "0.04em",
-                                    transition: "color 0.15s",
-                                }}
-                                onMouseEnter={(e) => { (e.currentTarget).style.color = F.textSecondary; }}
-                                onMouseLeave={(e) => { (e.currentTarget).style.color = F.textMuted; }}
-                            >
-                                {t(item.labelKey)}
-                            </a>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        </footer>
-    </>
+            </footer>
+        </>
     );
 };
 
