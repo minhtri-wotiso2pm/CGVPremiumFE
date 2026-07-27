@@ -10,7 +10,7 @@ import UpdateUserModal from "../components/UpdateUserModal";
 import ChangeRoleModal from "../components/ChangeRoleModal";
 import ChangeStatusModal from "../components/ChangeStatusModal";
 import ChangePasswordModal from "../components/ChangePasswordModal";
-import DeleteUserModal from "../components/DeleteUserModal";
+// import DeleteUserModal from "../components/DeleteUserModal";
 
 /* ── Stat pill (mirrors CinemaManagementPage) ── */
 const StatPill: FC<{ label: string; value: number; accent?: boolean; muted?: boolean }> = ({
@@ -97,7 +97,7 @@ const UserManagementPage: FC = () => {
 
     /* Reset to page 1 on filter change */
     const handleSearchChange = (v: string) => { setSearch(v); setPage(1); };
-    const handleRoleChange   = (v: string) => { setRole(v);   setPage(1); };
+    const handleRoleChange = (v: string) => { setRole(v); setPage(1); };
     const handleStatusChange = (v: string) => { setStatus(v); setPage(1); };
 
     const modalProps = {
@@ -121,7 +121,7 @@ const UserManagementPage: FC = () => {
                         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
                             <StatPill label="Total" value={stats.total} muted />
                             <StatPill label="Active" value={stats.active} />
-                            <StatPill label="Banned" value={stats.banned} accent />
+                            {/* <StatPill label="Banned" value={stats.banned} accent /> */}
                         </div>
                     )}
                 </div>
@@ -176,11 +176,11 @@ const UserManagementPage: FC = () => {
                 open={modal === "password"}
                 {...modalProps}
             />
-            <DeleteUserModal
+            {/* <DeleteUserModal
                 user={selectedUser}
                 open={modal === "delete"}
                 {...modalProps}
-            />
+            /> */}
         </div>
     );
 };

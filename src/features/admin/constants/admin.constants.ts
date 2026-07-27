@@ -4,15 +4,15 @@ export const ADMIN_USERS_QUERY_KEY = ["admin", "users"] as const;
 
 export const ROLE_OPTIONS = [
     { value: "customer", label: "Customer" },
-    { value: "staff",    label: "Staff" },
-    { value: "manager",  label: "Manager" },
-    { value: "admin",    label: "Admin" },
+    { value: "staff", label: "Staff" },
+    { value: "manager", label: "Manager" },
+    { value: "admin", label: "Admin" },
 ];
 
 export const STATUS_OPTIONS = [
-    { value: "active",     label: "Active" },
-    { value: "inactive",   label: "Inactive" },
-    { value: "banned",     label: "Banned" },
+    { value: "active", label: "Active" },
+    { value: "inactive", label: "Inactive" },
+    // { value: "banned",     label: "Banned" },
     { value: "unverified", label: "Unverified" },
 ];
 
