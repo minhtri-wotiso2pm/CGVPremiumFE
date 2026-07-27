@@ -377,6 +377,18 @@
     font-weight: 600;
 }
 
+/* Touch devices: the cinema/room-type filter pills are ~30–35px tall for
+   mouse — bump them to a 44px hit area on coarse pointers so they're easy to
+   tap on a phone. Desktop stays compact. */
+@media (pointer: coarse) {
+    .cgv-st-cinema-btn,
+    .cgv-st-roomtype {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+    }
+}
+
 /* ══════════════════════════════════════════
    SHOWTIME GRID
 ══════════════════════════════════════════ */

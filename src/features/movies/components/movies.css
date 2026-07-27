@@ -173,6 +173,20 @@
     text-align: left;
 }
 
+/* Touch devices: the status tabs and genre picker get a 44px min hit area so
+   they're comfortable to tap on a phone. Scoped to coarse pointers so the
+   compact desktop filter bar is unchanged. */
+@media (pointer: coarse) {
+    .cgv-filterbar__tab {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+    }
+    .cgv-genre-btn {
+        min-height: 44px;
+    }
+}
+
 .cgv-genre-dropdown {
     position: absolute;
     top: calc(100% + 6px);

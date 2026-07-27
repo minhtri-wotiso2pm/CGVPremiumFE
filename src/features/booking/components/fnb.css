@@ -307,6 +307,20 @@
     color: #f0e8e8;
 }
 
+/* Touch devices: the +/- quantity buttons are 26px for mouse — too small to
+   tap reliably while ordering on a phone, so give them a 44px hit area on
+   coarse pointers. Scoped so the desktop control stays compact. */
+@media (pointer: coarse) {
+    .cgv-fnb-qty__btn {
+        width: 44px;
+        height: 44px;
+    }
+    .cgv-fnb-qty__count {
+        min-width: 28px;
+        font-size: 15px;
+    }
+}
+
 /* ─── Summary sidebar ─────────────────────── */
 .cgv-fnb-summary {
     position: sticky;

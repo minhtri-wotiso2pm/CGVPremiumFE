@@ -95,14 +95,18 @@
     100% { opacity: 0; transform: translateY(0); }
 }
 
-/* ── Panel ── */
+/* ── Panel ──
+   Sized a touch smaller than before, and — critically — the top edge is kept
+   below the fixed site header (85px clearance) on short screens: the panel is
+   anchored at `bottom`, so capping `max-height` at `100vh - (bottom + header
+   clearance + margin)` prevents it from ever growing up behind the header. ── */
 .cgv-chat-panel {
     position: fixed;
     right: 24px;
     bottom: 92px;
-    width: 400px;
-    height: 600px;
-    max-height: calc(100vh - 120px);
+    width: 372px;
+    height: 560px;
+    max-height: calc(100vh - var(--cgv-fh-clearance, 85px) - 108px);
     z-index: 940;
     display: flex;
     flex-direction: column;
@@ -188,6 +192,15 @@
 .cgv-chat-icon-btn:hover {
     background: var(--cgv-chat-surface-hover);
     color: var(--cgv-chat-text);
+}
+
+/* Touch devices: expand/close controls get a larger hit area (40px keeps the
+   compact widget header tidy while being comfortable to tap). */
+@media (pointer: coarse) {
+    .cgv-chat-icon-btn {
+        width: 40px;
+        height: 40px;
+    }
 }
 
 /* ── Message list / empty state ── */
@@ -345,38 +358,62 @@
     30% { transform: translateY(-4px); opacity: 1; }
 }
 
-/* ── Suggestion chips — pinned bar between the message list and the input,
-   scrolls horizontally so it never grows the panel's fixed layout. ── */
+/* ── Suggestion chips — a vertical list of tappable rows pinned between the
+   message list and the input. Stacked (not a horizontal scroll row) so every
+   suggestion is visible at once and it's obvious each one is selectable — much
+   clearer on a phone. Capped in height with its own scroll so a long list of
+   follow-ups never crowds out the conversation. ── */
 .cgv-chat-chips {
     flex-shrink: 0;
     display: flex;
-    flex-wrap: nowrap;
-    gap: 8px;
-    padding: 10px 12px 0;
-    overflow-x: auto;
-    scrollbar-width: none;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 12px 2px;
+    max-height: 42%;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--cgv-chat-crimson-border) transparent;
 }
 
-.cgv-chat-chips::-webkit-scrollbar { display: none; }
+.cgv-chat-chips::-webkit-scrollbar { width: 6px; }
+.cgv-chat-chips::-webkit-scrollbar-thumb { background: var(--cgv-chat-crimson-border); border-radius: 3px; }
 
 .cgv-chat-chip {
-    flex-shrink: 0;
-    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    text-align: left;
+    white-space: normal;
     border: 1px solid var(--cgv-chat-crimson-border);
-    background: transparent;
+    background: var(--cgv-chat-crimson-subtle);
     color: var(--cgv-chat-crimson);
-    font-size: 12px;
+    font-size: 12.5px;
     font-weight: 600;
     letter-spacing: 0.01em;
-    padding: 7px 13px;
-    border-radius: 999px;
+    line-height: 1.4;
+    padding: 9px 12px;
+    border-radius: var(--cgv-chat-radius-md);
     cursor: pointer;
     font-family: inherit;
     transition: background var(--cgv-chat-transition), border-color var(--cgv-chat-transition);
 }
 
+/* Chevron affordance — makes each row read as a "tap to ask" action. */
+.cgv-chat-chip::after {
+    content: "";
+    flex-shrink: 0;
+    margin-left: auto;
+    width: 7px;
+    height: 7px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: rotate(-45deg);
+    opacity: 0.55;
+}
+
 .cgv-chat-chip:hover {
-    background: var(--cgv-chat-crimson-subtle);
+    background: var(--cgv-chat-crimson-glow);
     border-color: var(--cgv-chat-crimson);
 }
 
@@ -520,20 +557,25 @@
 }
 
 .cgv-chat-page__container .cgv-chat-body { padding: 24px clamp(16px, 4vw, 0px) 24px; }
-.cgv-chat-page__container .cgv-chat-chips { padding: 0 clamp(16px, 4vw, 0px) 12px; }
+.cgv-chat-page__container .cgv-chat-chips { padding: 0 clamp(16px, 4vw, 0px) 12px; max-height: none; }
 .cgv-chat-page__container .cgv-chat-input-bar { border-top: 1px solid var(--cgv-chat-border); background: transparent; padding: 16px clamp(16px, 4vw, 0px) 24px; }
 .cgv-chat-page__container .cgv-chat-empty__avatar { width: 64px; height: 64px; }
 
 /* ── Responsive ── */
+/* Small laptops / tablets: keep the panel compact (not near-full-width as
+   before) and header-safe via the same clearance-aware max-height. */
 @media (max-width: 1024px) {
     .cgv-chat-panel {
-        width: 92vw;
-        height: 70vh;
-        right: 4vw;
+        width: min(372px, calc(100vw - 32px));
+        height: 560px;
+        right: 16px;
         bottom: 84px;
+        max-height: calc(100vh - var(--cgv-fh-clearance, 85px) - 100px);
     }
 }
 
+/* Phones: pinned between the header and the bottom edge — anchored to the real
+   header clearance so the title bar is never hidden behind the site header. */
 @media (max-width: 480px) {
     .cgv-chat-bubble { right: 16px; bottom: 16px; width: 48px; height: 48px; }
     .cgv-chat-bubble__hint { right: 16px; bottom: 74px; }
@@ -543,8 +585,9 @@
         max-height: none;
         right: 8px;
         left: 8px;
-        top: 64px;
-        bottom: 8px;
+        top: calc(var(--cgv-fh-clearance, 85px) + 8px);
+        bottom: 12px;
     }
+    .cgv-chat-chips { max-height: 38%; }
     .cgv-chat-page__container .cgv-chat-body { padding: 16px; }
 }
