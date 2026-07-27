@@ -25,8 +25,8 @@ export function useCreateRoom() {
             queryClient.invalidateQueries({ queryKey: ROOM_QUERY_KEY });
             notify.success("Room created", "The room has been added successfully.");
         },
-        onError: () => {
-            notify.error("Failed to create", "Could not create room. Please try again.");
+        onError: (err) => {
+            notify.error("Failed to create", errorMessage(err) ?? "Could not create room. Please try again.");
         },
     });
 }
@@ -66,8 +66,8 @@ export function useDeleteRoom() {
             queryClient.invalidateQueries({ queryKey: ROOM_QUERY_KEY });
             notify.success("Room deleted", "The room has been removed.");
         },
-        onError: () => {
-            notify.error("Failed to delete", "Could not delete room. It may have showtimes or seats.");
+        onError: (err) => {
+            notify.error("Failed to delete", errorMessage(err) ?? "Could not delete room. It may have showtimes or seats.");
         },
     });
 }

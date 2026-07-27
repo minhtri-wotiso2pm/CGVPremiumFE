@@ -8,6 +8,7 @@ import {
 import type { CreateRoomTypePayload, UpdateRoomTypePayload } from "../types/roomType.types";
 import { ROOM_TYPE_QUERY_KEY } from "../constants/roomType.constants";
 import { notify } from "@/utils/notify";
+import { getApiErrorMessage } from "@/utils/apiMessage";
 
 /** Shared by Admin's Room Type Management page and Manager's Room
  *  create/edit form (real type options + extra price), so both stay in
@@ -28,8 +29,8 @@ export function useCreateRoomType() {
             queryClient.invalidateQueries({ queryKey: ROOM_TYPE_QUERY_KEY });
             notify.success("Room type created", "The room type has been added successfully.");
         },
-        onError: () => {
-            notify.error("Failed to create", "Could not create room type. The name may already be in use.");
+        onError: (err: unknown) => {
+            notify.error("Failed to create", getApiErrorMessage(err, "Could not create room type. The name may already be in use."));
         },
     });
 }
@@ -43,8 +44,8 @@ export function useUpdateRoomType() {
             queryClient.invalidateQueries({ queryKey: ROOM_TYPE_QUERY_KEY });
             notify.success("Room type updated", "Changes have been saved successfully.");
         },
-        onError: () => {
-            notify.error("Failed to update", "Could not update room type. Please try again.");
+        onError: (err: unknown) => {
+            notify.error("Failed to update", getApiErrorMessage(err, "Could not update room type. Please try again."));
         },
     });
 }
@@ -57,8 +58,8 @@ export function useDeleteRoomType() {
             queryClient.invalidateQueries({ queryKey: ROOM_TYPE_QUERY_KEY });
             notify.success("Room type deleted", "The room type has been removed.");
         },
-        onError: () => {
-            notify.error("Cannot delete", "This room type is still in use by one or more rooms.");
+        onError: (err: unknown) => {
+            notify.error("Cannot delete", getApiErrorMessage(err, "This room type is still in use by one or more rooms."));
         },
     });
 }

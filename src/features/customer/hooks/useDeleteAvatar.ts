@@ -3,6 +3,7 @@ import { useAppDispatch } from "@/store/hooks";
 import { updateUserInfo } from "@/store/slices/authSlice";
 import { deleteAvatar } from "@/services/api/user.service";
 import { notify } from "@/utils/notify";
+import { getApiErrorMessage } from "@/utils/apiMessage";
 import { PROFILE_QUERY_KEY } from "./useProfile";
 
 export const useDeleteAvatar = (onSuccess?: () => void) => {
@@ -19,8 +20,8 @@ export const useDeleteAvatar = (onSuccess?: () => void) => {
             notify.success("Avatar removed successfully.");
             onSuccess?.();
         },
-        onError: () => {
-            notify.error("Failed to remove avatar.", "Please try again.");
+        onError: (err: unknown) => {
+            notify.error("Failed to remove avatar.", getApiErrorMessage(err, "Please try again."));
         },
     });
 };

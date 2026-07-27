@@ -47,8 +47,8 @@ axiosInstance.interceptors.response.use(
             store.dispatch(logout());
 
             notify.warning(
-                "Phiên đăng nhập đã hết hạn",
-                "Vui lòng đăng nhập lại để tiếp tục."
+                "Your session has expired",
+                "Please sign in again to continue."
             );
 
             // Reset flag sau khi redirect hoàn tất

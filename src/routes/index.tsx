@@ -72,6 +72,7 @@ import PaymentPage from "@/features/booking/pages/PaymentPage";
 import BookingConfirmationPage from "@/features/booking/pages/BookingConfirmationPage";
 import PaymentCancelledPage from "@/features/booking/pages/PaymentCancelledPage";
 import TheatersPage from "@/features/public/pages/TheatersPage";
+import CinemaMoviesPage from "@/features/public/pages/CinemaMoviesPage";
 import PromotionsPage from "@/features/public/pages/PromotionsPage";
 import AboutUsPage from "@/features/public/pages/AboutUsPage";
 import ForbiddenPage from "@/features/common/pages/ForbiddenPage";
@@ -106,6 +107,10 @@ export const router = createBrowserRouter([
                     {
                         path: "theaters",
                         element: <TheatersPage />,
+                    },
+                    {
+                        path: "theaters/:cinemaId/movies",
+                        element: <CinemaMoviesPage />,
                     },
                     {
                         path: "promotions",
@@ -248,6 +253,10 @@ export const router = createBrowserRouter([
                             {
                                 path: "theaters",
                                 element: <TheatersPage />,
+                            },
+                            {
+                                path: "theaters/:cinemaId/movies",
+                                element: <CinemaMoviesPage />,
                             },
                             {
                                 path: "promotions",

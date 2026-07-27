@@ -6,13 +6,14 @@ export type StatusFilter = "ALL" | "NOW_SHOWING" | "COMING_SOON";
 interface Props {
     search: string;
     status: StatusFilter;
-    genre: string;
     genres: string[];
+    allGenres: string[];
     totalCount: number;
     filteredCount: number;
     onSearchChange: (v: string) => void;
     onStatusChange: (v: StatusFilter) => void;
-    onGenreChange: (v: string) => void;
+    onGenreToggle: (v: string) => void;
+    onGenresClear: () => void;
 }
 
 const STATUS_TABS: { label: string; value: StatusFilter }[] = [
@@ -21,14 +22,15 @@ const STATUS_TABS: { label: string; value: StatusFilter }[] = [
     { label: "Coming Soon", value: "COMING_SOON" },
 ];
 
-/* ── Custom Genre Dropdown ── */
+/* ── Custom Multi-select Genre Dropdown ── */
 interface GenreDropdownProps {
-    value: string;
-    genres: string[];
-    onChange: (v: string) => void;
+    selected: string[];
+    allGenres: string[];
+    onToggle: (v: string) => void;
+    onClear: () => void;
 }
 
-const GenreDropdown: FC<GenreDropdownProps> = ({ value, genres, onChange }) => {
+const GenreDropdown: FC<GenreDropdownProps> = ({ selected, allGenres, onToggle, onClear }) => {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
 
@@ -40,20 +42,22 @@ const GenreDropdown: FC<GenreDropdownProps> = ({ value, genres, onChange }) => {
         return () => document.removeEventListener("mousedown", handler);
     }, []);
 
-    const options = [{ label: "All Genres", value: "" }, ...genres.map((g) => ({ label: g, value: g }))];
-    const selected = options.find((o) => o.value === value) ?? options[0];
+    const count = selected.length;
+    const label =
+        count === 0 ? "All Genres" : count === 1 ? selected[0] : `${count} genres`;
 
     return (
         <div ref={ref} style={{ position: "relative" }}>
             {/* Trigger button */}
             <button
-                className="cgv-genre-btn"
+                className={`cgv-genre-btn${count > 0 ? " cgv-genre-btn--active" : ""}`}
                 onClick={() => setOpen((v) => !v)}
                 aria-haspopup="listbox"
                 aria-expanded={open}
                 aria-label="Filter by genre"
             >
-                <span className="cgv-genre-btn__label">{selected.label}</span>
+                <span className="cgv-genre-btn__label">{label}</span>
+                {count > 0 && <span className="cgv-genre-btn__badge">{count}</span>}
                 <svg
                     width="12" height="12" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"
@@ -66,30 +70,48 @@ const GenreDropdown: FC<GenreDropdownProps> = ({ value, genres, onChange }) => {
 
             {/* Dropdown panel */}
             {open && (
-                <div className="cgv-genre-dropdown" role="listbox" aria-label="Genres">
-                    {options.map((opt) => {
-                        const isActive = opt.value === value;
-                        return (
-                            <button
-                                key={opt.value}
-                                role="option"
-                                aria-selected={isActive}
-                                className={`cgv-genre-option${isActive ? " cgv-genre-option--active" : ""}`}
-                                onClick={() => { onChange(opt.value); setOpen(false); }}
-                            >
-                                {isActive && (
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-                                        stroke="currentColor" strokeWidth="3" strokeLinecap="round"
-                                        aria-hidden="true" style={{ flexShrink: 0 }}
-                                    >
-                                        <polyline points="20 6 9 17 4 12" />
-                                    </svg>
-                                )}
-                                {!isActive && <span style={{ width: 12, flexShrink: 0 }} />}
-                                {opt.label}
-                            </button>
-                        );
-                    })}
+                <div className="cgv-genre-dropdown" role="listbox" aria-multiselectable="true" aria-label="Genres">
+                    {/* Header: clear-all */}
+                    <div className="cgv-genre-dropdown__head">
+                        <span className="cgv-genre-dropdown__head-label">
+                            {count > 0 ? `${count} selected` : "Select genres"}
+                        </span>
+                        <button
+                            className="cgv-genre-dropdown__clear"
+                            onClick={onClear}
+                            disabled={count === 0}
+                        >
+                            Clear all
+                        </button>
+                    </div>
+
+                    <div className="cgv-genre-dropdown__list">
+                        {allGenres.map((g) => {
+                            const isActive = selected.includes(g);
+                            return (
+                                <button
+                                    key={g}
+                                    role="option"
+                                    aria-selected={isActive}
+                                    className={`cgv-genre-option${isActive ? " cgv-genre-option--active" : ""}`}
+                                    onClick={() => onToggle(g)}
+                                >
+                                    {/* Checkbox */}
+                                    <span className={`cgv-genre-check${isActive ? " cgv-genre-check--on" : ""}`}>
+                                        {isActive && (
+                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"
+                                                aria-hidden="true"
+                                            >
+                                                <polyline points="20 6 9 17 4 12" />
+                                            </svg>
+                                        )}
+                                    </span>
+                                    {g}
+                                </button>
+                            );
+                        })}
+                    </div>
                 </div>
             )}
         </div>
@@ -98,18 +120,18 @@ const GenreDropdown: FC<GenreDropdownProps> = ({ value, genres, onChange }) => {
 
 /* ── Filter Bar ── */
 const MovieFilterBar: FC<Props> = ({
-    search, status, genre, genres,
+    search, status, genres, allGenres,
     totalCount, filteredCount,
-    onSearchChange, onStatusChange, onGenreChange,
+    onSearchChange, onStatusChange, onGenreToggle, onGenresClear,
 }) => (
     <div className="cgv-filterbar" role="search" aria-label="Filter movies">
         <div className="cgv-filterbar__inner">
 
             {/* Search */}
             <div className="cgv-filterbar__search">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-                    style={{ color: "var(--cgv-text-muted)", flexShrink: 0 }} aria-hidden="true"
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"
+                    className="cgv-filterbar__search-icon" aria-hidden="true"
                 >
                     <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
@@ -123,14 +145,11 @@ const MovieFilterBar: FC<Props> = ({
                 />
                 {search && (
                     <button
+                        className="cgv-filterbar__search-clear"
                         onClick={() => onSearchChange("")}
                         aria-label="Clear search"
-                        style={{
-                            background: "none", border: "none", cursor: "pointer",
-                            color: "var(--cgv-text-muted)", padding: "0 2px", lineHeight: 1,
-                        }}
                     >
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"
                         >
                             <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
@@ -154,14 +173,43 @@ const MovieFilterBar: FC<Props> = ({
                 ))}
             </div>
 
-            {/* Genre dropdown */}
-            <GenreDropdown value={genre} genres={genres} onChange={onGenreChange} />
+            {/* Genre multi-select dropdown */}
+            <GenreDropdown
+                selected={genres}
+                allGenres={allGenres}
+                onToggle={onGenreToggle}
+                onClear={onGenresClear}
+            />
 
             {/* Result count */}
             <p className="cgv-filterbar__count" aria-live="polite">
                 <strong>{filteredCount}</strong> / {totalCount} movies
             </p>
         </div>
+
+        {/* Selected genre chips */}
+        {genres.length > 0 && (
+            <div className="cgv-filterbar__chips" aria-label="Active genre filters">
+                {genres.map((g) => (
+                    <button
+                        key={g}
+                        className="cgv-genre-chip"
+                        onClick={() => onGenreToggle(g)}
+                        aria-label={`Remove ${g} filter`}
+                    >
+                        {g}
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"
+                        >
+                            <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                    </button>
+                ))}
+                <button className="cgv-genre-chip cgv-genre-chip--clear" onClick={onGenresClear}>
+                    Clear all
+                </button>
+            </div>
+        )}
     </div>
 );
 

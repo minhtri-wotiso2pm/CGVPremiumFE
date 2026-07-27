@@ -20,6 +20,7 @@ import {
 } from "../constants/showtimeType.constants";
 import { SHOWTIME_MGMT_QUERY_KEY } from "../constants/showtime-mgmt.constants";
 import { notify } from "@/utils/notify";
+import { getApiErrorMessage } from "@/utils/apiMessage";
 
 /** Fetches every showtime type for the cinema in one page — see
  *  constants.ts for why (no server search/sort param exists). */
@@ -49,8 +50,8 @@ export function useCreateShowtimeType() {
             queryClient.invalidateQueries({ queryKey: [SHOWTIME_TYPE_QUERY_KEY] });
             notify.success("Showtime type created", "The showtime type has been added successfully.");
         },
-        onError: () => {
-            notify.error("Failed to create", "Could not create showtime type. Please try again.");
+        onError: (err: unknown) => {
+            notify.error("Failed to create", getApiErrorMessage(err, "Could not create showtime type. Please try again."));
         },
     });
 }
@@ -65,8 +66,8 @@ export function useUpdateShowtimeType() {
             queryClient.invalidateQueries({ queryKey: [SHOWTIME_TYPE_DETAIL_QUERY_KEY, id] });
             notify.success("Showtime type updated", "Changes have been saved successfully.");
         },
-        onError: () => {
-            notify.error("Failed to update", "Could not update showtime type. Please try again.");
+        onError: (err: unknown) => {
+            notify.error("Failed to update", getApiErrorMessage(err, "Could not update showtime type. Please try again."));
         },
     });
 }
@@ -79,8 +80,8 @@ export function useDeleteShowtimeType() {
             queryClient.invalidateQueries({ queryKey: [SHOWTIME_TYPE_QUERY_KEY] });
             notify.success("Showtime type deleted", "The showtime type has been removed.");
         },
-        onError: () => {
-            notify.error("Failed to delete", "Could not delete showtime type. It may be in use.");
+        onError: (err: unknown) => {
+            notify.error("Failed to delete", getApiErrorMessage(err, "Could not delete showtime type. It may be in use."));
         },
     });
 }
@@ -88,8 +89,8 @@ export function useDeleteShowtimeType() {
 export function usePreviewShowtimeType() {
     return useMutation({
         mutationFn: (payload: ShowtimeTypePreviewRequest) => previewShowtimeTypeApi(payload),
-        onError: () => {
-            notify.error("Preview failed", "Could not generate a preview. Please try again.");
+        onError: (err: unknown) => {
+            notify.error("Preview failed", getApiErrorMessage(err, "Could not generate a preview. Please try again."));
         },
     });
 }
@@ -105,8 +106,8 @@ export function useGenerateShowtimeType() {
                 `${result.generatedCount} showtime${result.generatedCount === 1 ? "" : "s"} created${result.skippedCount > 0 ? `, ${result.skippedCount} skipped due to conflicts` : ""}.`
             );
         },
-        onError: () => {
-            notify.error("Generate failed", "Could not generate showtimes. Please try again.");
+        onError: (err: unknown) => {
+            notify.error("Generate failed", getApiErrorMessage(err, "Could not generate showtimes. Please try again."));
         },
     });
 }

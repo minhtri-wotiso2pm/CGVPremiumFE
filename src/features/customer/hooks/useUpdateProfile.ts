@@ -3,6 +3,7 @@ import { useAppDispatch } from "@/store/hooks";
 import { updateUserInfo } from "@/store/slices/authSlice";
 import { updateProfile } from "@/services/api/user.service";
 import { notify } from "@/utils/notify";
+import { getApiErrorMessage } from "@/utils/apiMessage";
 import { PROFILE_QUERY_KEY } from "./useProfile";
 import type { UpdateProfilePayload } from "../types/profile.type";
 
@@ -18,8 +19,8 @@ export const useUpdateProfile = (onSuccess?: () => void) => {
             notify.success("Profile updated successfully.");
             onSuccess?.();
         },
-        onError: () => {
-            notify.error("Failed to update profile.", "Please try again.");
+        onError: (err: unknown) => {
+            notify.error("Failed to update profile.", getApiErrorMessage(err, "Please try again."));
         },
     });
 };

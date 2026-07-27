@@ -6,6 +6,7 @@ import {
     uploadPersonPhotoApi,
 } from "@/services/api/person.service";
 import { notify } from "@/utils/notify";
+import { getApiErrorMessage } from "@/utils/apiMessage";
 import type { CreatePersonPayload, UpdatePersonPayload } from "../types/person.types";
 import { PERSON_LIST_QUERY_KEY, PERSON_DETAIL_QUERY_KEY, PERSON_SEARCH_QUERY_KEY } from "../constants/person.constants";
 
@@ -26,8 +27,8 @@ export function useCreatePerson() {
             invalidate();
             notify.success("Person Created", "The new person has been added.");
         },
-        onError: () => {
-            notify.error("Failed to Create Person", "Please check the details and try again.");
+        onError: (err: unknown) => {
+            notify.error("Failed to Create Person", getApiErrorMessage(err, "Please check the details and try again."));
         },
     });
 }
@@ -43,8 +44,8 @@ export function useUpdatePerson() {
             queryClient.invalidateQueries({ queryKey: [PERSON_DETAIL_QUERY_KEY, id] });
             notify.success("Updated Successfully", "The person's details have been saved.");
         },
-        onError: () => {
-            notify.error("Update Failed", "Please check the details and try again.");
+        onError: (err: unknown) => {
+            notify.error("Update Failed", getApiErrorMessage(err, "Please check the details and try again."));
         },
     });
 }

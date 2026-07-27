@@ -1009,8 +1009,10 @@
     font-weight: 500;
     cursor: pointer;
     text-decoration: none;
-    text-align: center;
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     transition: border-color 150ms ease, color 150ms ease;
 }
 

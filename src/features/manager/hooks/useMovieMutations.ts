@@ -6,6 +6,7 @@ import {
     uploadMoviePosterApi,
 } from "@/services/api/movie-mgmt.service";
 import { notify } from "@/utils/notify";
+import { getApiErrorMessage } from "@/utils/apiMessage";
 import { MOVIE_LIST_QUERY_KEY } from "./useMovieList";
 
 export function useCreateMovie() {
@@ -16,8 +17,8 @@ export function useCreateMovie() {
             queryClient.invalidateQueries({ queryKey: MOVIE_LIST_QUERY_KEY });
             notify.success("Movie Created", "The new movie has been added to the list.");
         },
-        onError: () => {
-            notify.error("Failed to Create Movie", "Please check the details and try again.");
+        onError: (err: unknown) => {
+            notify.error("Failed to Create Movie", getApiErrorMessage(err, "Please check the details and try again."));
         },
     });
 }
@@ -32,8 +33,8 @@ export function useUpdateMovie() {
             queryClient.invalidateQueries({ queryKey: ["manager-movie-detail", movieId] });
             notify.success("Updated Successfully", "The movie details have been saved.");
         },
-        onError: () => {
-            notify.error("Update Failed", "Please check the details and try again.");
+        onError: (err: unknown) => {
+            notify.error("Update Failed", getApiErrorMessage(err, "Please check the details and try again."));
         },
     });
 }
@@ -46,8 +47,8 @@ export function useDeleteMovie() {
             queryClient.invalidateQueries({ queryKey: MOVIE_LIST_QUERY_KEY });
             notify.success("Movie Deleted", "The movie has been removed from the list.");
         },
-        onError: () => {
-            notify.error("Delete Failed", "Could not delete the movie. Please try again.");
+        onError: (err: unknown) => {
+            notify.error("Delete Failed", getApiErrorMessage(err, "Could not delete the movie. Please try again."));
         },
     });
 }
@@ -61,8 +62,8 @@ export function useUploadMoviePoster() {
             queryClient.invalidateQueries({ queryKey: MOVIE_LIST_QUERY_KEY });
             queryClient.invalidateQueries({ queryKey: ["manager-movie-detail", movieId] });
         },
-        onError: () => {
-            notify.warning("Poster Upload Failed", "The movie was saved but the poster could not be uploaded.");
+        onError: (err: unknown) => {
+            notify.warning("Poster Upload Failed", getApiErrorMessage(err, "The movie was saved but the poster could not be uploaded."));
         },
     });
 }

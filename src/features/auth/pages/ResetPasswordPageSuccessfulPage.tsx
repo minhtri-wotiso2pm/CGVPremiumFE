@@ -105,7 +105,7 @@ export default function ForgotPasswordSuccessPage() {
                 <div
                     className="cgv-card"
                     role="main"
-                    aria-label="Gửi email đặt lại mật khẩu thành công"
+                    aria-label="Password reset successful"
                     style={{
                         position: "relative", zIndex: 10,
                         background: T.surface,
@@ -175,7 +175,7 @@ export default function ForgotPasswordSuccessPage() {
                     {email && (
                         <div
                             role="status"
-                            aria-label={`Email đã gửi tới ${email}`}
+                            aria-label={`Email sent to ${email}`}
                             style={{
                                 display: "inline-block",
                                 background: "rgba(232,0,28,0.08)",

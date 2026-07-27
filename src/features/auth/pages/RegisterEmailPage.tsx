@@ -412,7 +412,7 @@ export default function VerifyEmailPage() {
                 <div
                     className="cgv-card"
                     role="main"
-                    aria-label="Xác thực email CVPremium"
+                    aria-label="Verify your CVPremium email"
                     style={{
                         position: "relative", zIndex: 10,
                         background: T.surface,

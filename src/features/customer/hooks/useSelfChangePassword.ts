@@ -6,13 +6,13 @@ export function useSelfChangePassword(onSuccess?: () => void) {
     return useMutation({
         mutationFn: (payload: ChangePasswordPayload) => changeOwnPassword(payload),
         onSuccess: (data) => {
-            message.success(data.message || "Đổi mật khẩu thành công!");
+            message.success(data.message || "Password changed successfully!");
             onSuccess?.();
         },
         onError: (err: unknown) => {
             const msg =
                 (err as { response?: { data?: { message?: string } } })
-                    ?.response?.data?.message ?? "Đổi mật khẩu thất bại. Vui lòng thử lại.";
+                    ?.response?.data?.message ?? "Failed to change password. Please try again.";
             message.error(msg);
         },
     });
