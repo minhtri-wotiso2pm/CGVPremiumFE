@@ -4,14 +4,14 @@ import { CloseOutlined } from "@ant-design/icons";
 import dayjs, { type Dayjs } from "dayjs";
 import type { Voucher, VoucherFormData, VoucherRule } from "../types/voucher.types";
 import {
-    DISCOUNT_TYPE_OPTIONS,
+    // DISCOUNT_TYPE_OPTIONS,
     VOUCHER_CATEGORY_OPTIONS,
     DEFAULT_VOUCHER_CATEGORY,
 } from "../constants/voucher.constants";
 import {
     voucherCodeRules,
     categoryRules,
-    discountTypeRules,
+    // discountTypeRules,
     validityRules,
     descriptionRules,
 } from "../schemas/voucher.schema";
@@ -216,11 +216,11 @@ const VoucherModal: FC<Props> = ({ mode, voucher, open, onClose }) => {
                 </Row>
 
                 <Row gutter={12}>
-                    <Col span={12}>
+                    {/* <Col span={12}>
                         <Form.Item label="Discount Type" name="discountType" rules={discountTypeRules}>
                             <Select options={[...DISCOUNT_TYPE_OPTIONS]} />
                         </Form.Item>
-                    </Col>
+                    </Col> */}
                     <Col span={12}>
                         <Form.Item
                             label={isPercent ? "Discount (%)" : "Discount (₫)"}

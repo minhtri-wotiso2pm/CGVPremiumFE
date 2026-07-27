@@ -62,7 +62,7 @@
         "coupleUnavailableTitle": "Can't select this couple seat",
         "coupleUnavailableBody": "Couple seat {{seat}} must be selected as a pair, but its partner seat is currently unavailable.",
         "holdFailedTitle": "Couldn't hold your seats",
-        "holdFailedBody": "One or more of your selected seats may have just been booked. Please choose again."
+        "holdFailedBody": "Seats are held for 15 minutes before the showtime starts. Please choose another showtime again."
     },
     "fnb": {
         "stepSeats": "Select Seats",

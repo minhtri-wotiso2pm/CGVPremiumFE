@@ -49,10 +49,12 @@ const EmailLogPage: FC = () => {
     return (
         <div className="dash-fade-in">
             <div className="dash-page-header" style={{ marginBottom: 20 }}>
-                <h1 className="dash-page-title">Email Logs</h1>
-                <p className="dash-page-sub">
-                    Delivery history for system emails — booking confirmations, receipts, password resets, and more. Read-only.
-                </p>
+                <div >
+                    <h1 className="dash-page-title">Email Logs</h1>
+                    <p className="dash-page-sub">
+                        Delivery history for system emails — booking confirmations, receipts, password resets, and more. Read-only.
+                    </p>
+                </div>
             </div>
 
             <EmailLogFilters

@@ -79,10 +79,12 @@ const ShowtimeCalendarPage: FC = () => {
     return (
         <div className="dash-fade-in">
             <div className="dash-page-header" style={{ marginBottom: 20 }}>
-                <h1 className="dash-page-title">Showtime Calendar</h1>
-                <p className="dash-page-sub">
-                    Visual schedule of all showtimes{user?.cinema ? ` for ${user.cinema.cinemaName}` : ""}.
-                </p>
+                <div >
+                    <h1 className="dash-page-title">Showtime Calendar</h1>
+                    <p className="dash-page-sub">
+                        Visual schedule of all showtimes{user?.cinema ? ` for ${user.cinema.cinemaName}` : ""}.
+                    </p>
+                </div>
             </div>
 
             {!cinemaId && !isLoading ? (

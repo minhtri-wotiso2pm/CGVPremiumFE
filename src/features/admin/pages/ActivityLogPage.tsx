@@ -52,11 +52,14 @@ const ActivityLogPage: FC = () => {
 
     return (
         <div className="dash-fade-in">
+
             <div className="dash-page-header" style={{ marginBottom: 20 }}>
-                <h1 className="dash-page-title">Activity Log</h1>
-                <p className="dash-page-sub">
-                    Full audit trail of administrative actions across the system. Read-only.
-                </p>
+                <div >
+                    <h1 className="dash-page-title">Activity Log</h1>
+                    <p className="dash-page-sub">
+                        Full audit trail of administrative actions across the system. Read-only.
+                    </p>
+                </div>
             </div>
 
             <LogFilters

@@ -16,10 +16,11 @@ interface Props {
 const MULTISELECT_DELIMITER = ",";
 
 // Rule types the server offers but we don't expose in the voucher editor.
-// PaymentMethod isn't enforced anywhere in our checkout flow, so hide it from
-// the "Add a rule" picker. Kept in metadata so any legacy rule of this type
-// still renders/edits instead of hanging on a spinner.
-const HIDDEN_RULE_TYPES = new Set(["PaymentMethod"]);
+// PaymentMethod isn't enforced anywhere in our checkout flow, and FoodCategory is a
+// free-text field superseded by the Product rule (which picks from the F&B catalogue at
+// /api/products), so both are hidden from the "Add a rule" picker. Kept in metadata so any
+// legacy rule of these types still renders/edits instead of hanging on a spinner.
+const HIDDEN_RULE_TYPES = new Set(["PaymentMethod", "FoodCategory"]);
 
 const RuleValueControl: FC<{
     meta: VoucherRuleTypeMetadata;

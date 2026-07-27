@@ -60,7 +60,7 @@
         "coupleUnavailableTitle": "Không thể chọn ghế đôi này",
         "coupleUnavailableBody": "Ghế đôi {{seat}} phải được chọn theo cặp, nhưng ghế đi kèm hiện không khả dụng.",
         "holdFailedTitle": "Không giữ được ghế của bạn",
-        "holdFailedBody": "Một hoặc vài ghế bạn chọn có thể vừa bị đặt. Vui lòng chọn lại."
+        "holdFailedBody": "Ghế sẽ được giữ trong 15 phút trước khi chương trình bắt đầu. Vui lòng chọn lại giờ chiếu khác."
     },
     "fnb": {
         "stepSeats": "Chọn ghế",

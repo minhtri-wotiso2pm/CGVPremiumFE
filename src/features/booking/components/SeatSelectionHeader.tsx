@@ -27,11 +27,12 @@ const CalendarIcon = () => (
 );
 
 const AGE_RATING_BG: Record<string, string> = {
-    P:   "#4caf50",
-    K:   "#2196f3",
+    P: "#4caf50",
+    K: "#2196f3",
     T13: "#ff9800",
     T16: "#ff5722",
     T18: "#f44336",
+    C16: "#ff9800",
     C18: "#9c27b0",
 };
 

@@ -107,11 +107,21 @@ export interface RuleOption {
 // so we don't request ".../api/api/cinemas".
 const stripDuplicateApiPrefix = (path: string): string => path.replace(/^\/api(?=\/|$)/, "");
 
+// Option endpoints don't share one envelope: some return a bare array, some { items },
+// and /products returns { products }. Take the first array we find.
+const unwrapOptionList = (data: unknown): Record<string, unknown>[] => {
+    if (Array.isArray(data)) return data as Record<string, unknown>[];
+    if (data && typeof data === "object") {
+        const arr = Object.values(data as Record<string, unknown>).find(Array.isArray);
+        if (arr) return arr as Record<string, unknown>[];
+    }
+    return [];
+};
+
 /** Generic fetch for a rule type's dynamic `dataSource` — the path itself is server-owned, never hardcoded here. */
 export const getRuleOptionsApi = async (ruleType: string, dataSource: string): Promise<RuleOption[]> => {
     const { data } = await axiosInstance.get(stripDuplicateApiPrefix(dataSource));
-    const raw: Record<string, unknown>[] = Array.isArray(data) ? data : ((data?.items ?? []) as Record<string, unknown>[]);
-    return raw.map((item) => extractRuleOption(ruleType, item));
+    return unwrapOptionList(data).map((item) => extractRuleOption(ruleType, item));
 };
 
 export interface VoucherImageUploadResult {
