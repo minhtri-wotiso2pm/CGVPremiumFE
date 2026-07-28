@@ -20,7 +20,6 @@ export const SCHEDULABLE_MOVIE_STATUSES = ["now_showing", "coming_soon"];
 
 export const AGE_RATING_OPTIONS = [
     { value: "P", label: "P — All ages" },
-    { value: "K", label: "K — Under 13 (parental guidance)" },
     { value: "C13", label: "C13 — Age 13+" },
     { value: "C16", label: "C16 — Age 16+" },
     { value: "C18", label: "C18 — 18+ only (restricted)" },
