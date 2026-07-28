@@ -29,9 +29,15 @@ interface Props {
      *  Undefined (pricing still loading) ⇒ no voucher is greyed out. */
     seatsSubTotal?: number;
     fnBSubTotal?: number;
-    /** Showtime context for Cinema / DayOfWeek rules. */
+    /** Showtime context for Cinema / DayOfWeek / Movie / Room rules. */
     cinemaId?: number;
     startTime?: string;
+    movieId?: number;
+    roomId?: number;
+    /** Seat types in the order (e.g. ["STANDARD","COUPLE"]) — for SeatType rules. */
+    seatTypes?: string[];
+    /** F&B item ids in the order — for Product rules. */
+    productIds?: number[];
     /** Code already applied on the payment page, so the picker can mark it. */
     appliedCode?: string | null;
 }
@@ -103,6 +109,10 @@ const VoucherPickerModal: FC<Props> = ({
     fnBSubTotal,
     cinemaId,
     startTime,
+    movieId,
+    roomId,
+    seatTypes,
+    productIds,
     appliedCode,
 }) => {
     const { t } = useTranslation("booking");
@@ -132,8 +142,13 @@ const VoucherPickerModal: FC<Props> = ({
             fnBSubTotal: fnBSubTotal ?? 0,
             cinemaId,
             startTime,
+            movieId,
+            roomId,
+            seatTypes,
+            membershipTier: membership?.currentTier ?? null,
+            productIds,
         }),
-        [seatsSubTotal, fnBSubTotal, cinemaId, startTime],
+        [seatsSubTotal, fnBSubTotal, cinemaId, startTime, movieId, roomId, seatTypes, productIds, membership?.currentTier],
     );
 
     const getEligibility = (v: PickVoucher) =>

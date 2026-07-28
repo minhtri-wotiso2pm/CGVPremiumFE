@@ -62,12 +62,23 @@
     pointer-events: none;
 }
 
+/* The four faces are all mounted at once and only toggled, so switching
+   expression never re-parses the artwork or restarts its SMIL timeline.
+   The active one stays in flow and gives the bubble its height; the rest
+   are lifted out of flow so they don't stack up underneath it. */
 .cgv-chat-bubble__svg {
     width: 100%;
     height: auto;
     display: block;
     pointer-events: none;
     line-height: 0;
+}
+
+.cgv-chat-bubble__svg[data-active="false"] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    visibility: hidden;
 }
 
 .cgv-chat-bubble__svg svg {
@@ -78,6 +89,7 @@
 
 .cgv-chat-bubble__face {
     display: block;
+    position: relative;
     line-height: 0;
     will-change: transform;
     transition: none;
@@ -146,6 +158,84 @@
     position: relative;
     display: block;
     line-height: 0;
+    /* Drag tilt + landing squash pivot on the bot's feet, not its middle. */
+    transform-origin: 50% 88%;
+    will-change: transform;
+}
+
+/* ── Antenna signal — radar rings while there are unread messages ──
+   Anchored by percentage of the bubble box; nudge the two vars if the
+   mascot artwork is ever re-exported with a different antenna position. */
+.cgv-chat-bubble__signal {
+    position: absolute;
+    left: var(--cgv-signal-x, 62.3%);
+    top: var(--cgv-signal-y, 25%);
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.cgv-chat-bubble__signal i {
+    position: absolute;
+    left: -9px;
+    top: -9px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--cgv-chat-crimson, #E8001C);
+    opacity: 0;
+    animation: cgv-signal-ping 2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.cgv-chat-bubble__signal i:nth-child(2) { animation-delay: 0.45s; }
+.cgv-chat-bubble__signal i:nth-child(3) { animation-delay: 0.9s; }
+
+@keyframes cgv-signal-ping {
+    0% { transform: scale(0.35); opacity: 0.85; }
+    70% { opacity: 0.22; }
+    100% { transform: scale(3.4); opacity: 0; }
+}
+
+/* ── Sleeping z's — drift up past the bot's right cheek, clearing the antenna ── */
+.cgv-chat-bubble__zzz {
+    position: absolute;
+    left: var(--cgv-zzz-x, 67%);
+    top: var(--cgv-zzz-y, 36%);
+    width: 0;
+    height: 0;
+    pointer-events: none;
+    line-height: 1;
+}
+
+.cgv-chat-bubble__zzz i {
+    position: absolute;
+    font-style: italic;
+    font-weight: 700;
+    color: color-mix(in srgb, var(--cgv-chat-crimson, #E8001C) 45%, #ffffff);
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    animation: cgv-zzz-drift 3.6s ease-out infinite;
+}
+
+.cgv-chat-bubble__zzz i:nth-child(1) { font-size: 11px; }
+.cgv-chat-bubble__zzz i:nth-child(2) { font-size: 13px; animation-delay: 1.2s; }
+.cgv-chat-bubble__zzz i:nth-child(3) { font-size: 15px; animation-delay: 2.4s; }
+
+@keyframes cgv-zzz-drift {
+    0% { transform: translate(0, 0) scale(0.5) rotate(-8deg); opacity: 0; }
+    18% { opacity: 0.95; }
+    70% { opacity: 0.7; }
+    100% { transform: translate(22px, -34px) scale(1.15) rotate(10deg); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cgv-chat-bubble__zzz { display: none; }
+    .cgv-chat-bubble__signal i,
+    .cgv-chat-bubble__badge,
+    .cgv-chat-bubble--typing .cgv-chat-bubble__body {
+        animation: none;
+    }
+    .cgv-chat-bubble__signal { display: none; }
 }
 
 .cgv-chat-bubble__glow {

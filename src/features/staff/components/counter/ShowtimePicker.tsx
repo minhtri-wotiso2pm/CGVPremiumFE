@@ -52,6 +52,7 @@ const ShowtimePicker: FC<Props> = ({ cinemaId, cinemaName, onSelect }) => {
             moviePoster: st.movie.posterUrl ?? null,
             startTime: st.startTime,
             endTime: st.endTime,
+            roomId: st.room.roomId,
             roomName: st.room.roomName,
             roomType: st.room.roomType,
             cinemaId: cinemaId ?? 0,

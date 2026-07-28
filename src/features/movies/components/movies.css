@@ -1899,6 +1899,43 @@
     }
 }
 
+/* Phones: the search + status tabs + genre picker no longer fit on one row
+   (they got crushed / the genre button spilled out). Let the bar wrap —
+   search takes the full first line, tabs + genre share the next line and
+   wrap again on very narrow screens. Also widen the bar and trim its padding
+   so there's more usable room. */
+@media (max-width: 600px) {
+    .cgv-filterbar {
+        width: calc(100% - 24px);
+        padding: 0 14px;
+        border-radius: 16px;
+    }
+
+    .cgv-filterbar__inner {
+        flex-wrap: wrap;
+        min-height: 0;
+        padding: 12px 0;
+    }
+
+    .cgv-filterbar__search {
+        flex: 1 1 100%;
+    }
+
+    .cgv-filterbar__tabs {
+        flex: 1 1 auto;
+    }
+
+    .cgv-filterbar__tab {
+        flex: 1;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .cgv-genre-btn {
+        flex: 0 0 auto;
+    }
+}
+
 @media (max-width: 480px) {
     .cgv-filterbar__tabs {
         gap: 2px;

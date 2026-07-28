@@ -152,6 +152,7 @@
         "reasonWrongCinema": "Không áp dụng tại rạp này",
         "reasonWrongDay": "Chỉ áp dụng vào {{days}}",
         "reasonWrongMovie": "Không áp dụng cho phim này",
+        "reasonWrongRoom": "Không áp dụng trong phòng này",
         "reasonWrongSeatType": "Cần ghế loại {{types}}",
         "reasonWrongMembership": "Chỉ dành cho hạng {{tier}}",
         "reasonWrongProduct": "Cần một sản phẩm cụ thể không có trong đơn",

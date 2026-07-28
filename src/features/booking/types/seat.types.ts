@@ -31,6 +31,7 @@ export interface SeatNavState {
     endTime?: string;
     cinemaId?: number;
     cinemaName?: string;
+    roomId?: number;
     roomName?: string;
     roomType?: string;
 }

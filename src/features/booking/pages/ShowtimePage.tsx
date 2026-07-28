@@ -101,6 +101,7 @@ const ShowtimePage: FC = () => {
             endTime:       showtime?.endTime,
             cinemaId:      showtime?.cinema.cinemaId,
             cinemaName:    showtime?.cinema.cinemaName,
+            roomId:        showtime?.room.roomId,
             roomName:      showtime?.room.roomName,
             roomType:      showtime?.room.roomType,
         };

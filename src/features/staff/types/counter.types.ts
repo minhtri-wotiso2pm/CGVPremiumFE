@@ -28,6 +28,7 @@ export interface CounterShowtime {
     moviePoster: string | null;
     startTime: string;
     endTime?: string;
+    roomId: number;
     roomName: string;
     roomType: string;
     cinemaId: number;

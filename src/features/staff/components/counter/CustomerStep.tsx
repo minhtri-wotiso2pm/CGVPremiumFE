@@ -41,6 +41,7 @@ interface Props {
     cinemaId?: number;
     startTime?: string;
     movieId?: number;
+    roomId?: number;
     /** Seat types in the order (e.g. ["STANDARD","COUPLE"]). */
     seatTypes?: string[];
     /** F&B item ids in the order. */
@@ -58,6 +59,7 @@ const CustomerStep: FC<Props> = ({
     cinemaId,
     startTime,
     movieId,
+    roomId,
     seatTypes,
     productIds,
 }) => {
@@ -80,6 +82,7 @@ const CustomerStep: FC<Props> = ({
                 cinemaId,
                 startTime,
                 movieId,
+                roomId,
                 seatTypes,
                 membershipTier: member?.membership?.currentTier ?? null,
                 productIds,

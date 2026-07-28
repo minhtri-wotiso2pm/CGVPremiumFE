@@ -79,6 +79,8 @@ const PaymentPage: FC = () => {
         startTime,
         cinemaId,
         cinemaName,
+        movieId,
+        roomId,
         roomName,
         roomType,
     } = navState;
@@ -836,6 +838,10 @@ const PaymentPage: FC = () => {
                 fnBSubTotal={pricing?.fnBSubTotal}
                 cinemaId={cinemaId}
                 startTime={startTime}
+                movieId={movieId}
+                roomId={roomId}
+                seatTypes={(selectedSeats ?? []).map((s) => String(s.seatType))}
+                productIds={(fnbItems ?? []).map((i) => i.itemId)}
                 appliedCode={appliedCode}
             />
         </div>

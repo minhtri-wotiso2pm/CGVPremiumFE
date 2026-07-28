@@ -26,6 +26,8 @@ export interface EligibilityContext {
     startTime?: string;
     /** Movie of the current showtime — for `Movie` rules. */
     movieId?: number;
+    /** Room of the current showtime — for `Room` rules. */
+    roomId?: number;
     /** Seat types in the order (e.g. ["STANDARD","COUPLE"]) — for `SeatType` rules. */
     seatTypes?: string[];
     /** The member's tier (e.g. "MegaVip") — for `Membership` rules. */
@@ -132,6 +134,15 @@ export function evaluateVoucherEligibility(
         const allowed = splitList(movieRule.ruleValue);
         if (!allowed.includes(String(ctx.movieId))) {
             return { eligible: false, reasonKey: "voucherPicker.reasonWrongMovie" };
+        }
+    }
+
+    // Room restriction.
+    const roomRule = rules.find((r) => r.ruleType === "Room");
+    if (roomRule?.ruleValue && ctx.roomId != null) {
+        const allowed = splitList(roomRule.ruleValue);
+        if (!allowed.includes(String(ctx.roomId))) {
+            return { eligible: false, reasonKey: "voucherPicker.reasonWrongRoom" };
         }
     }
 

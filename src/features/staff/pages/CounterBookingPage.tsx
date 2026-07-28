@@ -168,6 +168,7 @@ export default function CounterBookingPage() {
                         cinemaId={cinemaId}
                         startTime={state.showtime?.startTime}
                         movieId={state.showtime?.movieId}
+                        roomId={state.showtime?.roomId}
                         seatTypes={state.selectedSeats.map((s) => String(s.seatType))}
                         productIds={fnbItems.map((i) => i.itemId)}
                     />
