@@ -45,9 +45,20 @@
     cursor: grabbing;
 }
 
+/* The artwork's own SMIL timeline is an entrance: it plays once and freezes.
+   Looping it made the bot look like it kept re-appearing, and kept 43 transform
+   tracks plus 5 path morphs running forever. This drift replaces it — one
+   compositor-only transform, no layout, no paint. */
 .cgv-chat-bubble__body {
     display: block;
     line-height: 0;
+    animation: cgv-bot-idle 4.4s ease-in-out infinite;
+}
+
+@keyframes cgv-bot-idle {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    30% { transform: translateY(-4px) rotate(-1.6deg); }
+    65% { transform: translateY(-1px) rotate(1.4deg); }
 }
 
 .cgv-chat-bubble__icon {
@@ -230,6 +241,7 @@
 
 @media (prefers-reduced-motion: reduce) {
     .cgv-chat-bubble__zzz { display: none; }
+    .cgv-chat-bubble__body,
     .cgv-chat-bubble__signal i,
     .cgv-chat-bubble__badge,
     .cgv-chat-bubble--typing .cgv-chat-bubble__body {
