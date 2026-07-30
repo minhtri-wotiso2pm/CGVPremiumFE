@@ -1,73 +1,107 @@
-# React + TypeScript + Vite
+# CGV Premium Frontend (cgv-premium2)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Hướng dẫn này mô tả cách thiết lập và chạy dự án frontend cgv-premium2 trên máy local.
 
-Currently, two official plugins are available:
+## Yêu cầu trước
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js 18.x hoặc mới hơn (Node 18/20 được khuyến nghị)
+- npm (kèm theo Node) hoặc yarn
+- Mạng có quyền truy cập tới backend API (hoặc mock API) nếu cần
 
-## React Compiler
+## Sao chép mã nguồn
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+git clone https://github.com/minhtri-wotiso2pm/CGVPremiumFE.git
+cd CGVPremiumFE/FE/cgv-premium2
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+(hoặc clone từ remote mà bạn đang dùng và chuyển vào thư mục dự án)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Cài đặt phụ thuộc
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Chạy một trong các lệnh sau để cài dependencies:
+
+```bash
+npm install
+# hoặc
+# yarn install
 ```
+
+## Biến môi trường
+
+Dự án sử dụng Vite và `import.meta.env` cho cấu hình môi trường. Tạo file `.env` ở thư mục gốc dự án (không commit file này nếu chứa secret).
+
+Ví dụ `.env` (đặt tại `FE/cgv-premium2/.env`):
+
+```
+VITE_API_BASE_URL=https://api.example.com
+# VITE_OTHER_KEY=...
+```
+
+- `VITE_API_BASE_URL` là URL gốc của backend API (axios instance sử dụng biến này). Điều chỉnh theo môi trường của bạn.
+
+## Chạy ở môi trường phát triển
+
+```bash
+npm run dev
+```
+
+- Vite server mặc định chạy ở http://localhost:5173 (nếu port khác sẽ hiển thị trong console)
+- Để thay đổi port, có thể đặt `PORT` trong lệnh khởi chạy hoặc cấu hình Vite.
+
+## Build cho production
+
+```bash
+npm run build
+```
+
+Lệnh trên sẽ chạy TypeScript build rồi Vite build. Kết quả đóng gói sẽ nằm trong thư mục `dist/`.
+
+Xem bản build bằng:
+
+```bash
+npm run preview
+```
+
+## Lint
+
+Chạy ESLint:
+
+```bash
+npm run lint
+```
+
+## Các lệnh hữu ích khác
+
+- `npm run dev` — chạy development server
+- `npm run build` — build production
+- `npm run preview` — phục vụ build tạm để kiểm tra
+- `npm run lint` — kiểm tra lint
+
+## Cấu trúc chính của dự án
+
+- `src/` — mã nguồn chính
+  - `features/` — các module theo tính năng (admin, customer, manager, staff, ...)
+  - `components/` — các component UI dùng chung
+  - `services/` — axios + api service
+  - `store/` — Redux store (nếu có)
+  - `layouts/`, `providers/`, `styles/`, `types/`, `utils/` ...
+
+## Lưu ý khi phát triển
+
+- Mọi config `import.meta.env` phải bắt đầu bằng `VITE_` để Vite expose cho client.
+- Không commit secrets hoặc file `.env` vào git.
+- Nếu backend chưa sẵn sàng, cân nhắc dùng mock server hoặc thiết lập proxy trong vite config.
+
+## Gặp sự cố
+
+- Nếu gặp lỗi khi chạy `npm run dev` hoặc `npm run build`, kiểm tra:
+  - Node version (dùng `node -v`)
+  - Các biến môi trường cần thiết
+  - Lỗi chi tiết từ terminal (TypeScript/ESLint/Vite sẽ chỉ rõ file lỗi)
+
+Nếu cần, gửi báo lỗi kèm log terminal để được hỗ trợ tiếp.
+
+---
+
+Nếu muốn, có thể bổ sung thêm các phần: cách chạy với Docker, hướng dẫn tạo `.env.local` cho nhiều môi trường, hoặc ví dụ cấu hình proxy—bảo tôi biết cụ thể muốn gì.
