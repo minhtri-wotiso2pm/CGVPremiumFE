@@ -96,6 +96,87 @@ export interface AdminReviewListResponse {
     totalPages: number;
 }
 
+/* ── Admin movie review reports (API 1/2) ── */
+export interface MovieReviewReportItem {
+    movieId: number;
+    movieTitle: string;
+    posterUrl: string | null;
+    totalReviews: number;
+    averageRating: number | null;
+    fiveStarCount: number;
+    fourStarCount: number;
+    threeStarCount: number;
+    twoStarCount: number;
+    oneStarCount: number;
+    latestReviewDate: string | null;
+}
+
+export type MovieReviewReportSortBy = "movieName" | "newestReview" | "highestRating" | "lowestRating" | "mostReviews";
+export type MovieReviewReportSortDir = "asc" | "desc";
+
+export interface MovieReviewReportListParams {
+    searchTitle?: string;
+    fromDate?: string;
+    toDate?: string;
+    minAverageRating?: number;
+    maxAverageRating?: number;
+    sortBy?: MovieReviewReportSortBy;
+    sortDir?: MovieReviewReportSortDir;
+    page?: number;
+    pageSize?: number;
+}
+
+export interface MovieReviewReportListResponse {
+    items: MovieReviewReportItem[];
+    page: number;
+    pageSize: number;
+    totalItems: number;
+    totalPages: number;
+}
+
+export interface MovieReviewDetailMovie {
+    movieId: number;
+    movieTitle: string;
+    posterUrl: string | null;
+}
+
+export interface MovieReviewDetailStatistics {
+    averageRating: number | null;
+    totalReviews: number;
+}
+
+export interface MovieReviewDetailReviewItem {
+    reviewId: number;
+    userId: number;
+    userName: string;
+    avatar: string | null;
+    bookingId: number;
+    rating: number;
+    comment: string;
+    reviewDate: string;
+    isHidden?: boolean;
+}
+
+export interface MovieReviewDetailResponse {
+    movie: MovieReviewDetailMovie;
+    statistics: MovieReviewDetailStatistics;
+    ratingBreakdown: RatingBreakdown;
+    reviews: MovieReviewDetailReviewItem[];
+    page: number;
+    pageSize: number;
+    totalItems: number;
+    totalPages: number;
+}
+
+export interface MovieReviewDetailParams {
+    fromDate?: string;
+    toDate?: string;
+    minRating?: number;
+    maxRating?: number;
+    page?: number;
+    pageSize?: number;
+}
+
 /* ── Reward settings (API 3/4) ── */
 export interface ReviewRewardSettings {
     firstReviewPoints: number;

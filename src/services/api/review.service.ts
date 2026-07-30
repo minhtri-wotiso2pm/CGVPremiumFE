@@ -6,6 +6,10 @@ import type {
     AdminReviewListParams,
     AdminReviewListResponse,
     ReviewRewardSettings,
+    MovieReviewReportListParams,
+    MovieReviewReportListResponse,
+    MovieReviewDetailParams,
+    MovieReviewDetailResponse,
 } from "@/features/reviews/types/review.types";
 
 /* ── Customer ── */
@@ -70,6 +74,56 @@ export const hideReviewApi = async (reviewId: number): Promise<{ message: string
 export const unhideReviewApi = async (reviewId: number): Promise<{ message: string }> => {
     const { data } = await axiosInstance.patch(`/admin/reviews/${reviewId}/unhide`);
     return data;
+};
+
+/** GET /api/admin/movie-reviews */
+export const getMovieReviewReportsApi = async (
+    params: MovieReviewReportListParams,
+): Promise<MovieReviewReportListResponse> => {
+    const { data } = await axiosInstance.get("/admin/movie-reviews", { params });
+    return {
+        items: Array.isArray(data.items) ? data.items : [],
+        page: Number(data.page ?? 1),
+        pageSize: Number(data.pageSize ?? 10),
+        totalItems: Number(data.totalItems ?? 0),
+        totalPages: Number(data.totalPages ?? 0),
+    };
+};
+
+/** GET /api/admin/movie-reviews/{movieId} */
+export const getMovieReviewDetailApi = async (
+    movieId: number,
+    params: MovieReviewDetailParams,
+): Promise<MovieReviewDetailResponse> => {
+    const { data } = await axiosInstance.get(`/admin/movie-reviews/${movieId}`, { params });
+    return {
+        movie: {
+            movieId: Number(data.movie?.movieId ?? movieId),
+            movieTitle: data.movie?.movieTitle ?? "",
+            posterUrl: data.movie?.posterUrl ?? null,
+        },
+        statistics: {
+            averageRating: data.statistics?.averageRating == null ? null : Number(data.statistics.averageRating),
+            totalReviews: Number(data.statistics?.totalReviews ?? 0),
+        },
+        ratingBreakdown: {
+            "1": Number(data.ratingBreakdown?.["1"] ?? 0),
+            "2": Number(data.ratingBreakdown?.["2"] ?? 0),
+            "3": Number(data.ratingBreakdown?.["3"] ?? 0),
+            "4": Number(data.ratingBreakdown?.["4"] ?? 0),
+            "5": Number(data.ratingBreakdown?.["5"] ?? 0),
+        },
+        reviews: Array.isArray(data.reviews)
+            ? data.reviews.map((review: Record<string, unknown>) => ({
+                ...review,
+                isHidden: Boolean(review.isHidden ?? false),
+            }))
+            : [],
+        page: Number(data.page ?? 1),
+        pageSize: Number(data.pageSize ?? 10),
+        totalItems: Number(data.totalItems ?? 0),
+        totalPages: Number(data.totalPages ?? 0),
+    };
 };
 
 /* ── Reward settings ── */
